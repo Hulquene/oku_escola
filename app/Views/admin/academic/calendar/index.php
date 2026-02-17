@@ -177,24 +177,9 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt.js'></script>
 
 <script>
-// Configuração global para todas as requisições fetch
+// Configuração CSRF - APENAS PARA REFERÊNCIA, NÃO USAR PARA ADICIONAR MANUALMENTE
 const csrfToken = '<?= csrf_token() ?>';
 const csrfHash = '<?= csrf_hash() ?>';
-
-// Função auxiliar para adicionar CSRF a FormData
-function addCsrfToFormData(formData) {
-    formData.append(csrfToken, csrfHash);
-    return formData;
-}
-
-// Função auxiliar para criar headers com CSRF para JSON
-function getCsrfHeaders() {
-    return {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRF-TOKEN': csrfHash
-    };
-}
 
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
@@ -236,10 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         editable: true,
         eventDrop: function(info) {
-            updateEventDate(info.event, info.oldEvent);
+            updateEventDate(info.event);
         },
         eventResize: function(info) {
-            updateEventDate(info.event, info.oldEvent);
+            updateEventDate(info.event);
         }
     });
     
@@ -301,9 +286,6 @@ function saveEvent() {
     const form = document.getElementById('eventForm');
     const formData = new FormData(form);
     
-    // Adicionar CSRF ao FormData
-    addCsrfToFormData(formData);
-    
     fetch('<?= site_url('admin/academic/calendar/save-event') ?>', {
         method: 'POST',
         body: formData,
@@ -322,33 +304,39 @@ function saveEvent() {
             const calendar = FullCalendar.getCalendar(calendarEl);
             calendar.refetchEvents();
             
-            // Show success message (usando alertas do sistema em vez de alert)
-            showNotification('Evento salvo com sucesso!', 'success');
+            showNotification(data.message, 'success');
         } else {
             if (data.errors) {
-                // Mostrar erros de validação
                 let errorMsg = 'Erro ao salvar evento:\n';
                 for (let field in data.errors) {
                     errorMsg += `- ${data.errors[field]}\n`;
                 }
                 showNotification(errorMsg, 'danger');
             } else {
-                showNotification('Erro ao salvar evento: ' + data.message, 'danger');
+                showNotification(data.message || 'Erro ao salvar evento', 'danger');
             }
         }
     })
     .catch(error => {
         console.error('Erro:', error);
-        showNotification('Erro ao salvar evento. Verifique o console para mais detalhes.', 'danger');
+        showNotification('Erro ao salvar evento. Verifique o console.', 'danger');
     });
 }
 
 function deleteEvent() {
     const eventId = document.getElementById('eventId').value;
     
+    const formData = new FormData();
+    // ⚠️ Para DELETE, precisamos do CSRF porque não há formulário com campo hidden
+    formData.append(csrfToken, csrfHash);
+    formData.append('_method', 'DELETE');
+    
     fetch('<?= site_url('admin/academic/calendar/delete-event') ?>/' + eventId, {
-        method: 'DELETE',
-        headers: getCsrfHeaders()
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     })
     .then(response => response.json())
     .then(data => {
@@ -356,14 +344,13 @@ function deleteEvent() {
             const modal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
             modal.hide();
             
-            // Refresh calendar
             const calendarEl = document.getElementById('calendar');
             const calendar = FullCalendar.getCalendar(calendarEl);
             calendar.refetchEvents();
             
-            showNotification('Evento eliminado com sucesso!', 'success');
+            showNotification(data.message, 'success');
         } else {
-            showNotification('Erro ao eliminar evento: ' + data.message, 'danger');
+            showNotification(data.message, 'danger');
         }
     })
     .catch(error => {
@@ -372,24 +359,26 @@ function deleteEvent() {
     });
 }
 
-function updateEventDate(event, oldEvent) {
-    const data = {
-        id: event.id,
-        start_date: event.startStr.split('T')[0],
-        end_date: event.end ? event.endStr.split('T')[0] : event.startStr.split('T')[0],
-        all_day: event.allDay ? 1 : 0
-    };
+function updateEventDate(event) {
+    const formData = new FormData();
+    // ⚠️ Para updateDate, precisamos do CSRF porque não há formulário
+    formData.append(csrfToken, csrfHash);
+    formData.append('id', event.id);
+    formData.append('start_date', event.startStr.split('T')[0]);
+    formData.append('end_date', event.end ? event.endStr.split('T')[0] : event.startStr.split('T')[0]);
+    formData.append('all_day', event.allDay ? 1 : 0);
     
     fetch('<?= site_url('admin/academic/calendar/update-date') ?>', {
         method: 'POST',
-        headers: getCsrfHeaders(),
-        body: JSON.stringify(data)
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     })
     .then(response => response.json())
     .then(data => {
         if (!data.success) {
-            showNotification('Erro ao atualizar data do evento', 'danger');
-            // Revert change - recarregar eventos
+            showNotification('Erro ao atualizar data', 'danger');
             const calendarEl = document.getElementById('calendar');
             const calendar = FullCalendar.getCalendar(calendarEl);
             calendar.refetchEvents();
@@ -401,9 +390,7 @@ function updateEventDate(event, oldEvent) {
     });
 }
 
-// Função para mostrar notificações (usa o sistema de alertas do Bootstrap)
 function showNotification(message, type = 'success') {
-    // Criar elemento de alerta
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
     alertDiv.style.zIndex = '9999';
@@ -416,7 +403,6 @@ function showNotification(message, type = 'success') {
     
     document.body.appendChild(alertDiv);
     
-    // Auto-remover após 5 segundos
     setTimeout(() => {
         alertDiv.classList.remove('show');
         setTimeout(() => alertDiv.remove(), 300);

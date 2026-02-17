@@ -13,6 +13,8 @@ class EnrollmentModel extends BaseModel
         'student_id',
         'class_id',
         'academic_year_id',
+            'grade_level_id',        // <-- NOVO
+    'previous_grade_id',      // <-- NOVO
         'enrollment_date',
         'enrollment_number',
         'enrollment_type',
@@ -24,8 +26,9 @@ class EnrollmentModel extends BaseModel
     
     protected $validationRules = [
         'student_id' => 'required|numeric',
-        'class_id' => 'required|numeric',
+        'class_id' => 'permit_empty|numeric',
         'academic_year_id' => 'required|numeric',
+        'grade_level_id' => 'required|numeric',  // <-- NOVO obrigatório
         'enrollment_date' => 'required|valid_date',
         'enrollment_number' => 'required|is_unique[tbl_enrollments.enrollment_number,id,{id}]'
     ];
@@ -112,7 +115,37 @@ class EnrollmentModel extends BaseModel
             ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
     }
-    
+    /**
+ * Get enrollment with all details for view
+ */
+public function getForView($id)
+{
+    return $this->select('
+            tbl_enrollments.*,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            tbl_users.email,
+            tbl_users.phone,
+            tbl_classes.class_name,
+            tbl_classes.class_code,
+            tbl_classes.class_shift,
+            tbl_classes.class_room,
+            tbl_academic_years.year_name,
+            tbl_academic_years.start_date,
+            tbl_academic_years.end_date,
+            tbl_users_created.first_name as created_by_first,
+            tbl_users_created.last_name as created_by_last,
+            CONCAT(tbl_users_created.first_name, " ", tbl_users_created.last_name) as created_by_username
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+        ->join('tbl_users as tbl_users_created', 'tbl_users_created.id = tbl_enrollments.created_by', 'left')
+        ->where('tbl_enrollments.id', $id)
+        ->first();
+}
     /**
      * Get active enrollments by academic year
      */

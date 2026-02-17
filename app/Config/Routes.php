@@ -178,7 +178,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     });
 
     // Classes/Turmas
-    $routes->group('classes', function ($routes) {
+    /* $routes->group('classes', function ($routes) {
       $routes->get('', [Classes::class, 'index'], ["as" => 'classes']);
       $routes->get('form-add', [Classes::class, 'form'], ["as" => 'classes.form']);
       $routes->get('form-edit/(:num)', [Classes::class, 'form'], ["as" => 'classes.form/$1']);
@@ -186,6 +186,18 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('delete/(:num)', [Classes::class, 'delete'], ["as" => 'classes.delete/$1']);
       $routes->get('view/(:num)', [Classes::class, 'view'], ["as" => 'classes.view/$1']);
       $routes->get('list-students/(:num)', [Classes::class, 'listStudents'], ["as" => 'classes.students/$1']);
+    }); */
+
+    // Classes/Turmas
+    $routes->group('classes', function ($routes) {
+        $routes->get('', [Classes::class, 'index'], ["as" => 'classes']);
+        $routes->get('form-add', [Classes::class, 'form'], ["as" => 'classes.form']);
+        $routes->get('form-edit/(:num)', [Classes::class, 'form/$1'], ["as" => 'classes.form.edit']);
+        $routes->post('save', [Classes::class, 'save'], ["as" => 'classes.save']); // <-- MÉTODO SAVE AQUI
+        $routes->get('delete/(:num)', [Classes::class, 'delete/$1'], ["as" => 'classes.delete']);
+        $routes->get('activate/(:num)', [Classes::class, 'activate/$1'], ["as" => 'classes.activate']);
+        $routes->get('view/(:num)', [Classes::class, 'view/$1'], ["as" => 'classes.view']);
+        $routes->get('list-students/(:num)', [Classes::class, 'listStudents/$1'], ["as" => 'classes.students']);
     });
 
     // Disciplinas
@@ -197,10 +209,12 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
     // Alocação de Disciplinas por Classe
     $routes->group('class-subjects', function ($routes) {
-      $routes->get('', [ClassSubjects::class, 'index'], ["as" => 'classes.class-subjects']);
-      $routes->post('assign', [ClassSubjects::class, 'assign'], ["as" => 'classes.class-subjects.assign']);
-      $routes->get('get-by-class/(:num)', [ClassSubjects::class, 'getByClass'], ["as" => 'classes.class-subjects.get/$1']);
+        $routes->get('', [ClassSubjects::class, 'index'], ["as" => 'classes.class-subjects']);
+        $routes->get('assign', [ClassSubjects::class, 'assign'], ["as" => 'classes.class-subjects.assign']); // <-- ADICIONAR ESTA LINHA!
+        $routes->post('assign', [ClassSubjects::class, 'assignSave'], ["as" => 'classes.class-subjects.assign.save']);
+        $routes->get('get-by-class/(:num)', [ClassSubjects::class, 'getByClass'], ["as" => 'classes.class-subjects.get/$1']);
     });
+
   });
 
   /**
@@ -217,11 +231,14 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
     // Matrículas
     $routes->group('enrollments', function ($routes) {
-      $routes->get('', [Enrollments::class, 'index'], ["as" => 'students.enrollments']);
-      $routes->get('form-add', [Enrollments::class, 'form'], ["as" => 'students.enrollments.form']);
-      $routes->post('save', [Enrollments::class, 'save'], ["as" => 'students.enrollments.save']);
-      $routes->get('view/(:num)', [Enrollments::class, 'view'], ["as" => 'students.enrollments.view/$1']);
-      $routes->get('history/(:num)', [Enrollments::class, 'history'], ["as" => 'students.enrollments.history/$1']);
+        $routes->get('', [Enrollments::class, 'index'], ["as" => 'students.enrollments']);
+        $routes->get('form-add', [Enrollments::class, 'form'], ["as" => 'students.enrollments.form']);
+        $routes->get('form-edit/(:num)', [Enrollments::class, 'form/$1'], ["as" => 'students.enrollments.form.edit']); // <-- ADICIONAR ESTA LINHA
+        $routes->post('save', [Enrollments::class, 'save'], ["as" => 'students.enrollments.save']);
+        $routes->get('view/(:num)', [Enrollments::class, 'view'], ["as" => 'students.enrollments.view/$1']);
+        $routes->get('history/(:num)', [Enrollments::class, 'history'], ["as" => 'students.enrollments.history/$1']);
+        $routes->get('approve/(:num)', [Enrollments::class, 'approve/$1'], ["as" => 'students.enrollments.approve']);
+        $routes->get('delete/(:num)', [Enrollments::class, 'delete/$1'], ["as" => 'students.enrollments.delete']);
     });
 
     // Encarregados de Educação

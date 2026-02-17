@@ -210,9 +210,12 @@ $(document).ready(function() {
         $('#discipline_code').val($(this).data('code'));
         $('#discipline_type').val($(this).data('type'));
         $('#workload_hours').val($(this).data('hours'));
-        $('#min_grade').val($(this).data('min'));
-        $('#max_grade').val($(this).data('max'));
-        $('#approval_grade').val($(this).data('approval'));
+        
+        // Garantir que sejam números
+        $('#min_grade').val(parseFloat($(this).data('min')) || 0);
+        $('#max_grade').val(parseFloat($(this).data('max')) || 20);
+        $('#approval_grade').val(parseFloat($(this).data('approval')) || 10);
+        
         $('#description').val($(this).data('description'));
         $('#is_active').prop('checked', $(this).data('active') == 1);
         

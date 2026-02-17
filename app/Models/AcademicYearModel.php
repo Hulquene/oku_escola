@@ -16,7 +16,7 @@ class AcademicYearModel extends BaseModel
     ];
     
     protected $validationRules = [
-        'id' => 'permit_empty|is_natural_no_zero',  // <-- ADICIONADO!
+        'id' => 'permit_empty|is_natural_no_zero', 
         'year_name' => 'required|is_unique[tbl_academic_years.year_name,id,{id}]',
         'start_date' => 'required|valid_date',
         'end_date' => 'required|valid_date'

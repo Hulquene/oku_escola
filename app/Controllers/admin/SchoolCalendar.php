@@ -29,8 +29,9 @@ class SchoolCalendar extends BaseController
             ->orderBy('start_date', 'DESC')
             ->findAll();
         
+        $currentYear = $this->academicYearModel->getCurrent();
         $data['selectedYear'] = $this->request->getGet('academic_year') ?: 
-            ($this->academicYearModel->getCurrent()->id ?? null);
+            ($currentYear->id ?? null);
         
         return view('admin/academic/calendar/index', $data);
     }
@@ -40,36 +41,72 @@ class SchoolCalendar extends BaseController
      */
     public function getEvents()
     {
-        $startDate = $this->request->getGet('start');
-        $endDate = $this->request->getGet('end');
-        $academicYearId = $this->request->getGet('academic_year');
-        
-        $events = $this->eventModel->getForCalendar($startDate, $endDate, $academicYearId);
-        
-        $formattedEvents = [];
-        foreach ($events as $event) {
-            $formattedEvents[] = [
-                'id' => $event->id,
-                'title' => $event->event_title,
-                'start' => $event->start_date . ($event->start_time ? 'T' . $event->start_time : ''),
-                'end' => ($event->end_date ?: $event->start_date) . ($event->end_time ? 'T' . $event->end_time : ''),
-                'allDay' => (bool)$event->all_day,
-                'backgroundColor' => $event->color ?: $this->getEventColor($event->event_type),
-                'borderColor' => $event->color ?: $this->getEventColor($event->event_type),
-                'textColor' => '#ffffff',
-                'extendedProps' => [
-                    'event_type' => $event->event_type,
-                    'description' => $event->event_description,
-                    'location' => $event->location,
-                    'start_time' => $event->start_time,
-                    'end_time' => $event->end_time,
-                    'academic_year_id' => $event->academic_year_id,
-                    'created_by' => $event->first_name ? $event->first_name . ' ' . $event->last_name : 'Sistema'
-                ]
-            ];
+        try {
+            $startDate = $this->request->getGet('start');
+            $endDate = $this->request->getGet('end');
+            $academicYearId = $this->request->getGet('academic_year');
+            
+            // Validar datas
+            if (!$startDate || !$endDate) {
+                return $this->response->setJSON([]);
+            }
+            
+            $events = $this->eventModel->getForCalendar($startDate, $endDate, $academicYearId);
+            
+            $formattedEvents = [];
+            foreach ($events as $event) {
+                // Verificar se é array e acessar como array
+                if (is_array($event)) {
+                    $formattedEvents[] = [
+                        'id' => $event['id'],
+                        'title' => $event['event_title'],
+                        'start' => $event['start_date'] . ($event['start_time'] ? 'T' . $event['start_time'] : ''),
+                        'end' => ($event['end_date'] ?: $event['start_date']) . ($event['end_time'] ? 'T' . $event['end_time'] : ''),
+                        'allDay' => (bool)$event['all_day'],
+                        'backgroundColor' => $event['color'] ?: $this->getEventColor($event['event_type']),
+                        'borderColor' => $event['color'] ?: $this->getEventColor($event['event_type']),
+                        'textColor' => '#ffffff',
+                        'extendedProps' => [
+                            'event_type' => $event['event_type'],
+                            'description' => $event['event_description'],
+                            'location' => $event['location'],
+                            'start_time' => $event['start_time'],
+                            'end_time' => $event['end_time'],
+                            'academic_year_id' => $event['academic_year_id'],
+                            'created_by' => isset($event['first_name']) ? $event['first_name'] . ' ' . ($event['last_name'] ?? '') : 'Sistema'
+                        ]
+                    ];
+                } else {
+                    // Se for objeto (fallback)
+                    $formattedEvents[] = [
+                        'id' => $event->id,
+                        'title' => $event->event_title,
+                        'start' => $event->start_date . ($event->start_time ? 'T' . $event->start_time : ''),
+                        'end' => ($event->end_date ?: $event->start_date) . ($event->end_time ? 'T' . $event->end_time : ''),
+                        'allDay' => (bool)$event->all_day,
+                        'backgroundColor' => $event->color ?: $this->getEventColor($event->event_type),
+                        'borderColor' => $event->color ?: $this->getEventColor($event->event_type),
+                        'textColor' => '#ffffff',
+                        'extendedProps' => [
+                            'event_type' => $event->event_type,
+                            'description' => $event->event_description,
+                            'location' => $event->location,
+                            'start_time' => $event->start_time,
+                            'end_time' => $event->end_time,
+                            'academic_year_id' => $event->academic_year_id,
+                            'created_by' => isset($event->first_name) ? $event->first_name . ' ' . ($event->last_name ?? '') : 'Sistema'
+                        ]
+                    ];
+                }
+            }
+            
+            return $this->response->setJSON($formattedEvents);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Erro ao buscar eventos: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+            return $this->response->setJSON([]);
         }
-        
-        return $this->response->setJSON($formattedEvents);
     }
     
     /**
@@ -77,57 +114,103 @@ class SchoolCalendar extends BaseController
      */
     public function saveEvent()
     {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setStatusCode(403)->setJSON([
-                'success' => false,
-                'message' => 'Requisição inválida'
+        try {
+            if (!$this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Requisição inválida'
+                ]);
+            }
+            
+            $rules = [
+                'academic_year_id' => 'required|numeric',
+                'event_title' => 'required|min_length[3]|max_length[255]',
+                'event_type' => 'required|in_list[Feriado,Reunião,Prova,Entrega de Notas,Matrícula,Inscrição,Outro]',
+                'start_date' => 'required|valid_date'
+            ];
+            
+            if (!$this->validate($rules)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Dados inválidos',
+                    'errors' => $this->validator->getErrors()
+                ]);
+            }
+            
+            // Validar se end_date é posterior a start_date
+            $startDate = $this->request->getPost('start_date');
+            $endDate = $this->request->getPost('end_date');
+            
+            if ($endDate && strtotime($endDate) < strtotime($startDate)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'A data de fim não pode ser anterior à data de início'
+                ]);
+            }
+            
+            $data = [
+                'academic_year_id' => $this->request->getPost('academic_year_id'),
+                'event_title' => $this->request->getPost('event_title'),
+                'event_type' => $this->request->getPost('event_type'),
+                'event_description' => $this->request->getPost('event_description'),
+                'start_date' => $startDate,
+                'end_date' => $endDate ?: null,
+                'start_time' => $this->request->getPost('start_time') ?: null,
+                'end_time' => $this->request->getPost('end_time') ?: null,
+                'location' => $this->request->getPost('location'),
+                'all_day' => $this->request->getPost('all_day') ? 1 : 0,
+                'color' => $this->request->getPost('color') ?: null,
+                'created_by' => session()->get('user_id')
+            ];
+            
+            $id = $this->request->getPost('id');
+            
+            if ($id) {
+                // Verificar se o evento existe
+                $existingEvent = $this->eventModel->find($id);
+                if (!$existingEvent) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Evento não encontrado'
+                    ]);
+                }
+                
+                if ($this->eventModel->update($id, $data)) {
+                    $message = 'Evento atualizado com sucesso';
+                    log_message('info', "Evento ID {$id} atualizado por usuário " . session()->get('user_id'));
+                } else {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Erro ao atualizar evento',
+                        'errors' => $this->eventModel->errors()
+                    ]);
+                }
+            } else {
+                $newId = $this->eventModel->insert($data);
+                if ($newId) {
+                    $message = 'Evento criado com sucesso';
+                    log_message('info', "Novo evento ID {$newId} criado por usuário " . session()->get('user_id'));
+                } else {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Erro ao inserir evento no banco de dados',
+                        'errors' => $this->eventModel->errors()
+                    ]);
+                }
+            }
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => $message
             ]);
-        }
-        
-        $rules = [
-            'academic_year_id' => 'required|numeric',
-            'event_title' => 'required',
-            'event_type' => 'required',
-            'start_date' => 'required|valid_date'
-        ];
-        
-        if (!$this->validate($rules)) {
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Erro ao salvar evento: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Dados inválidos',
-                'errors' => $this->validator->getErrors()
+                'message' => 'Erro interno do servidor: ' . $e->getMessage()
             ]);
         }
-        
-        $data = [
-            'academic_year_id' => $this->request->getPost('academic_year_id'),
-            'event_title' => $this->request->getPost('event_title'),
-            'event_type' => $this->request->getPost('event_type'),
-            'event_description' => $this->request->getPost('event_description'),
-            'start_date' => $this->request->getPost('start_date'),
-            'end_date' => $this->request->getPost('end_date') ?: null,
-            'start_time' => $this->request->getPost('start_time') ?: null,
-            'end_time' => $this->request->getPost('end_time') ?: null,
-            'location' => $this->request->getPost('location'),
-            'all_day' => $this->request->getPost('all_day') ? 1 : 0,
-            'color' => $this->request->getPost('color') ?: null,
-            'created_by' => session()->get('user_id')
-        ];
-        
-        $id = $this->request->getPost('id');
-        
-        if ($id) {
-            $this->eventModel->update($id, $data);
-            $message = 'Evento atualizado com sucesso';
-        } else {
-            $this->eventModel->insert($data);
-            $message = 'Evento criado com sucesso';
-        }
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => $message
-        ]);
     }
     
     /**
@@ -135,28 +218,44 @@ class SchoolCalendar extends BaseController
      */
     public function deleteEvent($id)
     {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setStatusCode(403)->setJSON([
-                'success' => false,
-                'message' => 'Requisição inválida'
-            ]);
-        }
-        
-        $event = $this->eventModel->find($id);
-        
-        if (!$event) {
+        try {
+            if (!$this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Requisição inválida'
+                ]);
+            }
+            
+            $event = $this->eventModel->find($id);
+            
+            if (!$event) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Evento não encontrado'
+                ]);
+            }
+            
+            if ($this->eventModel->delete($id)) {
+                log_message('info', "Evento ID {$id} eliminado por usuário " . session()->get('user_id'));
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Evento eliminado com sucesso'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Erro ao eliminar evento',
+                    'errors' => $this->eventModel->errors()
+                ]);
+            }
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Erro ao eliminar evento: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Evento não encontrado'
+                'message' => 'Erro interno do servidor'
             ]);
         }
-        
-        $this->eventModel->delete($id);
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Evento eliminado com sucesso'
-        ]);
     }
     
     /**
@@ -164,36 +263,61 @@ class SchoolCalendar extends BaseController
      */
     public function updateDate()
     {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setStatusCode(403)->setJSON([
-                'success' => false,
-                'message' => 'Requisição inválida'
-            ]);
-        }
-        
-        $json = $this->request->getJSON();
-        
-        $event = $this->eventModel->find($json->id);
-        
-        if (!$event) {
+        try {
+            if (!$this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Requisição inválida'
+                ]);
+            }
+            
+            $id = $this->request->getPost('id');
+            $startDate = $this->request->getPost('start_date');
+            $endDate = $this->request->getPost('end_date');
+            $allDay = $this->request->getPost('all_day');
+            
+            if (!$id || !$startDate) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Dados incompletos'
+                ]);
+            }
+            
+            $event = $this->eventModel->find($id);
+            
+            if (!$event) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Evento não encontrado'
+                ]);
+            }
+            
+            $data = [
+                'start_date' => $startDate,
+                'end_date' => $endDate ?: $startDate,
+                'all_day' => $allDay ? 1 : 0
+            ];
+            
+            if ($this->eventModel->update($id, $data)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Data do evento atualizada'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Erro ao atualizar data',
+                    'errors' => $this->eventModel->errors()
+                ]);
+            }
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Erro ao atualizar data do evento: ' . $e->getMessage());
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Evento não encontrado'
+                'message' => 'Erro interno do servidor'
             ]);
         }
-        
-        $data = [
-            'start_date' => $json->start_date,
-            'end_date' => $json->end_date ?? $json->start_date,
-            'all_day' => $json->all_day ?? $event->all_day
-        ];
-        
-        $this->eventModel->update($json->id, $data);
-        
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Data do evento atualizada'
-        ]);
     }
     
     /**
