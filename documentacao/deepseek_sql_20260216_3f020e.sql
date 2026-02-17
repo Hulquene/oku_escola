@@ -1,0 +1,10 @@
+SELECT 
+    TABLE_NAME, 
+    COLUMN_NAME 
+FROM 
+    INFORMATION_SCHEMA.COLUMNS 
+WHERE 
+    TABLE_SCHEMA = 'escola_angolana' 
+    AND COLUMN_NAME IN ('created_at', 'updated_at')
+ORDER BY 
+    TABLE_NAME, COLUMN_NAME;
