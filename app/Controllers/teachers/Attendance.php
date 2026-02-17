@@ -89,33 +89,110 @@ class Attendance extends BaseController
         $attendanceDate = $this->request->getPost('attendance_date');
         $attendances = $this->request->getPost('attendance') ?? [];
         
+        // Validação inicial
         if (!$classId || !$attendanceDate || empty($attendances)) {
-            return redirect()->back()->with('error', 'Dados incompletos');
+            $message = '❌ Não foi possível registrar as presenças. ';
+            $message .= 'Certifique-se de que selecionou a turma, disciplina e data corretamente.';
+            return redirect()->back()->with('error', $message);
         }
         
+        // Buscar alunos da turma para contagem
+        $students = $this->enrollmentModel
+            ->where('class_id', $classId)
+            ->where('status', 'Ativo')
+            ->findAll();
+        
+        $totalAlunos = count($students);
         $data = [];
+        $studentsWithStatus = 0;
+        
         foreach ($attendances as $enrollmentId => $att) {
-            if (isset($att['status'])) {
+            if (isset($att['status']) && !empty($att['status'])) {
+                $studentsWithStatus++;
+                
                 $data[] = [
-                    'enrollment_id' => $enrollmentId,
-                    'class_id' => $classId,
-                    'discipline_id' => $disciplineId,
+                    'enrollment_id' => (int)$enrollmentId,
+                    'class_id' => (int)$classId,
+                    'discipline_id' => !empty($disciplineId) ? (int)$disciplineId : null,
                     'attendance_date' => $attendanceDate,
                     'status' => $att['status'],
-                    'justification' => $att['justification'] ?? null,
-                    'marked_by' => $this->session->get('user_id')
+                    'justification' => !empty($att['justification']) ? $att['justification'] : null,
+                    'marked_by' => (int)$this->session->get('user_id')
                 ];
             }
         }
         
+        // Verificar se pelo menos um status foi selecionado
+        if (empty($data)) {
+            $message = '⚠️ Nenhuma presença foi registrada. ';
+            $message .= 'Por favor, selecione o status (Presente/Ausente/etc) para pelo menos um aluno antes de salvar.';
+            return redirect()->back()->with('warning', $message);
+        }
+        
+        // Verificar se houve alterações
+        $existingAttendances = $this->attendanceModel
+            ->where('class_id', $classId)
+            ->where('discipline_id', $disciplineId)
+            ->where('attendance_date', $attendanceDate)
+            ->findAll();
+        
+        $hasChanges = $this->checkForChanges($data, $existingAttendances);
+        
+        if (!$hasChanges) {
+            $message = 'ℹ️ Nenhuma alteração foi detectada nas presenças. ';
+            $message .= 'Os dados já estavam atualizados.';
+            return redirect()->to('/teachers/attendance?class_id=' . $classId . '&discipline_id=' . ($disciplineId ?: '') . '&date=' . $attendanceDate)
+                ->with('info', $message);
+        }
+        
+       // var_dump($data);die;
+        // Salvar presenças
         $result = $this->attendanceModel->markBulk($data);
         
         if ($result) {
+            $percentual = $totalAlunos > 0 ? round(($studentsWithStatus / $totalAlunos) * 100) : 0;
+            
+            $message = '✅ Presenças registradas com sucesso! ';
+            $message .= "Foram atualizados {$studentsWithStatus} de {$totalAlunos} alunos para o dia " . date('d/m/Y', strtotime($attendanceDate)) . ". ";
+            $message .= "Taxa de preenchimento: {$percentual}%.";
+            
             return redirect()->to('/teachers/attendance?class_id=' . $classId . '&discipline_id=' . ($disciplineId ?: '') . '&date=' . $attendanceDate)
-                ->with('success', 'Presenças registradas com sucesso');
+                ->with('success', $message);
         } else {
-            return redirect()->back()->with('error', 'Erro ao registrar presenças');
+            $message = '❌ Ocorreu um erro ao registrar as presenças. ';
+            $message .= 'Por favor, tente novamente. Se o problema persistir, contacte o administrador do sistema.';
+            return redirect()->back()->with('error', $message);
         }
+    }
+    
+    /**
+     * Check if there are changes between submitted and existing data
+     */
+    private function checkForChanges($newData, $existingData)
+    {
+        if (count($newData) !== count($existingData)) {
+            return true;
+        }
+        
+        $existingMap = [];
+        foreach ($existingData as $existing) {
+            $existingMap[$existing->enrollment_id] = $existing;
+        }
+        
+        foreach ($newData as $new) {
+            $enrollmentId = $new['enrollment_id'];
+            
+            if (!isset($existingMap[$enrollmentId])) {
+                return true; // Novo registro
+            }
+            
+            $existing = $existingMap[$enrollmentId];
+            if ($existing->status !== $new['status'] || $existing->justification !== $new['justification']) {
+                return true; // Status ou justificativa mudou
+            }
+        }
+        
+        return false; // Nenhuma mudança
     }
     
     /**
@@ -183,5 +260,27 @@ class Attendance extends BaseController
         $data['endDate'] = $endDate;
         
         return view('teachers/attendance/report', $data);
+    }
+    
+    /**
+     * Get disciplines for a class (AJAX)
+     */
+    public function getDisciplines($classId)
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([]);
+        }
+        
+        $teacherId = $this->session->get('user_id');
+        
+        $disciplines = $this->classDisciplineModel
+            ->select('tbl_disciplines.id, tbl_disciplines.discipline_name')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.teacher_id', $teacherId)
+            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+            ->findAll();
+        
+        return $this->response->setJSON($disciplines);
     }
 }

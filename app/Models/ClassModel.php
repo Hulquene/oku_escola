@@ -182,39 +182,58 @@ class ClassModel extends BaseModel
             ->where('tbl_classes.id', $id)
             ->first();
     }
+        /**
+     * Get classes with academic year and grade level for enrollment form
+     */
+    public function getForEnrollment($academicYearId)
+    {
+        return $this->select('
+                tbl_classes.*, 
+                tbl_grade_levels.level_name,
+                tbl_academic_years.year_name
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+            ->where('tbl_classes.academic_year_id', $academicYearId)
+            ->where('tbl_classes.is_active', 1)
+            ->orderBy('tbl_classes.class_name', 'ASC')
+            ->findAll();
+    }
     /**
- * Get classes with academic year and grade level for enrollment form
- */
-public function getForEnrollment($academicYearId)
-{
-    return $this->select('
-            tbl_classes.*, 
-            tbl_grade_levels.level_name,
-            tbl_academic_years.year_name
-        ')
-        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
-        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-        ->where('tbl_classes.academic_year_id', $academicYearId)
-        ->where('tbl_classes.is_active', 1)
-        ->orderBy('tbl_classes.class_name', 'ASC')
-        ->findAll();
-}
-/**
- * Get classes with available seats count
- */
-public function getWithAvailableSeats($academicYearId)
-{
-    return $this->select('
-            tbl_classes.*, 
-            tbl_grade_levels.level_name,
-            (SELECT COUNT(*) FROM tbl_enrollments 
-             WHERE class_id = tbl_classes.id 
-             AND status = "Ativo") as enrolled_count
-        ')
-        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
-        ->where('tbl_classes.academic_year_id', $academicYearId)
-        ->where('tbl_classes.is_active', 1)
-        ->orderBy('tbl_classes.class_name', 'ASC')
-        ->findAll();
-}
+     * Get classes with available seats count
+     */
+    public function getWithAvailableSeats($academicYearId)
+    {
+        return $this->select('
+                tbl_classes.*, 
+                tbl_grade_levels.level_name,
+                (SELECT COUNT(*) FROM tbl_enrollments 
+                WHERE class_id = tbl_classes.id 
+                AND status = "Ativo") as enrolled_count
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->where('tbl_classes.academic_year_id', $academicYearId)
+            ->where('tbl_classes.is_active', 1)
+            ->orderBy('tbl_classes.class_name', 'ASC')
+            ->findAll();
+    }
+    /**
+     * Get classes by level and year with enrolled count
+     */
+    public function getByLevelAndYearWithStats($levelId, $yearId)
+    {
+        return $this->select('
+                tbl_classes.*, 
+                tbl_grade_levels.level_name,
+                (SELECT COUNT(*) FROM tbl_enrollments 
+                WHERE class_id = tbl_classes.id 
+                AND status = "Ativo") as enrolled_count
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->where('tbl_classes.grade_level_id', $levelId)
+            ->where('tbl_classes.academic_year_id', $yearId)
+            ->where('tbl_classes.is_active', 1)
+            ->orderBy('tbl_classes.class_name', 'ASC')
+            ->findAll();
+    }
 }

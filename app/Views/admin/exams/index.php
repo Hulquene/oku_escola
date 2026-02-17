@@ -28,6 +28,7 @@
 <?= view('admin/partials/alerts') ?>
 
 <!-- Filters -->
+<!-- Filtros -->
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3">
@@ -37,7 +38,7 @@
                     <option value="">Todas</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class->id ?>" <?= $this->request->getGet('class') == $class->id ? 'selected' : '' ?>>
+                            <option value="<?= $class->id ?>" <?= ($selectedClass == $class->id) ? 'selected' : '' ?>>
                                 <?= $class->class_name ?>
                             </option>
                         <?php endforeach; ?>
@@ -51,7 +52,7 @@
                     <option value="">Todos</option>
                     <?php if (!empty($semesters)): ?>
                         <?php foreach ($semesters as $semester): ?>
-                            <option value="<?= $semester->id ?>" <?= $this->request->getGet('semester') == $semester->id ? 'selected' : '' ?>>
+                            <option value="<?= $semester->id ?>" <?= ($selectedSemester == $semester->id) ? 'selected' : '' ?>>
                                 <?= $semester->semester_name ?>
                             </option>
                         <?php endforeach; ?>

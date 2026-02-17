@@ -96,7 +96,7 @@
                                 <td colspan="7" class="fw-bold">
                                     <i class="fas fa-calendar-day"></i> 
                                     <?= date('d/m/Y', strtotime($exam->exam_date)) ?> 
-                                    (<?= $this->getDayOfWeek($exam->exam_date) ?>)
+                                    (<?= getDayOfWeek($exam->exam_date) ?>)
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -130,24 +130,4 @@
     </div>
 </div>
 
-<?= $this->endSection() ?>
-
-<?= $this->section('functions') ?>
-<?php
-// Helper function to get day of week in Portuguese
-function getDayOfWeek($date) {
-    $days = [
-        'Sunday' => 'Domingo',
-        'Monday' => 'Segunda-feira',
-        'Tuesday' => 'Terça-feira',
-        'Wednesday' => 'Quarta-feira',
-        'Thursday' => 'Quinta-feira',
-        'Friday' => 'Sexta-feira',
-        'Saturday' => 'Sábado'
-    ];
-    $dayName = date('l', strtotime($date));
-    return $days[$dayName] ?? $dayName;
-}
-$this->getDayOfWeek = 'getDayOfWeek';
-?>
 <?= $this->endSection() ?>

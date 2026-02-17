@@ -29,31 +29,149 @@ class AttendanceModel extends BaseModel
     protected $updatedField = null;
     
     /**
-     * Mark attendance for multiple students
+     * Mark attendance for multiple students - Versão final
      */
-    public function markBulk(array $attendances)
-    {
-        $this->transStart();
+   /**
+ * Mark attendance for multiple students - Versão com registro em lote
+ */
+/**
+ * Mark attendance for multiple students - Versão com Batch Processing (CI4 Oficial)
+ */
+public function markBulk(array $attendances)
+{
+    if (empty($attendances)) {
+        log_message('error', '📝 ATTENDANCE: Tentativa de registrar presenças com lista vazia');
+        return false;
+    }
+    
+    log_message('info', '📝 ATTENDANCE: Iniciando registro de ' . count($attendances) . ' presenças');
+    
+    $this->transStart();
+    
+    // Separar registros para INSERT e UPDATE
+    $inserts = [];
+    $updates = [];
+    
+    foreach ($attendances as $attendance) {
+        $enrollmentId = (int)$attendance['enrollment_id'];
+        $attendanceDate = $attendance['attendance_date'];
+        $disciplineId = !empty($attendance['discipline_id']) ? (int)$attendance['discipline_id'] : null;
         
-        foreach ($attendances as $attendance) {
-            // Check if already marked for this date
-            $existing = $this->where('enrollment_id', $attendance['enrollment_id'])
-                ->where('attendance_date', $attendance['attendance_date'])
-                ->where('discipline_id', $attendance['discipline_id'] ?? null)
-                ->first();
+        // Verificar se já existe usando SQL direto (mais confiável)
+        $sql = "SELECT id FROM {$this->table} 
+                WHERE enrollment_id = {$enrollmentId} 
+                AND attendance_date = " . $this->db->escape($attendanceDate);
+        
+        if ($disciplineId !== null) {
+            $sql .= " AND discipline_id = {$disciplineId}";
+        } else {
+            $sql .= " AND discipline_id IS NULL";
+        }
+        
+        $query = $this->db->query($sql);
+        $existing = $query->getRow();
+        
+        $dataToSave = [
+            'enrollment_id' => $enrollmentId,
+            'class_id' => (int)$attendance['class_id'],
+            'discipline_id' => $disciplineId,
+            'attendance_date' => $attendanceDate,
+            'status' => $attendance['status'],
+            'justification' => !empty($attendance['justification']) ? $attendance['justification'] : null,
+            'marked_by' => (int)$attendance['marked_by']
+        ];
+        
+        if ($existing) {
+            $dataToSave['id'] = $existing->id;
+            $updates[] = $dataToSave;
+        } else {
+            $inserts[] = $dataToSave;
+        }
+    }
+    
+    // Processar INSERTs em lote
+    $insertCount = 0;
+    if (!empty($inserts)) {
+        try {
+            $insertCount = $this->insertBatch($inserts);
+            log_message('info', "📝 ATTENDANCE: Inseridos {$insertCount} novos registros em lote");
+        } catch (\Exception $e) {
+            log_message('error', "📝 ATTENDANCE: Erro no insertBatch: " . $e->getMessage());
+            $this->transRollback();
+            return false;
+        }
+    }
+    
+    // Processar UPDATEs individualmente (não há updateBatch nativo no CI4)
+    // Mas podemos fazer updates em lote com SQL direto
+    $updateCount = 0;
+    if (!empty($updates)) {
+        // Opção 1: Updates individuais (mais seguro)
+        foreach ($updates as $update) {
+            $updateData = [
+                'status' => $update['status'],
+                'justification' => $update['justification'],
+                'marked_by' => $update['marked_by']
+            ];
             
-            if ($existing) {
-                $this->update($existing->id, $attendance);
-            } else {
-                $this->insert($attendance);
+            if ($this->update($update['id'], $updateData)) {
+                $updateCount++;
             }
         }
         
-        $this->transComplete();
+        // Opção 2: Updates em lote com CASE WHEN (mais rápido para muitos registros)
+        // Descomente se quiser usar esta opção
+        /*
+        if (count($updates) > 5) { // Usar batch apenas se houver mais de 5 registros
+            $caseSql = "UPDATE {$this->table} SET 
+                        status = CASE id ";
+            foreach ($updates as $update) {
+                $caseSql .= " WHEN {$update['id']} THEN " . $this->db->escape($update['status']);
+            }
+            $caseSql .= " END,
+                        justification = CASE id ";
+            foreach ($updates as $update) {
+                $caseSql .= " WHEN {$update['id']} THEN " . ($update['justification'] !== null ? $this->db->escape($update['justification']) : 'NULL');
+            }
+            $caseSql .= " END,
+                        marked_by = CASE id ";
+            foreach ($updates as $update) {
+                $caseSql .= " WHEN {$update['id']} THEN {$update['marked_by']}";
+            }
+            $caseSql .= " END
+                        WHERE id IN (" . implode(',', array_column($updates, 'id')) . ")";
+            
+            $this->db->query($caseSql);
+            $updateCount = count($updates);
+        } else {
+            foreach ($updates as $update) {
+                $updateData = [
+                    'status' => $update['status'],
+                    'justification' => $update['justification'],
+                    'marked_by' => $update['marked_by']
+                ];
+                if ($this->update($update['id'], $updateData)) {
+                    $updateCount++;
+                }
+            }
+        }
+        */
         
-        return $this->transStatus();
+        log_message('info', "📝 ATTENDANCE: Atualizados {$updateCount} registros existentes");
     }
     
+    $this->transComplete();
+    
+    $status = $this->transStatus();
+    
+    if ($status) {
+        log_message('info', "📝 ATTENDANCE: Operação concluída com sucesso! {$insertCount} inserções, {$updateCount} atualizações.");
+    } else {
+        log_message('error', '📝 ATTENDANCE: Falha na operação. Transação não foi concluída com sucesso.');
+    }
+    
+    return $status;
+}
     /**
      * Get attendance by class and date
      */
@@ -142,7 +260,7 @@ class AttendanceModel extends BaseModel
     {
         $stats = $this->getStatistics($classId, $startDate, $endDate);
         
-        if ($stats->total > 0) {
+        if ($stats && $stats->total > 0) {
             $present = $stats->present + $stats->late + $stats->justified;
             return round(($present / $stats->total) * 100, 2);
         }

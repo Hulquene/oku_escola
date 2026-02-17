@@ -83,6 +83,40 @@ class Grades extends BaseController
     }
     
     /**
+     * Get disciplines for a class (AJAX) - específico para notas
+     * 
+     * @param int $classId ID da turma
+     * @return JSON
+     */
+    public function getDisciplines($classId = null)
+    {
+        // Verificar se é requisição AJAX
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([]);
+        }
+        
+        // Verificar se o classId foi fornecido
+        if (!$classId) {
+            log_message('error', 'Grades::getDisciplines chamado sem classId');
+            return $this->response->setJSON([]);
+        }
+        
+        $teacherId = $this->session->get('user_id');
+        
+        $disciplines = $this->classDisciplineModel
+            ->select('tbl_disciplines.id, tbl_disciplines.discipline_name, tbl_disciplines.discipline_code')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.teacher_id', $teacherId)
+            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+            ->findAll();
+        
+        log_message('info', "Grades: Disciplinas para turma {$classId}: " . json_encode($disciplines));
+        
+        return $this->response->setJSON($disciplines);
+    }
+    
+    /**
      * Save continuous assessments
      */
     public function save()
@@ -216,23 +250,24 @@ class Grades extends BaseController
         
         return view('teachers/grades/report', $data);
     }
+    
     /**
- * Select class for report
- */
-public function selectReport()
-{
-    $data['title'] = 'Selecionar Relatório';
-    
-    $teacherId = $this->session->get('user_id');
-    
-    // Get teacher's classes
-    $data['classes'] = $this->classDisciplineModel
-        ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
-        ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
-        ->where('tbl_class_disciplines.teacher_id', $teacherId)
-        ->distinct()
-        ->findAll();
-    
-    return view('teachers/grades/select_report', $data);
-}
+     * Select class for report
+     */
+    public function selectReport()
+    {
+        $data['title'] = 'Selecionar Relatório';
+        
+        $teacherId = $this->session->get('user_id');
+        
+        // Get teacher's classes
+        $data['classes'] = $this->classDisciplineModel
+            ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
+            ->where('tbl_class_disciplines.teacher_id', $teacherId)
+            ->distinct()
+            ->findAll();
+        
+        return view('teachers/grades/select_report', $data);
+    }
 }

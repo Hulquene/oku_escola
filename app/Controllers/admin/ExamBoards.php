@@ -31,40 +31,45 @@ class ExamBoards extends BaseController
     /**
      * Save exam board
      */
-    public function save()
-    {
-        $rules = [
-            'board_name' => 'required',
-            'board_code' => 'required|is_unique[tbl_exam_boards.board_code,id,{id}]',
-            'board_type' => 'required',
-            'weight' => 'permit_empty|numeric'
-        ];
-        
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()
-                ->with('errors', $this->validator->getErrors());
-        }
-        
-        $data = [
-            'board_name' => $this->request->getPost('board_name'),
-            'board_code' => $this->request->getPost('board_code'),
-            'board_type' => $this->request->getPost('board_type'),
-            'weight' => $this->request->getPost('weight') ?: 1.00,
-            'is_active' => $this->request->getPost('is_active') ? 1 : 0
-        ];
-        
-        $id = $this->request->getPost('id');
-        
-        if ($id) {
-            $this->examBoardModel->update($id, $data);
-            $message = 'Tipo de exame atualizado com sucesso';
-        } else {
-            $this->examBoardModel->insert($data);
-            $message = 'Tipo de exame criado com sucesso';
-        }
-        
-        return redirect()->to('/admin/exams/boards')->with('success', $message);
+public function save()
+{
+    $id = $this->request->getPost('id');
+    
+    $rules = [
+        'id' => 'permit_empty|is_natural_no_zero',  // <-- ADICIONAR ESTA LINHA!
+        'board_name' => 'required|min_length[3]|max_length[100]',
+        'board_code' => 'required|min_length[2]|max_length[50]|is_unique[tbl_exam_boards.board_code,id,{id}]',
+        'board_type' => 'required|in_list[Normal,Recurso,Especial,Final,Admissão]',
+        'weight' => 'permit_empty|numeric|greater_than[0]|less_than[11]'
+    ];
+    
+    if (!$this->validate($rules)) {
+        return redirect()->back()->withInput()
+            ->with('errors', $this->validator->getErrors());
     }
+    
+    $data = [
+        'board_name' => $this->request->getPost('board_name'),
+        'board_code' => $this->request->getPost('board_code'),
+        'board_type' => $this->request->getPost('board_type'),
+        'weight' => $this->request->getPost('weight') ?: 1.00,
+        'is_active' => $this->request->getPost('is_active') ? 1 : 0
+    ];
+    
+    // Se for atualização, incluir o ID nos dados
+    if ($id) {
+        $data['id'] = $id;
+    }
+    
+    if ($this->examBoardModel->save($data)) {
+        $message = $id ? 'Tipo de exame atualizado com sucesso' : 'Tipo de exame criado com sucesso';
+        return redirect()->to('/admin/exams/boards')->with('success', $message);
+    } else {
+        $errors = $this->examBoardModel->errors();
+        return redirect()->back()->withInput()
+            ->with('errors', $errors);
+    }
+}
     
     /**
      * Delete exam board

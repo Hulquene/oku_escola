@@ -65,6 +65,7 @@ class ReportCardModel extends BaseModel
         
         $finalGradeModel = new FinalGradeModel();
         $attendanceModel = new AttendanceModel();
+        $semesterModel = new SemesterModel();
         
         // Get grades
         $grades = $finalGradeModel->where('enrollment_id', $enrollmentId)
@@ -73,21 +74,33 @@ class ReportCardModel extends BaseModel
         
         // Calculate average
         $total = 0;
-        foreach ($grades as $grade) {
-            $total += $grade->final_score;
+        $average = 0;
+        if (!empty($grades)) {
+            foreach ($grades as $grade) {
+                $total += $grade->final_score;
+            }
+            $average = round($total / count($grades), 2);
         }
-        $average = count($grades) > 0 ? $total / count($grades) : 0;
         
-        // Get attendance
-        $attendance = $attendanceModel->select('
+        // Get semester details
+        $semester = $semesterModel->where('id', $semesterId)->first();
+        
+        // Build attendance query
+        $attendanceQuery = $attendanceModel->select('
                 COUNT(*) as total,
-                SUM(CASE WHEN status = "Ausente" THEN 1 ELSE 0 END) as absent,
-                SUM(CASE WHEN status = "Falta Justificada" THEN 1 ELSE 0 END) as justified
+                SUM(CASE WHEN tbl_attendance.status = "Ausente" THEN 1 ELSE 0 END) as absent,
+                SUM(CASE WHEN tbl_attendance.status = "Falta Justificada" THEN 1 ELSE 0 END) as justified
             ')
             ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_attendance.enrollment_id')
-            ->where('tbl_enrollments.id', $enrollmentId)
-            ->where('tbl_attendance.semester_id', $semesterId)
-            ->first();
+            ->where('tbl_enrollments.id', $enrollmentId);
+        
+        // Filter by semester period if available
+        if ($semester && isset($semester->start_date) && isset($semester->end_date)) {
+            $attendanceQuery->where('tbl_attendance.attendance_date >=', $semester->start_date)
+                           ->where('tbl_attendance.attendance_date <=', $semester->end_date);
+        }
+        
+        $attendanceResult = $attendanceQuery->first();
         
         // Create report card
         $data = [
@@ -96,8 +109,8 @@ class ReportCardModel extends BaseModel
             'report_number' => $this->generateReportNumber(),
             'generated_date' => date('Y-m-d'),
             'average_score' => $average,
-            'total_absences' => $attendance->absent ?? 0,
-            'justified_absences' => $attendance->justified ?? 0,
+            'total_absences' => $attendanceResult->absent ?? 0,
+            'justified_absences' => $attendanceResult->justified ?? 0,
             'status' => 'Emitido',
             'generated_by' => session()->get('user_id')
         ];
@@ -114,9 +127,9 @@ class ReportCardModel extends BaseModel
                 tbl_report_cards.*,
                 tbl_enrollments.student_id,
                 tbl_students.student_number,
+                tbl_students.birth_date,
                 tbl_users.first_name,
                 tbl_users.last_name,
-                tbl_users.birth_date,
                 tbl_classes.class_name,
                 tbl_classes.class_code,
                 tbl_semesters.semester_name,

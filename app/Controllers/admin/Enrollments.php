@@ -115,10 +115,8 @@ public function index()
     
     return view('admin/students/enrollments/index', $data);
 }
-    /**
-     * Enrollment form - Requer permissão 'create_enrollments' ou 'edit_enrollments'
-     */
- /**
+
+/**
  * Enrollment form - Requer permissão 'create_enrollments' ou 'edit_enrollments'
  */
 public function form($id = null)
@@ -268,7 +266,7 @@ public function form($id = null)
             $data['enrollment']->grade_level_name = $gradeLevel->level_name;
         }
     }
-    
+  //  var_dump($data);die;
     return view('admin/students/enrollments/form', $data);
 }
     /**

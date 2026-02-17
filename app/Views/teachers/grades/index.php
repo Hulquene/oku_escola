@@ -175,7 +175,8 @@ document.getElementById('class').addEventListener('change', function() {
     const selectedDiscipline = '<?= $selectedDiscipline ?? '' ?>';
     
     if (classId) {
-        fetch(`<?= site_url('teachers/exams/get-disciplines/') ?>/${classId}`)
+        // CORRIGIDO: Agora aponta para grades, não para exams
+        fetch(`<?= site_url('teachers/grades/get-disciplines/') ?>/${classId}`)
             .then(response => response.json())
             .then(data => {
                 disciplineSelect.innerHTML = '<option value="">Selecione...</option>';

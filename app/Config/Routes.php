@@ -198,6 +198,8 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('activate/(:num)', [Classes::class, 'activate/$1'], ["as" => 'classes.activate']);
         $routes->get('view/(:num)', [Classes::class, 'view/$1'], ["as" => 'classes.view']);
         $routes->get('list-students/(:num)', [Classes::class, 'listStudents/$1'], ["as" => 'classes.students']);
+       $routes->get('get-by-level-and-year/(:num)/(:num)', [Classes::class, 'getByLevelAndYear/$1/$2'], ["as" => 'classes.get-by-level-and-year']);
+        $routes->get('check-availability/(:num)', [Classes::class, 'checkAvailability/$1'], ["as" => 'classes.check-availability']);
     });
 
     // Disciplinas
@@ -457,7 +459,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
   });
 });
 /**
- * Área dos Professores - SEM FILTRO NO GRUPO PRINCIPAL
+ * Área dos Professores 
  */
 $routes->group('teachers', function ($routes) {
     
@@ -481,29 +483,33 @@ $routes->group('teachers', function ($routes) {
             $routes->get('students/(:num)', [TeacherClasses::class, 'students'], ["as" => 'teachers.classes.students/$1']);
         });
         
-        // Avaliações
+       // Avaliações
         $routes->group('exams', function ($routes) {
             $routes->get('', [TeacherExams::class, 'index'], ["as" => 'teachers.exams']);
             $routes->get('form-add', [TeacherExams::class, 'form'], ["as" => 'teachers.exams.form']);
+            $routes->get('form-edit/(:num)', [TeacherExams::class, 'form/$1'], ["as" => 'teachers.exams.form.edit']);
             $routes->post('save', [TeacherExams::class, 'save'], ["as" => 'teachers.exams.save']);
             $routes->get('grade/(:num)', [TeacherExams::class, 'grade'], ["as" => 'teachers.exams.grade/$1']);
             $routes->post('save-grades', [TeacherExams::class, 'saveGrades'], ["as" => 'teachers.exams.save_grades']);
+            $routes->get('get-disciplines/(:num)', [TeacherExams::class, 'getDisciplines/$1'], ["as" => 'teachers.exams.get-disciplines']);
+            $routes->get('results/(:num)', [TeacherExams::class, 'results/$1'], ["as" => 'teachers.exams.results']); // <-- NOVA ROTA
         });
-        
-        // Notas (Avaliações Contínuas)
+         // Notas (Avaliações Contínuas)
         $routes->group('grades', function ($routes) {
             $routes->get('', [TeacherGrades::class, 'index'], ["as" => 'teachers.grades']);
             $routes->post('save', [TeacherGrades::class, 'save'], ["as" => 'teachers.grades.save']);
+            $routes->get('get-disciplines/(:num)', [TeacherGrades::class, 'getDisciplines/$1'], ["as" => 'teachers.grades.get-disciplines']); // <-- AGORA AQUI
             $routes->get('report/select', [TeacherGrades::class, 'selectReport'], ["as" => 'teachers.grades.report.select']);
             $routes->get('report/(:num)', [TeacherGrades::class, 'report'], ["as" => 'teachers.grades.report/$1']);
         });
         
-        // Presenças
-        $routes->group('attendance', function ($routes) {
-            $routes->get('', [TeacherAttendance::class, 'index'], ["as" => 'teachers.attendance']);
-            $routes->post('save', [TeacherAttendance::class, 'save'], ["as" => 'teachers.attendance.save']);
-            $routes->get('report', [TeacherAttendance::class, 'report'], ["as" => 'teachers.attendance.report']);
-        });
+      // Presenças
+      $routes->group('attendance', function ($routes) {
+          $routes->get('', [TeacherAttendance::class, 'index'], ["as" => 'teachers.attendance']);
+          $routes->post('save', [TeacherAttendance::class, 'save'], ["as" => 'teachers.attendance.save']);
+          $routes->get('report', [TeacherAttendance::class, 'report'], ["as" => 'teachers.attendance.report']);
+          $routes->get('get-disciplines/(:num)', [TeacherAttendance::class, 'getDisciplines/$1'], ["as" => 'teachers.attendance.get-disciplines']);
+      });
     });
 });
 /**

@@ -134,21 +134,64 @@ class ExamResultModel extends BaseModel
         return $builder->orderBy('tbl_exams.exam_date', 'DESC')
             ->findAll();
     }
-    
     /**
-     * Get exam statistics
-     */
-    public function getExamStatistics($examId)
-    {
-        return $this->select('
-                COUNT(*) as total,
-                AVG(score) as average,
-                MIN(score) as minimum,
-                MAX(score) as maximum,
-                SUM(CASE WHEN score >= 10 THEN 1 ELSE 0 END) as approved,
-                SUM(CASE WHEN score < 10 THEN 1 ELSE 0 END) as failed
-            ')
-            ->where('exam_id', $examId)
-            ->first();
+ * Get exam statistics
+ * 
+ * @param int $examId ID do exame
+ * @return object|array Estatísticas do exame
+ */
+public function getExamStatistics($examId)
+{
+    // Buscar o exame para obter a nota máxima
+    $examModel = new \App\Models\ExamModel();
+    $exam = $examModel->find($examId);
+    
+    if (!$exam) {
+        return (object)[
+            'total' => 0,
+            'average' => 0,
+            'minimum' => 0,
+            'maximum' => 0,
+            'approved' => 0,
+            'failed' => 0,
+            'approval_rate' => 0
+        ];
     }
+    
+    $maxScore = $exam->max_score ?? 20;
+    $passingScore = $maxScore * 0.5; // 50% da nota máxima
+    
+    // Consulta SQL otimizada
+    $stats = $this->select("
+            COUNT(*) as total,
+            AVG(score) as average,
+            MIN(score) as minimum,
+            MAX(score) as maximum,
+            SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) as approved,
+            SUM(CASE WHEN score < {$passingScore} THEN 1 ELSE 0 END) as failed,
+            ROUND((SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) / COUNT(*)) * 100, 1) as approval_rate
+        ")
+        ->where('exam_id', $examId)
+        ->first();
+    
+    // Se não houver resultados, retorna valores padrão
+    if (!$stats || $stats->total == 0) {
+        return (object)[
+            'total' => 0,
+            'average' => 0,
+            'minimum' => 0,
+            'maximum' => 0,
+            'approved' => 0,
+            'failed' => 0,
+            'approval_rate' => 0
+        ];
+    }
+    
+    // Arredondar valores
+    $stats->average = round($stats->average, 1);
+    $stats->minimum = round($stats->minimum, 1);
+    $stats->maximum = round($stats->maximum, 1);
+    
+    return $stats;
+}
 }

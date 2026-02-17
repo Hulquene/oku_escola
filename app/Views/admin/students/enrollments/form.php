@@ -179,12 +179,21 @@
                                         (<?= $availableSeats ?> vagas)
                                     </option>
                                 <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>Nenhuma turma disponível para este nível</option>
                             <?php endif; ?>
                         </select>
                         <?php if (session('errors.class_id')): ?>
                             <div class="invalid-feedback"><?= session('errors.class_id') ?></div>
                         <?php endif; ?>
                         <small class="text-muted" id="classInfo"></small>
+                        
+                        <?php if ($enrollment && $enrollment->status == 'Pendente' && empty($selectedClass)): ?>
+                            <div class="alert alert-warning mt-2">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Esta matrícula está pendente. Selecione uma turma para ativá-la.
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 
@@ -360,21 +369,29 @@ const csrfToken = '<?= csrf_token() ?>';
 const csrfHash = '<?= csrf_hash() ?>';
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Elementos do formulário
+    const gradeLevelSelect = document.getElementById('grade_level_id');
+    const classSelect = document.getElementById('class_id');
+    const yearSelect = document.getElementById('academic_year_id');
+    const classInfo = document.getElementById('classInfo');
+    const statusSelect = document.getElementById('status');
+    const enrollmentForm = document.getElementById('enrollmentForm');
+
     // Atualizar informações da turma quando selecionada
-    document.getElementById('class_id').addEventListener('change', function() {
+    classSelect.addEventListener('change', function() {
         const selected = this.options[this.selectedIndex];
         if (selected.value) {
             const capacity = selected.dataset.capacity;
             const level = selected.dataset.level;
             const available = selected.dataset.available;
-            document.getElementById('classInfo').textContent = `Capacidade: ${capacity} alunos | Nível: ${level} | Vagas: ${available}`;
+            classInfo.textContent = `Capacidade: ${capacity} alunos | Nível: ${level} | Vagas: ${available}`;
         } else {
-            document.getElementById('classInfo').textContent = '';
+            classInfo.textContent = '';
         }
     });
 
     // Verificar disponibilidade de vagas em tempo real
-    document.getElementById('class_id').addEventListener('change', function() {
+    classSelect.addEventListener('change', function() {
         const classId = this.value;
         if (classId) {
             fetch(`<?= site_url('admin/classes/check-availability/') ?>/${classId}`, {
@@ -388,21 +405,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.available <= 0) {
                     alert('Atenção: Esta turma não possui vagas disponíveis!');
                     this.value = '';
-                    document.getElementById('classInfo').textContent = '';
+                    classInfo.textContent = '';
                     
-                    // Disparar evento change para atualizar selects
-                    document.getElementById('grade_level_id').dispatchEvent(new Event('change'));
+                    // Recarregar turmas
+                    if (gradeLevelSelect.value) {
+                        gradeLevelSelect.dispatchEvent(new Event('change'));
+                    }
                 }
             })
             .catch(error => console.error('Erro:', error));
         }
     });
 
-    // Carregar turmas baseadas no nível selecionado
-    document.getElementById('grade_level_id').addEventListener('change', function() {
-        const levelId = this.value;
-        const yearId = document.getElementById('academic_year_id').value;
-        const classSelect = document.getElementById('class_id');
+    // Carregar turmas baseadas no nível e ano selecionados
+    function loadClassesByLevelAndYear() {
+        const levelId = gradeLevelSelect.value;
+        const yearId = yearSelect.value;
         
         if (levelId && yearId) {
             fetch(`<?= site_url('admin/classes/get-by-level-and-year/') ?>${levelId}/${yearId}`, {
@@ -416,43 +434,64 @@ document.addEventListener('DOMContentLoaded', function() {
                 const currentValue = classSelect.value;
                 classSelect.innerHTML = '<option value="">Selecione a turma...</option>';
                 
-                classes.forEach(cls => {
-                    const available = cls.capacity - (cls.enrolled_count || 0);
-                    const disabled = available <= 0 ? 'disabled' : '';
-                    const selected = cls.id == currentValue ? 'selected' : '';
-                    
-                    classSelect.innerHTML += `<option value="${cls.id}" 
-                        data-capacity="${cls.capacity}"
-                        data-level="${cls.level_name}"
-                        data-available="${available}"
-                        ${selected}
-                        ${disabled}>
-                        ${cls.class_name} (${cls.class_code}) - ${cls.class_shift} - ${cls.level_name}
-                        (${available} vagas)
-                    </option>`;
-                });
+                if (classes.length === 0) {
+                    classSelect.innerHTML += '<option value="" disabled>Nenhuma turma disponível para este nível</option>';
+                    classInfo.textContent = '';
+                } else {
+                    classes.forEach(cls => {
+                        const available = cls.capacity - (cls.enrolled_count || 0);
+                        const disabled = available <= 0 ? 'disabled' : '';
+                        const selected = cls.id == currentValue ? 'selected' : '';
+                        
+                        classSelect.innerHTML += `<option value="${cls.id}" 
+                            data-capacity="${cls.capacity}"
+                            data-level="${cls.level_name}"
+                            data-available="${available}"
+                            ${selected}
+                            ${disabled}>
+                            ${cls.class_name} (${cls.class_code}) - ${cls.class_shift} - ${cls.level_name}
+                            (${available} vagas)
+                        </option>`;
+                    });
+                }
                 
                 // Disparar evento change para atualizar info
                 if (classSelect.value) {
                     classSelect.dispatchEvent(new Event('change'));
                 } else {
-                    document.getElementById('classInfo').textContent = '';
+                    classInfo.textContent = '';
                 }
             })
-            .catch(error => console.error('Erro:', error));
+            .catch(error => console.error('Erro ao carregar turmas:', error));
+        }
+    }
+
+    // Evento change do nível
+    gradeLevelSelect.addEventListener('change', loadClassesByLevelAndYear);
+
+    // Evento change do ano (recarregar turmas se necessário)
+    yearSelect.addEventListener('change', function() {
+        if (gradeLevelSelect.value) {
+            loadClassesByLevelAndYear();
         }
     });
 
     // Disparar change inicial para carregar turmas se já houver nível selecionado
-    const initialLevelId = document.getElementById('grade_level_id').value;
-    if (initialLevelId) {
-        document.getElementById('grade_level_id').dispatchEvent(new Event('change'));
+    if (gradeLevelSelect.value) {
+        console.log('Carregando turmas para o nível:', gradeLevelSelect.value);
+        gradeLevelSelect.dispatchEvent(new Event('change'));
+    }
+
+    // Se já houver uma turma selecionada (edição de matrícula ativa)
+    if (classSelect.value) {
+        console.log('Turma selecionada:', classSelect.value);
+        classSelect.dispatchEvent(new Event('change'));
     }
 
     // Validação do formulário antes de enviar
-    document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
-        const status = document.getElementById('status').value;
-        const classId = document.getElementById('class_id').value;
+    enrollmentForm.addEventListener('submit', function(e) {
+        const status = statusSelect.value;
+        const classId = classSelect.value;
         
         if (status == 'Ativo' && !classId) {
             e.preventDefault();

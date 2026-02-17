@@ -35,38 +35,42 @@ class Exams extends BaseController
     /**
      * Exams list
      */
-    public function index()
-    {
-        $data['title'] = 'Exames';
-        
-        $classId = $this->request->getGet('class');
-        $semesterId = $this->request->getGet('semester') ?: 
-            ($this->semesterModel->getCurrent()->id ?? null);
-        
-        $builder = $this->examModel
-            ->select('tbl_exams.*, tbl_classes.class_name, tbl_disciplines.discipline_name, tbl_semesters.semester_name, tbl_exam_boards.board_name')
-            ->join('tbl_classes', 'tbl_classes.id = tbl_exams.class_id')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id')
-            ->join('tbl_semesters', 'tbl_semesters.id = tbl_exams.semester_id')
-            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exams.exam_board_id');
-        
-        if ($classId) {
-            $builder->where('tbl_exams.class_id', $classId);
-        }
-        
-        if ($semesterId) {
-            $builder->where('tbl_exams.semester_id', $semesterId);
-        }
-        
-        $data['exams'] = $builder->orderBy('tbl_exams.exam_date', 'DESC')
-            ->paginate(10);
-        
-        $data['pager'] = $this->examModel->pager;
-        $data['classes'] = $this->classModel->findAll();
-        $data['semesters'] = $this->semesterModel->findAll();
-        
-        return view('admin/exams/index', $data);
+public function index()
+{
+    $data['title'] = 'Exames';
+    
+    $classId = $this->request->getGet('class');
+    $semesterId = $this->request->getGet('semester') ?: 
+        ($this->semesterModel->getCurrent()->id ?? null);
+    
+    $builder = $this->examModel
+        ->select('tbl_exams.*, tbl_classes.class_name, tbl_disciplines.discipline_name, tbl_semesters.semester_name, tbl_exam_boards.board_name')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exams.class_id')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id')
+        ->join('tbl_semesters', 'tbl_semesters.id = tbl_exams.semester_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exams.exam_board_id');
+    
+    if ($classId) {
+        $builder->where('tbl_exams.class_id', $classId);
     }
+    
+    if ($semesterId) {
+        $builder->where('tbl_exams.semester_id', $semesterId);
+    }
+    
+    $data['exams'] = $builder->orderBy('tbl_exams.exam_date', 'DESC')
+        ->paginate(10);
+    
+    $data['pager'] = $this->examModel->pager;
+    $data['classes'] = $this->classModel->findAll();
+    $data['semesters'] = $this->semesterModel->findAll();
+    
+    // ADICIONAR ESTAS LINHAS
+    $data['selectedClass'] = $classId;
+    $data['selectedSemester'] = $semesterId;
+    
+    return view('admin/exams/index', $data);
+}
     
     /**
      * Exam form

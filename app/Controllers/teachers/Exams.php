@@ -103,6 +103,8 @@ class Exams extends BaseController
             ->distinct()
             ->findAll();
         
+            log_message('info', "Classes do professor {$teacherId}: " . json_encode($data['classes']));
+
         // Get exam boards
         $data['boards'] = $this->examBoardModel
             ->where('is_active', 1)
@@ -246,21 +248,86 @@ class Exams extends BaseController
             return redirect()->back()->with('error', 'Erro ao salvar notas');
         }
     }
-    
-    /**
-     * Get disciplines for a class (AJAX)
-     */
-    public function getDisciplines($classId)
-    {
-        $teacherId = $this->session->get('user_id');
-        
-        $disciplines = $this->classDisciplineModel
-            ->select('tbl_disciplines.id, tbl_disciplines.discipline_name')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
-            ->where('tbl_class_disciplines.class_id', $classId)
-            ->where('tbl_class_disciplines.teacher_id', $teacherId)
-            ->findAll();
-        
-        return $this->response->setJSON($disciplines);
+/**
+ * Get disciplines for a class (AJAX)
+ */
+public function getDisciplines($classId = null)
+{
+    // Verificar se o classId foi fornecido
+    if (!$classId) {
+        log_message('error', 'getDisciplines chamado sem classId');
+        return $this->response->setJSON([]);
     }
+    
+    $teacherId = $this->session->get('user_id');
+    
+    $disciplines = $this->classDisciplineModel
+        ->select('tbl_disciplines.id, tbl_disciplines.discipline_name')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.teacher_id', $teacherId)
+        ->findAll();
+    
+    log_message('info', "Disciplinas para turma {$classId}: " . json_encode($disciplines));
+    
+    return $this->response->setJSON($disciplines);
+}
+/**
+ * View exam results
+ * 
+ * @param int $examId ID do exame
+ * @return View
+ */
+/**
+ * View exam results
+ */
+public function results($examId)
+{
+    $data['title'] = 'Resultados do Exame';
+    
+    // Buscar dados do exame
+    $data['exam'] = $this->examModel
+        ->select('
+            tbl_exams.*, 
+            tbl_classes.class_name, 
+            tbl_disciplines.discipline_name,
+            tbl_exam_boards.board_name
+        ')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exams.class_id')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exams.exam_board_id')
+        ->where('tbl_exams.id', $examId)
+        ->first();
+    
+    if (!$data['exam']) {
+        return redirect()->to('/teachers/exams')->with('error', 'Exame não encontrado');
+    }
+    
+    // Buscar resultados
+    $data['results'] = $this->examResultModel
+        ->select('
+            tbl_exam_results.*,
+            tbl_enrollments.student_id,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            tbl_students.student_number
+        ')
+        ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_exam_results.exam_id', $examId)
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    // Estatísticas
+    $data['statistics'] = $this->examResultModel->getExamStatistics($examId);
+    
+    // Total de alunos na turma
+    $data['totalStudents'] = $this->enrollmentModel
+        ->where('class_id', $data['exam']->class_id)
+        ->where('status', 'Ativo')
+        ->countAllResults();
+    
+    return view('teachers/exams/results', $data);
+}
 }
