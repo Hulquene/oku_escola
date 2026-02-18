@@ -1,6 +1,10 @@
 <?= $this->extend('admin/layouts/index') ?>
 
-<?= $this->section('content') ?>
+<?= $this->section('content');
+/* echo "<pre>";
+   var_dump($classes,$enrollment);die; */
+
+?>
 
 <!-- Page Header -->
 <div class="page-header">
@@ -102,9 +106,21 @@
                                 <?= ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')) ? 'disabled' : 'required' ?>>
                             <option value="">Selecione o aluno...</option>
                             <?php if (!empty($students)): ?>
-                                <?php foreach ($students as $student): ?>
-                                    <option value="<?= $student->id ?>" 
-                                        <?= ($selectedStudent == $student->id) ? 'selected' : '' ?>>
+                                <?php 
+                                // Se students é um objeto único (edição) ou array (novo)
+                                $studentList = is_array($students) ? $students : [$students];
+                                ?>
+                                <?php foreach ($studentList as $student): ?>
+                                    <?php 
+                                    // Verificar se este aluno deve ser selecionado
+                                    $isSelected = false;
+                                    if (old('student_id') !== null) {
+                                        $isSelected = (old('student_id') == $student->id);
+                                    } elseif ($enrollment && isset($enrollment->student_id)) {
+                                        $isSelected = ($enrollment->student_id == $student->id);
+                                    }
+                                    ?>
+                                    <option value="<?= $student->id ?>" <?= $isSelected ? 'selected' : '' ?>>
                                         <?= $student->first_name ?> <?= $student->last_name ?> (<?= $student->student_number ?>)
                                     </option>
                                 <?php endforeach; ?>
@@ -130,8 +146,17 @@
                             <option value="">Selecione o nível...</option>
                             <?php if (!empty($gradeLevels)): ?>
                                 <?php foreach ($gradeLevels as $level): ?>
-                                    <option value="<?= $level->id ?>" 
-                                        <?= ($selectedGradeLevel == $level->id) ? 'selected' : '' ?>>
+                                    <?php 
+                                    // Verificar se este nível deve ser selecionado
+                                    $isSelected = false;
+                                    
+                                    if (old('grade_level_id') !== null) {
+                                        $isSelected = (old('grade_level_id') == $level->id);
+                                    } elseif ($enrollment && isset($enrollment->grade_level_id)) {
+                                        $isSelected = ($enrollment->grade_level_id == $level->id);
+                                    }
+                                    ?>
+                                    <option value="<?= $level->id ?>" <?= $isSelected ? 'selected' : '' ?>>
                                         <?= $level->level_name ?> (<?= $level->education_level ?>)
                                     </option>
                                 <?php endforeach; ?>
@@ -143,7 +168,6 @@
                         <?php if ($enrollment && $enrollment->status == 'Ativo'): ?>
                             <input type="hidden" name="grade_level_id" value="<?= $enrollment->grade_level_id ?>">
                         <?php endif; ?>
-                        <small class="text-muted">Nível de ensino da matrícula</small>
                     </div>
                 </div>
             </div>
@@ -163,24 +187,57 @@
                                 name="class_id" 
                                 required>
                             <option value="">Selecione a turma...</option>
-                            <?php if (!empty($classes)): ?>
-                                <?php foreach ($classes as $class): ?>
+                            <?php 
+                         
+                            // Verificar qual array de classes usar
+                            $classesList = [];
+                            if (isset($classes_enrolled_count) && !empty($classes_enrolled_count)) {
+                                $classesList = $classes_enrolled_count;
+                            } elseif (isset($classes) && !empty($classes)) {
+                                $classesList = $classes;
+                            }
+                            
+                            // Determinar a turma selecionada
+                            $currentSelectedClass = null;
+                            if (old('class_id') !== null) {
+                                $currentSelectedClass = old('class_id');
+                            } elseif ($enrollment && isset($enrollment->class_id)) {
+                                $currentSelectedClass = $enrollment->class_id;
+                            }
+                            ?>
+                            
+                            <?php if (!empty($classesList)): ?>
+                                <?php foreach ($classesList as $class): ?>
                                     <?php 
-                                    $availableSeats = $class->available_seats ?? ($class->capacity - ($class->enrolled_count ?? 0));
-                                    $isDisabled = ($availableSeats <= 0 && $selectedClass != $class->id) ? 'disabled' : '';
+                                    // Calcular vagas disponíveis
+                                    $capacity = $class->capacity ?? 0;
+                                    $enrolled = isset($class->enrolled_count) ? $class->enrolled_count : 0;
+                                    $availableSeats = $capacity - $enrolled;
+                                    
+                                    // Verificar se é a turma selecionada
+                                    $isSelected = ($currentSelectedClass == $class->id);
+                                    
+                                    // Desabilitar se não houver vagas (a menos que seja a turma já selecionada)
+                                    $isDisabled = ($availableSeats <= 0 && !$isSelected) ? 'disabled' : '';
+                                    
+                                    // Obter nome do nível
+                                    $levelName = $class->level_name ?? '';
                                     ?>
                                     <option value="<?= $class->id ?>" 
-                                        data-capacity="<?= $class->capacity ?>"
-                                        data-level="<?= $class->level_name ?>"
+                                        data-capacity="<?= $capacity ?>"
+                                        data-level="<?= $levelName ?>"
                                         data-available="<?= $availableSeats ?>"
-                                        <?= ($selectedClass == $class->id) ? 'selected' : '' ?>
+                                        <?= $isSelected ? 'selected' : '' ?>
                                         <?= $isDisabled ?>>
-                                        <?= $class->class_name ?> (<?= $class->class_code ?>) - <?= $class->class_shift ?> - <?= $class->level_name ?>
+                                        <?= $class->class_name ?> 
+                                        <?php if (!empty($class->class_code)): ?>(<?= $class->class_code ?>)<?php endif; ?> - 
+                                        <?= $class->class_shift ?? 'N/A' ?>
+                                        <?php if (!empty($levelName)): ?>- <?= $levelName ?><?php endif; ?>
                                         (<?= $availableSeats ?> vagas)
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <option value="" disabled>Nenhuma turma disponível para este nível</option>
+                                <option value="" disabled>Nenhuma turma disponível para este nível e ano letivo</option>
                             <?php endif; ?>
                         </select>
                         <?php if (session('errors.class_id')): ?>
@@ -188,7 +245,14 @@
                         <?php endif; ?>
                         <small class="text-muted" id="classInfo"></small>
                         
-                        <?php if ($enrollment && $enrollment->status == 'Pendente' && empty($selectedClass)): ?>
+                        <?php if (empty($classesList) && $enrollment && $enrollment->status == 'Pendente'): ?>
+                            <div class="alert alert-warning mt-2">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Não existem turmas disponíveis para esta matrícula. Selecione outro nível ou ano letivo.
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($enrollment && $enrollment->status == 'Pendente' && empty($currentSelectedClass)): ?>
                             <div class="alert alert-warning mt-2">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 Esta matrícula está pendente. Selecione uma turma para ativá-la.
@@ -207,8 +271,18 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($academicYears)): ?>
                                 <?php foreach ($academicYears as $year): ?>
-                                    <option value="<?= $year->id ?>" 
-                                        <?= ($selectedYear == $year->id) ? 'selected' : '' ?>>
+                                    <?php 
+                                    // Verificar se este ano deve ser selecionado
+                                    $isSelected = false;
+                                    if (old('academic_year_id') !== null) {
+                                        $isSelected = (old('academic_year_id') == $year->id);
+                                    } elseif ($enrollment && isset($enrollment->academic_year_id)) {
+                                        $isSelected = ($enrollment->academic_year_id == $year->id);
+                                    } elseif (!$enrollment && $currentYear && $currentYear->id == $year->id) {
+                                        $isSelected = true;
+                                    }
+                                    ?>
+                                    <option value="<?= $year->id ?>" <?= $isSelected ? 'selected' : '' ?>>
                                         <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -248,9 +322,20 @@
                                 name="enrollment_type" 
                                 <?= ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')) ? 'disabled' : 'required' ?>>
                             <option value="">Selecione...</option>
-                            <option value="Nova" <?= ($selectedEnrollmentType == 'Nova') ? 'selected' : '' ?>>Nova</option>
-                            <option value="Renovação" <?= ($selectedEnrollmentType == 'Renovação') ? 'selected' : '' ?>>Renovação</option>
-                            <option value="Transferência" <?= ($selectedEnrollmentType == 'Transferência') ? 'selected' : '' ?>>Transferência</option>
+                            <?php 
+                            $enrollmentTypes = ['Nova', 'Renovação', 'Transferência'];
+                            foreach ($enrollmentTypes as $type): 
+                                $isSelected = false;
+                                if (old('enrollment_type') !== null) {
+                                    $isSelected = (old('enrollment_type') == $type);
+                                } elseif ($enrollment && isset($enrollment->enrollment_type)) {
+                                    $isSelected = ($enrollment->enrollment_type == $type);
+                                }
+                            ?>
+                                <option value="<?= $type ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                    <?= $type ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                         <?php if (session('errors.enrollment_type')): ?>
                             <div class="invalid-feedback"><?= session('errors.enrollment_type') ?></div>
@@ -283,8 +368,15 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($gradeLevels)): ?>
                                 <?php foreach ($gradeLevels as $level): ?>
-                                    <option value="<?= $level->id ?>" 
-                                        <?= ($selectedPreviousGrade == $level->id) ? 'selected' : '' ?>>
+                                    <?php 
+                                    $isSelected = false;
+                                    if (old('previous_grade_id') !== null) {
+                                        $isSelected = (old('previous_grade_id') == $level->id);
+                                    } elseif ($enrollment && isset($enrollment->previous_grade_id)) {
+                                        $isSelected = ($enrollment->previous_grade_id == $level->id);
+                                    }
+                                    ?>
+                                    <option value="<?= $level->id ?>" <?= $isSelected ? 'selected' : '' ?>>
                                         <?= $level->level_name ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -298,10 +390,22 @@
                     <div class="mb-3">
                         <label for="status" class="form-label">Status da Matrícula</label>
                         <select class="form-select" id="status" name="status">
-                            <option value="Pendente" <?= ($selectedStatus == 'Pendente') ? 'selected' : '' ?>>Pendente</option>
-                            <option value="Ativo" <?= ($selectedStatus == 'Ativo') ? 'selected' : '' ?>>Ativo</option>
-                            <option value="Concluído" <?= ($selectedStatus == 'Concluído') ? 'selected' : '' ?>>Concluído</option>
-                            <option value="Cancelado" <?= ($selectedStatus == 'Cancelado') ? 'selected' : '' ?>>Cancelado</option>
+                            <?php 
+                            $statusOptions = ['Pendente', 'Ativo', 'Concluído', 'Cancelado'];
+                            foreach ($statusOptions as $opt): 
+                                $isSelected = false;
+                                if (old('status') !== null) {
+                                    $isSelected = (old('status') == $opt);
+                                } elseif ($enrollment && isset($enrollment->status)) {
+                                    $isSelected = ($enrollment->status == $opt);
+                                } elseif (!$enrollment && $opt == 'Pendente') {
+                                    $isSelected = true;
+                                }
+                            ?>
+                                <option value="<?= $opt ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                    <?= $opt ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                         <small class="text-muted">Altere o status conforme necessário</small>
                     </div>
@@ -431,7 +535,10 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(classes => {
-                const currentValue = classSelect.value;
+                // Guardar o valor atual selecionado
+                const currentSelectedValue = classSelect.value;
+                
+                // Limpar o select
                 classSelect.innerHTML = '<option value="">Selecione a turma...</option>';
                 
                 if (classes.length === 0) {
@@ -439,17 +546,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     classInfo.textContent = '';
                 } else {
                     classes.forEach(cls => {
-                        const available = cls.capacity - (cls.enrolled_count || 0);
+                        // Calcular vagas disponíveis
+                        const capacity = cls.capacity || 0;
+                        const enrolled = cls.enrolled_count || 0;
+                        const available = capacity - enrolled;
                         const disabled = available <= 0 ? 'disabled' : '';
-                        const selected = cls.id == currentValue ? 'selected' : '';
+                        
+                        // Verificar se é a turma atualmente selecionada
+                        const isSelected = (cls.id == currentSelectedValue) ? 'selected' : '';
                         
                         classSelect.innerHTML += `<option value="${cls.id}" 
-                            data-capacity="${cls.capacity}"
-                            data-level="${cls.level_name}"
+                            data-capacity="${capacity}"
+                            data-level="${cls.level_name || ''}"
                             data-available="${available}"
-                            ${selected}
+                            ${isSelected}
                             ${disabled}>
-                            ${cls.class_name} (${cls.class_code}) - ${cls.class_shift} - ${cls.level_name}
+                            ${cls.class_name || ''} ${cls.class_code ? '(' + cls.class_code + ')' : ''} - ${cls.class_shift || 'N/A'} ${cls.level_name ? '- ' + cls.level_name : ''}
                             (${available} vagas)
                         </option>`;
                     });

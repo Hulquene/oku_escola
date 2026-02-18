@@ -777,6 +777,301 @@ CREATE TABLE `tbl_academic_history` (
     CONSTRAINT `fk_academic_history_class` FOREIGN KEY (`class_id`) REFERENCES `tbl_classes` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- --------------------------------------------------------
+-- Tabela de Professores
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tbl_teachers` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL,
+    `birth_date` DATE,
+    `gender` ENUM('Masculino','Feminino') NULL,
+    `nationality` VARCHAR(100) DEFAULT 'Angolana',
+    `identity_document` VARCHAR(50),
+    `identity_type` ENUM('BI','Passaporte','Cédula','Outro') DEFAULT 'BI',
+    `nif` VARCHAR(20),
+    `address` TEXT,
+    `city` VARCHAR(100),
+    `municipality` VARCHAR(100),
+    `province` VARCHAR(100),
+    `emergency_contact` VARCHAR(20),
+    `emergency_contact_name` VARCHAR(255),
+    `qualifications` TEXT COMMENT 'Habilitações literárias',
+    `specialization` VARCHAR(255) COMMENT 'Especialização/Área de formação',
+    `admission_date` DATE COMMENT 'Data de admissão na escola',
+    `bank_name` VARCHAR(100),
+    `bank_account` VARCHAR(50),
+    `bank_iban` VARCHAR(50),
+    `bank_swift` VARCHAR(20),
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `user_id` (`user_id`),
+    UNIQUE KEY `identity_document` (`identity_document`),
+    UNIQUE KEY `nif` (`nif`),
+    KEY `is_active` (`is_active`),
+    KEY `admission_date` (`admission_date`),
+    CONSTRAINT `fk_teachers_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+-- Comentários
+-- --------------------------------------------------------
+
+-- Esta tabela armazena informações adicionais específicas de professores
+-- que não estão incluídas na tabela genérica tbl_users.
+-- A relação é 1:1 com tbl_users através do campo user_id.
+
+-- --------------------------------------------------------
+-- Tabela de Documentos (para alunos e professores)
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tbl_documents` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL COMMENT 'ID do usuário (aluno ou professor)',
+    `user_type` ENUM('student','teacher') NOT NULL COMMENT 'Tipo de usuário',
+    `document_type` VARCHAR(50) NOT NULL COMMENT 'BI, Passaporte, Certificado, Foto, etc',
+    `document_name` VARCHAR(255) NOT NULL COMMENT 'Nome original do arquivo',
+    `document_path` VARCHAR(255) NOT NULL COMMENT 'Caminho do arquivo no servidor',
+    `document_size` INT(11) COMMENT 'Tamanho em bytes',
+    `document_mime` VARCHAR(100) COMMENT 'Tipo MIME do arquivo',
+    `description` TEXT COMMENT 'Descrição adicional',
+    `is_verified` TINYINT(1) DEFAULT '0' COMMENT '0=Pendente, 1=Verificado, 2=Rejeitado',
+    `verified_by` INT(11) COMMENT 'ID do admin que verificou',
+    `verified_at` DATETIME NULL COMMENT 'Data da verificação',
+    `verification_notes` TEXT COMMENT 'Observações da verificação',
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `user_id` (`user_id`),
+    KEY `user_type` (`user_type`),
+    KEY `document_type` (`document_type`),
+    KEY `is_verified` (`is_verified`),
+    KEY `created_at` (`created_at`),
+    CONSTRAINT `fk_documents_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Tabela de Tipos de Documentos (configurável)
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tbl_document_types` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `type_code` VARCHAR(50) NOT NULL COMMENT 'Código único para o tipo',
+    `type_name` VARCHAR(100) NOT NULL COMMENT 'Nome do tipo de documento',
+    `type_category` ENUM('identificacao','academico','pessoal','outro') NOT NULL DEFAULT 'outro',
+    `allowed_extensions` VARCHAR(255) COMMENT 'jpg,png,pdf',
+    `max_size` INT(11) DEFAULT '5120' COMMENT 'Tamanho máximo em KB (5MB padrão)',
+    `is_required` TINYINT(1) DEFAULT '0' COMMENT 'Obrigatório para alunos/professores',
+    `for_student` TINYINT(1) DEFAULT '1' COMMENT 'Disponível para alunos',
+    `for_teacher` TINYINT(1) DEFAULT '1' COMMENT 'Disponível para professores',
+    `description` TEXT,
+    `sort_order` INT(3) DEFAULT '0',
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `type_code` (`type_code`),
+    KEY `type_category` (`type_category`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Inserir tipos de documentos padrão
+-- --------------------------------------------------------
+
+INSERT INTO `tbl_document_types` (`type_code`, `type_name`, `type_category`, `allowed_extensions`, `max_size`, `is_required`, `for_student`, `for_teacher`, `sort_order`) VALUES
+('BI', 'Bilhete de Identidade', 'identificacao', 'jpg,jpeg,png,pdf', 5120, 1, 1, 1, 1),
+('PASSAPORTE', 'Passaporte', 'identificacao', 'jpg,jpeg,png,pdf', 5120, 0, 1, 1, 2),
+('CERTIDAO_NASCIMENTO', 'Certidão de Nascimento', 'identificacao', 'jpg,jpeg,png,pdf', 5120, 1, 1, 0, 3),
+('FOTO', 'Fotografia', 'pessoal', 'jpg,jpeg,png', 2048, 1, 1, 1, 4),
+('CERTIFICADO_CLASSES', 'Certificado de Classes Anteriores', 'academico', 'jpg,jpeg,png,pdf', 5120, 1, 1, 0, 5),
+('DIPLOMA', 'Diploma/Certificado', 'academico', 'jpg,jpeg,png,pdf', 5120, 0, 0, 1, 6),
+('COMPROVANTE_RESIDENCIA', 'Comprovante de Residência', 'outro', 'jpg,jpeg,png,pdf', 5120, 0, 1, 1, 7),
+('CURRICULO', 'Currículo Vitae', 'pessoal', 'pdf', 5120, 0, 0, 1, 8),
+('CERTIFICADO_HABILITACOES', 'Certificado de Habilitações', 'academico', 'jpg,jpeg,png,pdf', 5120, 1, 0, 1, 9),
+('DECLARACAO_TRABALHO', 'Declaração de Trabalho', 'outro', 'jpg,jpeg,png,pdf', 5120, 0, 0, 1, 10),
+('OUTRO', 'Outro Documento', 'outro', 'jpg,jpeg,png,pdf', 5120, 0, 1, 1, 99);
+
+-- --------------------------------------------------------
+-- Comentários
+-- --------------------------------------------------------
+
+-- A tabela tbl_documents permite que alunos e professores
+-- façam upload de múltiplos documentos para validação pela secretaria.
+-- O campo is_verified permite controlar o status de verificação:
+-- 0 = Pendente, 1 = Verificado, 2 = Rejeitado
+
+
+-- --------------------------------------------------------
+-- Tabela de Solicitações de Documentos
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tbl_document_requests` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL,
+    `user_type` ENUM('student','teacher','guardian','staff') NOT NULL,
+    `request_number` VARCHAR(50) NOT NULL,
+    `document_type` VARCHAR(100) NOT NULL COMMENT 'Tipo de documento solicitado (certificado, declaração, etc)',
+    `purpose` TEXT COMMENT 'Finalidade da solicitação',
+    `quantity` INT(2) DEFAULT '1',
+    `format` ENUM('digital','impresso','ambos') DEFAULT 'digital',
+    `delivery_method` ENUM('retirar','email','correio') DEFAULT 'retirar',
+    `delivery_address` TEXT,
+    `fee_amount` DECIMAL(10,2) DEFAULT '0.00',
+    `payment_status` ENUM('pending','paid','waived') DEFAULT 'pending',
+    `payment_reference` VARCHAR(100),
+    `payment_date` DATETIME,
+    `status` ENUM('pending','processing','ready','delivered','cancelled','rejected') DEFAULT 'pending',
+    `processed_by` INT(11),
+    `processed_at` DATETIME,
+    `ready_at` DATETIME,
+    `delivered_at` DATETIME,
+    `rejection_reason` TEXT,
+    `notes` TEXT,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `request_number` (`request_number`),
+    KEY `user_id` (`user_id`),
+    KEY `user_type` (`user_type`),
+    KEY `status` (`status`),
+    KEY `payment_status` (`payment_status`),
+    KEY `created_at` (`created_at`),
+    CONSTRAINT `fk_document_requests_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Tabela de Documentos Gerados (para solicitações)
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tbl_generated_documents` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `request_id` INT(11) NOT NULL,
+    `document_path` VARCHAR(255) NOT NULL,
+    `document_name` VARCHAR(255) NOT NULL,
+    `document_size` INT(11),
+    `document_mime` VARCHAR(100),
+    `generated_by` INT(11),
+    `generated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `download_count` INT(11) DEFAULT '0',
+    PRIMARY KEY (`id`),
+    KEY `request_id` (`request_id`),
+    KEY `generated_by` (`generated_by`),
+    CONSTRAINT `fk_generated_documents_request` FOREIGN KEY (`request_id`) REFERENCES `tbl_document_requests` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Tabela de Tipos de Documentos Solicitáveis
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tbl_requestable_documents` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `document_code` VARCHAR(50) NOT NULL,
+    `document_name` VARCHAR(255) NOT NULL,
+    `description` TEXT,
+    `category` ENUM('certificado','declaracao','atestado','historico','outro') DEFAULT 'outro',
+    `fee_amount` DECIMAL(10,2) DEFAULT '0.00',
+    `processing_days` INT(2) DEFAULT '3',
+    `available_for` ENUM('all','students','teachers','guardians','staff') DEFAULT 'all',
+    `requires_approval` TINYINT(1) DEFAULT '0',
+    `template_path` VARCHAR(255),
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `document_code` (`document_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Inserir tipos de documentos solicitáveis
+-- --------------------------------------------------------
+
+INSERT INTO `tbl_requestable_documents` (`document_code`, `document_name`, `category`, `fee_amount`, `processing_days`, `available_for`) VALUES
+('CERT_MATRICULA', 'Certificado de Matrícula', 'certificado', 500.00, 2, 'students'),
+('DECL_FREQUENCIA', 'Declaração de Frequência', 'declaracao', 0.00, 1, 'students'),
+('HISTORICO_NOTAS', 'Histórico de Notas', 'historico', 1000.00, 3, 'students'),
+('CERT_CONCLUSAO', 'Certificado de Conclusão', 'certificado', 1500.00, 5, 'students'),
+('DECL_APROVEITAMENTO', 'Declaração de Aproveitamento', 'declaracao', 0.00, 2, 'students'),
+('ATESTADO_MATRICULA', 'Atestado de Matrícula', 'atestado', 0.00, 1, 'students'),
+('DECL_SERVICO', 'Declaração de Serviço', 'declaracao', 0.00, 2, 'teachers'),
+('CERT_TRABALHO', 'Certificado de Trabalho', 'certificado', 500.00, 3, 'teachers'),
+('DECL_VENCIMENTO', 'Declaração de Vencimento', 'declaracao', 0.00, 2, 'teachers');
+
+
+-- Adicionar coluna document_code à tabela tbl_document_requests
+ALTER TABLE `tbl_document_requests` 
+ADD COLUMN `document_code` VARCHAR(50) NOT NULL AFTER `document_type`,
+ADD INDEX `idx_document_code` (`document_code`);
+
+
+-- --------------------------------------------------------
+-- Tabelas para Gestão Financeira
+-- --------------------------------------------------------
+
+-- 1. Tabela de Métodos de Pagamento
+CREATE TABLE IF NOT EXISTS `tbl_payment_modes` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `mode_name` VARCHAR(100) NOT NULL,
+    `mode_code` VARCHAR(50) NOT NULL,
+    `description` TEXT,
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `mode_code` (`mode_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Inserir métodos de pagamento padrão
+INSERT INTO `tbl_payment_modes` (`mode_name`, `mode_code`, `description`) VALUES
+('Dinheiro', 'CASH', 'Pagamento em espécie'),
+('Transferência Bancária', 'TRANSFER', 'Transferência bancária'),
+('Depósito', 'DEPOSIT', 'Depósito em conta'),
+('Multicaixa', 'ATM', 'Pagamento com cartão Multicaixa'),
+('Cheque', 'CHECK', 'Pagamento com cheque');
+
+-- 2. Tabela de Taxas/Impostos
+CREATE TABLE IF NOT EXISTS `tbl_taxes` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `tax_name` VARCHAR(100) NOT NULL,
+    `tax_code` VARCHAR(50) NOT NULL,
+    `tax_rate` DECIMAL(5,2) NOT NULL,
+    `description` TEXT,
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `tax_code` (`tax_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Inserir taxas padrão (IVA Angola)
+INSERT INTO `tbl_taxes` (`tax_name`, `tax_code`, `tax_rate`, `description`) VALUES
+('IVA - Taxa Normal', 'IVA14', 14.00, 'Imposto sobre Valor Acrescentado - Taxa Normal (14%)'),
+('IVA - Taxa Reduzida', 'IVA5', 5.00, 'Imposto sobre Valor Acrescentado - Taxa Reduzida (5%)'),
+('IVA - Isento', 'IVA0', 0.00, 'Isento de IVA');
+
+-- 3. Verificar se a tabela tbl_payments já tem o campo receipt_number
+-- Se não tiver, adicionar:
+ALTER TABLE `tbl_payments` 
+ADD COLUMN `receipt_number` VARCHAR(50) NULL AFTER `payment_reference`,
+ADD UNIQUE KEY `receipt_number` (`receipt_number`);
+
+-- 4. Verificar se a tabela tbl_invoice_items já tem todos os campos
+-- Se necessário, ajustar:
+ALTER TABLE `tbl_invoice_items`
+MODIFY COLUMN `tax_rate` DECIMAL(5,2) DEFAULT '0.00',
+MODIFY COLUMN `discount_rate` DECIMAL(5,2) DEFAULT '0.00';
+
+-- 5. Criar índices para melhor performance
+CREATE INDEX idx_invoice_date ON tbl_invoices(invoice_date);
+CREATE INDEX idx_invoice_status ON tbl_invoices(status);
+CREATE INDEX idx_payment_date ON tbl_payments(payment_date);
+CREATE INDEX idx_payment_method ON tbl_payments(payment_method);
+CREATE INDEX idx_expense_date ON tbl_expenses(expense_date);
+CREATE INDEX idx_expense_category ON tbl_expenses(expense_category_id);
+CREATE INDEX idx_expense_status ON tbl_expenses(payment_status);
+
 -- --------------------------------------------------------
 -- Inserção de Dados Iniciais
 -- --------------------------------------------------------

@@ -265,29 +265,47 @@ class Classes extends BaseController
             return redirect()->back()->with('error', 'Erro ao ativar turma.');
         }
     }
-    /**
-     * Get classes by grade level and academic year (AJAX)
-     * 
-     * @param int $levelId ID do nível de ensino
-     * @param int $yearId ID do ano letivo
-     * @return JSON
-     */
-    public function getByLevelAndYear($levelId, $yearId)
-    {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setJSON([]);
-        }
-        
-        $classes = $this->classModel->getByLevelAndYearWithStats($levelId, $yearId);
-        
-        // Calcular vagas disponíveis
-        foreach ($classes as $class) {
-            $class->available_seats = $class->capacity - ($class->enrolled_count ?? 0);
-        }
-        
-        return $this->response->setJSON($classes);
+   /**
+ * Get classes by grade level and academic year (AJAX)
+ * 
+ * @param int $levelId ID do nível de ensino
+ * @param int $yearId ID do ano letivo
+ * @return JSON
+ */
+public function getByLevelAndYear($levelId, $yearId)
+{
+    // Log para debug
+    log_message('debug', "getByLevelAndYear chamado: levelId={$levelId}, yearId={$yearId}");
+    
+    // Verificar se é uma requisição AJAX (opcional, pode remover para teste)
+    // if (!$this->request->isAJAX()) {
+    //     return $this->response->setJSON([]);
+    // }
+    
+    // Validar parâmetros
+    if (!$levelId || !$yearId) {
+        return $this->response->setJSON([]);
     }
-
+    
+    // Buscar turmas usando o método do model
+    $classes = $this->classModel->getByLevelAndYearWithStats($levelId, $yearId);
+    
+    // Log para debug
+    log_message('debug', 'Turmas encontradas: ' . count($classes));
+    
+    // Calcular vagas disponíveis para cada turma
+    foreach ($classes as $class) {
+        $class->enrolled_count = $class->enrolled_count ?? 0;
+        $class->available_seats = $class->capacity - $class->enrolled_count;
+        
+        // Garantir que level_name esteja presente
+        if (!isset($class->level_name)) {
+            $class->level_name = '';
+        }
+    }
+    
+    return $this->response->setJSON($classes);
+}
         /**
      * Check class availability (AJAX)
      */
@@ -301,4 +319,5 @@ class Classes extends BaseController
         
         return $this->response->setJSON(['available' => $available]);
     }
+    
 }

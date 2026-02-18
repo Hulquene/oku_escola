@@ -35,7 +35,7 @@ class StudentModel extends BaseModel
     ];
     
     protected $validationRules = [
-        'id' => 'permit_empty|is_natural_no_zero',  // <-- IMPORTANTE: Adicionar regra para o ID
+        'id' => 'permit_empty|is_natural_no_zero',  
         'user_id' => 'required|numeric|is_unique[tbl_students.user_id,id,{id}]',
         'student_number' => 'required|is_unique[tbl_students.student_number,id,{id}]',
         'birth_date' => 'permit_empty|valid_date',

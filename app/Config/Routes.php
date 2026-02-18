@@ -208,9 +208,10 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('activate/(:num)', [Classes::class, 'activate/$1'], ["as" => 'classes.activate']);
         $routes->get('view/(:num)', [Classes::class, 'view/$1'], ["as" => 'classes.view']);
         $routes->get('list-students/(:num)', [Classes::class, 'listStudents/$1'], ["as" => 'classes.students']);
-       $routes->get('get-by-level-and-year/(:num)/(:num)', [Classes::class, 'getByLevelAndYear/$1/$2'], ["as" => 'classes.get-by-level-and-year']);
-        $routes->get('check-availability/(:num)', [Classes::class, 'checkAvailability/$1'], ["as" => 'classes.check-availability']);
+       
     });
+      $routes->get('get-by-level-and-year/(:num)/(:num)', [Classes::class, 'getByLevelAndYear/$1/$2'], ["as" => 'classes.get-by-level-and-year']);
+      $routes->get('check-availability/(:num)', [Classes::class, 'checkAvailability/$1'], ["as" => 'classes.check-availability']);
 
     // Disciplinas
     $routes->group('subjects', function ($routes) {
@@ -233,6 +234,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
    * Gestão de Alunos (Estudantes)
    */
   $routes->group('students', function ($routes) {
+
     $routes->get('', [Clients::class, 'students'], ["as" => 'students']);
     $routes->get('form-add', [Clients::class, 'studentForm'], ["as" => 'students.form']);
     $routes->get('form-edit/(:num)', [Clients::class, 'studentForm'], ["as" => 'students.form/$1']);
@@ -244,8 +246,9 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     // Matrículas
     $routes->group('enrollments', function ($routes) {
         $routes->get('', [Enrollments::class, 'index'], ["as" => 'students.enrollments']);
+        $routes->get('pending', [Enrollments::class, 'pending'], ["as" => 'students.enrollments.pending']); 
         $routes->get('form-add', [Enrollments::class, 'form'], ["as" => 'students.enrollments.form']);
-        $routes->get('form-edit/(:num)', [Enrollments::class, 'form/$1'], ["as" => 'students.enrollments.form.edit']); // <-- ADICIONAR ESTA LINHA
+        $routes->get('form-edit/(:num)', [Enrollments::class, 'form/$1'], ["as" => 'students.enrollments.form.edit']);
         $routes->post('save', [Enrollments::class, 'save'], ["as" => 'students.enrollments.save']);
         $routes->get('view/(:num)', [Enrollments::class, 'view'], ["as" => 'students.enrollments.view/$1']);
         $routes->get('history/(:num)', [Enrollments::class, 'history'], ["as" => 'students.enrollments.history/$1']);

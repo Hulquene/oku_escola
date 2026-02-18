@@ -8,6 +8,8 @@ use App\Models\StudentModel;
 use App\Models\ClassModel;
 use App\Models\AcademicYearModel;
 use App\Models\FeeStructureModel;
+use App\Models\GradeLevelModel;
+
 
 class Enrollments extends BaseController
 {
@@ -16,6 +18,7 @@ class Enrollments extends BaseController
     protected $classModel;
     protected $academicYearModel;
     protected $feeStructureModel;
+    protected $gradeLevelModel;
     
     public function __construct()
     {
@@ -24,6 +27,8 @@ class Enrollments extends BaseController
         $this->classModel = new ClassModel();
         $this->academicYearModel = new AcademicYearModel();
         $this->feeStructureModel = new FeeStructureModel();
+          // Buscar níveis de ensino
+        $this->gradeLevelModel = new GradeLevelModel();
     }
     
     /**
@@ -127,6 +132,8 @@ public function form($id = null)
         if (!$this->hasPermission('edit_enrollments')) {
             return redirect()->to('/admin/students/enrollments')->with('error', 'Não tem permissão para editar matrículas');
         }
+
+
     } else {
         // Criando nova matrícula
         if (!$this->hasPermission('create_enrollments')) {
@@ -139,23 +146,33 @@ public function form($id = null)
     
     $currentYear = $this->academicYearModel->getCurrent();
     
+ 
     // Verificar se existe ano letivo atual
     if (!$currentYear) {
         return redirect()->to('/admin/academic/years')
             ->with('error', 'É necessário definir um ano letivo atual antes de fazer matrículas.');
     }
     
-    // Buscar alunos ativos
-    $data['students'] = $this->studentModel
-        ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
-        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-        ->where('tbl_students.is_active', 1)
-        ->orderBy('tbl_users.first_name', 'ASC')
-        ->findAll();
-    
-    // Buscar níveis de ensino
-    $gradeLevelModel = new \App\Models\GradeLevelModel();
-    $data['gradeLevels'] = $gradeLevelModel
+      if ($id) {
+        // Buscar alunos ativos
+        $data['students'] = $this->studentModel
+            ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_students.is_active', 1)
+            ->where('tbl_students.id', $data['enrollment']->student_id)
+        //    ->limit(1)
+            ->first();
+      }else{
+        // Buscar alunos ativos
+        $data['students'] = $this->studentModel
+            ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_students.is_active', 1)
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+      }
+
+    $data['gradeLevels'] = $this->gradeLevelModel
         ->where('is_active', 1)
         ->orderBy('sort_order', 'ASC')
         ->findAll();
@@ -166,66 +183,12 @@ public function form($id = null)
         ->orderBy('start_date', 'DESC')
         ->findAll();
     
+     $data['classes'] = $this->classModel
+        ->where('is_active', 1)
+        ->findAll();
+
     $data['currentYear'] = $currentYear;
     
-    // VALORES SELECIONADOS PARA OS SELECTS
-    // Prioridade: old() > dados da matrícula > valores padrão
-    
-    // Student ID - se for edição, usar o ID da matrícula
-    if ($id && $data['enrollment']) {
-        $selectedStudent = $data['enrollment']->student_id;
-    } else {
-        $selectedStudent = null;
-    }
-    $data['selectedStudent'] = old('student_id', $selectedStudent);
-    
-    // Year ID - se for edição, usar o ano da matrícula, senão o ano atual
-    if ($id && $data['enrollment']) {
-        $selectedYear = $data['enrollment']->academic_year_id;
-    } else {
-        $selectedYear = $currentYear->id;
-    }
-    $data['selectedYear'] = old('academic_year_id', $selectedYear);
-    
-    // Grade Level ID - se for edição, usar o nível da matrícula
-    if ($id && $data['enrollment']) {
-        $selectedGradeLevel = $data['enrollment']->grade_level_id;
-    } else {
-        $selectedGradeLevel = null;
-    }
-    $data['selectedGradeLevel'] = old('grade_level_id', $selectedGradeLevel);
-    
-    // Class ID - se for edição, usar a turma da matrícula
-    if ($id && $data['enrollment']) {
-        $selectedClass = $data['enrollment']->class_id;
-    } else {
-        $selectedClass = null;
-    }
-    $data['selectedClass'] = old('class_id', $selectedClass);
-    
-    // Enrollment Type
-    if ($id && $data['enrollment']) {
-        $selectedEnrollmentType = $data['enrollment']->enrollment_type;
-    } else {
-        $selectedEnrollmentType = 'Nova';
-    }
-    $data['selectedEnrollmentType'] = old('enrollment_type', $selectedEnrollmentType);
-    
-    // Status
-    if ($id && $data['enrollment']) {
-        $selectedStatus = $data['enrollment']->status;
-    } else {
-        $selectedStatus = 'Pendente';
-    }
-    $data['selectedStatus'] = old('status', $selectedStatus);
-    
-    // Previous Grade ID
-    if ($id && $data['enrollment']) {
-        $selectedPreviousGrade = $data['enrollment']->previous_grade_id;
-    } else {
-        $selectedPreviousGrade = null;
-    }
-    $data['selectedPreviousGrade'] = old('previous_grade_id', $selectedPreviousGrade);
     
     // Buscar turmas disponíveis baseadas no ano e nível selecionados
     $classQuery = $this->classModel
@@ -239,16 +202,7 @@ public function form($id = null)
         ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
         ->where('tbl_classes.is_active', 1);
     
-    // Filtrar por ano letivo
-    if ($data['selectedYear']) {
-        $classQuery->where('tbl_classes.academic_year_id', $data['selectedYear']);
-    }
-    
-    // Filtrar por nível se selecionado
-    if ($data['selectedGradeLevel']) {
-        $classQuery->where('tbl_classes.grade_level_id', $data['selectedGradeLevel']);
-    }
-    
+   
     $classes = $classQuery->orderBy('tbl_classes.class_name', 'ASC')->findAll();
     
     // Calcular vagas disponíveis para cada turma
@@ -257,16 +211,11 @@ public function form($id = null)
         $class->available_seats = $class->capacity - $class->enrolled_count;
     }
     
-    $data['classes'] = $classes;
+    $data['classes_enrolled_count'] = $classes;
     
-    // Se for uma matrícula pendente, buscar nome do nível para exibição
-    if ($id && $data['enrollment'] && $data['enrollment']->status == 'Pendente' && $data['selectedGradeLevel']) {
-        $gradeLevel = $gradeLevelModel->find($data['selectedGradeLevel']);
-        if ($gradeLevel) {
-            $data['enrollment']->grade_level_name = $gradeLevel->level_name;
-        }
-    }
-  //  var_dump($data);die;
+
+ /*    echo "<pre>";
+    var_dump($data);die; */
     return view('admin/students/enrollments/form', $data);
 }
     /**
@@ -383,13 +332,13 @@ public function save()
     }
     
     // Redirecionar baseado no status
-    if ($status == 'Pendente') {
+   /*  if ($status == 'Pendente') {
         return redirect()->to('/admin/students/enrollments/pending')
             ->with('success', $message);
-    } else {
+    } else { */
         return redirect()->to('/admin/students/enrollments')
             ->with('success', $message);
-    }
+  //  }
 }
     
    /**

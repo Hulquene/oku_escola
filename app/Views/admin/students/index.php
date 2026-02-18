@@ -295,8 +295,8 @@
                                             <span class="badge bg-warning p-2">
                                                 <i class="fas fa-clock me-1"></i>Matrícula Pendente
                                             </span>
-                                            <?php if (!empty($student->current_class)): ?>
-                                                <small class="text-muted mt-1">Turma: <?= $student->current_class ?></small>
+                                            <?php if (!empty($student->pending_class_name)): ?>
+                                                <small class="text-muted mt-1">Turma: <?= $student->pending_class_name ?></small>
                                             <?php endif; ?>
                                         </div>
                                     <?php elseif ($enrollmentStatus == 'Concluído'): ?>
@@ -319,19 +319,28 @@
                                     <?php endif; ?>
                                 </td>
                                 
-                                <!-- Coluna Nível -->
+                                <!-- Coluna Nível - Atualizada para mostrar pendente -->
                                 <td>
-                                    <?php if (!empty($student->level_name)): ?>
-                                        <span class="badge bg-info p-2"><?= $student->level_name ?></span>
+                                    <?php 
+                                    // Prioridade: matrícula ativa > matrícula pendente
+                                    if (!empty($student->level_name)): ?>
+                                        <span class="badge bg-success p-2"><?= $student->level_name ?></span>
+                                    <?php elseif (!empty($student->pending_level_name)): ?>
+                                        <span class="badge bg-warning p-2"><?= $student->pending_level_name ?></span>
+                                        <br><small class="text-warning">(Pendente)</small>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 
-                                <!-- Coluna Ano Letivo -->
+                                <!-- Coluna Ano Letivo - Atualizada para mostrar pendente -->
                                 <td>
-                                    <?php if (!empty($student->current_year)): ?>
-                                        <span class="badge bg-info p-2"><?= $student->current_year ?></span>
+                                    <?php 
+                                    if (!empty($student->current_year)): ?>
+                                        <span class="badge bg-success p-2"><?= $student->current_year ?></span>
+                                    <?php elseif (!empty($student->pending_year_name)): ?>
+                                        <span class="badge bg-warning p-2"><?= $student->pending_year_name ?></span>
+                                        <br><small class="text-warning">(Pendente)</small>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>

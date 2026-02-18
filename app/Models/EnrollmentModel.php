@@ -13,8 +13,8 @@ class EnrollmentModel extends BaseModel
         'student_id',
         'class_id',
         'academic_year_id',
-            'grade_level_id',        // <-- NOVO
-    'previous_grade_id',      // <-- NOVO
+        'grade_level_id',
+        'previous_grade_id',
         'enrollment_date',
         'enrollment_number',
         'enrollment_type',
@@ -74,22 +74,19 @@ class EnrollmentModel extends BaseModel
     {
         return $this->select('
                 tbl_enrollments.*,
-                tbl_students.id as student_id,
+            
                 tbl_students.student_number,
                 tbl_users.first_name,
                 tbl_users.last_name,
                 tbl_users.email,
                 tbl_users.phone,
-                tbl_classes.id as class_id,
                 tbl_classes.class_name,
                 tbl_classes.class_code,
                 tbl_classes.class_shift,
                 tbl_classes.class_room,
-                tbl_academic_years.id as academic_year_id,
                 tbl_academic_years.year_name,
                 tbl_academic_years.start_date as year_start,
                 tbl_academic_years.end_date as year_end,
-                tbl_grade_levels.id as grade_level_id,
                 tbl_grade_levels.level_name as grade_level_name,
                 tbl_grade_levels.education_level,
                 tbl_users_created.first_name as created_by_first,
