@@ -19,8 +19,11 @@
             <strong><?= session()->get('name') ?></strong>
             <small class="d-block text-white-50">
                 <i class="fas fa-graduation-cap"></i> Aluno
-                <?php if (session()->has('student_class')): ?>
-                    <br><span class="badge bg-light text-primary mt-1">Turma: <?= session()->get('student_class') ?></span>
+                <?php 
+                $classInfo = formatStudentClassInfo();
+                if ($classInfo): 
+                ?>
+                    <br><span class="badge bg-light text-primary mt-1">Turma: <?= $classInfo ?></span>
                 <?php endif; ?>
             </small>
         </div>
@@ -43,7 +46,8 @@
                class="dropdown-toggle <?= in_array(uri_string(), ['students/subjects', 'students/subjects/details']) ? 'active' : '' ?>">
                 <i class="fas fa-book"></i> Minhas Disciplinas
                 <?php 
-                $totalDisciplinas = session()->get('total_subjects') ?? 0;
+                $disciplines = getStudentDisciplines();
+                $totalDisciplinas = count($disciplines);
                 if ($totalDisciplinas > 0): 
                 ?>
                     <span class="badge bg-warning text-dark float-end"><?= $totalDisciplinas ?></span>
@@ -57,8 +61,8 @@
                 </li>
                 
                 <!-- Lista dinâmica de disciplinas -->
-                <?php if (!empty(session()->get('student_subjects'))): ?>
-                    <?php foreach (session()->get('student_subjects') as $subject): ?>
+                <?php if (!empty($disciplines)): ?>
+                    <?php foreach ($disciplines as $subject): ?>
                         <li>
                             <a href="<?= site_url('students/subjects/details/' . $subject->id) ?>" 
                                class="<?= uri_string() == 'students/subjects/details/' . $subject->id ? 'active' : '' ?>">
@@ -195,58 +199,25 @@
         <li class="px-3 mb-2">
             <div class="small text-white-50">
                 <i class="fas fa-book"></i> Média Geral: 
-                <span class="float-end text-white fw-bold">
-                    <?php
-                    $studentId = session()->get('user_id');
-                    $gradeModel = new \App\Models\GradeModel();
-                    $grades = $gradeModel->getStudentGrades($studentId);
-                    $average = 0;
-                    $count = 0;
-                    foreach ($grades as $grade) {
-                        if ($grade->final_grade > 0) {
-                            $average += $grade->final_grade;
-                            $count++;
-                        }
-                    }
-                    echo $count > 0 ? number_format($average / $count, 1) : '-';
-                    ?>
-                </span>
+                <span class="float-end text-white fw-bold"><?= getStudentAverageGrade() ?></span>
             </div>
         </li>
         <li class="px-3 mb-2">
             <div class="small text-white-50">
                 <i class="fas fa-calendar-check"></i> Presença: 
-                <span class="float-end text-white fw-bold">
-                    <?php
-                    $attendanceModel = new \App\Models\AttendanceModel();
-                    $attendance = $attendanceModel->getStudentAttendancePercentage($studentId);
-                    echo $attendance . '%';
-                    ?>
-                </span>
+                <span class="float-end text-white fw-bold"><?= getStudentAttendancePercentage() ?></span>
             </div>
         </li>
         <li class="px-3 mb-2">
             <div class="small text-white-50">
                 <i class="fas fa-pencil-alt"></i> Próximo Exame: 
-                <span class="float-end text-white fw-bold">
-                    <?php
-                    $examModel = new \App\Models\ExamModel();
-                    $nextExam = $examModel->getNextStudentExam($studentId);
-                    echo $nextExam ? date('d/m', strtotime($nextExam->exam_date)) : '-';
-                    ?>
-                </span>
+                <span class="float-end text-white fw-bold"><?= getNextStudentExam() ?></span>
             </div>
         </li>
         <li class="px-3 mb-2">
             <div class="small text-white-50">
                 <i class="fas fa-money-bill"></i> Propinas: 
-                <span class="float-end text-white fw-bold">
-                    <?php
-                    $feeModel = new \App\Models\FeeModel();
-                    $pendingFees = $feeModel->getStudentPendingFees($studentId);
-                    echo count($pendingFees) . ' pendente(s)';
-                    ?>
-                </span>
+                <span class="float-end text-white fw-bold"><?= getStudentPendingFeesCount() ?></span>
             </div>
         </li>
         <?php endif; ?>

@@ -1,0 +1,45 @@
+DEBUG - 2026-02-18 00:06:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-18 00:06:39 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\EnrollmentModel::getCurrentEnrollment
+[Method: GET, Route: students/attendance/history]
+in SYSTEMPATH/Model.php on line 758.
+ 1 APPPATH/Helpers/student_helper.php(182): CodeIgniter\Model->__call()
+ 2 APPPATH/Views/students/layouts/sidebar.php(23): formatStudentClassInfo()
+ 3 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/sidebar.php')
+ 4 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 5 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 6 APPPATH/Views/students/layouts/index.php(252): view()
+ 7 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/index.php')
+ 8 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 9 SYSTEMPATH/View/View.php(254): CodeIgniter\View\View->render()
+10 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+11 APPPATH/Controllers/students/Attendance.php(157): view()
+12 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Attendance->history()
+13 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+14 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+15 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+16 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+17 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+18 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 00:08:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-18 00:08:23 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\EnrollmentModel::getCurrentEnrollment
+[Method: GET, Route: students/attendance/history]
+in SYSTEMPATH/Model.php on line 758.
+ 1 APPPATH/Helpers/student_helper.php(141): CodeIgniter\Model->__call()
+ 2 APPPATH/Views/students/layouts/sidebar.php(49): getStudentDisciplines()
+ 3 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/sidebar.php')
+ 4 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 5 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 6 APPPATH/Views/students/layouts/index.php(252): view()
+ 7 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/index.php')
+ 8 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 9 SYSTEMPATH/View/View.php(254): CodeIgniter\View\View->render()
+10 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+11 APPPATH/Controllers/students/Attendance.php(157): view()
+12 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Attendance->history()
+13 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+14 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+15 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+16 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+17 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+18 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 00:09:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
