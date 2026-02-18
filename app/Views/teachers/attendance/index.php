@@ -71,7 +71,7 @@
     </div>
 </div>
 
-<?php if ($selectedClass && $selectedDiscipline && $selectedDate): ?>
+<?php if ($selectedClass && $selectedDisciplineId && $selectedDate): ?>
     <?php if (!empty($students)): ?>
         <!-- Cards de Estatísticas -->
         <div class="row mb-4">
@@ -137,7 +137,7 @@
         <div class="alert alert-info mb-3">
             <i class="fas fa-book me-2"></i>
             <strong>Disciplina:</strong> 
-            <span id="selectedDisciplineName"><?= $selectedDiscipline ?></span>
+            <span id="selectedDisciplineName"><?= $selectedDisciplineName ?></span>
         </div>
         
         <!-- Formulário de Presenças -->
@@ -160,7 +160,7 @@
                 <form action="<?= site_url('teachers/attendance/save') ?>" method="post" id="attendanceSaveForm">
                     <?= csrf_field() ?>
                     <input type="hidden" name="class_id" value="<?= $selectedClass ?>">
-                    <input type="hidden" name="discipline_id" value="<?= $selectedDiscipline ?>">
+                    <input type="hidden" name="discipline_id" value="<?= $selectedDisciplineId ?>">
                     <input type="hidden" name="attendance_date" value="<?= $selectedDate ?>">
                     
                     <div class="table-responsive">
@@ -232,7 +232,7 @@
         </div>
     <?php endif; ?>
     
-<?php elseif ($selectedClass || $selectedDiscipline || $selectedDate): ?>
+<?php elseif ($selectedClass || $selectedDisciplineId || $selectedDate): ?>
     <div class="alert alert-info text-center py-4">
         <i class="fas fa-info-circle fa-3x mb-3"></i>
         <h5>Selecione todos os filtros</h5>
@@ -249,7 +249,7 @@ const classSelect = document.getElementById('class');
 const disciplineSelect = document.getElementById('discipline');
 const dateInput = document.getElementById('date');
 const loadButton = document.getElementById('loadButton');
-const selectedDiscipline = '<?= $selectedDiscipline ?>';
+const selectedDisciplineId = '<?= $selectedDisciplineId ?>';
 
 // Função para verificar se todos os campos estão preenchidos
 function checkFormCompletion() {
@@ -279,7 +279,7 @@ classSelect.addEventListener('change', function() {
             disciplineSelect.disabled = false;
             
             data.forEach(discipline => {
-                const selected = (selectedDiscipline == discipline.id) ? 'selected' : '';
+                const selected = (selectedDisciplineId == discipline.id) ? 'selected' : '';
                 disciplineSelect.innerHTML += `<option value="${discipline.id}" ${selected}>${discipline.discipline_name}</option>`;
             });
             
@@ -358,25 +358,42 @@ function updateStats() {
 }
 
 // Atualizar estatísticas na carga inicial
-window.addEventListener('load', updateStats);
+document.addEventListener('DOMContentLoaded', function() {
+    updateStats();
+});
 
 // Atualizar estatísticas quando status mudar
 document.querySelectorAll('.status-select').forEach(select => {
     select.addEventListener('change', updateStats);
 });
 
-// Validação do formulário antes de enviar
+// Debug - Ver dados do formulário antes de enviar
 document.getElementById('attendanceSaveForm')?.addEventListener('submit', function(e) {
     const present = parseInt(document.getElementById('statPresent').textContent);
     const total = <?= count($students ?? []) ?>;
+    
+    // Debug no console
+    const formData = new FormData(this);
+    console.log('=== DADOS DO FORMULÁRIO ===');
+    console.log('Class ID:', formData.get('class_id'));
+    console.log('Discipline ID:', formData.get('discipline_id'));
+    console.log('Date:', formData.get('attendance_date'));
+    
+    let studentsWithStatus = 0;
+    for (let pair of formData.entries()) {
+        if (pair[0].includes('[status]')) {
+            studentsWithStatus++;
+            console.log(pair[0], ':', pair[1]);
+        }
+    }
+    console.log('Total alunos com status:', studentsWithStatus);
+    console.log('============================');
     
     if (total > 0 && present === 0) {
         if (!confirm('Nenhum aluno marcado como presente. Deseja continuar mesmo assim?')) {
             e.preventDefault();
         }
     }
-    
-    console.log('Enviando formulário com', total, 'alunos');
 });
 </script>
 
