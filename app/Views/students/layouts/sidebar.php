@@ -1,13 +1,16 @@
 <nav class="sidebar">
     <div class="sidebar-header">
         <h3>Portal do Aluno</h3>
-        <p><?= session()->get('name') ?></p>
+        <p><?= currentUserName() ?></p>
     </div>
     
     <!-- Informações do Aluno -->
     <div class="student-info p-3 text-center border-bottom border-secondary">
-        <?php if (session()->get('photo')): ?>
-            <img src="<?= base_url('uploads/students/' . session()->get('photo')) ?>" 
+        <?php 
+        $photo = currentUserPhoto();
+        if ($photo): 
+        ?>
+            <img src="<?= base_url('uploads/students/' . $photo) ?>" 
                  alt="Aluno" class="rounded-circle mb-2" style="width: 70px; height: 70px; object-fit: cover;">
         <?php else: ?>
             <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center text-white mb-2"
@@ -16,7 +19,7 @@
             </div>
         <?php endif; ?>
         <div class="text-white">
-            <strong><?= session()->get('name') ?></strong>
+            <strong><?= currentUserName() ?></strong>
             <small class="d-block text-white-50">
                 <i class="fas fa-graduation-cap"></i> Aluno
                 <?php 
@@ -32,7 +35,8 @@
     <ul class="components">
         <!-- Dashboard -->
         <li>
-            <a href="<?= site_url('students/dashboard') ?>" class="<?= uri_string() == 'students/dashboard' ? 'active' : '' ?>">
+            <a href="<?= site_url('students/dashboard') ?>" 
+               class="<?= uri_string() == 'students/dashboard' ? 'active' : '' ?>">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
                 <?php if (uri_string() == 'students/dashboard'): ?>
                     <span class="badge bg-light text-primary float-end mt-1">Atual</span>
@@ -40,10 +44,21 @@
             </a>
         </li>
         
+        <!-- Perfil -->
+        <li>
+            <a href="<?= site_url('students/profile') ?>" 
+               class="<?= uri_string() == 'students/profile' ? 'active' : '' ?>">
+                <i class="fas fa-user"></i> Meu Perfil
+                <?php if (uri_string() == 'students/profile'): ?>
+                    <span class="badge bg-light text-primary float-end mt-1">Atual</span>
+                <?php endif; ?>
+            </a>
+        </li>
+        
         <!-- Minhas Disciplinas -->
         <li>
-            <a href="#subjectsSubmenu" data-bs-toggle="collapse" 
-               class="dropdown-toggle <?= in_array(uri_string(), ['students/subjects', 'students/subjects/details']) ? 'active' : '' ?>">
+            <a href="<?= site_url('students/subjects') ?>" 
+               class="<?= uri_string() == 'students/subjects' ? 'active' : '' ?>">
                 <i class="fas fa-book"></i> Minhas Disciplinas
                 <?php 
                 $disciplines = getStudentDisciplines();
@@ -53,27 +68,6 @@
                     <span class="badge bg-warning text-dark float-end"><?= $totalDisciplinas ?></span>
                 <?php endif; ?>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['students/subjects', 'students/subjects/details']) ? 'show' : '' ?>" id="subjectsSubmenu">
-                <li>
-                    <a href="<?= site_url('students/subjects') ?>" class="<?= uri_string() == 'students/subjects' ? 'active' : '' ?>">
-                        <i class="fas fa-list"></i> Lista de Disciplinas
-                    </a>
-                </li>
-                
-                <!-- Lista dinâmica de disciplinas -->
-                <?php if (!empty($disciplines)): ?>
-                    <?php foreach ($disciplines as $subject): ?>
-                        <li>
-                            <a href="<?= site_url('students/subjects/details/' . $subject->id) ?>" 
-                               class="<?= uri_string() == 'students/subjects/details/' . $subject->id ? 'active' : '' ?>">
-                                <i class="fas fa-chart-line"></i> 
-                                <?= $subject->discipline_name ?> 
-                                <small class="d-block text-white-50">Professor: <?= $subject->teacher_name ?></small>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </ul>
         </li>
         
         <!-- Notas -->
@@ -91,18 +85,6 @@
                 <li>
                     <a href="<?= site_url('students/grades/report-card') ?>" class="<?= uri_string() == 'students/grades/report-card' ? 'active' : '' ?>">
                         <i class="fas fa-file-alt"></i> Boletim
-                    </a>
-                </li>
-                <li class="sidebar-divider"></li>
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Médias</li>
-                <li>
-                    <a href="<?= site_url('students/grades?filter=ac1') ?>">
-                        <i class="fas fa-calculator"></i> AC1
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= site_url('students/grades?filter=ac2') ?>">
-                        <i class="fas fa-calculator"></i> AC2
                     </a>
                 </li>
             </ul>
@@ -128,18 +110,6 @@
                 <li>
                     <a href="<?= site_url('students/exams/results') ?>" class="<?= uri_string() == 'students/exams/results' ? 'active' : '' ?>">
                         <i class="fas fa-star"></i> Resultados
-                    </a>
-                </li>
-                <li class="sidebar-divider"></li>
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Status</li>
-                <li>
-                    <a href="<?= site_url('students/exams?status=pending') ?>">
-                        <i class="fas fa-clock"></i> Próximos Exames
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= site_url('students/exams?status=completed') ?>">
-                        <i class="fas fa-check-circle"></i> Exames Realizados
                     </a>
                 </li>
             </ul>
@@ -189,13 +159,74 @@
                 </li>
             </ul>
         </li>
-        
+        <!-- No sidebar do aluno, adicionar após Propinas -->
+        <!-- Documentos -->
+        <li>
+            <a href="#documentsSubmenu" data-bs-toggle="collapse" 
+            class="dropdown-toggle <?= in_array(uri_string(), ['students/documents', 'students/documents/requests', 'students/documents/archive']) ? 'active' : '' ?>">
+                <i class="fas fa-folder-open"></i> Documentos
+                <?php 
+                $documentModel = new \App\Models\DocumentModel();
+                $pendingDocs = $documentModel->where('user_id', currentUserId())
+                    ->where('user_type', 'student')
+                    ->where('is_verified', 0)
+                    ->countAllResults();
+                if ($pendingDocs > 0): 
+                ?>
+                    <span class="badge bg-warning text-dark float-end"><?= $pendingDocs ?></span>
+                <?php endif; ?>
+            </a>
+            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['students/documents', 'students/documents/requests', 'students/documents/archive']) ? 'show' : '' ?>" id="documentsSubmenu">
+                <li>
+                    <a href="<?= site_url('students/documents') ?>" class="<?= uri_string() == 'students/documents' ? 'active' : '' ?>">
+                        <i class="fas fa-upload"></i> Meus Documentos
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('students/documents/requests') ?>" class="<?= uri_string() == 'students/documents/requests' ? 'active' : '' ?>">
+                        <i class="fas fa-file-signature"></i> Solicitar Documento
+                        <?php 
+                        $requestModel = new \App\Models\DocumentRequestModel();
+                        $pendingRequests = $requestModel->where('user_id', currentUserId())
+                            ->where('user_type', 'student')
+                            ->where('status', 'pending')
+                            ->countAllResults();
+                        if ($pendingRequests > 0): 
+                        ?>
+                            <span class="badge bg-warning text-dark float-end"><?= $pendingRequests ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('students/documents/archive') ?>" class="<?= uri_string() == 'students/documents/archive' ? 'active' : '' ?>">
+                        <i class="fas fa-archive"></i> Arquivo
+                    </a>
+                </li>
+            </ul>
+        </li>
         <!-- Separador -->
         <li class="sidebar-divider"></li>
         
+        <!-- Links Rápidos Adicionais -->
+        <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Links Rápidos</li>
+        
+        <li>
+            <a href="<?= site_url('students/profile/academic-history') ?>" 
+               class="<?= uri_string() == 'students/profile/academic-history' ? 'active' : '' ?>">
+                <i class="fas fa-history"></i> Histórico Acadêmico
+            </a>
+        </li>
+        
+        <li>
+            <a href="<?= site_url('students/profile/guardians') ?>" 
+               class="<?= uri_string() == 'students/profile/guardians' ? 'active' : '' ?>">
+                <i class="fas fa-users"></i> Meus Encarregados
+            </a>
+        </li>
+        
         <!-- Estatísticas Rápidas (visíveis apenas no dashboard) -->
         <?php if (uri_string() == 'students/dashboard'): ?>
-        <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Resumo Acadêmico</li>
+        <li class="sidebar-header small text-uppercase px-3 mt-3 mb-1 text-white-50">Resumo Acadêmico</li>
         <li class="px-3 mb-2">
             <div class="small text-white-50">
                 <i class="fas fa-book"></i> Média Geral: 
@@ -216,7 +247,7 @@
         </li>
         <li class="px-3 mb-2">
             <div class="small text-white-50">
-                <i class="fas fa-money-bill"></i> Propinas: 
+                <i class="fas fa-money-bill"></i> Propinas Pendentes: 
                 <span class="float-end text-white fw-bold"><?= getStudentPendingFeesCount() ?></span>
             </div>
         </li>
@@ -226,12 +257,17 @@
     <div class="sidebar-footer p-3">
         <div class="small text-white-50">
             <i class="fas fa-calendar"></i> <?= date('Y') ?>
-            <?php if (session()->has('academic_year')): ?>
-                <br><i class="fas fa-database"></i> Ano Letivo: <?= session()->get('academic_year') ?>
+            <?php 
+            $enrollmentId = getStudentEnrollmentId();
+            if ($enrollmentId): 
+            ?>
+                <br><i class="fas fa-id-card"></i> Matrícula Ativa
             <?php endif; ?>
-            <?php if (session()->has('enrollment_date')): ?>
-                <br><i class="fas fa-clock"></i> Matrícula: <?= date('d/m/Y', strtotime(session()->get('enrollment_date'))) ?>
-            <?php endif; ?>
+        </div>
+        
+        <!-- Informações do Sistema -->
+        <div class="small text-white-50 mt-2">
+            <i class="fas fa-code-branch"></i> v1.0.0
         </div>
         
         <!-- Logout Button -->

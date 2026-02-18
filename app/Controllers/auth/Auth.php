@@ -154,6 +154,12 @@ class Auth extends BaseController
             }
         }
         
+        // Se for staff, pode precisar de dados específicos
+        if ($user->user_type == 'staff') {
+            // Buscar permissões específicas ou departamentos
+            // $additionalData['department'] = ...
+        }
+        
         // Set session data COMPLETA
         $sessionData = array_merge([
             'user_id' => $user->id,
@@ -175,8 +181,12 @@ class Auth extends BaseController
         // Update last login
         $this->userModel->update($user->id, ['last_login' => date('Y-m-d H:i:s')]);
         
+        // Registrar log de login
+        log_login($user->id, $user->username);
+        
         return $this->redirectToDashboard();
     }
+    
     /**
      * Redirect to appropriate dashboard - MELHORADO
      */
@@ -189,6 +199,7 @@ class Auth extends BaseController
         
         switch ($userType) {
             case 'admin':
+            case 'staff': // STAFF VAI PARA ADMIN DASHBOARD
                 return redirect()->to('/admin/dashboard');
             case 'teacher':
                 return redirect()->to('/teachers/dashboard');
@@ -219,7 +230,7 @@ class Auth extends BaseController
      */
     public function adminSignin()
     {
-        return $this->signin(); // Reutiliza o método principal
+        return $this->signin();
     }
     
     /**
@@ -235,11 +246,11 @@ class Auth extends BaseController
     }
     
     /**
-     * Teacher login process - usa o mesmo método unificado
+     * Teacher login process
      */
     public function teachersSignin()
     {
-        return $this->signin(); // Reutiliza o método principal
+        return $this->signin();
     }
     
     /**
@@ -255,11 +266,31 @@ class Auth extends BaseController
     }
     
     /**
-     * Student login process - usa o mesmo método unificado
+     * Student login process
      */
     public function studentsSignin()
     {
-        return $this->signin(); // Reutiliza o método principal
+        return $this->signin();
+    }
+    
+    /**
+     * Staff login page (opcional)
+     */
+    public function staffIndex()
+    {
+        if ($this->isLoggedIn()) {
+            return redirect()->to('/admin/dashboard');
+        }
+        
+        return view('auth/staff-login');
+    }
+    
+    /**
+     * Staff login process
+     */
+    public function staffSignin()
+    {
+        return $this->signin();
     }
     
     /**
@@ -267,6 +298,13 @@ class Auth extends BaseController
      */
     public function logout()
     {
+        $userId = $this->session->get('user_id');
+        $username = $this->session->get('username');
+        
+        if ($userId) {
+            log_logout($userId, $username);
+        }
+        
         $this->session->destroy();
         return redirect()->to('/auth/login');
     }

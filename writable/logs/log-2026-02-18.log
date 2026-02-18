@@ -1,229 +1,322 @@
-DEBUG - 2026-02-18 00:06:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-18 00:06:39 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\EnrollmentModel::getCurrentEnrollment
-[Method: GET, Route: students/attendance/history]
-in SYSTEMPATH/Model.php on line 758.
- 1 APPPATH/Helpers/student_helper.php(182): CodeIgniter\Model->__call()
- 2 APPPATH/Views/students/layouts/sidebar.php(23): formatStudentClassInfo()
- 3 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/sidebar.php')
- 4 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
- 5 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 6 APPPATH/Views/students/layouts/index.php(252): view()
- 7 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/index.php')
- 8 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
- 9 SYSTEMPATH/View/View.php(254): CodeIgniter\View\View->render()
-10 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
-11 APPPATH/Controllers/students/Attendance.php(157): view()
-12 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Attendance->history()
-13 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
-14 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
-15 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-16 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-17 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-18 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-18 00:08:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-18 00:08:23 --> CodeIgniter\Exceptions\BadMethodCallException: Call to undefined method App\Models\EnrollmentModel::getCurrentEnrollment
-[Method: GET, Route: students/attendance/history]
-in SYSTEMPATH/Model.php on line 758.
- 1 APPPATH/Helpers/student_helper.php(141): CodeIgniter\Model->__call()
- 2 APPPATH/Views/students/layouts/sidebar.php(49): getStudentDisciplines()
- 3 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/sidebar.php')
- 4 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
- 5 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 6 APPPATH/Views/students/layouts/index.php(252): view()
- 7 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/layouts/index.php')
- 8 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
- 9 SYSTEMPATH/View/View.php(254): CodeIgniter\View\View->render()
-10 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
-11 APPPATH/Controllers/students/Attendance.php(157): view()
-12 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Attendance->history()
-13 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
-14 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
-15 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-16 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-17 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-18 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-18 00:09:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:10:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:10:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:10:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:10:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:10:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:10:59 --> CSRF token verified.
-DEBUG - 2026-02-18 00:10:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:10:59 --> 📝 ATTENDANCE: Iniciando registro de 1 presenças
-ERROR - 2026-02-18 00:10:59 --> You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ' `attendance_date`, `class_id`, `created_at`, `discipline_id`, `enrollment_id...' at line 1
+DEBUG - 2026-02-18 10:53:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 10:53:12 --> CSRF token verified.
+DEBUG - 2026-02-18 10:53:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 10:53:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 10:58:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 10:58:35 --> CSRF token verified.
+DEBUG - 2026-02-18 10:58:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-02-18 10:58:35 --> Erros de validação na solicitação: {"purpose":"The purpose field must be at least 5 characters in length."}
+DEBUG - 2026-02-18 10:58:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:00:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 11:00:49 --> CSRF token verified.
+DEBUG - 2026-02-18 11:00:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:00:49 --> Tentando inserir solicitação: {"user_id":4,"user_type":"student","request_number":"REQ202602187679","document_type":"Certificado de Conclus\u00e3o","document_code":"CERT_CONCLUSAO","purpose":"testando","quantity":"1","format":"digital","delivery_method":"retirar","delivery_address":"","fee_amount":"1500.00","payment_status":"pending","status":"pending"}
+ERROR - 2026-02-18 11:00:49 --> Unknown column 'document_code' in 'field list'
 in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
  1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
  2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
  3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 4 SYSTEMPATH/Database/BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query()
- 5 SYSTEMPATH/Database/BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute()
- 6 SYSTEMPATH/Model.php(382): CodeIgniter\Database\BaseBuilder->insertBatch()
- 7 SYSTEMPATH/BaseModel.php(1006): CodeIgniter\Model->doInsertBatch()
- 8 APPPATH/Models/AttendanceModel.php(96): CodeIgniter\BaseModel->insertBatch()
- 9 APPPATH/Controllers/teachers/Attendance.php(150): App\Models\AttendanceModel->markBulk()
-10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\teachers\Attendance->save()
-11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
-12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
-13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-INFO - 2026-02-18 00:10:59 --> 📝 ATTENDANCE: Inseridos -1 novos registros em lote
-ERROR - 2026-02-18 00:10:59 --> 📝 ATTENDANCE: Falha na operação. Transação não foi concluída com sucesso.
-DEBUG - 2026-02-18 00:10:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:11:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:11:23 --> CSRF token verified.
-DEBUG - 2026-02-18 00:11:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:11:23 --> 📝 ATTENDANCE: Iniciando registro de 1 presenças
-ERROR - 2026-02-18 00:11:23 --> You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ' `attendance_date`, `class_id`, `created_at`, `discipline_id`, `enrollment_id...' at line 1
-in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
- 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
- 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
- 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 4 SYSTEMPATH/Database/BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query()
- 5 SYSTEMPATH/Database/BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute()
- 6 SYSTEMPATH/Model.php(382): CodeIgniter\Database\BaseBuilder->insertBatch()
- 7 SYSTEMPATH/BaseModel.php(1006): CodeIgniter\Model->doInsertBatch()
- 8 APPPATH/Models/AttendanceModel.php(96): CodeIgniter\BaseModel->insertBatch()
- 9 APPPATH/Controllers/teachers/Attendance.php(150): App\Models\AttendanceModel->markBulk()
-10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\teachers\Attendance->save()
-11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
-12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
-13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-INFO - 2026-02-18 00:11:23 --> 📝 ATTENDANCE: Inseridos -1 novos registros em lote
-ERROR - 2026-02-18 00:11:23 --> 📝 ATTENDANCE: Falha na operação. Transação não foi concluída com sucesso.
-DEBUG - 2026-02-18 00:11:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:11:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:15:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:15:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:16:02 --> CSRF token verified.
-DEBUG - 2026-02-18 00:16:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:16:02 --> 📝 ATTENDANCE: Iniciando registro de 1 presenças
-INFO - 2026-02-18 00:16:02 --> 📝 ATTENDANCE: Inserido novo registro para enrollment_id 1
-INFO - 2026-02-18 00:16:02 --> 📝 ATTENDANCE: Todos os 1 registros foram salvos com sucesso!
-DEBUG - 2026-02-18 00:16:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:16:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:16:15 --> CSRF token verified.
-DEBUG - 2026-02-18 00:16:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:16:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:16:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:16:34 --> CSRF token verified.
-DEBUG - 2026-02-18 00:16:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:16:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:16:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:16:48 --> CSRF token verified.
-DEBUG - 2026-02-18 00:16:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:16:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:16:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:22:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:25:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:25:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2026-02-18 00:25:32 --> Unknown column 'tbl_disciplines.code' in 'field list'
-in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
- 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
- 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
- 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 4 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
- 5 SYSTEMPATH/Model.php(254): CodeIgniter\Database\BaseBuilder->get()
- 6 SYSTEMPATH/BaseModel.php(675): CodeIgniter\Model->doFindAll()
- 7 APPPATH/Controllers/teachers/Attendance.php(317): CodeIgniter\BaseModel->findAll()
- 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\teachers\Attendance->getDisciplines()
- 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
-10 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
-11 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-12 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-13 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-14 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-CRITICAL - 2026-02-18 00:25:32 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'tbl_disciplines.code' in 'field list'
-[Method: GET, Route: teachers/attendance/get-disciplines/1]
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Controllers/BaseDocuments.php(267): CodeIgniter\Model->insert()
+ 9 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\BaseDocuments->createRequest()
+10 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+14 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+15 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-18 11:00:49 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'document_code' in 'field list'
+[Method: POST, Route: students/documents/request]
 in SYSTEMPATH/Database/BaseConnection.php on line 724.
- 1 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
- 2 SYSTEMPATH/Model.php(254): CodeIgniter\Database\BaseBuilder->get()
- 3 SYSTEMPATH/BaseModel.php(675): CodeIgniter\Model->doFindAll()
- 4 APPPATH/Controllers/teachers/Attendance.php(317): CodeIgniter\BaseModel->findAll()
- 5 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\teachers\Attendance->getDisciplines()
- 6 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 7 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 8 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-10 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-11 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-CRITICAL - 2026-02-18 00:25:32 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'tbl_disciplines.code' in 'field list'
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Controllers/BaseDocuments.php(267): CodeIgniter\Model->insert()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\BaseDocuments->createRequest()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-18 11:00:49 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'document_code' in 'field list'
 in SYSTEMPATH/Database/MySQLi/Connection.php on line 310.
  1 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
  2 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 3 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
- 4 SYSTEMPATH/Model.php(254): CodeIgniter\Database\BaseBuilder->get()
- 5 SYSTEMPATH/BaseModel.php(675): CodeIgniter\Model->doFindAll()
- 6 APPPATH/Controllers/teachers/Attendance.php(317): CodeIgniter\BaseModel->findAll()
- 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\teachers\Attendance->getDisciplines()
- 8 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 9 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
-10 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-11 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-12 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-13 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-CRITICAL - 2026-02-18 00:25:32 --> [Caused by] mysqli_sql_exception: Unknown column 'tbl_disciplines.code' in 'field list'
-in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
- 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
- 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
- 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 4 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
- 5 SYSTEMPATH/Model.php(254): CodeIgniter\Database\BaseBuilder->get()
- 6 SYSTEMPATH/BaseModel.php(675): CodeIgniter\Model->doFindAll()
- 7 APPPATH/Controllers/teachers/Attendance.php(317): CodeIgniter\BaseModel->findAll()
- 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\teachers\Attendance->getDisciplines()
+ 3 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 4 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 6 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 7 APPPATH/Controllers/BaseDocuments.php(267): CodeIgniter\Model->insert()
+ 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\BaseDocuments->createRequest()
  9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
 10 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
 11 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
 12 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
 13 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
 14 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-18 00:25:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:26:19 --> CSRF token verified.
-DEBUG - 2026-02-18 00:26:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:26:29 --> CSRF token verified.
-DEBUG - 2026-02-18 00:26:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:26:54 --> CSRF token verified.
-DEBUG - 2026-02-18 00:26:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-INFO - 2026-02-18 00:26:54 --> 📝 ATTENDANCE: Iniciando registro de 1 presenças
-INFO - 2026-02-18 00:26:54 --> 📝 ATTENDANCE: Inserido novo registro para enrollment_id 1
-INFO - 2026-02-18 00:26:54 --> 📝 ATTENDANCE: Todos os 1 registros foram salvos com sucesso!
-DEBUG - 2026-02-18 00:26:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:26:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:27:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:28:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:28:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:28:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:28:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:28:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:29:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:30:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:30:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:30:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:30:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:30:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:30:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:31:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:31:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:31:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:31:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:32:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:32:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:32:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:32:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:32:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:32:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:33:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-18 00:33:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-18 11:00:49 --> [Caused by] mysqli_sql_exception: Unknown column 'document_code' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Controllers/BaseDocuments.php(267): CodeIgniter\Model->insert()
+ 9 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\BaseDocuments->createRequest()
+10 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+14 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+15 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+INFO - 2026-02-18 11:05:03 --> CSRF token verified.
+DEBUG - 2026-02-18 11:05:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:05:03 --> Tentando inserir solicitação: {"user_id":4,"user_type":"student","request_number":"REQ202602180889","document_type":"Certificado de Conclus\u00e3o","purpose":"testando","quantity":"1","format":"digital","delivery_method":"retirar","delivery_address":"","fee_amount":"1500.00","payment_status":"pending","status":"pending"}
+DEBUG - 2026-02-18 11:05:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:05:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:05:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:05:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:06:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:06:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:06:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:13:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:13:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:54:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:55:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:56:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:56:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 11:59:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:00:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:00:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:00:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:00:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:01:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:01:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 12:01:40 --> CSRF token verified.
+DEBUG - 2026-02-18 12:01:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:01:40 --> Redirecionando usuário tipo: teacher
+DEBUG - 2026-02-18 12:01:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:01:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 12:02:15 --> CSRF token verified.
+DEBUG - 2026-02-18 12:02:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:02:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:02:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:02:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:02:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:02:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:02:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:02:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:03:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 12:03:29 --> CSRF token verified.
+DEBUG - 2026-02-18 12:03:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:03:29 --> Tentando inserir solicitação: {"user_id":2,"user_type":"teacher","request_number":"REQ202602188623","document_type":"Declara\u00e7\u00e3o de Servi\u00e7o","purpose":"teste de requi","quantity":"1","format":"digital","delivery_method":"email","delivery_address":"","fee_amount":"0.00","payment_status":"waived","status":"pending"}
+DEBUG - 2026-02-18 12:03:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:03:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:03:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:03:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:04:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:04:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:04:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:04:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:05:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:05:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:05:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:05:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:06:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:06:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:06:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:07:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:07:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:07:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 12:08:13 --> CSRF token verified.
+DEBUG - 2026-02-18 12:08:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-02-18 12:08:13 --> === INÍCIO saveStudent ===
+INFO - 2026-02-18 12:08:13 --> Método: POST
+INFO - 2026-02-18 12:08:13 --> Headers: {"Host":"localhost:8080","Connection":"keep-alive","Content-Length":"3277","Cache-Control":"max-age=0","sec-ch-ua":"\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"","sec-ch-ua-mobile":"?0","sec-ch-ua-platform":"\"Linux\"","Origin":"http:\/\/localhost:8080","DNT":"1","Upgrade-Insecure-Requests":"1","Content-Type":"multipart\/form-data; boundary=----WebKitFormBoundaryEfu6mRAY2YoTeHwM","User-Agent":"Mozilla\/5.0 (X11; Linux x86_64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/144.0.0.0 Safari\/537.36","Accept":"text\/html,application\/xhtml+xml,application\/xml;q=0.9,image\/avif,image\/webp,image\/apng,*\/*;q=0.8,application\/signed-exchange;v=b3;q=0.7","Sec-Fetch-Site":"same-origin","Sec-Fetch-Mode":"navigate","Sec-Fetch-User":"?1","Sec-Fetch-Dest":"document","Referer":"http:\/\/localhost:8080\/admin\/students\/form-edit\/3","Accept-Encoding":"gzip, deflate, br, zstd","Accept-Language":"pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7","Cookie":"csrf_cookie_name=170cff8fb6186352211ed63f8be0d3c7; ci_session=3891aefe959fb4a1320637b8a828a729"}
+INFO - 2026-02-18 12:08:13 --> POST dados: {"id":"3","user_id":"6","first_name":"Aluno 3","last_name":"studante 3","email":"student3@gmail.com","birth_date":"2006-12-07","gender":"Masculino","nationality":"Angolana","phone":"","identity_type":"BI","identity_document":"4534354354","nif":"","blood_type":"","province":"","municipality":"","city":"","address":"","academic_year_id":"2","grade_level_id":"13","enrollment_type":"Nova","previous_grade_id":"12","previous_school":"","student_number":"STU20260003","emergency_contact_name":"","emergency_contact":"","health_conditions":"","special_needs":"","registration_date":"2026-02-18","is_active":"1"}
+INFO - 2026-02-18 12:08:13 --> FILES: {"photo":{"name":"","full_path":"","type":"","tmp_name":"","error":4,"size":0}}
+INFO - 2026-02-18 12:08:13 --> CSRF token name: csrf_test_name
+INFO - 2026-02-18 12:08:13 --> CSRF token from POST: NÃO ENVIADO
+CRITICAL - 2026-02-18 12:08:13 --> CodeIgniter\Exceptions\LogicException: No validation rules for the placeholder: "user_id". You must set the validation rules for the field. See <https://codeigniter4.github.io/userguide/libraries/validation.html#validation-placeholders>.
+[Method: POST, Route: admin/students/save]
+in SYSTEMPATH/Validation/Validation.php on line 803.
+ 1 SYSTEMPATH/Validation/Validation.php(155): CodeIgniter\Validation\Validation->fillPlaceholders()
+ 2 SYSTEMPATH/Controller.php(136): CodeIgniter\Validation\Validation->run()
+ 3 APPPATH/Controllers/admin/Clients.php(360): CodeIgniter\Controller->validate()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\Clients->saveStudent()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 12:11:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:11:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:26:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:26:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-18 12:26:54 --> ErrorException: Undefined property: CodeIgniter\View\View::$userModel
+[Method: GET, Route: admin/document-generator]
+in APPPATH/Views/admin/document-generator/index.php on line 119.
+ 1 APPPATH/Views/admin/document-generator/index.php(119): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/document-generator/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/admin/DocumentGenerator.php(70): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DocumentGenerator->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 12:31:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-18 12:31:23 --> ErrorException: Undefined property: CodeIgniter\View\View::$userModel
+[Method: GET, Route: admin/document-generator]
+in APPPATH/Views/admin/document-generator/index.php on line 119.
+ 1 APPPATH/Views/admin/document-generator/index.php(119): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/document-generator/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/admin/DocumentGenerator.php(70): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DocumentGenerator->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 12:31:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-18 12:31:56 --> ErrorException: Undefined property: CodeIgniter\View\View::$userModel
+[Method: GET, Route: admin/document-generator]
+in APPPATH/Views/admin/document-generator/index.php on line 119.
+ 1 APPPATH/Views/admin/document-generator/index.php(119): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/document-generator/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/admin/DocumentGenerator.php(70): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DocumentGenerator->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 12:34:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:34:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:34:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-18 12:34:54 --> ErrorException: Undefined property: stdClass::$document_code
+[Method: GET, Route: admin/document-generator/pending]
+in APPPATH/Views/admin/document-generator/pending.php on line 140.
+ 1 APPPATH/Views/admin/document-generator/pending.php(140): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/document-generator/pending.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/admin/DocumentGenerator.php(91): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DocumentGenerator->pending()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 12:42:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:42:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:42:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:42:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:42:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:44:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-02-18 12:44:37 --> [DEPRECATED] number_format(): Passing null to parameter #1 ($num) of type float is deprecated in APPPATH/Views/admin/dashboard/index.php on line 113.
+ 1 APPPATH/Views/admin/dashboard/index.php(113): number_format(null, 2, ',', '.')
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/dashboard/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render('admin/dashboard/index', [], true)
+ 5 APPPATH/Controllers/admin/Dashboard.php(79): view('admin/dashboard/index', [...])
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\Dashboard->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\admin\Dashboard))
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+WARNING - 2026-02-18 12:44:37 --> [DEPRECATED] number_format(): Passing null to parameter #1 ($num) of type float is deprecated in APPPATH/Views/admin/dashboard/index.php on line 135.
+ 1 APPPATH/Views/admin/dashboard/index.php(135): number_format(null, 2, ',', '.')
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/dashboard/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render('admin/dashboard/index', [], true)
+ 5 APPPATH/Controllers/admin/Dashboard.php(79): view('admin/dashboard/index', [...])
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\Dashboard->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\admin\Dashboard))
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+WARNING - 2026-02-18 12:44:37 --> [DEPRECATED] number_format(): Passing null to parameter #1 ($num) of type float is deprecated in APPPATH/Views/admin/dashboard/index.php on line 144.
+ 1 APPPATH/Views/admin/dashboard/index.php(144): number_format(null, 2, ',', '.')
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/dashboard/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render('admin/dashboard/index', [], true)
+ 5 APPPATH/Controllers/admin/Dashboard.php(79): view('admin/dashboard/index', [...])
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\Dashboard->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\admin\Dashboard))
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-18 12:44:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-18 12:44:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+WARNING - 2026-02-18 12:44:53 --> [DEPRECATED] number_format(): Passing null to parameter #1 ($num) of type float is deprecated in APPPATH/Views/admin/dashboard/index.php on line 113.
+ 1 APPPATH/Views/admin/dashboard/index.php(113): number_format(null, 2, ',', '.')
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/dashboard/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render('admin/dashboard/index', [], true)
+ 5 APPPATH/Controllers/admin/Dashboard.php(79): view('admin/dashboard/index', [...])
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\Dashboard->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\admin\Dashboard))
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+WARNING - 2026-02-18 12:44:53 --> [DEPRECATED] number_format(): Passing null to parameter #1 ($num) of type float is deprecated in APPPATH/Views/admin/dashboard/index.php on line 135.
+ 1 APPPATH/Views/admin/dashboard/index.php(135): number_format(null, 2, ',', '.')
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/dashboard/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render('admin/dashboard/index', [], true)
+ 5 APPPATH/Controllers/admin/Dashboard.php(79): view('admin/dashboard/index', [...])
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\Dashboard->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\admin\Dashboard))
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+WARNING - 2026-02-18 12:44:53 --> [DEPRECATED] number_format(): Passing null to parameter #1 ($num) of type float is deprecated in APPPATH/Views/admin/dashboard/index.php on line 144.
+ 1 APPPATH/Views/admin/dashboard/index.php(144): number_format(null, 2, ',', '.')
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/admin/dashboard/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render('admin/dashboard/index', [], true)
+ 5 APPPATH/Controllers/admin/Dashboard.php(79): view('admin/dashboard/index', [...])
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\Dashboard->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\admin\Dashboard))
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')

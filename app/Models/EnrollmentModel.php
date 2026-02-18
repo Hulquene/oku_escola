@@ -409,4 +409,29 @@ public function getForView($id)
         
         return $nextClass ? $nextClass->id : null;
     }
+    /**
+ * Get current enrollment by user ID (para alunos)
+ * 
+ * @param int $userId ID do usuário
+ * @return object|null
+ */
+public function getCurrentByUserId($userId)
+{
+    return $this->select('
+            tbl_enrollments.*,
+            tbl_classes.class_name,
+            tbl_classes.class_code,
+            tbl_classes.class_shift,
+            tbl_academic_years.year_name,
+            tbl_students.id as student_id,
+            tbl_students.student_number
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+        ->where('tbl_students.user_id', $userId)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_enrollments.id', 'DESC')
+        ->first();
+}
 }

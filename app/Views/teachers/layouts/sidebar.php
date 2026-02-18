@@ -36,7 +36,15 @@
                 <?php endif; ?>
             </a>
         </li>
-        
+        <!-- Perfil -->
+        <li>
+            <a href="<?= site_url('teachers/profile') ?>" class="<?= uri_string() == 'teachers/profile' ? 'active' : '' ?>">
+                <i class="fas fa-user"></i> Meu Perfil
+                <?php if (uri_string() == 'teachers/profile'): ?>
+                    <span class="badge bg-light text-success float-end mt-1">Atual</span>
+                <?php endif; ?>
+            </a>
+        </li>
         <!-- Minhas Turmas -->
         <li>
             <a href="#classesSubmenu" data-bs-toggle="collapse" 
@@ -143,7 +151,51 @@
                 </li>
             </ul>
         </li>
-        
+        <!-- No sidebar do professor, adicionar após Presenças -->
+        <!-- Documentos -->
+        <li>
+            <a href="#documentsSubmenu" data-bs-toggle="collapse" 
+            class="dropdown-toggle <?= in_array(uri_string(), ['teachers/documents', 'teachers/documents/requests', 'teachers/documents/archive']) ? 'active' : '' ?>">
+                <i class="fas fa-folder-open"></i> Documentos
+                <?php 
+                $documentModel = new \App\Models\DocumentModel();
+                $pendingDocs = $documentModel->where('user_id', currentUserId())
+                    ->where('user_type', 'teacher')
+                    ->where('is_verified', 0)
+                    ->countAllResults();
+                if ($pendingDocs > 0): 
+                ?>
+                    <span class="badge bg-warning text-dark float-end"><?= $pendingDocs ?></span>
+                <?php endif; ?>
+            </a>
+            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['teachers/documents', 'teachers/documents/requests', 'teachers/documents/archive']) ? 'show' : '' ?>" id="documentsSubmenu">
+                <li>
+                    <a href="<?= site_url('teachers/documents') ?>" class="<?= uri_string() == 'teachers/documents' ? 'active' : '' ?>">
+                        <i class="fas fa-upload"></i> Meus Documentos
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('teachers/documents/requests') ?>" class="<?= uri_string() == 'teachers/documents/requests' ? 'active' : '' ?>">
+                        <i class="fas fa-file-signature"></i> Solicitar Documento
+                        <?php 
+                        $requestModel = new \App\Models\DocumentRequestModel();
+                        $pendingRequests = $requestModel->where('user_id', currentUserId())
+                            ->where('user_type', 'teacher')
+                            ->where('status', 'pending')
+                            ->countAllResults();
+                        if ($pendingRequests > 0): 
+                        ?>
+                            <span class="badge bg-warning text-dark float-end"><?= $pendingRequests ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('teachers/documents/archive') ?>" class="<?= uri_string() == 'teachers/documents/archive' ? 'active' : '' ?>">
+                        <i class="fas fa-archive"></i> Arquivo
+                    </a>
+                </li>
+            </ul>
+        </li>
         <!-- Separador -->
         <li class="sidebar-divider"></li>
         

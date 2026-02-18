@@ -25,18 +25,18 @@ class AuthFilter implements FilterInterface
         
         $userType = $session->get('user_type');
         $userId = $session->get('user_id');
-        $currentUri = $request->getUri()->getPath();
         
         // Admin (root - ID 1) tem acesso a tudo
         if ($userId == 1) {
             return;
         }
         
-        // MAPEAMENTO: converter user_type para o valor esperado nos argumentos
+        // MAPEAMENTO CORRIGIDO: staff também pode acessar área admin
         $typeMap = [
             'admin' => 'admin',
-            'teacher' => 'teachers', // teacher -> teachers
-            'student' => 'students', // student -> students
+            'staff' => 'admin', // STAFF PODE ACESSAR ÁREA ADMIN
+            'teacher' => 'teachers',
+            'student' => 'students',
             'guardian' => 'guardians'
         ];
         
@@ -47,6 +47,7 @@ class AuthFilter implements FilterInterface
             // Se não tiver permissão, redireciona para o dashboard apropriado
             switch ($userType) {
                 case 'admin':
+                case 'staff': // STAFF VAI PARA ADMIN DASHBOARD
                     $redirectUrl = '/admin/dashboard';
                     break;
                 case 'teacher':

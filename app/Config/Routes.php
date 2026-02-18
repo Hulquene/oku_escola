@@ -38,6 +38,9 @@ use App\Controllers\admin\Teste;
 use App\Controllers\admin\TuitionFees;
 use App\Controllers\admin\Users;
 use App\Controllers\admin\Logs;
+use App\Controllers\admin\AdminDocuments;
+use App\Controllers\admin\DocumentGenerator;
+
 use App\Controllers\auth\Auth;
 use App\Controllers\Home;
 use App\Controllers\GeneratePdf;
@@ -45,15 +48,22 @@ use App\Controllers\Install;
 use App\Controllers\Invoice;
 use App\Controllers\Language;
 use App\Controllers\students\Dashboard as StudentsDashboard;
+use App\Controllers\students\Profile as StudentsProfile;
+use App\Controllers\students\Subjects as StudentsSubjects;
 use App\Controllers\students\Exams as StudentExams;
 use App\Controllers\students\Fees as StudentFees;
 use App\Controllers\students\Grades as StudentGrades;
 use App\Controllers\students\Attendance as StudentAttendance;
+use App\Controllers\students\Documents as StudentADocuments;
+
 use App\Controllers\teachers\Dashboard as TeachersDashboard;
+use App\Controllers\teachers\Profile as TeachersProfile;
 use App\Controllers\teachers\Classes as TeacherClasses;
 use App\Controllers\teachers\Exams as TeacherExams;
 use App\Controllers\teachers\Grades as TeacherGrades;
 use App\Controllers\teachers\Attendance as TeacherAttendance;
+use App\Controllers\teachers\Documents as TeacherDocuments;
+
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -457,6 +467,52 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('logs/export', [Logs::class, 'export'], ["as" => 'tools.logs.export']);
       $routes->post('logs/delete', [Logs::class, 'delete'], ["as" => 'tools.logs.delete']);
   });
+
+    // Central de Documentos
+    $routes->group('documents', function ($routes) {
+        $routes->get('/', [AdminDocuments::class, 'index'], ['as' => 'admin.documents']);
+        $routes->get('pending', [AdminDocuments::class, 'pending'], ['as' => 'admin.documents.pending']);
+        $routes->get('verified', [AdminDocuments::class, 'verified'], ['as' => 'admin.documents.verified']);
+        $routes->get('types', [AdminDocuments::class, 'types'], ['as' => 'admin.documents.types']);
+        $routes->post('types/save', [AdminDocuments::class, 'saveType'], ['as' => 'admin.documents.types.save']);
+        $routes->get('types/delete/(:num)', [AdminDocuments::class, 'deleteType/$1'], ['as' => 'admin.documents.types.delete']);
+        $routes->get('requests', [AdminDocuments::class, 'requests'], ['as' => 'admin.documents.requests']);
+        $routes->get('request/view/(:num)', [AdminDocuments::class, 'viewRequest/$1'], ['as' => 'admin.documents.view-request']);
+        $routes->post('request/process/(:num)', [AdminDocuments::class, 'processRequest/$1'], ['as' => 'admin.documents.process-request']);
+        $routes->post('request/reject/(:num)', [AdminDocuments::class, 'rejectRequest/$1'], ['as' => 'admin.documents.reject-request']);
+        $routes->post('request/deliver/(:num)', [AdminDocuments::class, 'deliverRequest/$1'], ['as' => 'admin.documents.deliver-request']);
+        
+        // Rotas para visualização e download - CORRIGIDAS
+        $routes->get('view/(:num)', [AdminDocuments::class, 'view/$1'], ['as' => 'admin.documents.view']);
+        $routes->get('serve/(:num)', [AdminDocuments::class, 'serve/$1'], ['as' => 'admin.documents.serve']);
+        $routes->get('download/(:num)', [AdminDocuments::class, 'download/$1'], ['as' => 'admin.documents.download']); // <- CORREÇÃO AQUI
+        
+        $routes->get('verify/(:num)', [AdminDocuments::class, 'verify/$1'], ['as' => 'admin.documents.verify']);
+        $routes->post('verify/save/(:num)', [AdminDocuments::class, 'saveVerification/$1'], ['as' => 'admin.documents.save-verification']);
+        $routes->get('reports', [AdminDocuments::class, 'reports'], ['as' => 'admin.documents.reports']);
+        $routes->get('export', [AdminDocuments::class, 'export'], ['as' => 'admin.documents.export']);
+
+           // Rotas para Documentos Solicitáveis (tbl_requestable_documents)
+        $routes->get('requestable', [AdminDocuments::class, 'requestableTypes'], ['as' => 'admin.documents.requestable']);
+        $routes->post('requestable/save', [AdminDocuments::class, 'saveRequestableType'], ['as' => 'admin.documents.requestable.save']);
+        $routes->get('requestable/delete/(:num)', [AdminDocuments::class, 'deleteRequestableType/$1'], ['as' => 'admin.documents.requestable.delete']);
+    });
+
+    
+    $routes->group('document-generator', function ($routes) {
+        $routes->get('/', [DocumentGenerator::class, 'index'], ['as' => 'admin.document-generator']);
+        $routes->get('pending', [DocumentGenerator::class, 'pending'], ['as' => 'admin.document-generator.pending']);
+        $routes->get('generated', [DocumentGenerator::class, 'generated'], ['as' => 'admin.document-generator.generated']);
+        $routes->get('templates', [DocumentGenerator::class, 'templates'], ['as' => 'admin.document-generator.templates']);
+        $routes->get('generate/(:num)', [DocumentGenerator::class, 'generate/$1'], ['as' => 'admin.document-generator.generate']);
+        $routes->post('generate/bulk', [DocumentGenerator::class, 'generateBulk'], ['as' => 'admin.document-generator.generate-bulk']);
+        $routes->get('preview/(:num)', [DocumentGenerator::class, 'preview/$1'], ['as' => 'admin.document-generator.preview']);
+        $routes->get('download/(:num)', [DocumentGenerator::class, 'download/$1'], ['as' => 'admin.document-generator.download']);
+        $routes->post('template/save', [DocumentGenerator::class, 'saveTemplate'], ['as' => 'admin.document-generator.template.save']);
+        $routes->get('template/edit/(:num)', [DocumentGenerator::class, 'editTemplate/$1'], ['as' => 'admin.document-generator.template.edit']);
+    });
+
+
 });
 /**
  * Área dos Professores 
@@ -476,6 +532,11 @@ $routes->group('teachers', function ($routes) {
         
         $routes->get('dashboard', [TeachersDashboard::class, 'index'], ["as" => 'teachers.dashboard']);
         
+        // Profile
+          $routes->get('profile', [TeachersProfile::class, 'index'], ['as' => 'teachers.profile']);
+          $routes->post('profile/update', [TeachersProfile::class, 'update'], ['as' => 'teachers.profile.update']);
+          $routes->post('profile/update-photo', [TeachersProfile::class, 'updatePhoto'], ['as' => 'teachers.profile.update-photo']);
+
         // Minhas Turmas
         $routes->group('classes', function ($routes) {
             $routes->get('', [TeacherClasses::class, 'index'], ["as" => 'teachers.classes']);
@@ -510,6 +571,21 @@ $routes->group('teachers', function ($routes) {
           $routes->get('report', [TeacherAttendance::class, 'report'], ["as" => 'teachers.attendance.report']);
           $routes->get('get-disciplines/(:num)', [TeacherAttendance::class, 'getDisciplines/$1'], ["as" => 'teachers.attendance.get-disciplines']);
       });
+
+        // Documentos
+      $routes->group('documents', function ($routes) {
+          $routes->get('/', [TeacherDocuments::class, 'index'], ['as' => 'teachers.documents']);
+          $routes->get('requests', [TeacherDocuments::class, 'requests'], ['as' => 'teachers.documents.requests']);
+          $routes->get('archive', [TeacherDocuments::class, 'archive'], ['as' => 'teachers.documents.archive']);
+          $routes->post('upload', [TeacherDocuments::class, 'upload'], ['as' => 'teachers.documents.upload']);
+          $routes->get('download/(:num)', [TeacherDocuments::class, 'download/$1'], ['as' => 'teachers.documents.download']);
+          $routes->get('view/(:num)', [TeacherDocuments::class, 'view/$1'], ['as' => 'teachers.documents.view']);
+          $routes->get('delete/(:num)', [TeacherDocuments::class, 'delete/$1'], ['as' => 'teachers.documents.delete']);
+          $routes->post('request', [TeacherDocuments::class, 'createRequest'], ['as' => 'teachers.documents.request']);
+          $routes->get('request/(:num)', [TeacherDocuments::class, 'viewRequest/$1'], ['as' => 'teachers.documents.view-request']);
+          $routes->get('request/cancel/(:num)', [TeacherDocuments::class, 'cancelRequest/$1'], ['as' => 'teachers.documents.cancel-request']);
+      });
+
     });
 });
 /**
@@ -529,7 +605,19 @@ $routes->group('students', function ($routes) {
     $routes->group('', ['filter' => 'auth:students'], function ($routes) {
           
           $routes->get('dashboard', [StudentsDashboard::class, 'index'], ["as" => 'students.dashboard']);
+           // Profile
+          $routes->get('profile', [StudentsProfile::class, 'index'], ['as' => 'students.profile']);
+          $routes->post('profile/update', [StudentsProfile::class, 'update'], ['as' => 'students.profile.update']);
+          $routes->post('profile/update-photo', [StudentsProfile::class, 'updatePhoto'], ['as' => 'students.profile.update-photo']);
+          $routes->get('profile/guardians', [StudentsProfile::class, 'guardians'], ['as' => 'students.profile.guardians']);
+          $routes->get('profile/academic-history', [StudentsProfile::class, 'academicHistory'], ['as' => 'students.profile.academic-history']);
 
+           // Minhas Disciplinas
+          $routes->group('subjects', function ($routes) {
+              $routes->get('/', [StudentsSubjects::class, 'index'], ['as' => 'students.subjects']);
+              $routes->get('details/(:num)', [StudentsSubjects::class, 'details/$1'], ['as' => 'students.subjects.details']);
+          });
+          
         // Minhas Notas
         $routes->group('grades', function ($routes) {
           $routes->get('', [StudentGrades::class, 'index'], ["as" => 'students.grades']);
@@ -556,6 +644,20 @@ $routes->group('students', function ($routes) {
           $routes->get('history', [StudentFees::class, 'history'], ["as" => 'students.fees.history']);
           $routes->get('pay/(:num)', [StudentFees::class, 'pay'], ["as" => 'students.fees.pay/$1']);
           $routes->get('receipts', [StudentFees::class, 'receipts'], ["as" => 'students.fees.receipts']);
+        });
+
+          // Documentos
+        $routes->group('documents', function ($routes) {
+            $routes->get('/', [StudentADocuments::class, 'index'], ['as' => 'students.documents']);
+            $routes->get('requests', [StudentADocuments::class, 'requests'], ['as' => 'students.documents.requests']);
+            $routes->get('archive', [StudentADocuments::class, 'archive'], ['as' => 'students.documents.archive']);
+            $routes->post('upload', [StudentADocuments::class, 'upload'], ['as' => 'students.documents.upload']);
+            $routes->get('download/(:num)', [StudentADocuments::class, 'download/$1'], ['as' => 'students.documents.download']);
+            $routes->get('view/(:num)', [StudentADocuments::class, 'view/$1'], ['as' => 'students.documents.view']);
+            $routes->get('delete/(:num)', [StudentADocuments::class, 'delete/$1'], ['as' => 'students.documents.delete']);
+            $routes->post('request', [StudentADocuments::class, 'createRequest'], ['as' => 'students.documents.request']);
+            $routes->get('request/(:num)', [StudentADocuments::class, 'viewRequest/$1'], ['as' => 'students.documents.view-request']);
+            $routes->get('request/cancel/(:num)', [StudentADocuments::class, 'cancelRequest/$1'], ['as' => 'students.documents.cancel-request']);
         });
 
     });

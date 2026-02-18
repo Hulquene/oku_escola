@@ -197,4 +197,43 @@ class AttendanceModel extends BaseModel
         
         return 0;
     }
+    /**
+ * Get attendance percentage for a student
+ * 
+ * @param int $enrollmentId ID da matrícula
+ * @return float
+ */
+public function getStudentAttendancePercentage($enrollmentId)
+{
+    $total = $this->where('enrollment_id', $enrollmentId)
+        ->countAllResults();
+    
+    if ($total == 0) {
+        return 0;
+    }
+    
+    $present = $this->where('enrollment_id', $enrollmentId)
+        ->whereIn('status', ['Presente', 'Atrasado', 'Falta Justificada'])
+        ->countAllResults();
+    
+    return round(($present / $total) * 100, 2);
+}
+
+/**
+ * Get attendance by enrollment ID
+ * 
+ * @param int $enrollmentId ID da matrícula
+ * @return array
+ */
+public function getByEnrollment($enrollmentId)
+{
+    return $this->select('
+            tbl_attendance.*,
+            tbl_disciplines.discipline_name
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_attendance.discipline_id', 'left')
+        ->where('tbl_attendance.enrollment_id', $enrollmentId)
+        ->orderBy('tbl_attendance.attendance_date', 'DESC')
+        ->findAll();
+}
 }

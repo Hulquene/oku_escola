@@ -101,7 +101,107 @@
                 <li><a href="<?= site_url('admin/financial/taxes') ?>" class="<?= uri_string() == 'admin/financial/taxes' ? 'active' : '' ?>"><i class="fas fa-percent"></i> Taxas</a></li>
             </ul>
         </li>
-        
+        <!-- No sidebar do admin, adicionar na área apropriada -->
+        <!-- Central de Documentos -->
+        <li>
+            <a href="#adminDocumentsSubmenu" data-bs-toggle="collapse" 
+            class="dropdown-toggle <?= in_array(uri_string(), ['admin/documents', 'admin/documents/pending', 'admin/documents/verified', 'admin/documents/requests', 'admin/documents/reports']) ? 'active' : '' ?>">
+                <i class="fas fa-folder-open"></i> Central de Documentos
+                <?php 
+                $documentModel = new \App\Models\DocumentModel();
+                $pendingDocs = $documentModel->where('is_verified', 0)->countAllResults();
+                if ($pendingDocs > 0): 
+                ?>
+                    <span class="badge bg-warning text-dark float-end"><?= $pendingDocs ?></span>
+                <?php endif; ?>
+            </a>
+            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/documents', 'admin/documents/pending', 'admin/documents/verified', 'admin/documents/requests', 'admin/documents/reports']) ? 'show' : '' ?>" id="adminDocumentsSubmenu">
+                <li>
+                    <a href="<?= site_url('admin/documents') ?>" class="<?= uri_string() == 'admin/documents' ? 'active' : '' ?>">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/documents/pending') ?>" class="<?= uri_string() == 'admin/documents/pending' ? 'active' : '' ?>">
+                        <i class="fas fa-clock"></i> Pendentes
+                        <?php if ($pendingDocs > 0): ?>
+                            <span class="badge bg-warning float-end"><?= $pendingDocs ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/documents/verified') ?>" class="<?= uri_string() == 'admin/documents/verified' ? 'active' : '' ?>">
+                        <i class="fas fa-check-circle"></i> Verificados
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/documents/types') ?>" class="<?= uri_string() == 'admin/documents/types' ? 'active' : '' ?>">
+                        <i class="fas fa-tags"></i> Tipos de Documentos
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/documents/requestable') ?>" class="<?= uri_string() == 'admin/documents/requestable' ? 'active' : '' ?>">
+                        <i class="fas fa-file-invoice"></i>Tipos de Documentos Solicitáveis
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/documents/requests') ?>" class="<?= uri_string() == 'admin/documents/requests' ? 'active' : '' ?>">
+                        <i class="fas fa-file-signature"></i> Solicitações
+                        <?php 
+                        $requestModel = new \App\Models\DocumentRequestModel();
+                        $pendingRequests = $requestModel->where('status', 'pending')->countAllResults();
+                        if ($pendingRequests > 0): 
+                        ?>
+                            <span class="badge bg-warning float-end"><?= $pendingRequests ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/documents/reports') ?>" class="<?= uri_string() == 'admin/documents/reports' ? 'active' : '' ?>">
+                        <i class="fas fa-chart-bar"></i> Relatórios
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!-- Gerador de Documentos -->
+        <li>
+            <a href="#documentGeneratorSubmenu" data-bs-toggle="collapse" 
+            class="dropdown-toggle <?= in_array(uri_string(), ['admin/document-generator', 'admin/document-generator/pending', 'admin/document-generator/generated', 'admin/document-generator/templates']) ? 'active' : '' ?>">
+                <i class="fas fa-file-pdf"></i> Gerador de Documentos
+                <?php 
+                $requestModel = new \App\Models\DocumentRequestModel();
+                $pendingRequests = $requestModel->where('status', 'pending')->countAllResults();
+                if ($pendingRequests > 0): 
+                ?>
+                    <span class="badge bg-warning text-dark float-end"><?= $pendingRequests ?></span>
+                <?php endif; ?>
+            </a>
+            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/document-generator', 'admin/document-generator/pending', 'admin/document-generator/generated', 'admin/document-generator/templates']) ? 'show' : '' ?>" id="documentGeneratorSubmenu">
+                <li>
+                    <a href="<?= site_url('admin/document-generator') ?>" class="<?= uri_string() == 'admin/document-generator' ? 'active' : '' ?>">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/document-generator/pending') ?>" class="<?= uri_string() == 'admin/document-generator/pending' ? 'active' : '' ?>">
+                        <i class="fas fa-clock"></i> Pendentes
+                        <?php if ($pendingRequests > 0): ?>
+                            <span class="badge bg-warning float-end"><?= $pendingRequests ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/document-generator/generated') ?>" class="<?= uri_string() == 'admin/document-generator/generated' ? 'active' : '' ?>">
+                        <i class="fas fa-check-circle"></i> Documentos Gerados
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/document-generator/templates') ?>" class="<?= uri_string() == 'admin/document-generator/templates' ? 'active' : '' ?>">
+                        <i class="fas fa-file-alt"></i> Modelos de Documentos
+                    </a>
+                </li>
+            </ul>
+        </li>
         <!-- Relatórios -->
         <li>
             <a href="#reportsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/reports/academic', 'admin/reports/financial', 'admin/reports/students', 'admin/reports/attendance', 'admin/reports/exams', 'admin/reports/fees']) ? 'active' : '' ?>">

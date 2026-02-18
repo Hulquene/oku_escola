@@ -7,6 +7,12 @@ if (!function_exists('has_permission')) {
     function has_permission(string $permission): bool
     {
         $session = service('session');
+        
+        // Root (ID 1) tem todas as permissões
+        if ($session->get('user_id') == 1) {
+            return true;
+        }
+        
         $permissions = $session->get('permissions') ?? [];
         return in_array($permission, $permissions);
     }
@@ -46,6 +52,28 @@ if (!function_exists('current_user')) {
             'role' => $session->get('role'),
             'user_type' => $session->get('user_type')
         ];
+    }
+}
+
+if (!function_exists('is_staff')) {
+    /**
+     * Check if current user is staff or admin
+     */
+    function is_staff(): bool
+    {
+        $session = service('session');
+        $userType = $session->get('user_type');
+        return in_array($userType, ['admin', 'staff']);
+    }
+}
+
+if (!function_exists('is_admin')) {
+    /**
+     * Check if current user is admin (root)
+     */
+    function is_admin(): bool
+    {
+        return service('session')->get('user_id') == 1;
     }
 }
 
