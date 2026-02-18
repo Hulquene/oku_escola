@@ -249,6 +249,7 @@ public function createRequest()
         'user_type' => $this->userType,
         'request_number' => $requestNumber,
         'document_type' => $docType->document_name,  // Apenas o nome do documento
+        'document_code' => $this->request->getPost('document_code'),    
         'purpose' => $this->request->getPost('purpose'),
         'quantity' => $this->request->getPost('quantity') ?: 1,
         'format' => $this->request->getPost('format'),
