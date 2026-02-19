@@ -54,13 +54,29 @@
                         <select class="form-select" name="academic_year">
                             <option value="">Todos os anos</option>
                             <?php if (!empty($academicYears)): ?>
+                                <?php 
+                                // Encontrar o ano atual
+                                $currentYearId = null;
+                                foreach ($academicYears as $year) {
+                                    if (!empty($year->is_current) && $year->is_current == 1) {
+                                        $currentYearId = $year->id;
+                                        break;
+                                    }
+                                }
+                                ?>
                                 <?php foreach ($academicYears as $year): ?>
-                                    <option value="<?= $year->id ?>" <?= ($selectedYear ?? '') == $year->id ? 'selected' : '' ?>>
-                                        <?= $year->year_name ?> <?= $year->is_current ? ' (Atual)' : '' ?>
+                                    <?php 
+                                    // Verificar se é o ano atual OU se está selecionado
+                                    $isSelected = ($selectedYear == $year->id) || 
+                                                 (empty($selectedYear) && $year->id == $currentYearId && $selectedEnrollmentStatus != 'nao_matriculado');
+                                    ?>
+                                    <option value="<?= $year->id ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                        <?= $year->year_name ?> <?= !empty($year->is_current) && $year->is_current ? ' (Atual)' : '' ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
+                        <small class="text-muted">Padrão: ano atual</small>
                     </div>
                     
                     <div class="col-md-2">
@@ -77,7 +93,7 @@
                         </select>
                     </div>
                     
-                    <!-- NOVO FILTRO DE CURSO -->
+                    <!-- FILTRO DE CURSO -->
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Curso</label>
                         <select class="form-select" name="course_id">
@@ -141,20 +157,44 @@
                             <?php endif; ?>
                             
                             <?php if (!empty($selectedYear)): ?>
-                                <span class="badge bg-primary p-2">
-                                    <i class="fas fa-calendar me-1"></i>Ano: <?= $academicYears[$selectedYear]->year_name ?? 'Selecionado' ?>
-                                </span>
+                                <?php foreach ($academicYears as $year): ?>
+                                    <?php if ($year->id == $selectedYear): ?>
+                                        <span class="badge bg-primary p-2">
+                                            <i class="fas fa-calendar me-1"></i>Ano: <?= $year->year_name ?>
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             <?php endif; ?>
                             
                             <?php if (!empty($selectedClass)): ?>
-                                <span class="badge bg-success p-2">
-                                    <i class="fas fa-school me-1"></i>Turma selecionada
+                                <?php foreach ($classes as $class): ?>
+                                    <?php if ($class->id == $selectedClass): ?>
+                                        <span class="badge bg-success p-2">
+                                            <i class="fas fa-school me-1"></i>Turma: <?= $class->class_name ?>
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($selectedCourse)): ?>
+                                <?php foreach ($courses as $course): ?>
+                                    <?php if ($course->id == $selectedCourse): ?>
+                                        <span class="badge bg-info p-2">
+                                            <i class="fas fa-graduation-cap me-1"></i>Curso: <?= $course->course_name ?>
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($selectedEnrollmentStatus)): ?>
+                                <span class="badge bg-warning text-dark p-2">
+                                    <i class="fas fa-tag me-1"></i>Status: <?= $selectedEnrollmentStatus == 'nao_matriculado' ? 'Não Matriculado' : $selectedEnrollmentStatus ?>
                                 </span>
                             <?php endif; ?>
                             
-                            <?php if (!empty($selectedCourse)): // NOVO BADGE ?>
-                                <span class="badge bg-info p-2">
-                                    <i class="fas fa-graduation-cap me-1"></i>Curso selecionado
+                            <?php if (!empty($selectedGender)): ?>
+                                <span class="badge bg-secondary p-2">
+                                    <i class="fas fa-venus-mars me-1"></i><?= $selectedGender ?>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -251,7 +291,7 @@
                         <th>Nome</th>
                         <th>Contacto</th>
                         <th>Turma / Status</th>
-                        <th>Curso</th> <!-- NOVA COLUNA -->
+                        <th>Curso</th>
                         <th>Nível</th>
                         <th>Ano Letivo</th>
                         <th>Gênero</th>
@@ -317,8 +357,8 @@
                                             <span class="badge bg-warning p-2">
                                                 <i class="fas fa-clock me-1"></i>Matrícula Pendente
                                             </span>
-                                            <?php if (!empty($student->pending_class_name)): ?>
-                                                <small class="text-muted mt-1">Turma: <?= $student->pending_class_name ?></small>
+                                            <?php if (!empty($student->pending_level_name)): ?>
+                                                <small class="text-muted mt-1">Nível: <?= $student->pending_level_name ?></small>
                                             <?php endif; ?>
                                         </div>
                                     <?php elseif ($enrollmentStatus == 'Concluído'): ?>
@@ -341,7 +381,7 @@
                                     <?php endif; ?>
                                 </td>
                                 
-                                <!-- NOVA COLUNA CURSO -->
+                                <!-- COLUNA CURSO CORRIGIDA -->
                                 <td>
                                     <?php 
                                     // Prioridade: matrícula ativa > matrícula pendente
@@ -349,31 +389,38 @@
                                         <span class="badge bg-primary p-2" title="<?= $student->current_course_type ?? '' ?>">
                                             <i class="fas fa-graduation-cap me-1"></i><?= esc($student->current_course_name) ?>
                                         </span>
-                                        <br><small class="text-muted"><?= esc($student->current_course_code ?? '') ?></small>
+                                        <?php if (!empty($student->current_course_code)): ?>
+                                            <br><small class="text-muted"><?= esc($student->current_course_code) ?></small>
+                                        <?php endif; ?>
                                     <?php elseif (!empty($student->pending_course_name)): ?>
                                         <span class="badge bg-warning p-2">
                                             <i class="fas fa-clock me-1"></i><?= esc($student->pending_course_name) ?>
                                         </span>
-                                        <br><small class="text-warning">(Pendente)</small>
+                                        <?php if (!empty($student->pending_course_code)): ?>
+                                            <br><small class="text-warning">(Pendente)</small>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 
-                                <!-- Coluna Nível -->
+                                <!-- COLUNA NÍVEL CORRIGIDA -->
                                 <td>
                                     <?php 
-                                    if (!empty($student->level_name)): ?>
-                                        <span class="badge bg-success p-2"><?= $student->level_name ?></span>
+                                    // Prioridade: matrícula ativa > pendente
+                                    if (!empty($student->current_level_name)): ?>
+                                        <span class="badge bg-success p-2"><?= $student->current_level_name ?></span>
                                     <?php elseif (!empty($student->pending_level_name)): ?>
                                         <span class="badge bg-warning p-2"><?= $student->pending_level_name ?></span>
                                         <br><small class="text-warning">(Pendente)</small>
+                                    <?php elseif (!empty($student->level_name)): ?>
+                                        <span class="badge bg-info p-2"><?= $student->level_name ?></span>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 
-                                <!-- Coluna Ano Letivo -->
+                                <!-- COLUNA ANO LETIVO CORRIGIDA -->
                                 <td>
                                     <?php 
                                     if (!empty($student->current_year)): ?>
@@ -386,7 +433,7 @@
                                     <?php endif; ?>
                                 </td>
                                 
-                                <td><?= $student->gender ?></td>
+                                <td><?= $student->gender ?? '-' ?></td>
                                 <td>
                                     <?php if ($student->is_active): ?>
                                         <span class="badge bg-success">Ativo</span>
@@ -426,7 +473,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="12" class="text-center py-4"> <!-- Ajustado para 12 colunas -->
+                            <td colspan="12" class="text-center py-4">
                                 <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">Nenhum aluno encontrado</h5>
                                 <p>Tente ajustar os filtros ou <a href="<?= site_url('admin/students/form-add') ?>">cadastrar um novo aluno</a></p>
@@ -493,10 +540,10 @@ $(document).ready(function() {
         },
         order: [[3, 'asc']], // Ordenar por nome
         pageLength: 25,
-        searching: false, // Desabilitar search do DataTable pois já temos filtro externo
+        searching: false,
         responsive: true,
         columnDefs: [
-            { orderable: false, targets: [2, 11] } // Ajustado para 11 (índice da coluna ações)
+            { orderable: false, targets: [2, 11] }
         ]
     });
     
@@ -532,7 +579,6 @@ function exportTableToExcel() {
     
     rows.forEach(row => {
         const cells = Array.from(row.querySelectorAll('th, td'));
-        // Remover coluna de ações (última) e foto (índice 2)
         const filteredCells = cells.filter((_, index) => index !== 2 && index !== cells.length - 1);
         const rowData = filteredCells.map(cell => cell.innerText.trim().replace(/,/g, ';'));
         csv.push(rowData.join(','));
@@ -559,11 +605,9 @@ $('#filterForm select').change(function() {
     filterTimeout = setTimeout(() => $('#filterForm').submit(), 500);
 });
 
-
 </script>
 
 <style>
-/* Estilos adicionais */
 .card {
     border: none;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -590,7 +634,6 @@ $('#filterForm select').change(function() {
     vertical-align: middle;
 }
 
-/* Animações */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -600,7 +643,6 @@ $('#filterForm select').change(function() {
     animation: fadeIn 0.3s ease-out;
 }
 
-/* Estilo para a coluna combinada */
 td .badge {
     transition: all 0.2s;
 }

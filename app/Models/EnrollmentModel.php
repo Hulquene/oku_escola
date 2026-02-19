@@ -126,14 +126,19 @@ class EnrollmentModel extends BaseModel
             ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
     }
-    /**
+/**
  * Get enrollment with all details for view
+ * AGORA INCLUI TODAS AS INFORMAÇÕES NECESSÁRIAS
  */
 public function getForView($id)
 {
     return $this->select('
             tbl_enrollments.*,
+            tbl_students.id as student_id,
             tbl_students.student_number,
+            tbl_students.birth_date,
+            tbl_students.gender,
+            tbl_students.photo as student_photo,
             tbl_users.first_name,
             tbl_users.last_name,
             tbl_users.email,
@@ -142,17 +147,32 @@ public function getForView($id)
             tbl_classes.class_code,
             tbl_classes.class_shift,
             tbl_classes.class_room,
+            tbl_classes.class_teacher_id,
+            tbl_teacher.first_name as teacher_first_name,
+            tbl_teacher.last_name as teacher_last_name,
             tbl_academic_years.year_name,
             tbl_academic_years.start_date,
             tbl_academic_years.end_date,
+            tbl_grade_levels.level_name,
+            tbl_grade_levels.education_level,
+            tbl_courses.id as course_id,
+            tbl_courses.course_name,
+            tbl_courses.course_code,
+            tbl_courses.course_type,
+            tbl_courses.duration_years,
+            tbl_previous_level.level_name as previous_level_name,
             tbl_users_created.first_name as created_by_first,
             tbl_users_created.last_name as created_by_last,
             CONCAT(tbl_users_created.first_name, " ", tbl_users_created.last_name) as created_by_username
         ')
         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-        ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id', 'left')
+        ->join('tbl_users as tbl_teacher', 'tbl_teacher.id = tbl_classes.class_teacher_id', 'left')
         ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id', 'left')
+        ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left')
+        ->join('tbl_grade_levels as tbl_previous_level', 'tbl_previous_level.id = tbl_enrollments.previous_grade_id', 'left')
         ->join('tbl_users as tbl_users_created', 'tbl_users_created.id = tbl_enrollments.created_by', 'left')
         ->where('tbl_enrollments.id', $id)
         ->first();

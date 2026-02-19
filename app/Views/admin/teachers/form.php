@@ -82,6 +82,7 @@
             
             <?php if ($teacher): ?>
                 <input type="hidden" name="id" value="<?= $teacher->id ?>">
+                <input type="hidden" name="	user_id " value="<?= $teacher->	user_id  ?>">
             <?php endif; ?>
             
             <div class="tab-content" id="formTabsContent">

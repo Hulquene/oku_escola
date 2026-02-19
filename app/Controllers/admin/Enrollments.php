@@ -20,7 +20,7 @@ class Enrollments extends BaseController
     protected $academicYearModel;
     protected $feeStructureModel;
     protected $gradeLevelModel;
-     protected $courseModel;
+    protected $courseModel;
     
     public function __construct()
     {
@@ -29,14 +29,11 @@ class Enrollments extends BaseController
         $this->classModel = new ClassModel();
         $this->academicYearModel = new AcademicYearModel();
         $this->feeStructureModel = new FeeStructureModel();
-          // Buscar níveis de ensino
         $this->gradeLevelModel = new GradeLevelModel();
-         $this->courseModel = new CourseModel();
+        $this->courseModel = new CourseModel();
     }
     
-    /**
-     * List enrollments - Requer permissão 'view_enrollments'
-     */
+
 /**
  * List enrollments - Requer permissão 'view_enrollments'
  */
@@ -54,7 +51,7 @@ public function index()
     $gradeLevelId = $this->request->getGet('grade_level');
     $classId = $this->request->getGet('class_id');
     $status = $this->request->getGet('status');
-      $courseId = $this->request->getGet('course'); 
+    $courseId = $this->request->getGet('course'); 
     
     // Obter ano letivo atual
     $currentYear = $this->academicYearModel->getCurrent();
@@ -69,14 +66,18 @@ public function index()
             tbl_classes.class_name,
             tbl_classes.class_shift,
             tbl_grade_levels.level_name,
-            tbl_academic_years.year_name
+            tbl_academic_years.year_name,
+            tbl_courses.id as course_id,
+            tbl_courses.course_name,
+            tbl_courses.course_code,
+            tbl_courses.course_type
         ')
         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
         ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id', 'left')
         ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id', 'left')
         ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
-          ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left');
+        ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left');
     
     if ($academicYearId) {
         $builder->where('tbl_enrollments.academic_year_id', $academicYearId);
@@ -94,6 +95,16 @@ public function index()
         $builder->where('tbl_enrollments.status', $status);
     }
     
+    // NOVO FILTRO: Curso
+    if ($courseId !== null && $courseId !== '') {
+        if ($courseId === '0') {
+            // Ensino Geral (course_id IS NULL)
+            $builder->where('tbl_enrollments.course_id IS NULL');
+        } else {
+            $builder->where('tbl_enrollments.course_id', $courseId);
+        }
+    }
+    
     $data['enrollments'] = $builder->orderBy('tbl_enrollments.created_at', 'DESC')
         ->paginate(10);
     
@@ -104,7 +115,7 @@ public function index()
     $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();
     $data['gradeLevels'] = (new \App\Models\GradeLevelModel())->where('is_active', 1)->orderBy('sort_order', 'ASC')->findAll();
     
-        // Dados para filtros - adicionar cursos
+    // Dados para filtros - adicionar cursos
     $data['courses'] = $this->courseModel->getHighSchoolCourses(); 
     $data['selectedCourse'] = $courseId;
 
@@ -143,8 +154,6 @@ public function form($id = null)
         if (!$this->hasPermission('edit_enrollments')) {
             return redirect()->to('/admin/students/enrollments')->with('error', 'Não tem permissão para editar matrículas');
         }
-
-
     } else {
         // Criando nova matrícula
         if (!$this->hasPermission('create_enrollments')) {
@@ -157,23 +166,21 @@ public function form($id = null)
     
     $currentYear = $this->academicYearModel->getCurrent();
     
- 
     // Verificar se existe ano letivo atual
     if (!$currentYear) {
         return redirect()->to('/admin/academic/years')
             ->with('error', 'É necessário definir um ano letivo atual antes de fazer matrículas.');
     }
     
-      if ($id) {
+    if ($id) {
         // Buscar alunos ativos
         $data['students'] = $this->studentModel
             ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
             ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
             ->where('tbl_students.is_active', 1)
             ->where('tbl_students.id', $data['enrollment']->student_id)
-        //    ->limit(1)
             ->first();
-      }else{
+    } else {
         // Buscar alunos ativos
         $data['students'] = $this->studentModel
             ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
@@ -181,7 +188,7 @@ public function form($id = null)
             ->where('tbl_students.is_active', 1)
             ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
-      }
+    }
 
     $data['gradeLevels'] = $this->gradeLevelModel
         ->where('is_active', 1)
@@ -194,29 +201,30 @@ public function form($id = null)
         ->orderBy('start_date', 'DESC')
         ->findAll();
     
-     $data['classes'] = $this->classModel
+    $data['classes'] = $this->classModel
         ->where('is_active', 1)
         ->findAll();
 
-       // Buscar cursos para ensino médio
-        $data['courses'] = $this->courseModel->getHighSchoolCourses(); 
+    // Buscar cursos para ensino médio
+    $data['courses'] = $this->courseModel->getHighSchoolCourses(); 
 
     $data['currentYear'] = $currentYear;
-    
     
     // Buscar turmas disponíveis baseadas no ano e nível selecionados
     $classQuery = $this->classModel
         ->select('
             tbl_classes.*, 
             tbl_grade_levels.level_name,
+            tbl_courses.course_name,
+            tbl_courses.course_code,
             (SELECT COUNT(*) FROM tbl_enrollments 
              WHERE class_id = tbl_classes.id 
              AND status = "Ativo") as enrolled_count
         ')
         ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
         ->where('tbl_classes.is_active', 1);
     
-   
     $classes = $classQuery->orderBy('tbl_classes.class_name', 'ASC')->findAll();
     
     // Calcular vagas disponíveis para cada turma
@@ -227,14 +235,12 @@ public function form($id = null)
     
     $data['classes_enrolled_count'] = $classes;
     
-
- /*    echo "<pre>";
-    var_dump($data);die; */
     return view('admin/students/enrollments/form', $data);
 }
-    /**
-     * Save enrollment - Requer permissão 'create_enrollments' ou 'edit_enrollments'
-     */
+
+/**
+ * Save enrollment - Requer permissão 'create_enrollments' ou 'edit_enrollments'
+ */
 public function save()
 {
     $id = $this->request->getPost('id');
@@ -307,7 +313,7 @@ public function save()
         'class_id' => $classId ?: null,
         'academic_year_id' => $academicYearId,
         'grade_level_id' => $this->request->getPost('grade_level_id'),
-         'course_id' => $this->request->getPost('course_id') ?: null,
+        'course_id' => $this->request->getPost('course_id') ?: null,
         'enrollment_date' => $this->request->getPost('enrollment_date'),
         'enrollment_type' => $this->request->getPost('enrollment_type'),
         'previous_grade_id' => $this->request->getPost('previous_grade_id') ?: null,
@@ -347,16 +353,11 @@ public function save()
     }
     
     // Redirecionar baseado no status
-   /*  if ($status == 'Pendente') {
-        return redirect()->to('/admin/students/enrollments/pending')
-            ->with('success', $message);
-    } else { */
-        return redirect()->to('/admin/students/enrollments')
-            ->with('success', $message);
-  //  }
+    return redirect()->to('/admin/students/enrollments')
+        ->with('success', $message);
 }
-    
-   /**
+
+/**
  * View enrollment - Requer permissão 'view_enrollments'
  */
 public function view($id)
@@ -366,7 +367,7 @@ public function view($id)
     }
     
     $data['title'] = 'Detalhes da Matrícula';
-    $data['enrollment'] = $this->enrollmentModel->getForView($id); // <-- USAR O NOVO MÉTODO
+    $data['enrollment'] = $this->enrollmentModel->getForView($id);
     
     if (!$data['enrollment']) {
         return redirect()->to('/admin/students/enrollments')->with('error', 'Matrícula não encontrada');
@@ -384,58 +385,62 @@ public function view($id)
     
     return view('admin/students/enrollments/view', $data);
 }
-    
-    /**
-     * Student history - Requer permissão 'view_history'
-     */
-    public function history($studentId)
-    {
-        if (!$this->hasPermission('view_history')) {
-            return redirect()->to('/admin/students/enrollments')->with('error', 'Não tem permissão para ver histórico do aluno');
-        }
-        
-        $student = $this->studentModel->getWithUser($studentId);
-        
-        if (!$student) {
-            return redirect()->to('/admin/students')->with('error', 'Aluno não encontrado');
-        }
-        
-        $data['title'] = 'Histórico do Aluno: ' . $student->first_name . ' ' . $student->last_name;
-        $data['student'] = $student;
-        $data['history'] = $this->enrollmentModel->getStudentHistory($studentId);
-        
-        return view('admin/students/enrollments/history', $data);
+
+/**
+ * Student history - Requer permissão 'view_history'
+ */
+public function history($studentId)
+{
+    if (!$this->hasPermission('view_history')) {
+        return redirect()->to('/admin/students/enrollments')->with('error', 'Não tem permissão para ver histórico do aluno');
     }
     
-    /**
-     * Delete enrollment - Requer permissão 'delete_enrollments'
-     */
-    public function delete($id)
-    {
-        if (!$this->hasPermission('delete_enrollments')) {
-            return redirect()->to('/admin/students/enrollments')->with('error', 'Não tem permissão para eliminar matrículas');
-        }
-        
-        $enrollment = $this->enrollmentModel->find($id);
-        
-        if (!$enrollment) {
-            return redirect()->back()->with('error', 'Matrícula não encontrada');
-        }
-        
-        // Check if has fees or payments
-        $studentFeeModel = new \App\Models\StudentFeeModel();
-        $fees = $studentFeeModel->where('enrollment_id', $id)->countAllResults();
-        
-        if ($fees > 0) {
-            return redirect()->back()
-                ->with('error', 'Não é possível eliminar matrícula com taxas associadas');
-        }
-        
-        $this->enrollmentModel->delete($id);
-        
-        return redirect()->to('/admin/students/enrollments')->with('success', 'Matrícula eliminada com sucesso');
+    $student = $this->studentModel->getWithUser($studentId);
+    
+    if (!$student) {
+        return redirect()->to('/admin/students')->with('error', 'Aluno não encontrado');
     }
-    public function pending()
+    
+    $data['title'] = 'Histórico do Aluno: ' . $student->first_name . ' ' . $student->last_name;
+    $data['student'] = $student;
+    $data['history'] = $this->enrollmentModel->getStudentHistory($studentId);
+    
+    return view('admin/students/enrollments/history', $data);
+}
+
+/**
+ * Delete enrollment - Requer permissão 'delete_enrollments'
+ */
+public function delete($id)
+{
+    if (!$this->hasPermission('delete_enrollments')) {
+        return redirect()->to('/admin/students/enrollments')->with('error', 'Não tem permissão para eliminar matrículas');
+    }
+    
+    $enrollment = $this->enrollmentModel->find($id);
+    
+    if (!$enrollment) {
+        return redirect()->back()->with('error', 'Matrícula não encontrada');
+    }
+    
+    // Check if has fees or payments
+    $studentFeeModel = new \App\Models\StudentFeeModel();
+    $fees = $studentFeeModel->where('enrollment_id', $id)->countAllResults();
+    
+    if ($fees > 0) {
+        return redirect()->back()
+            ->with('error', 'Não é possível eliminar matrícula com taxas associadas');
+    }
+    
+    $this->enrollmentModel->delete($id);
+    
+    return redirect()->to('/admin/students/enrollments')->with('success', 'Matrícula eliminada com sucesso');
+}
+
+/**
+ * Pending enrollments list
+ */
+public function pending()
 {
     $data['title'] = 'Matrículas Pendentes';
     
@@ -446,18 +451,22 @@ public function view($id)
             tbl_users.first_name,
             tbl_users.last_name,
             tbl_grade_levels.level_name,
-            tbl_academic_years.year_name
+            tbl_academic_years.year_name,
+            tbl_courses.course_name,
+            tbl_courses.course_code
         ')
         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
         ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id')
         ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+        ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left')
         ->where('tbl_enrollments.status', 'Pendente')
         ->orderBy('tbl_enrollments.created_at', 'DESC')
         ->findAll();
     
     return view('admin/students/enrollments/pending', $data);
 }
+
 /**
  * Approve pending enrollment
  */

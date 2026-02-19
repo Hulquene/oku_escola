@@ -174,143 +174,148 @@ public function index()
         return view('admin/teachers/form', $data);
     }
     
-    /**
-     * Save teacher
-     */
-    public function save()
-    {
-        $rules = [
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|valid_email|is_unique[tbl_users.email,id,{id}]',
-            'phone' => 'required'
-        ];
+/**
+   /**
+ * Save teacher - VERSÃO CORRIGIDA (separando teacher_id e user_id)
+ */
+public function save()
+{
+    $teacherId = $this->request->getPost('id'); // ID da tabela tbl_teachers
+    $user_id = $this->request->getPost('user_id'); // ID da tabela tbl_users (para edição)
+    
+    // Preparar dados para tbl_users
+    $userData = [
+        'first_name' => $this->request->getPost('first_name'),
+        'last_name' => $this->request->getPost('last_name'),
+        'email' => $this->request->getPost('email'),
+        'phone' => $this->request->getPost('phone'),
+        'address' => $this->request->getPost('address'),
+        'user_type' => 'teacher',
+        'role_id' => 4,
+        'is_active' => $this->request->getPost('is_active') ? 1 : 0
+    ];
+    
+    $db = db_connect();
+    $db->transStart();
+    
+    if ($teacherId) {
+        // === MODO EDIÇÃO ===
         
-        if (!$this->request->getPost('id')) {
-            $rules['password'] = 'required|min_length[6]';
-        }
-        
-        if (!$this->validate($rules)) {
+        // Buscar o teacher para obter o user_id
+        $teacher = $this->teacherModel->find($teacherId);
+        if (!$teacher) {
+            $db->transRollback();
             return redirect()->back()->withInput()
-                ->with('errors', $this->validator->getErrors());
+                ->with('error', 'Professor não encontrado');
         }
         
-        $db = db_connect();
-        $db->transStart();
+        $userId = $teacher->user_id; // ID real do usuário
         
-        $userId = $this->request->getPost('id');
+        // IMPORTANTE: Incluir o ID nos dados para a validação
+        $userData['id'] = $userId;
         
-        // Dados para tbl_users
-        $userData = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name' => $this->request->getPost('last_name'),
-            'email' => $this->request->getPost('email'),
-            'phone' => $this->request->getPost('phone'),
-            'address' => $this->request->getPost('address'),
-            'user_type' => 'teacher',
-            'role_id' => 4, // Teacher role
-            'is_active' => $this->request->getPost('is_active') ? 1 : 0
-        ];
-        
+        // Se senha foi fornecida, atualizar
         $password = $this->request->getPost('password');
         if (!empty($password)) {
             $userData['password'] = password_hash($password, PASSWORD_DEFAULT);
         }
         
-        if ($userId) {
-            // Atualizar usuário existente
-            $this->userModel->update($userId, $userData);
-            
-            // Verificar se já existe registro em tbl_teachers
-            $teacherExists = $this->teacherModel->where('user_id', $userId)->first();
-            
-            if ($teacherExists) {
-                // Atualizar dados do professor
-                $this->teacherModel->update($teacherExists->id, [
-                    'birth_date' => $this->request->getPost('birth_date'),
-                    'gender' => $this->request->getPost('gender'),
-                    'nationality' => $this->request->getPost('nationality'),
-                    'identity_type' => $this->request->getPost('identity_type'),
-                    'identity_document' => $this->request->getPost('identity_document'),
-                    'nif' => $this->request->getPost('nif'),
-                    'province' => $this->request->getPost('province'),
-                    'municipality' => $this->request->getPost('municipality'),
-                    'city' => $this->request->getPost('city'),
-                    'emergency_contact' => $this->request->getPost('emergency_contact'),
-                    'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-                    'qualifications' => $this->request->getPost('qualifications'),
-                    'specialization' => $this->request->getPost('specialization'),
-                    'admission_date' => $this->request->getPost('admission_date'),
-                    'bank_name' => $this->request->getPost('bank_name'),
-                    'bank_account' => $this->request->getPost('bank_account')
-                ]);
-            } else {
-                // Criar novo registro em tbl_teachers
-                $this->teacherModel->insert([
-                    'user_id' => $userId,
-                    'birth_date' => $this->request->getPost('birth_date'),
-                    'gender' => $this->request->getPost('gender'),
-                    'nationality' => $this->request->getPost('nationality'),
-                    'identity_type' => $this->request->getPost('identity_type'),
-                    'identity_document' => $this->request->getPost('identity_document'),
-                    'nif' => $this->request->getPost('nif'),
-                    'province' => $this->request->getPost('province'),
-                    'municipality' => $this->request->getPost('municipality'),
-                    'city' => $this->request->getPost('city'),
-                    'emergency_contact' => $this->request->getPost('emergency_contact'),
-                    'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-                    'qualifications' => $this->request->getPost('qualifications'),
-                    'specialization' => $this->request->getPost('specialization'),
-                    'admission_date' => $this->request->getPost('admission_date'),
-                    'bank_name' => $this->request->getPost('bank_name'),
-                    'bank_account' => $this->request->getPost('bank_account')
-                ]);
-            }
-            
-            $message = 'Professor atualizado com sucesso';
-        } else {
-            // Criar novo usuário
-            $userData['username'] = $this->request->getPost('email');
-            $this->userModel->insert($userData);
-            $userId = $this->userModel->getInsertID();
-            
-            // Criar registro em tbl_teachers
-            $this->teacherModel->insert([
-                'user_id' => $userId,
-                'birth_date' => $this->request->getPost('birth_date'),
-                'gender' => $this->request->getPost('gender'),
-                'nationality' => $this->request->getPost('nationality'),
-                'identity_type' => $this->request->getPost('identity_type'),
-                'identity_document' => $this->request->getPost('identity_document'),
-                'nif' => $this->request->getPost('nif'),
-                'province' => $this->request->getPost('province'),
-                'municipality' => $this->request->getPost('municipality'),
-                'city' => $this->request->getPost('city'),
-                'emergency_contact' => $this->request->getPost('emergency_contact'),
-                'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-                'qualifications' => $this->request->getPost('qualifications'),
-                'specialization' => $this->request->getPost('specialization'),
-                'admission_date' => $this->request->getPost('admission_date'),
-                'bank_name' => $this->request->getPost('bank_name'),
-                'bank_account' => $this->request->getPost('bank_account')
-            ]);
-            
-            $message = 'Professor criado com sucesso';
-        }
-        
-        $db->transComplete();
-        
-        if ($db->transStatus()) {
-            return redirect()->to('/admin/teachers')->with('success', $message);
-        } else {
+        // Atualizar usuário
+        if (!$this->userModel->update($userId, $userData)) {
+            $db->transRollback();
             return redirect()->back()->withInput()
-                ->with('error', 'Erro ao salvar professor');
+                ->with('errors', $this->userModel->errors());
         }
+        
+        // Atualizar dados do professor
+        $teacherData = [
+            'birth_date' => $this->request->getPost('birth_date'),
+            'gender' => $this->request->getPost('gender'),
+            'nationality' => $this->request->getPost('nationality'),
+            'identity_type' => $this->request->getPost('identity_type'),
+            'identity_document' => $this->request->getPost('identity_document'),
+            'nif' => $this->request->getPost('nif'),
+            'province' => $this->request->getPost('province'),
+            'municipality' => $this->request->getPost('municipality'),
+            'city' => $this->request->getPost('city'),
+            'address' => $this->request->getPost('address'),
+            'emergency_contact' => $this->request->getPost('emergency_contact'),
+            'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
+            'qualifications' => $this->request->getPost('qualifications'),
+            'specialization' => $this->request->getPost('specialization'),
+            'admission_date' => $this->request->getPost('admission_date'),
+            'bank_name' => $this->request->getPost('bank_name'),
+            'bank_account' => $this->request->getPost('bank_account')
+        ];
+        
+        $this->teacherModel->update($teacherId, $teacherData);
+        
+        $message = 'Professor atualizado com sucesso';
+        
+    } else {
+        // === MODO CRIAÇÃO ===
+        
+        // Validar senha
+        $password = $this->request->getPost('password');
+        if (empty($password)) {
+            $db->transRollback();
+            return redirect()->back()->withInput()
+                ->with('error', 'A senha é obrigatória para novos professores');
+        }
+        
+        // Preparar dados do usuário
+        $userData['username'] = $this->request->getPost('email');
+        $userData['password'] = password_hash($password, PASSWORD_DEFAULT);
+        
+        // Inserir usuário
+        if (!$this->userModel->insert($userData)) {
+            $db->transRollback();
+            return redirect()->back()->withInput()
+                ->with('errors', $this->userModel->errors());
+        }
+        
+        $userId = $this->userModel->getInsertID();
+        
+        // Criar professor
+        $teacherData = [
+            'user_id' => $userId,
+            'birth_date' => $this->request->getPost('birth_date'),
+            'gender' => $this->request->getPost('gender'),
+            'nationality' => $this->request->getPost('nationality'),
+            'identity_type' => $this->request->getPost('identity_type'),
+            'identity_document' => $this->request->getPost('identity_document'),
+            'nif' => $this->request->getPost('nif'),
+            'province' => $this->request->getPost('province'),
+            'municipality' => $this->request->getPost('municipality'),
+            'city' => $this->request->getPost('city'),
+            'address' => $this->request->getPost('address'),
+            'emergency_contact' => $this->request->getPost('emergency_contact'),
+            'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
+            'qualifications' => $this->request->getPost('qualifications'),
+            'specialization' => $this->request->getPost('specialization'),
+            'admission_date' => $this->request->getPost('admission_date'),
+            'bank_name' => $this->request->getPost('bank_name'),
+            'bank_account' => $this->request->getPost('bank_account')
+        ];
+        
+        if (!$this->teacherModel->insert($teacherData)) {
+            $db->transRollback();
+            return redirect()->back()->withInput()
+                ->with('errors', $this->teacherModel->errors());
+        }
+        
+        $message = 'Professor criado com sucesso';
     }
     
-    /**
-     * View teacher
-     */
+    $db->transComplete();
+    
+    if ($db->transStatus()) {
+        return redirect()->to('/admin/teachers')->with('success', $message);
+    } else {
+        return redirect()->back()->withInput()
+            ->with('error', 'Erro ao salvar professor');
+    }
+}
    /**
  * View teacher
  */
