@@ -9,6 +9,7 @@ use App\Models\ClassModel;
 use App\Models\AcademicYearModel;
 use App\Models\FeeStructureModel;
 use App\Models\GradeLevelModel;
+use App\Models\CourseModel; 
 
 
 class Enrollments extends BaseController
@@ -19,6 +20,7 @@ class Enrollments extends BaseController
     protected $academicYearModel;
     protected $feeStructureModel;
     protected $gradeLevelModel;
+     protected $courseModel;
     
     public function __construct()
     {
@@ -29,6 +31,7 @@ class Enrollments extends BaseController
         $this->feeStructureModel = new FeeStructureModel();
           // Buscar níveis de ensino
         $this->gradeLevelModel = new GradeLevelModel();
+         $this->courseModel = new CourseModel();
     }
     
     /**
@@ -51,6 +54,7 @@ public function index()
     $gradeLevelId = $this->request->getGet('grade_level');
     $classId = $this->request->getGet('class_id');
     $status = $this->request->getGet('status');
+      $courseId = $this->request->getGet('course'); 
     
     // Obter ano letivo atual
     $currentYear = $this->academicYearModel->getCurrent();
@@ -71,7 +75,8 @@ public function index()
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
         ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id', 'left')
         ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id', 'left')
-        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id');
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+          ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left');
     
     if ($academicYearId) {
         $builder->where('tbl_enrollments.academic_year_id', $academicYearId);
@@ -98,6 +103,11 @@ public function index()
     // Dados para filtros
     $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();
     $data['gradeLevels'] = (new \App\Models\GradeLevelModel())->where('is_active', 1)->orderBy('sort_order', 'ASC')->findAll();
+    
+        // Dados para filtros - adicionar cursos
+    $data['courses'] = $this->courseModel->getHighSchoolCourses(); 
+    $data['selectedCourse'] = $courseId;
+
     $data['classes'] = $this->classModel
         ->select('tbl_classes.*, tbl_academic_years.year_name')
         ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
@@ -106,6 +116,7 @@ public function index()
         ->orderBy('tbl_classes.class_name', 'ASC')
         ->findAll();
     
+
     // Estatísticas
     $data['totalEnrollments'] = $this->enrollmentModel->countAll();
     $data['activeEnrollments'] = $this->enrollmentModel->where('status', 'Ativo')->countAllResults();
@@ -186,6 +197,9 @@ public function form($id = null)
      $data['classes'] = $this->classModel
         ->where('is_active', 1)
         ->findAll();
+
+       // Buscar cursos para ensino médio
+        $data['courses'] = $this->courseModel->getHighSchoolCourses(); 
 
     $data['currentYear'] = $currentYear;
     
@@ -293,6 +307,7 @@ public function save()
         'class_id' => $classId ?: null,
         'academic_year_id' => $academicYearId,
         'grade_level_id' => $this->request->getPost('grade_level_id'),
+         'course_id' => $this->request->getPost('course_id') ?: null,
         'enrollment_date' => $this->request->getPost('enrollment_date'),
         'enrollment_type' => $this->request->getPost('enrollment_type'),
         'previous_grade_id' => $this->request->getPost('previous_grade_id') ?: null,

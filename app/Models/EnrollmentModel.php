@@ -1,8 +1,8 @@
 <?php
-
+// app/Models/EnrollmentModel.php 
 namespace App\Models;
 
-use App\Models\AcademicYearModel; // Adicione esta linha
+use App\Models\AcademicYearModel; 
 
 class EnrollmentModel extends BaseModel
 {
@@ -15,6 +15,7 @@ class EnrollmentModel extends BaseModel
         'academic_year_id',
         'grade_level_id',
         'previous_grade_id',
+          'course_id', 
         'enrollment_date',
         'enrollment_number',
         'enrollment_type',
@@ -28,7 +29,8 @@ class EnrollmentModel extends BaseModel
         'student_id' => 'required|numeric',
         'class_id' => 'permit_empty|numeric',
         'academic_year_id' => 'required|numeric',
-        'grade_level_id' => 'required|numeric',  // <-- NOVO obrigatório
+        'grade_level_id' => 'required|numeric', 
+        'course_id' => 'permit_empty|numeric',
         'enrollment_date' => 'required|valid_date',
         'enrollment_number' => 'required|is_unique[tbl_enrollments.enrollment_number,id,{id}]'
     ];
@@ -64,17 +66,14 @@ class EnrollmentModel extends BaseModel
         return "ENR{$year}{$newNumber}";
     }
     
-        /**
+   /**
      * Get enrollment with all details for view and form
-     * 
-     * @param int $id Enrollment ID
-     * @return object|null
+     * AGORA INCLUI INFORMAÇÕES DO CURSO
      */
     public function getWithDetails($id)
     {
         return $this->select('
                 tbl_enrollments.*,
-            
                 tbl_students.student_number,
                 tbl_users.first_name,
                 tbl_users.last_name,
@@ -89,6 +88,10 @@ class EnrollmentModel extends BaseModel
                 tbl_academic_years.end_date as year_end,
                 tbl_grade_levels.level_name as grade_level_name,
                 tbl_grade_levels.education_level,
+                tbl_courses.id as course_id,
+                tbl_courses.course_name,
+                tbl_courses.course_code,
+                tbl_courses.course_type,
                 tbl_users_created.first_name as created_by_first,
                 tbl_users_created.last_name as created_by_last,
                 CONCAT(tbl_users_created.first_name, " ", tbl_users_created.last_name) as created_by_username
@@ -98,6 +101,7 @@ class EnrollmentModel extends BaseModel
             ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id', 'left')
             ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
             ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id', 'left')
+            ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left')  
             ->join('tbl_users as tbl_users_created', 'tbl_users_created.id = tbl_enrollments.created_by', 'left')
             ->where('tbl_enrollments.id', $id)
             ->first();
@@ -407,28 +411,53 @@ public function getForView($id)
         return $nextClass ? $nextClass->id : null;
     }
     /**
- * Get current enrollment by user ID (para alunos)
- * 
- * @param int $userId ID do usuário
- * @return object|null
- */
-public function getCurrentByUserId($userId)
-{
-    return $this->select('
-            tbl_enrollments.*,
-            tbl_classes.class_name,
-            tbl_classes.class_code,
-            tbl_classes.class_shift,
-            tbl_academic_years.year_name,
-            tbl_students.id as student_id,
-            tbl_students.student_number
-        ')
-        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-        ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
-        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
-        ->where('tbl_students.user_id', $userId)
-        ->where('tbl_enrollments.status', 'Ativo')
-        ->orderBy('tbl_enrollments.id', 'DESC')
-        ->first();
-}
+     * Get current enrollment by user ID (para alunos)
+     * 
+     * @param int $userId ID do usuário
+     * @return object|null
+     */
+    public function getCurrentByUserId($userId)
+    {
+        return $this->select('
+                tbl_enrollments.*,
+                tbl_classes.class_name,
+                tbl_classes.class_code,
+                tbl_classes.class_shift,
+                tbl_academic_years.year_name,
+                tbl_students.id as student_id,
+                tbl_students.student_number
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+            ->where('tbl_students.user_id', $userId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->orderBy('tbl_enrollments.id', 'DESC')
+            ->first();
+    }
+    /**
+     * Get enrollments by course
+     */
+    public function getByCourse($courseId, $academicYearId = null)
+    {
+        $builder = $this->select('
+                tbl_enrollments.*,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_classes.class_name
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->where('tbl_enrollments.course_id', $courseId)
+            ->where('tbl_enrollments.status', 'Ativo');
+        
+        if ($academicYearId) {
+            $builder->where('tbl_enrollments.academic_year_id', $academicYearId);
+        }
+        
+        return $builder->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+    }
 }

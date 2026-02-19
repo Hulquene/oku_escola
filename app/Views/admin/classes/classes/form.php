@@ -129,7 +129,26 @@
                 </div>
             </div>
             
+            <!-- NOVO CAMPO: Curso -->
             <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label">Curso (Ensino Médio)</label>
+                        <select class="form-select" id="course_id" name="course_id">
+                            <option value="">Ensino Geral (sem curso específico)</option>
+                            <?php if (!empty($courses)): ?>
+                                <?php foreach ($courses as $course): ?>
+                                    <option value="<?= $course->id ?>" 
+                                        <?= (old('course_id', $class->course_id ?? '') == $course->id) ? 'selected' : '' ?>>
+                                        <?= $course->course_name ?> (<?= $course->course_code ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <small class="text-muted">Selecione o curso apenas para turmas do Ensino Médio (10ª à 13ª classe)</small>
+                    </div>
+                </div>
+                
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label for="class_room" class="form-label">Sala</label>
@@ -154,8 +173,10 @@
                                max="100">
                     </div>
                 </div>
-                
-                <div class="col-md-4">
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
                     <div class="mb-3">
                         <label for="class_teacher_id" class="form-label">Professor Responsável</label>
                         <select class="form-select" id="class_teacher_id" name="class_teacher_id">
@@ -171,12 +192,10 @@
                         </select>
                     </div>
                 </div>
-            </div>
-            
-            <div class="row">
+                
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <div class="form-check form-switch">
+                        <div class="form-check form-switch mt-4">
                             <input class="form-check-input" type="checkbox" 
                                    id="is_active" 
                                    name="is_active" 

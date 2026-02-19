@@ -7,12 +7,14 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
+            <?php if (isset($enrollment->student_id)): ?>
             <a href="<?= site_url('admin/students/enrollments/history/' . $enrollment->student_id) ?>" class="btn btn-info">
                 <i class="fas fa-history"></i> Histórico do Aluno
             </a>
             <a href="<?= site_url('admin/students/view/' . $enrollment->student_id) ?>" class="btn btn-primary">
                 <i class="fas fa-user-graduate"></i> Ver Aluno
             </a>
+            <?php endif; ?>
             <a href="<?= site_url('admin/students/enrollments') ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
@@ -96,7 +98,7 @@
                         <td><?= $enrollment->first_name ?> <?= $enrollment->last_name ?></td>
                     </tr>
                     <tr>
-                        <th>Matrícula</th>
+                        <th>Nº Matrícula</th>
                         <td><?= $enrollment->student_number ?></td>
                     </tr>
                     <tr>
@@ -127,15 +129,15 @@
                 <table class="table table-bordered">
                     <tr>
                         <th style="width: 150px;">Turma</th>
-                        <td><?= $enrollment->class_name ?></td>
+                        <td><?= $enrollment->class_name ?? 'Não atribuída' ?></td>
                     </tr>
                     <tr>
                         <th>Código</th>
-                        <td><?= $enrollment->class_code ?></td>
+                        <td><?= $enrollment->class_code ?? '-' ?></td>
                     </tr>
                     <tr>
                         <th>Turno</th>
-                        <td><?= $enrollment->class_shift ?></td>
+                        <td><?= $enrollment->class_shift ?? '-' ?></td>
                     </tr>
                     <tr>
                         <th>Sala</th>
@@ -143,14 +145,48 @@
                     </tr>
                 </table>
                 
+                <?php if ($enrollment->class_id): ?>
                 <div class="mt-3">
                     <a href="<?= site_url('admin/classes/classes/view/' . $enrollment->class_id) ?>" 
                        class="btn btn-sm btn-outline-success">
                         <i class="fas fa-external-link-alt"></i> Ver Detalhes da Turma
                     </a>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
+        
+        <!-- NOVA SEÇÃO: Informações do Curso -->
+        <?php if (isset($enrollment->course_id) && $enrollment->course_id): ?>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-layer-group"></i> Curso (Ensino Médio)
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 150px;">Curso</th>
+                        <td><?= $enrollment->course_name ?? 'N/A' ?></td>
+                    </tr>
+                    <tr>
+                        <th>Código</th>
+                        <td><span class="badge bg-info"><?= $enrollment->course_code ?? 'N/A' ?></span></td>
+                    </tr>
+                    <tr>
+                        <th>Tipo</th>
+                        <td><?= $enrollment->course_type ?? 'N/A' ?></td>
+                    </tr>
+                </table>
+                
+                <div class="mt-3">
+                    <a href="<?= site_url('admin/courses/view/' . $enrollment->course_id) ?>" 
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt"></i> Ver Detalhes do Curso
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 

@@ -40,6 +40,8 @@ use App\Controllers\admin\Users;
 use App\Controllers\admin\Logs;
 use App\Controllers\admin\AdminDocuments;
 use App\Controllers\admin\DocumentGenerator;
+use App\Controllers\admin\Courses;
+use App\Controllers\admin\CourseCurriculum;
 
 use App\Controllers\auth\Auth;
 use App\Controllers\Home;
@@ -157,15 +159,20 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('delete/(:num)', [AcademicYears::class, 'delete'], ["as" => 'academic.years.delete/$1']);
         // No grupo academic/years
         $routes->get('check-dates/(:num)', [AcademicYears::class, 'checkDates'], ["as" => 'academic.years.check-dates']);
+
+
     });
 
-    // Semestres/Trimestres
+      // Semestres/Trimestres
     $routes->group('semesters', function ($routes) {
-      $routes->get('', [Semesters::class, 'index'], ["as" => 'academic.semesters']);
-      $routes->get('form-add', [Semesters::class, 'form'], ["as" => 'academic.semesters.form']);
-      $routes->get('form-edit/(:num)', [Semesters::class, 'form'], ["as" => 'academic.semesters.form/$1']);
-      $routes->post('save', [Semesters::class, 'save'], ["as" => 'academic.semesters.save']);
-      $routes->get('delete/(:num)', [Semesters::class, 'delete'], ["as" => 'academic.semesters.delete/$1']);
+        $routes->get('', [Semesters::class, 'index'], ["as" => 'academic.semesters']);
+        $routes->get('form-add', [Semesters::class, 'form'], ["as" => 'academic.semesters.form']);
+        $routes->get('form-edit/(:num)', [Semesters::class, 'form/$1'], ["as" => 'academic.semesters.form.edit']);
+        $routes->post('save', [Semesters::class, 'save'], ["as" => 'academic.semesters.save']);
+        $routes->get('view/(:num)', [Semesters::class, 'view/$1'], ["as" => 'academic.semesters.view']);
+        $routes->get('set-current/(:num)', [Semesters::class, 'setCurrent/$1'], ["as" => 'academic.semesters.setCurrent']); // <-- ADICIONAR ESTA LINHA
+        $routes->get('delete/(:num)', [Semesters::class, 'delete/$1'], ["as" => 'academic.semesters.delete']);
+        $routes->get('get-dates/(:num)', [Semesters::class, 'getDates/$1'], ["as" => 'academic.semesters.getDates']);
     });
 
     // Calendário Escolar
@@ -175,6 +182,26 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('get-events', [SchoolCalendar::class, 'getEvents'], ["as" => 'academic.calendar.events']);
     });
   });
+
+
+        // Cursos (Ensino Médio)
+        $routes->group('courses', function ($routes) {
+            $routes->get('/', [Courses::class, 'index'], ['as' => 'admin.courses']);
+            $routes->get('form-add', [Courses::class, 'form'], ['as' => 'admin.courses.form']);
+            $routes->get('form-edit/(:num)', [Courses::class, 'form/$1'], ['as' => 'admin.courses.form.edit']);
+            $routes->post('save', [Courses::class, 'save'], ['as' => 'admin.courses.save']);
+            $routes->get('view/(:num)', [Courses::class, 'view/$1'], ['as' => 'admin.courses.view']);
+            $routes->get('delete/(:num)', [Courses::class, 'delete/$1'], ['as' => 'admin.courses.delete']);
+            
+            // Currículo do curso
+            $routes->get('curriculum/(:num)', [CourseCurriculum::class, 'index/$1'], ['as' => 'admin.courses.curriculum']);
+            $routes->post('curriculum/add-discipline', [CourseCurriculum::class, 'addDiscipline'], ['as' => 'admin.courses.curriculum.add']);
+            $routes->get('curriculum/edit/(:num)', [CourseCurriculum::class, 'editDiscipline/$1'], ['as' => 'admin.courses.curriculum.edit']);
+            $routes->post('curriculum/update/(:num)', [CourseCurriculum::class, 'updateDiscipline/$1'], ['as' => 'admin.courses.curriculum.update']);
+            $routes->get('curriculum/remove/(:num)', [CourseCurriculum::class, 'removeDiscipline/$1'], ['as' => 'admin.courses.curriculum.remove']);
+            $routes->get('curriculum/get-available/(:num)/(:num)', [CourseCurriculum::class, 'getAvailableDisciplines/$1/$2'], ['as' => 'admin.courses.curriculum.available']);
+        });
+
 
   /**
    * Gestão de Classes/Turmas
@@ -208,6 +235,18 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('activate/(:num)', [Classes::class, 'activate/$1'], ["as" => 'classes.activate']);
         $routes->get('view/(:num)', [Classes::class, 'view/$1'], ["as" => 'classes.view']);
         $routes->get('list-students/(:num)', [Classes::class, 'listStudents/$1'], ["as" => 'classes.students']);
+
+        // Rota para obter disciplinas da turma (AJAX) - FALTANDO
+        $routes->get('get-class-disciplines/(:num)', [Classes::class, 'getClassDisciplines/$1'], ["as" => 'classes.get-disciplines']);
+        
+        // Rota para obter horário da turma - FALTANDO
+        $routes->get('schedule/(:num)', [Classes::class, 'schedule/$1'], ["as" => 'classes.schedule']);
+        
+        // Rota para exportar lista de alunos da turma - FALTANDO
+        $routes->get('export-students/(:num)', [Classes::class, 'exportStudents/$1'], ["as" => 'classes.export-students']);
+        
+        // Rota para imprimir pauta da turma - FALTANDO
+        $routes->get('print-sheet/(:num)', [Classes::class, 'printSheet/$1'], ["as" => 'classes.print-sheet']);
        
     });
       $routes->get('get-by-level-and-year/(:num)/(:num)', [Classes::class, 'getByLevelAndYear/$1/$2'], ["as" => 'classes.get-by-level-and-year']);
@@ -219,15 +258,26 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->post('save', [Disciplines::class, 'save'], ["as" => 'classes.subjects.save']);
       $routes->get('delete/(:num)', [Disciplines::class, 'delete'], ["as" => 'classes.subjects.delete/$1']);
     });
-
     // Alocação de Disciplinas por Classe
     $routes->group('class-subjects', function ($routes) {
         $routes->get('', [ClassSubjects::class, 'index'], ["as" => 'classes.class-subjects']);
-        $routes->get('assign', [ClassSubjects::class, 'assign'], ["as" => 'classes.class-subjects.assign']); // <-- ADICIONAR ESTA LINHA!
+        $routes->get('assign', [ClassSubjects::class, 'assign'], ["as" => 'classes.class-subjects.assign']);
         $routes->post('assign', [ClassSubjects::class, 'assignSave'], ["as" => 'classes.class-subjects.assign.save']);
         $routes->get('get-by-class/(:num)', [ClassSubjects::class, 'getByClass'], ["as" => 'classes.class-subjects.get/$1']);
-    });
+        
+            // ROTA DE DELETE 
+        $routes->get('delete/(:num)', [ClassSubjects::class, 'delete/$1'], ["as" => 'classes.class-subjects.delete']);
 
+        // NOVAS ROTAS AJAX
+        $routes->get('get-levels-by-course/(:num)', [ClassSubjects::class, 'getLevelsByCourse/$1'], ["as" => 'classes.class-subjects.get-levels']);
+        $routes->get('get-levels-by-course', [ClassSubjects::class, 'getLevelsByCourse'], ["as" => 'classes.class-subjects.get-levels-all']);
+        $routes->get('get-classes-by-course-level/(:num)/(:num)', [ClassSubjects::class, 'getClassesByCourseAndLevel/$1/$2'], ["as" => 'classes.class-subjects.get-classes']);
+        $routes->get('get-available-disciplines/(:num)', [ClassSubjects::class, 'getAvailableDisciplinesForClass/$1'], ["as" => 'classes.class-subjects.available-disciplines']);
+        
+        // Rotas para atribuir professores
+        $routes->get('assign-teachers/(:num)', [ClassSubjects::class, 'assignTeachers/$1'], ["as" => 'classes.class-subjects.assign-teachers']);
+        $routes->post('save-teachers', [ClassSubjects::class, 'saveTeachers'], ["as" => 'classes.class-subjects.save-teachers']);
+    });
   });
 
   /**
@@ -283,6 +333,23 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->get('view/(:num)', [Teachers::class, 'view'], ["as" => 'teachers.view/$1']);
     $routes->get('assign-class/(:num)', [Teachers::class, 'assignClass'], ["as" => 'teachers.assign-class/$1']);
     $routes->post('save-assignment', [Teachers::class, 'saveAssignment'], ["as" => 'teachers.save-assignment']);
+
+    // ✅ NOVA ROTA PARA ESTATÍSTICAS AJAX
+    $routes->get('get-stats', [Teachers::class, 'getStats'], ["as" => 'teachers.get-stats']);
+    
+    // Outras rotas que você possa ter
+    $routes->get('activate/(:num)', [Teachers::class, 'activate/$1'], ["as" => 'teachers.activate']);
+    $routes->get('schedule/(:num)', [Teachers::class, 'schedule/$1'], ["as" => 'teachers.schedule']);
+    $routes->get('export', [Teachers::class, 'export'], ["as" => 'teachers.export']);
+
+    // Rota para ativar professor - FALTANDO (você tem delete mas não activate)
+    $routes->get('activate/(:num)', [Teachers::class, 'activate/$1'], ["as" => 'teachers.activate']);
+    
+    // Rota para obter disciplinas do professor (AJAX) - FALTANDO
+    $routes->get('get-disciplines/(:num)', [Teachers::class, 'getDisciplines/$1'], ["as" => 'teachers.get-disciplines']);
+    
+    // Rota para remover atribuição específica - FALTANDO
+    $routes->get('remove-assignment/(:num)', [Teachers::class, 'removeAssignment/$1'], ["as" => 'teachers.remove-assignment']);
   });
 
   /**

@@ -346,6 +346,35 @@
                         </div>
                     </div>
                     
+                    <!-- NOVO CAMPO CURSO -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="course_id" class="form-label">Curso <span class="text-muted">(opcional)</span></label>
+                                <select class="form-select <?= session('errors.course_id') ? 'is-invalid' : '' ?>" 
+                                        id="course_id" 
+                                        name="course_id">
+                                    <option value="">Selecione o curso (apenas para Ensino Médio)...</option>
+                                    <?php if (!empty($courses)): ?>
+                                        <?php foreach ($courses as $course): ?>
+                                            <option value="<?= $course->id ?>" 
+                                                <?= (old('course_id', $selectedCourse ?? '') == $course->id) ? 'selected' : '' ?>>
+                                                <?= esc($course->course_name) ?> (<?= esc($course->course_code) ?>) - <?= esc($course->course_type) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                                <?php if (session('errors.course_id')): ?>
+                                    <div class="invalid-feedback"><?= session('errors.course_id') ?></div>
+                                <?php endif; ?>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Selecione o curso apenas para alunos do Ensino Médio (10ª-12ª classes)
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="alert alert-info mt-3">
                         <i class="fas fa-info-circle"></i>
                         <strong>Nota:</strong> Após salvar o aluno, será criada uma matrícula com status "Pendente". 
@@ -495,6 +524,7 @@
 </div>
 
 <?= $this->endSection() ?>
+
 <?= $this->section('scripts') ?>
 <script>
 // Configuração CSRF para garantir que o token seja enviado
@@ -511,26 +541,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('CSRF token encontrado:', csrfField.value.substring(0, 10) + '...');
     } else {
         console.error('CSRF token NÃO encontrado no formulário!');
-        // Recriar o campo se não existir
         const newCsrfField = document.createElement('input');
         newCsrfField.type = 'hidden';
         newCsrfField.name = '<?= csrf_token() ?>';
         newCsrfField.value = csrfHash;
         form.appendChild(newCsrfField);
     }
-    
-    // Para debug - ver o FormData antes de enviar
-    form.addEventListener('submit', function(e) {
-        console.log('=== DADOS DO FORMULÁRIO ===');
-        const formData = new FormData(form);
-        for (let pair of formData.entries()) {
-            if (pair[0].includes('csrf')) {
-                console.log(pair[0] + ':', pair[1].substring(0, 20) + '...');
-            } else {
-                console.log(pair[0] + ':', pair[1]);
-            }
-        }
-    });
 });
 
 // Validação de idade mínima
@@ -574,7 +590,6 @@ document.getElementById('photo').addEventListener('change', function(e) {
             return;
         }
         
-        // Preview da imagem
         const reader = new FileReader();
         reader.onload = function(e) {
             const preview = document.querySelector('.photo-preview');
@@ -586,7 +601,19 @@ document.getElementById('photo').addEventListener('change', function(e) {
     }
 });
 
-// Adicionar preview de foto (opcional)
+// Mostrar/esconder campo curso baseado no nível selecionado
+document.getElementById('grade_level_id').addEventListener('change', function() {
+    const gradeLevelId = this.value;
+    const courseField = document.getElementById('course_id').closest('.row');
+    
+    if (gradeLevelId) {
+        // Aqui você pode fazer uma chamada AJAX para verificar se o nível é Ensino Médio
+        // Por enquanto, vamos apenas mostrar o campo
+        courseField.style.display = 'block';
+    }
+});
+
+// Adicionar preview de foto
 const photoInput = document.getElementById('photo');
 if (photoInput) {
     const previewDiv = document.createElement('div');

@@ -10,6 +10,7 @@ use App\Models\ClassModel;
 use App\Models\AcademicYearModel;
 use App\Models\GuardianModel;
 use App\Models\StudentGuardianModel;
+use App\Models\CourseModel; 
 
 //Students Controller (App\Controllers\Admin\Clients.php - Adaptado para Students)
 class Clients extends BaseController
@@ -21,6 +22,7 @@ class Clients extends BaseController
     protected $academicYearModel;
     protected $guardianModel;
     protected $studentGuardianModel;
+      protected $courseModel;
     
     public function __construct()
     {
@@ -31,6 +33,7 @@ class Clients extends BaseController
         $this->academicYearModel = new AcademicYearModel();
         $this->guardianModel = new GuardianModel();
         $this->studentGuardianModel = new StudentGuardianModel();
+        $this->courseModel = new CourseModel();
     }
     
     /**
@@ -47,13 +50,14 @@ public function index()
 {
     $data['title'] = 'Alunos';
     
-    // Capturar filtros
+    // Capturar filtros - ADICIONAR course_id
     $search = $this->request->getGet('search');
     $academicYearId = $this->request->getGet('academic_year');
     $classId = $this->request->getGet('class_id');
     $enrollmentStatus = $this->request->getGet('enrollment_status');
     $gender = $this->request->getGet('gender');
     $status = $this->request->getGet('status');
+    $courseId = $this->request->getGet('course_id'); // NOVO FILTRO
     
     // Obter ano letivo atual
     $currentYear = $this->academicYearModel->getCurrent();
@@ -77,28 +81,37 @@ public function index()
             active_enroll.level_name as current_level_name,
             active_enroll.status as enrollment_status,
             active_enroll.id as enrollment_id,
+            active_enroll.course_id as current_course_id, 
+            active_enroll.course_name as current_course_name, 
+            active_enroll.course_code as current_course_code, 
             pending_enroll.academic_year_id as pending_year_id,
             pending_enroll.grade_level_id as pending_level_id,
+            pending_enroll.course_id as pending_course_id, 
             pending_year.year_name as pending_year_name,
-            pending_level.level_name as pending_level_name
+            pending_level.level_name as pending_level_name,
+            pending_course.course_name as pending_course_name,
+            pending_course.course_code as pending_course_code 
         ')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
         
-        // LEFT JOIN para matrícula ativa
+        // LEFT JOIN para matrícula ativa - INCLUIR CURSO
         ->join('(
             SELECT e.*, 
                    c.class_name, 
                    c.class_shift,
                    ay.year_name,
-                   gl.level_name
+                   gl.level_name,
+                   co.course_name,  
+                   co.course_code   
             FROM tbl_enrollments e
             LEFT JOIN tbl_classes c ON c.id = e.class_id
             LEFT JOIN tbl_academic_years ay ON ay.id = e.academic_year_id
             LEFT JOIN tbl_grade_levels gl ON gl.id = e.grade_level_id
+            LEFT JOIN tbl_courses co ON co.id = e.course_id  
             WHERE e.status = "Ativo"
         ) as active_enroll', 'active_enroll.student_id = tbl_students.id', 'left')
         
-        // LEFT JOIN para matrícula pendente (mais recente)
+        // LEFT JOIN para matrícula pendente (mais recente) - INCLUIR CURSO
         ->join('(
             SELECT e.*, 
                    ay.year_name,
@@ -116,7 +129,8 @@ public function index()
         ) as pending_enroll', 'pending_enroll.student_id = tbl_students.id', 'left')
         
         ->join('tbl_academic_years as pending_year', 'pending_year.id = pending_enroll.academic_year_id', 'left')
-        ->join('tbl_grade_levels as pending_level', 'pending_level.id = pending_enroll.grade_level_id', 'left');
+        ->join('tbl_grade_levels as pending_level', 'pending_level.id = pending_enroll.grade_level_id', 'left')
+        ->join('tbl_courses as pending_course', 'pending_course.id = pending_enroll.course_id', 'left'); // ADICIONAR
     
     // Aplicar filtros
     if ($search) {
@@ -130,19 +144,31 @@ public function index()
             ->groupEnd();
     }
     
-    // FILTRO DE ANO LETIVO - considerar tanto ativo quanto pendente
+    // FILTRO DE ANO LETIVO - CORRIGIDO
     if ($academicYearId) {
         if ($enrollmentStatus == 'nao_matriculado') {
-            // Se está filtrando por não matriculado, NÃO aplica filtro de ano
+            // Para não matriculados: alunos que NÃO têm matrícula no ano selecionado
+            $builder->whereNotIn('tbl_students.id', function($builder) use ($academicYearId) {
+                return $builder->select('student_id')
+                    ->from('tbl_enrollments')
+                    ->where('academic_year_id', $academicYearId)
+                    ->whereIn('status', ['Ativo', 'Pendente', 'Concluído', 'Transferido']);
+            });
         } else {
+            // Para outros status: alunos que têm matrícula no ano selecionado
             $builder->where('(active_enroll.academic_year_id = ' . $academicYearId . ' OR pending_enroll.academic_year_id = ' . $academicYearId . ')');
         }
     }
-    
+
+    // FILTRO DE CURSO
+    if ($courseId) {
+        $builder->where('(active_enroll.course_id = ' . $courseId . ' OR pending_enroll.course_id = ' . $courseId . ')');
+    }
+
     if ($classId) {
         $builder->where('active_enroll.class_id', $classId);
     }
-    
+
     if ($enrollmentStatus) {
         if ($enrollmentStatus == 'nao_matriculado') {
             $builder->where('active_enroll.id IS NULL AND pending_enroll.id IS NULL');
@@ -170,6 +196,7 @@ public function index()
     $data['search'] = $search;
     $data['selectedYear'] = $academicYearId;
     $data['selectedClass'] = $classId;
+    $data['selectedCourse'] = $courseId; // NOVO
     $data['selectedEnrollmentStatus'] = $enrollmentStatus;
     $data['selectedGender'] = $gender;
     $data['selectedStatus'] = $status;
@@ -184,20 +211,14 @@ public function index()
         ->orderBy('tbl_classes.class_name', 'ASC')
         ->findAll();
     
+    // ADICIONAR CURSOS PARA FILTRO
+    $data['courses'] = $this->courseModel->getActive();
+    
     // Estatísticas
     $data['totalStudents'] = $this->studentModel->countAll();
+    $data['enrolledStudents'] = $this->enrollmentModel->where('status', 'Ativo')->countAllResults();
+    $data['pendingEnrollments'] = $this->enrollmentModel->where('status', 'Pendente')->countAllResults();
     
-    // Matriculados (independente do ano)
-    $data['enrolledStudents'] = $this->enrollmentModel
-        ->where('status', 'Ativo')
-        ->countAllResults();
-    
-    // Pendentes
-    $data['pendingEnrollments'] = $this->enrollmentModel
-        ->where('status', 'Pendente')
-        ->countAllResults();
-    
-    // Não matriculados (alunos sem nenhuma matrícula ativa ou pendente)
     $enrolledIds = $this->enrollmentModel
         ->select('student_id')
         ->whereIn('status', ['Ativo', 'Pendente'])
@@ -279,7 +300,7 @@ public function index()
     /**
      * Student form (add/edit)
      */
-    public function form($id = null)
+    /* public function form($id = null)
     {
         $data['title'] = $id ? 'Editar Aluno' : 'Novo Aluno';
         $data['student'] = $id ? $this->studentModel->getWithUser($id) : null;
@@ -293,7 +314,7 @@ public function index()
         $data['isStudent'] = true;
         
         return view('admin/students/form', $data);
-    }
+    } */
 /**
  * Student specific form
  */
@@ -319,14 +340,18 @@ public function studentForm($id = null)
         ->orderBy('sort_order', 'ASC')
         ->findAll();
     
+    // ADICIONAR CURSOS
+    $data['courses'] = $this->courseModel->getActive();
+    
     // Inicializar variáveis
     $data['selectedYear'] = $currentYear->id ?? null;
     $data['selectedLevel'] = null;
+    $data['selectedCourse'] = null; // NOVO
     $data['selectedEnrollmentType'] = 'Nova';
     $data['selectedPreviousGrade'] = null;
     
     if ($id && $data['student']) {
-        // Primeiro, buscar matrícula pendente
+        // Buscar matrícula pendente primeiro
         $enrollment = $this->enrollmentModel
             ->where('student_id', $id)
             ->where('academic_year_id', $currentYear->id ?? 0)
@@ -338,6 +363,7 @@ public function studentForm($id = null)
             // Se tem pendente, usar dados da pendente
             $data['selectedYear'] = $enrollment->academic_year_id;
             $data['selectedLevel'] = $enrollment->grade_level_id;
+            $data['selectedCourse'] = $enrollment->course_id; // NOVO
             $data['selectedEnrollmentType'] = $enrollment->enrollment_type;
             $data['selectedPreviousGrade'] = $enrollment->previous_grade_id;
         } else {
@@ -351,13 +377,13 @@ public function studentForm($id = null)
             if ($activeEnrollment) {
                 $data['selectedYear'] = $activeEnrollment->academic_year_id;
                 $data['selectedLevel'] = $activeEnrollment->grade_level_id;
+                $data['selectedCourse'] = $activeEnrollment->course_id; // NOVO
                 $data['selectedEnrollmentType'] = $activeEnrollment->enrollment_type;
                 $data['selectedPreviousGrade'] = $activeEnrollment->previous_grade_id;
             }
         }
     }
     
-    // Guardiões do aluno
     $data['guardians'] = $id ? $this->guardianModel->getByStudent($id) : [];
     
     return view('admin/students/form', $data);
@@ -377,7 +403,7 @@ public function saveStudent()
     $userId = $this->request->getPost('user_id');
     $studentId = $this->request->getPost('id');
     
-    // Verificar idade mínima (única validação que fica no controller por ser regra de negócio)
+    // Verificar idade mínima
     $birthDate = $this->request->getPost('birth_date');
     $age = date_diff(date_create($birthDate), date_create('today'))->y;
     if ($age < 5) {
@@ -398,7 +424,6 @@ public function saveStudent()
     ];
     
     if ($userId) {
-        // Update existing user
         $existingUser = $this->userModel->find($userId);
         if (!$existingUser) {
             $db->transRollback();
@@ -412,7 +437,6 @@ public function saveStudent()
                 ->with('errors', $this->userModel->errors());
         }
     } else {
-        // Create new user
         $userData['username'] = $this->request->getPost('email');
         $userData['password'] = password_hash('123456', PASSWORD_DEFAULT);
         $userId = $this->userModel->insert($userData);
@@ -424,7 +448,7 @@ public function saveStudent()
         }
     }
     
-    // Preparar dados do aluno
+    // Preparar dados do aluno (SEM course_id)
     $studentData = [
         'user_id' => $userId,
         'birth_date' => $birthDate,
@@ -446,9 +470,8 @@ public function saveStudent()
     ];
     
     if ($studentId) {
-        // IMPORTANTE: Adicionar o ID para a validação
-        $studentData['id'] = $studentId; 
-
+        $studentData['id'] = $studentId;
+        
         if (!$this->studentModel->update($studentId, $studentData)) {
             $db->transRollback();
             return redirect()->back()->withInput()
@@ -465,7 +488,7 @@ public function saveStudent()
         }
     }
     
-    // Criar matrícula pendente
+    // Criar matrícula pendente - AGORA COM COURSE_ID
     if ($studentId) {
         $existingEnrollment = $this->enrollmentModel
             ->where('student_id', $studentId)
@@ -478,6 +501,7 @@ public function saveStudent()
                 'student_id' => $studentId,
                 'academic_year_id' => $this->request->getPost('academic_year_id'),
                 'grade_level_id' => $this->request->getPost('grade_level_id'),
+                'course_id' => $this->request->getPost('course_id'), // INCLUIR COURSE_ID
                 'enrollment_date' => date('Y-m-d'),
                 'enrollment_number' => $this->enrollmentModel->generateEnrollmentNumber(),
                 'enrollment_type' => $this->request->getPost('enrollment_type'),
@@ -522,36 +546,43 @@ public function saveStudent()
         return $this->saveStudent();
     }
     
-    /**
-     * View student
-     */
-    public function viewStudent($id)
-    {
-        $data['title'] = 'Detalhes do Aluno';
-        $data['student'] = $this->studentModel->getWithUser($id);
-        
-        if (!$data['student']) {
-            return redirect()->to('/admin/students')->with('error', 'Aluno não encontrado');
-        }
-        
-        // Current enrollment
-        $data['currentEnrollment'] = $this->studentModel->getCurrentEnrollment($id);
-        
-        // Academic history
-        $data['history'] = $this->studentModel->getAcademicHistory($id);
-        
-        // Guardians
-        $data['guardians'] = $this->guardianModel->getByStudent($id);
-        
-        // Fees summary
-        $data['feesSummary'] = $this->studentModel->getFeesSummary($id);
-        
-        // Recent payments
-        $feePaymentModel = new \App\Models\FeePaymentModel();
-        $data['recentPayments'] = $feePaymentModel->getByStudent($id);
-        
-        return view('admin/students/view', $data);
+  /**
+ * View student
+ */
+public function viewStudent($id)
+{
+    $data['title'] = 'Detalhes do Aluno';
+    $data['student'] = $this->studentModel->getWithUser($id);
+    
+    if (!$data['student']) {
+        return redirect()->to('/admin/students')->with('error', 'Aluno não encontrado');
     }
+    
+    // Current enrollment - JÁ INCLUI CURSO PELO EnrollmentModel::getCurrentForStudent
+    $data['currentEnrollment'] = $this->studentModel->getCurrentEnrollment($id);
+    
+    // Se quiser garantir que o curso venha, pode buscar diretamente
+    if ($data['currentEnrollment']) {
+        $enrollmentDetails = $this->enrollmentModel->getWithDetails($data['currentEnrollment']->id);
+        $data['currentEnrollment']->course_name = $enrollmentDetails->course_name ?? null;
+        $data['currentEnrollment']->course_code = $enrollmentDetails->course_code ?? null;
+    }
+    
+    // Academic history
+    $data['history'] = $this->studentModel->getAcademicHistory($id);
+    
+    // Guardians
+    $data['guardians'] = $this->guardianModel->getByStudent($id);
+    
+    // Fees summary
+    $data['feesSummary'] = $this->studentModel->getFeesSummary($id);
+    
+    // Recent payments
+    $feePaymentModel = new \App\Models\FeePaymentModel();
+    $data['recentPayments'] = $feePaymentModel->getByStudent($id);
+    
+    return view('admin/students/view', $data);
+}
     
     /**
      * View (alias for viewStudent)

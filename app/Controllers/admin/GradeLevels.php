@@ -1,5 +1,5 @@
 <?php
-
+// app/Controllers/admin/GradeLevels.php
 namespace App\Controllers\admin;
 
 use App\Controllers\BaseController;
@@ -50,6 +50,9 @@ class GradeLevels extends BaseController
             'education_level' => $this->request->getPost('education_level'),
             'grade_number' => $this->request->getPost('grade_number'),
             'sort_order' => $this->request->getPost('sort_order') ?: 0,
+            'is_course_start' => $this->request->getPost('is_course_start') ? 1 : 0, 
+            'is_course_end' => $this->request->getPost('is_course_end') ? 1 : 0,     
+            'course_type' => $this->request->getPost('course_type') ?: null,         
             'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
         

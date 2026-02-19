@@ -1,10 +1,6 @@
 <?= $this->extend('admin/layouts/index') ?>
 
-<?= $this->section('content');
-/* echo "<pre>";
-   var_dump($classes,$enrollment);die; */
-
-?>
+<?= $this->section('content') ?>
 
 <!-- Page Header -->
 <div class="page-header">
@@ -167,6 +163,32 @@
                         <?php endif; ?>
                         <?php if ($enrollment && $enrollment->status == 'Ativo'): ?>
                             <input type="hidden" name="grade_level_id" value="<?= $enrollment->grade_level_id ?>">
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- NOVO CAMPO: Curso -->
+            <div class="row" id="courseField" style="<?= (isset($enrollment) && $enrollment->grade_level_id >= 13 && $enrollment->grade_level_id <= 16) ? '' : 'display: none;' ?>">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label">Curso (Ensino Médio)</label>
+                        <select class="form-select <?= session('errors.course_id') ? 'is-invalid' : '' ?>" 
+                                id="course_id" 
+                                name="course_id">
+                            <option value="">Ensino Geral (sem curso específico)</option>
+                            <?php if (!empty($courses)): ?>
+                                <?php foreach ($courses as $course): ?>
+                                    <option value="<?= $course->id ?>" 
+                                        <?= (old('course_id', $enrollment->course_id ?? '') == $course->id) ? 'selected' : '' ?>>
+                                        <?= $course->course_name ?> (<?= $course->course_code ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <small class="text-muted">Selecione o curso apenas para alunos do Ensino Médio (10ª à 13ª classe)</small>
+                        <?php if (session('errors.course_id')): ?>
+                            <div class="invalid-feedback"><?= session('errors.course_id') ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -475,11 +497,32 @@ const csrfHash = '<?= csrf_hash() ?>';
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos do formulário
     const gradeLevelSelect = document.getElementById('grade_level_id');
+    const courseField = document.getElementById('courseField');
     const classSelect = document.getElementById('class_id');
     const yearSelect = document.getElementById('academic_year_id');
     const classInfo = document.getElementById('classInfo');
     const statusSelect = document.getElementById('status');
     const enrollmentForm = document.getElementById('enrollmentForm');
+
+    // Função para mostrar/esconder campo de curso baseado no nível
+    function toggleCourseField() {
+        const levelId = parseInt(gradeLevelSelect.value);
+        // Níveis do Ensino Médio são IDs 13-16
+        if (levelId >= 13 && levelId <= 16) {
+            courseField.style.display = 'flex';
+        } else {
+            courseField.style.display = 'none';
+            document.getElementById('course_id').value = ''; // Limpar seleção
+        }
+    }
+
+    // Adicionar evento change ao select de nível
+    gradeLevelSelect.addEventListener('change', toggleCourseField);
+
+    // Verificar estado inicial
+    if (gradeLevelSelect.value) {
+        toggleCourseField();
+    }
 
     // Atualizar informações da turma quando selecionada
     classSelect.addEventListener('change', function() {

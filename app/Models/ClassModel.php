@@ -1,5 +1,5 @@
 <?php
-
+// app/Models/ClassModel.php 
 namespace App\Models;
 
 class ClassModel extends BaseModel
@@ -12,6 +12,7 @@ class ClassModel extends BaseModel
         'class_code',
         'grade_level_id',
         'academic_year_id',
+        'course_id', 
         'class_shift',
         'class_room',
         'capacity',
@@ -20,11 +21,12 @@ class ClassModel extends BaseModel
     ];
     
     protected $validationRules = [
-        'id' => 'permit_empty|is_natural_no_zero',  // <-- ADICIONAR ESTA LINHA!
+        'id' => 'permit_empty|is_natural_no_zero',
         'class_name' => 'required|min_length[3]|max_length[100]',
         'class_code' => 'required|min_length[2]|max_length[50]|is_unique[tbl_classes.class_code,id,{id}]',
         'grade_level_id' => 'required|numeric',
         'academic_year_id' => 'required|numeric',
+        'course_id' => 'permit_empty|numeric', 
         'class_shift' => 'required|in_list[Manhã,Tarde,Noite,Integral]',
         'class_room' => 'permit_empty|max_length[50]',
         'capacity' => 'permit_empty|numeric|greater_than[0]|less_than[101]',
@@ -234,6 +236,44 @@ class ClassModel extends BaseModel
             ->where('tbl_classes.academic_year_id', $yearId)
             ->where('tbl_classes.is_active', 1)
             ->orderBy('tbl_classes.class_name', 'ASC')
+            ->findAll();
+    }
+     /**
+     * Get classes with course info
+     */
+    public function getWithCourse($id)
+    {
+        return $this->select('
+                tbl_classes.*,
+                tbl_courses.course_name,
+                tbl_courses.course_code,
+                tbl_courses.course_type,
+                tbl_grade_levels.level_name,
+                tbl_academic_years.year_name,
+                tbl_users.first_name as teacher_first_name,
+                tbl_users.last_name as teacher_last_name
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
+            ->where('tbl_classes.id', $id)
+            ->first();
+    }
+    
+    /**
+     * Get classes by course
+     */
+    public function getByCourse($courseId, $academicYearId = null)
+    {
+        $builder = $this->where('course_id', $courseId)
+            ->where('is_active', 1);
+        
+        if ($academicYearId) {
+            $builder->where('academic_year_id', $academicYearId);
+        }
+        
+        return $builder->orderBy('class_name', 'ASC')
             ->findAll();
     }
 }

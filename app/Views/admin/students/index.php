@@ -49,7 +49,7 @@
                 
                 <div class="row g-3 mt-2">
                     <!-- Linha 2: Filtros específicos -->
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold">Ano Letivo</label>
                         <select class="form-select" name="academic_year">
                             <option value="">Todos os anos</option>
@@ -63,7 +63,7 @@
                         </select>
                     </div>
                     
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold">Nível/Turma</label>
                         <select class="form-select" name="class_id" id="classFilter">
                             <option value="">Todos os níveis/turmas</option>
@@ -71,6 +71,21 @@
                                 <?php foreach ($classes as $class): ?>
                                     <option value="<?= $class->id ?>" <?= ($selectedClass ?? '') == $class->id ? 'selected' : '' ?>>
                                         <?= $class->class_name ?> (<?= $class->class_code ?>) - <?= $class->class_shift ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    
+                    <!-- NOVO FILTRO DE CURSO -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Curso</label>
+                        <select class="form-select" name="course_id">
+                            <option value="">Todos os cursos</option>
+                            <?php if (!empty($courses)): ?>
+                                <?php foreach ($courses as $course): ?>
+                                    <option value="<?= $course->id ?>" <?= ($selectedCourse ?? '') == $course->id ? 'selected' : '' ?>>
+                                        <?= esc($course->course_name) ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -134,6 +149,12 @@
                             <?php if (!empty($selectedClass)): ?>
                                 <span class="badge bg-success p-2">
                                     <i class="fas fa-school me-1"></i>Turma selecionada
+                                </span>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($selectedCourse)): // NOVO BADGE ?>
+                                <span class="badge bg-info p-2">
+                                    <i class="fas fa-graduation-cap me-1"></i>Curso selecionado
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -230,6 +251,7 @@
                         <th>Nome</th>
                         <th>Contacto</th>
                         <th>Turma / Status</th>
+                        <th>Curso</th> <!-- NOVA COLUNA -->
                         <th>Nível</th>
                         <th>Ano Letivo</th>
                         <th>Gênero</th>
@@ -319,10 +341,28 @@
                                     <?php endif; ?>
                                 </td>
                                 
-                                <!-- Coluna Nível - Atualizada para mostrar pendente -->
+                                <!-- NOVA COLUNA CURSO -->
                                 <td>
                                     <?php 
                                     // Prioridade: matrícula ativa > matrícula pendente
+                                    if (!empty($student->current_course_name)): ?>
+                                        <span class="badge bg-primary p-2" title="<?= $student->current_course_type ?? '' ?>">
+                                            <i class="fas fa-graduation-cap me-1"></i><?= esc($student->current_course_name) ?>
+                                        </span>
+                                        <br><small class="text-muted"><?= esc($student->current_course_code ?? '') ?></small>
+                                    <?php elseif (!empty($student->pending_course_name)): ?>
+                                        <span class="badge bg-warning p-2">
+                                            <i class="fas fa-clock me-1"></i><?= esc($student->pending_course_name) ?>
+                                        </span>
+                                        <br><small class="text-warning">(Pendente)</small>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                
+                                <!-- Coluna Nível -->
+                                <td>
+                                    <?php 
                                     if (!empty($student->level_name)): ?>
                                         <span class="badge bg-success p-2"><?= $student->level_name ?></span>
                                     <?php elseif (!empty($student->pending_level_name)): ?>
@@ -333,7 +373,7 @@
                                     <?php endif; ?>
                                 </td>
                                 
-                                <!-- Coluna Ano Letivo - Atualizada para mostrar pendente -->
+                                <!-- Coluna Ano Letivo -->
                                 <td>
                                     <?php 
                                     if (!empty($student->current_year)): ?>
@@ -386,7 +426,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="11" class="text-center py-4">
+                            <td colspan="12" class="text-center py-4"> <!-- Ajustado para 12 colunas -->
                                 <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">Nenhum aluno encontrado</h5>
                                 <p>Tente ajustar os filtros ou <a href="<?= site_url('admin/students/form-add') ?>">cadastrar um novo aluno</a></p>
@@ -456,7 +496,7 @@ $(document).ready(function() {
         searching: false, // Desabilitar search do DataTable pois já temos filtro externo
         responsive: true,
         columnDefs: [
-            { orderable: false, targets: [2, 10] } // Desabilitar ordenação para foto e ações
+            { orderable: false, targets: [2, 11] } // Ajustado para 11 (índice da coluna ações)
         ]
     });
     
@@ -519,22 +559,7 @@ $('#filterForm select').change(function() {
     filterTimeout = setTimeout(() => $('#filterForm').submit(), 500);
 });
 
-// Quando o status de matrícula mudar para "não matriculado"
-$('select[name="enrollment_status"]').change(function() {
-    const status = $(this).val();
-    const yearSelect = $('select[name="academic_year"]');
-    
-    if (status === 'nao_matriculado') {
-        yearSelect.prop('disabled', true);
-    } else {
-        yearSelect.prop('disabled', false);
-    }
-});
 
-// Inicializar estado
-if ($('select[name="enrollment_status"]').val() === 'nao_matriculado') {
-    $('select[name="academic_year"]').prop('disabled', true);
-}
 </script>
 
 <style>

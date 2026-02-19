@@ -1072,6 +1072,210 @@ CREATE INDEX idx_expense_date ON tbl_expenses(expense_date);
 CREATE INDEX idx_expense_category ON tbl_expenses(expense_category_id);
 CREATE INDEX idx_expense_status ON tbl_expenses(payment_status);
 
+
+
+
+
+-- --------------------------------------------------------
+-- Tabela de Cursos (para o Ensino Médio)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_courses` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `course_name` VARCHAR(100) NOT NULL,
+    `course_code` VARCHAR(20) NOT NULL,
+    `course_type` ENUM('Ciências', 'Humanidades', 'Económico-Jurídico', 'Técnico', 'Profissional', 'Outro') NOT NULL,
+    `description` TEXT,
+    `duration_years` INT(2) DEFAULT '3' COMMENT 'Duração em anos (normalmente 3)',
+    `start_grade_id` INT(11) NOT NULL COMMENT 'Nível inicial (ex: 10ª classe)',
+    `end_grade_id` INT(11) NOT NULL COMMENT 'Nível final (ex: 12ª ou 13ª classe)',
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `course_code` (`course_code`),
+    KEY `start_grade_id` (`start_grade_id`),
+    KEY `end_grade_id` (`end_grade_id`),
+    CONSTRAINT `fk_courses_start_grade` FOREIGN KEY (`start_grade_id`) REFERENCES `tbl_grade_levels` (`id`),
+    CONSTRAINT `fk_courses_end_grade` FOREIGN KEY (`end_grade_id`) REFERENCES `tbl_grade_levels` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Inserir cursos padrão do sistema angolano
+INSERT INTO `tbl_courses` (`course_name`, `course_code`, `course_type`, `start_grade_id`, `end_grade_id`, `duration_years`) VALUES
+('Ciências Físicas e Biológicas', 'CFB', 'Ciências', 13, 15, 3),
+('Ciências Económicas e Jurídicas', 'CEJ', 'Económico-Jurídico', 13, 15, 3),
+('Ciências Humanas', 'CH', 'Humanidades', 13, 15, 3),
+('Ensino Técnico-Profissional', 'ETP', 'Técnico', 13, 15, 3),
+('Formação de Professores', 'FP', 'Profissional', 13, 16, 4); -- Alguns cursos vão até 13ª
+
+-- --------------------------------------------------------
+-- Tabela de Associação Curso x Disciplinas
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_course_disciplines` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `course_id` INT(11) NOT NULL,
+    `discipline_id` INT(11) NOT NULL,
+    `grade_level_id` INT(11) NOT NULL COMMENT 'Classe específica onde a disciplina é lecionada',
+    `workload_hours` INT(4),
+    `is_mandatory` TINYINT(1) DEFAULT '1',
+    `semester` ENUM('1º', '2º', 'Anual') DEFAULT 'Anual',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `course_discipline_grade` (`course_id`, `discipline_id`, `grade_level_id`),
+    KEY `discipline_id` (`discipline_id`),
+    KEY `grade_level_id` (`grade_level_id`),
+    CONSTRAINT `fk_course_disciplines_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_course_disciplines_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_course_disciplines_grade` FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Adicionar campo course_id à tabela tbl_enrollments
+-- --------------------------------------------------------
+ALTER TABLE `tbl_enrollments` 
+ADD COLUMN `course_id` INT(11) NULL AFTER `grade_level_id`,
+ADD KEY `course_id` (`course_id`),
+ADD CONSTRAINT `fk_enrollments_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE SET NULL;
+
+-- --------------------------------------------------------
+-- Adicionar campo course_id à tabela tbl_classes
+-- --------------------------------------------------------
+ALTER TABLE `tbl_classes` 
+ADD COLUMN `course_id` INT(11) NULL AFTER `grade_level_id`,
+ADD KEY `course_id` (`course_id`),
+ADD CONSTRAINT `fk_classes_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `tbl_course_disciplines` 
+ADD COLUMN `updated_at` timestamp NULL DEFAULT NULL AFTER `created_at`;
+
+
+
+
+-- --------------------------------------------------------
+-- Adicionar colunas created_at e updated_at nas tabelas que não possuem
+-- --------------------------------------------------------
+
+-- 1. Tabela: tbl_academic_years
+ALTER TABLE `tbl_academic_years` 
+ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 2. Tabela: tbl_semesters (já tem created_at, adicionar updated_at)
+ALTER TABLE `tbl_semesters` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 3. Tabela: tbl_grade_levels
+ALTER TABLE `tbl_grade_levels` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 4. Tabela: tbl_classes
+ALTER TABLE `tbl_classes` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 5. Tabela: tbl_disciplines
+ALTER TABLE `tbl_disciplines` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 6. Tabela: tbl_class_disciplines
+ALTER TABLE `tbl_class_disciplines` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 7. Tabela: tbl_guardians
+ALTER TABLE `tbl_guardians` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 8. Tabela: tbl_student_guardians
+ALTER TABLE `tbl_student_guardians` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 9. Tabela: tbl_enrollment_documents
+ALTER TABLE `tbl_enrollment_documents` 
+ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 10. Tabela: tbl_attendance
+ALTER TABLE `tbl_attendance` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 11. Tabela: tbl_exam_boards
+ALTER TABLE `tbl_exam_boards` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 12. Tabela: tbl_exams
+ALTER TABLE `tbl_exams` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 13. Tabela: tbl_continuous_assessment
+ALTER TABLE `tbl_continuous_assessment` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 14. Tabela: tbl_final_grades
+ALTER TABLE `tbl_final_grades` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 15. Tabela: tbl_fee_types
+ALTER TABLE `tbl_fee_types` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 16. Tabela: tbl_fee_structure
+ALTER TABLE `tbl_fee_structure` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 17. Tabela: tbl_expense_categories
+ALTER TABLE `tbl_expense_categories` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 18. Tabela: tbl_expenses
+ALTER TABLE `tbl_expenses` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 19. Tabela: tbl_product_categories
+ALTER TABLE `tbl_product_categories` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 20. Tabela: tbl_products
+ALTER TABLE `tbl_products` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 21. Tabela: tbl_school_events
+ALTER TABLE `tbl_school_events` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 22. Tabela: tbl_academic_history
+ALTER TABLE `tbl_academic_history` 
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+
+-- Adicionar colunas created_at e updated_at na tabela tbl_semesters
+ALTER TABLE `tbl_semesters` 
+ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+
+ALTER TABLE `tbl_exam_results` 
+ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `recorded_at`;
+
+
+ALTER TABLE `tbl_user_logs` 
+ADD COLUMN `description` TEXT NULL AFTER `action`,
+ADD COLUMN `target_id` INT(11) NULL AFTER `description`,
+ADD COLUMN `target_type` VARCHAR(50) NULL AFTER `target_id`,
+ADD COLUMN `request_method` VARCHAR(10) NULL AFTER `user_agent`,
+ADD COLUMN `request_url` VARCHAR(500) NULL AFTER `request_method`,
+ADD COLUMN `details` TEXT NULL AFTER `request_url`;
+
+
+ALTER TABLE tbl_enrollments 
+ADD COLUMN grade_level_id INT NOT NULL AFTER academic_year_id,
+ADD COLUMN previous_grade_id INT NULL AFTER grade_level_id,
+ADD FOREIGN KEY (grade_level_id) REFERENCES tbl_grade_levels(id),
+ADD FOREIGN KEY (previous_grade_id) REFERENCES tbl_grade_levels(id);
+
+
+ALTER TABLE `tbl_documents` 
+ADD COLUMN `deleted_at` DATETIME NULL DEFAULT NULL AFTER `updated_at`;
+
+
+
 -- --------------------------------------------------------
 -- Inserção de Dados Iniciais
 -- --------------------------------------------------------

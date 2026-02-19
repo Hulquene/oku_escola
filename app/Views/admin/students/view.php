@@ -117,6 +117,13 @@
                         <div class="col-md-6">
                             <p><strong>Turma:</strong> <?= $currentEnrollment->class_name ?></p>
                             <p><strong>Ano Letivo:</strong> <?= $currentEnrollment->year_name ?></p>
+                            <!-- NOVO: Curso na matrícula -->
+                            <?php if (!empty($currentEnrollment->course_name)): ?>
+                                <p><strong>Curso:</strong> 
+                                    <span class="badge bg-primary"><?= esc($currentEnrollment->course_name) ?></span>
+                                    <small class="text-muted d-block"><?= esc($currentEnrollment->course_code ?? '') ?></small>
+                                </p>
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Data Matrícula:</strong> <?= date('d/m/Y', strtotime($currentEnrollment->enrollment_date)) ?></p>

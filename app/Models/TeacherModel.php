@@ -64,10 +64,37 @@ class TeacherModel extends BaseModel
                 tbl_users.last_name,
                 tbl_users.phone,
                 tbl_users.photo,
+                tbl_users.is_active,
+                tbl_users.last_login, 
+                tbl_users.created_at as user_created_at,
+                tbl_users.updated_at as user_updated_at,
                 CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
             ')
             ->join('tbl_users', 'tbl_users.id = tbl_teachers.user_id')
             ->where('tbl_teachers.id', $id)
             ->first();
+    }
+    
+    /**
+     * Get all teachers with user info
+     */
+    public function getAllWithUser()
+    {
+        return $this->select('
+                tbl_teachers.*,
+                tbl_users.username,
+                tbl_users.email,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_users.phone,
+                tbl_users.photo,
+                tbl_users.is_active,
+                tbl_users.last_login,  // <-- ADICIONAR ESTA LINHA
+                CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+            ')
+            ->join('tbl_users', 'tbl_users.id = tbl_teachers.user_id')
+            ->where('tbl_users.user_type', 'teacher')
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
     }
 }

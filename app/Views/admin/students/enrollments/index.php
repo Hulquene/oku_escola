@@ -66,6 +66,22 @@
                     </select>
                 </div>
                 
+                <!-- NOVO FILTRO: Curso -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Curso</label>
+                    <select class="form-select" name="course">
+                        <option value="">Todos os cursos</option>
+                        <option value="0" <?= (isset($selectedCourse) && $selectedCourse === '0') ? 'selected' : '' ?>>Ensino Geral</option>
+                        <?php if (!empty($courses)): ?>
+                            <?php foreach ($courses as $course): ?>
+                                <option value="<?= $course->id ?>" <?= ($selectedCourse ?? '') == $course->id ? 'selected' : '' ?>>
+                                    <?= $course->course_name ?> (<?= $course->course_code ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                
                 <div class="col-md-3">
                     <label class="form-label fw-bold">Turma</label>
                     <select class="form-select" name="class_id">
@@ -108,8 +124,11 @@
                         <?php if (!empty($selectedGradeLevel)): ?>
                             <span class="badge bg-info p-2">Nível selecionado</span>
                         <?php endif; ?>
+                        <?php if (!empty($selectedCourse)): ?>
+                            <span class="badge bg-success p-2">Curso selecionado</span>
+                        <?php endif; ?>
                         <?php if (!empty($selectedClass)): ?>
-                            <span class="badge bg-success p-2">Turma selecionada</span>
+                            <span class="badge bg-warning p-2">Turma selecionada</span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -198,6 +217,7 @@
                         <th>Nº Matrícula</th>
                         <th>Aluno</th>
                         <th>Nível</th>
+                        <th>Curso</th> <!-- NOVA COLUNA -->
                         <th>Turma</th>
                         <th>Ano Letivo</th>
                         <th>Data</th>
@@ -223,6 +243,14 @@
                                         <span class="badge bg-info"><?= $enrollment->level_name ?></span>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if (isset($enrollment->course_name) && $enrollment->course_name): ?>
+                                        <span class="badge bg-primary"><?= $enrollment->course_name ?></span>
+                                        <br><small class="text-muted"><?= $enrollment->course_code ?? '' ?></small>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Ensino Geral</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -292,7 +320,7 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="9" class="text-center py-4">
+                            <td colspan="10" class="text-center py-4">
                                 <i class="fas fa-file-signature fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">Nenhuma matrícula encontrada</h5>
                                 <p>Tente ajustar os filtros ou <a href="<?= site_url('admin/students/enrollments/form-add') ?>">criar uma nova matrícula</a></p>
@@ -357,12 +385,12 @@ $(document).ready(function() {
         language: {
             url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
         },
-        order: [[5, 'desc']], // Ordenar por data
+        order: [[6, 'desc']], // Ordenar por data
         pageLength: 25,
         searching: false,
         responsive: true,
         columnDefs: [
-            { orderable: false, targets: [8] } // Desabilitar ordenação para ações
+            { orderable: false, targets: [9] } // Desabilitar ordenação para ações
         ]
     });
     
