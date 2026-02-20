@@ -542,5 +542,34 @@ public function getByLevelAndYear($levelId, $yearId)
         
         return $this->response->setJSON(['available' => $available]);
     }
-    
+    /**
+     * Get classes by academic year (AJAX)
+     * 
+     * @param int $yearId ID do ano letivo
+     * @return JSON
+     */
+    public function getByYear($yearId)
+    {
+        // Log para debug
+        log_message('debug', "getByYear chamado: yearId={$yearId}");
+        
+        // Validar parâmetros
+        if (!$yearId) {
+            return $this->response->setJSON([]);
+        }
+        
+        // Buscar turmas do ano letivo
+        $classes = $this->classModel
+            ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code, tbl_classes.class_shift, tbl_grade_levels.level_name')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->where('tbl_classes.academic_year_id', $yearId)
+            ->where('tbl_classes.is_active', 1)
+            ->orderBy('tbl_classes.class_name', 'ASC')
+            ->findAll();
+        
+        log_message('debug', 'Turmas encontradas: ' . count($classes));
+        
+        return $this->response->setJSON($classes);
+    }
+        
 }

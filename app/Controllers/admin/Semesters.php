@@ -388,4 +388,74 @@ class Semesters extends BaseController
             'academic_year_id' => $semester->academic_year_id
         ]);
     }
+        /**
+     * Get semesters by academic year (AJAX)
+     * 
+     * @param int $yearId ID do ano letivo
+     * @return JSON
+     */
+    public function getByYear($yearId = null)
+    {
+        // Log para debug
+        log_message('debug', "=== Semesters::getByYear chamado ===");
+        log_message('debug', "Parâmetro yearId: " . ($yearId ?? 'null'));
+        
+        // Verificar se é requisição AJAX
+        if (!$this->request->isAJAX()) {
+            log_message('warning', "Tentativa de acesso não-AJAX ao método getByYear");
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Requisição inválida'
+            ]);
+        }
+        
+        // Validar parâmetro
+        if (!$yearId) {
+            log_message('error', "ID de ano letivo não fornecido");
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'ID do ano letivo é obrigatório'
+            ]);
+        }
+        
+        if (!is_numeric($yearId)) {
+            log_message('error', "ID de ano letivo inválido: {$yearId}");
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'ID deve ser numérico'
+            ]);
+        }
+        
+        // Verificar se o ano letivo existe
+        $academicYear = $this->academicYearModel->find($yearId);
+        if (!$academicYear) {
+            log_message('warning', "Ano letivo não encontrado: ID {$yearId}");
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Ano letivo não encontrado'
+            ]);
+        }
+        
+        // Buscar semestres do ano letivo
+        $semesters = $this->semesterModel
+            ->select('id, semester_name, semester_type, start_date, end_date, is_current')
+            ->where('academic_year_id', $yearId)
+            ->where('is_active', 1)
+            ->orderBy('start_date', 'ASC')
+            ->findAll();
+        
+        log_message('debug', "Encontrados " . count($semesters) . " semestres para o ano {$yearId}");
+        
+        // Formatar datas para o formato ISO
+        foreach ($semesters as $semester) {
+            $semester->start_date_formatted = date('d/m/Y', strtotime($semester->start_date));
+            $semester->end_date_formatted = date('d/m/Y', strtotime($semester->end_date));
+        }
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $semesters,
+            'total' => count($semesters)
+        ]);
+    }
 }

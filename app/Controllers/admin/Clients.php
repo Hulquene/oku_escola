@@ -653,4 +653,36 @@ public function viewStudent($id)
             $newStatus ? 'Aluno ativado com sucesso' : 'Aluno desativado com sucesso'
         );
     }
+    /**
+     * Search students (AJAX)
+     * 
+     * @return JSON
+     */
+    public function search()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([]);
+        }
+        
+        $query = $this->request->getGet('q');
+        
+        if (strlen($query) < 3) {
+            return $this->response->setJSON([]);
+        }
+        
+        $students = $this->studentModel
+            ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->groupStart()
+                ->like('tbl_users.first_name', $query)
+                ->orLike('tbl_users.last_name', $query)
+                ->orLike('tbl_students.student_number', $query)
+            ->groupEnd()
+            ->where('tbl_students.is_active', 1)
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->limit(20)
+            ->findAll();
+        
+        return $this->response->setJSON($students);
+    }
 }

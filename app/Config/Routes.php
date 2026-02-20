@@ -42,6 +42,7 @@ use App\Controllers\admin\AdminDocuments;
 use App\Controllers\admin\DocumentGenerator;
 use App\Controllers\admin\Courses;
 use App\Controllers\admin\CourseCurriculum;
+use App\Controllers\admin\Grades;
 
 use App\Controllers\auth\Auth;
 use App\Controllers\Home;
@@ -173,6 +174,8 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('set-current/(:num)', [Semesters::class, 'setCurrent/$1'], ["as" => 'academic.semesters.setCurrent']); // <-- ADICIONAR ESTA LINHA
         $routes->get('delete/(:num)', [Semesters::class, 'delete/$1'], ["as" => 'academic.semesters.delete']);
         $routes->get('get-dates/(:num)', [Semesters::class, 'getDates/$1'], ["as" => 'academic.semesters.getDates']);
+
+        $routes->get('get-by-year/(:num)', [Semesters::class, 'getByYear/$1'], ["as" => 'academic.semesters.getByYear']);
     });
 
     // Calendário Escolar
@@ -252,6 +255,9 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('get-by-level-and-year/(:num)/(:num)', [Classes::class, 'getByLevelAndYear/$1/$2'], ["as" => 'classes.get-by-level-and-year']);
       $routes->get('check-availability/(:num)', [Classes::class, 'checkAvailability/$1'], ["as" => 'classes.check-availability']);
 
+      // Adicione no grupo 'classes' das rotas
+      $routes->get('get-by-year/(:num)', [Classes::class, 'getByYear/$1'], ["as" => 'classes.get-by-year']);
+
     // Disciplinas
     $routes->group('subjects', function ($routes) {
       $routes->get('', [Disciplines::class, 'index'], ["as" => 'classes.subjects']);
@@ -292,6 +298,8 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->get('delete/(:num)', [Clients::class, 'delete'], ["as" => 'students.delete/$1']);
     $routes->get('view/(:num)', [Clients::class, 'viewStudent'], ["as" => 'students.view/$1']);
     $routes->get('get_students_table', [Clients::class, 'get_students_table'], ["as" => 'students.get_table']);
+    // Adicione no grupo 'students' das rotas
+    $routes->get('search', [Clients::class, 'search'], ["as" => 'students.search']);
 
     // Matrículas
     $routes->group('enrollments', function ($routes) {
@@ -334,7 +342,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->get('assign-class/(:num)', [Teachers::class, 'assignClass'], ["as" => 'teachers.assign-class/$1']);
     $routes->post('save-assignment', [Teachers::class, 'saveAssignment'], ["as" => 'teachers.save-assignment']);
 
-    // ✅ NOVA ROTA PARA ESTATÍSTICAS AJAX
+    // NOVA ROTA PARA ESTATÍSTICAS AJAX
     $routes->get('get-stats', [Teachers::class, 'getStats'], ["as" => 'teachers.get-stats']);
     
     // Outras rotas que você possa ter
@@ -409,6 +417,17 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('report-card/(:num)', [ExamResults::class, 'reportCard'], ["as" => 'exams.results.report/$1']);
       $routes->get('transcript/(:num)', [ExamResults::class, 'transcript'], ["as" => 'exams.results.transcript/$1']);
     });
+  });
+
+    // Adicionar no grupo 'admin'
+  $routes->group('grades', function($routes) {
+      $routes->get('/', [Grades::class, 'index'], ['as' => 'admin.grades']);
+      $routes->get('class/(:num)', [Grades::class, 'class/$1'], ['as' => 'admin.grades.class']);
+      $routes->get('student/(:num)', [Grades::class, 'student/$1'], ['as' => 'admin.grades.student']);
+      $routes->get('report', [Grades::class, 'report'], ['as' => 'admin.grades.report']);
+      // Adicione no grupo 'grades' das rotas
+      $routes->get('statistics', [Grades::class, 'statistics'], ["as" => 'admin.grades.statistics']);
+      $routes->get('period', [Grades::class, 'period'], ['as' => 'admin.grades.period']);
   });
 
   /**
@@ -584,6 +603,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
 
 });
+
 /**
  * Área dos Professores 
  */
@@ -597,7 +617,7 @@ $routes->group('teachers', function ($routes) {
         $routes->get('logout', [Auth::class, 'logout'], ["as" => 'teachers.auth.logout']);
     });
     
-    // Rotas protegidas - APLICAR FILTRO AQUI
+    // Rotas protegidas 
     $routes->group('', ['filter' => 'auth:teachers'], function ($routes) {
         
         $routes->get('dashboard', [TeachersDashboard::class, 'index'], ["as" => 'teachers.dashboard']);

@@ -135,7 +135,16 @@
                 <li><a href="<?= site_url('admin/exams/schedule') ?>" class="<?= uri_string() == 'admin/exams/schedule' ? 'active' : '' ?>"><i class="fas fa-clock"></i> Calendário de Exames</a></li>
             </ul>
         </li>
-        
+        <!-- Adicionar no menu do admin -->
+        <li>
+            <a href="#gradesSubmenu" data-bs-toggle="collapse">
+                <i class="fas fa-star"></i> Notas e Avaliações
+            </a>
+            <ul class="collapse list-unstyled" id="gradesSubmenu">
+                <li><a href="<?= site_url('admin/grades') ?>"><i class="fas fa-list"></i> Visão Geral</a></li>
+                <li><a href="<?= site_url('admin/grades/report') ?>"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
+            </ul>
+        </li>
         <!-- Financeiro -->
         <li>
             <a href="#financialSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/financial/invoices', 'admin/financial/payments', 'admin/financial/expenses', 'admin/financial/currencies', 'admin/financial/taxes']) ? 'active' : '' ?>">
