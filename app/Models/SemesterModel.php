@@ -14,7 +14,8 @@ class SemesterModel extends BaseModel
         'start_date',
         'end_date',
         'is_current',
-        'is_active'
+        'is_active',
+        'status'  // NOVO CAMPO ADICIONADO
     ];
     
     protected $validationRules = [
@@ -23,7 +24,8 @@ class SemesterModel extends BaseModel
         'semester_name' => 'required|min_length[3]|max_length[100]',
         'semester_type' => 'required|in_list[1º Trimestre,2º Trimestre,3º Trimestre,1º Semestre,2º Semestre]',
         'start_date' => 'required|valid_date',
-        'end_date' => 'required|valid_date'
+        'end_date' => 'required|valid_date',
+        'status' => 'permit_empty|in_list[ativo,inativo,processado,concluido]'
     ];
     
     protected $validationMessages = [
@@ -34,7 +36,10 @@ class SemesterModel extends BaseModel
         ],
         'semester_type' => [
             'required' => 'O tipo de período é obrigatório.',
-            'in_list' => 'O tipo de período selecionado é inválido.'  // CORRIGIDO: in_list em vez de in_array
+            'in_list' => 'O tipo de período selecionado é inválido.'
+        ],
+        'status' => [
+            'in_list' => 'O status selecionado é inválido.'
         ]
     ];
     
@@ -131,6 +136,14 @@ class SemesterModel extends BaseModel
         $end = new \DateTime($semester->end_date);
         $interval = $start->diff($end);
         
-        return $interval->days + 1; // +1 para incluir ambos os dias
+        return $interval->days + 1;
+    }
+    
+    /**
+     * Update semester status
+     */
+    public function updateStatus($id, $status)
+    {
+        return $this->update($id, ['status' => $status]);
     }
 }

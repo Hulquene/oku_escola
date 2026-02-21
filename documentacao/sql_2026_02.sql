@@ -129,13 +129,16 @@ CREATE TABLE `tbl_semesters` (
     `start_date` DATE NOT NULL,
     `end_date` DATE NOT NULL,
     `is_current` TINYINT(1) DEFAULT '0',
-    `is_active` TINYINT(1) DEFAULT '1',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `academic_year_id` (`academic_year_id`),
     CONSTRAINT `fk_semesters_academic_year` FOREIGN KEY (`academic_year_id`) REFERENCES `tbl_academic_years` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `tbl_semesters` 
+ADD COLUMN `status` ENUM('ativo', 'inativo', 'processado',  'concluido') NOT NULL DEFAULT 'ativo' AFTER `is_current`,
+ADD INDEX `idx_semester_status` (`status`);
 
 CREATE TABLE `tbl_grade_levels` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,

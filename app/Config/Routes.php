@@ -177,6 +177,12 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('get-dates/(:num)', [Semesters::class, 'getDates/$1'], ["as" => 'academic.semesters.getDates']);
 
         $routes->get('get-by-year/(:num)', [Semesters::class, 'getByYear/$1'], ["as" => 'academic.semesters.getByYear']);
+
+        $routes->post('process', [Semesters::class, 'process'], ['as' => 'admin.semesters.process']);
+        $routes->get('info/(:num)', [Semesters::class, 'info/$1'], ['as' => 'admin.semesters.info']);
+
+        // No arquivo de rotas
+        $routes->get('academic/semesters/conclude/(:num)', [Semesters::class, 'conclude/$1'], ['as' => 'academic.semesters.conclude']);
     });
 
 
