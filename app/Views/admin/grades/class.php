@@ -33,7 +33,8 @@
 <!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
-<?php if (isset($class) && $class): ?>
+<?php if (isset($class) && $class): 
+    ?>
     
     <!-- Informações da Turma -->
     <div class="alert alert-info d-flex align-items-center mb-4">
@@ -43,7 +44,7 @@
         <div>
             <h4 class="mb-1"><?= $class->class_name ?> (<?= $class->class_code ?>)</h4>
             <p class="mb-0">
-                <strong>Nível:</strong> <?= $class->level_name ?> | 
+                <strong>Nível:</strong> <?= $class->class_name ?> | 
                 <strong>Turno:</strong> <?= $class->class_shift ?> | 
                 <strong>Sala:</strong> <?= $class->class_room ?: 'Não definida' ?> |
                 <strong>Professor:</strong> <?= $class->teacher_first_name ?? 'Não atribuído' ?> <?= $class->teacher_last_name ?? '' ?>

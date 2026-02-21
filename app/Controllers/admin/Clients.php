@@ -44,36 +44,29 @@ class Clients extends BaseController
         return $this->index();
     }
 /**
- * Students list
+ * Students list - VERSÃO COMPLETA COM NOVOS FILTROS
  */
 public function index()
 {
     $data['title'] = 'Alunos';
     
-    // Capturar filtros - ADICIONAR course_id
+    // Capturar filtros
     $search = $this->request->getGet('search');
-    $academicYearId = $this->request->getGet('academic_year');
-    $classId = $this->request->getGet('class_id');
+    $courseId = $this->request->getGet('course_id');
     $enrollmentStatus = $this->request->getGet('enrollment_status');
     $gender = $this->request->getGet('gender');
     $status = $this->request->getGet('status');
-    $courseId = $this->request->getGet('course_id'); // NOVO FILTRO
+    $createdDate = $this->request->getGet('created_date');
+    $createdMonth = $this->request->getGet('created_month');
     
-    // Obter ano letivo atual
-    $currentYear = $this->academicYearModel->getCurrent();
-    $currentYearId = $currentYear ? $currentYear->id : null;
-    
-    // Se não selecionou ano letivo E não está filtrando por "não matriculado", usar o atual por padrão
-    if (!$academicYearId && $currentYearId && $enrollmentStatus != 'nao_matriculado') {
-        $academicYearId = $currentYearId;
-    }
-    
+    // Construir query base a partir do studentModel
     $builder = $this->studentModel
         ->select('
-            tbl_students.*, 
-            tbl_users.first_name, 
-            tbl_users.last_name, 
-            tbl_users.email, 
+            tbl_students.*,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            tbl_users.email,
+            tbl_users.photo,
             tbl_users.phone,
             active_enroll.class_name as current_class,
             active_enroll.class_shift as current_shift,
@@ -81,39 +74,39 @@ public function index()
             active_enroll.level_name as current_level_name,
             active_enroll.status as enrollment_status,
             active_enroll.id as enrollment_id,
-            active_enroll.course_id as current_course_id, 
-            active_enroll.course_name as current_course_name, 
-            active_enroll.course_code as current_course_code, 
+            active_enroll.course_id as current_course_id,
+            active_enroll.course_name as current_course_name,
+            active_enroll.course_code as current_course_code,
             pending_enroll.academic_year_id as pending_year_id,
             pending_enroll.grade_level_id as pending_level_id,
-            pending_enroll.course_id as pending_course_id, 
+            pending_enroll.course_id as pending_course_id,
             pending_year.year_name as pending_year_name,
             pending_level.level_name as pending_level_name,
             pending_course.course_name as pending_course_name,
-            pending_course.course_code as pending_course_code 
+            pending_course.course_code as pending_course_code
         ')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
         
-        // LEFT JOIN para matrícula ativa - INCLUIR CURSO
+        // LEFT JOIN para matrícula ativa
         ->join('(
-            SELECT e.*, 
-                   c.class_name, 
+            SELECT e.*,
+                   c.class_name,
                    c.class_shift,
                    ay.year_name,
                    gl.level_name,
-                   co.course_name,  
-                   co.course_code   
+                   co.course_name,
+                   co.course_code
             FROM tbl_enrollments e
             LEFT JOIN tbl_classes c ON c.id = e.class_id
             LEFT JOIN tbl_academic_years ay ON ay.id = e.academic_year_id
             LEFT JOIN tbl_grade_levels gl ON gl.id = e.grade_level_id
-            LEFT JOIN tbl_courses co ON co.id = e.course_id  
+            LEFT JOIN tbl_courses co ON co.id = e.course_id
             WHERE e.status = "Ativo"
         ) as active_enroll', 'active_enroll.student_id = tbl_students.id', 'left')
         
-        // LEFT JOIN para matrícula pendente (mais recente) - INCLUIR CURSO
+        // LEFT JOIN para matrícula pendente (mais recente)
         ->join('(
-            SELECT e.*, 
+            SELECT e.*,
                    ay.year_name,
                    gl.level_name
             FROM tbl_enrollments e
@@ -121,18 +114,18 @@ public function index()
             LEFT JOIN tbl_grade_levels gl ON gl.id = e.grade_level_id
             WHERE e.status = "Pendente"
             AND e.id IN (
-                SELECT MAX(id) 
-                FROM tbl_enrollments 
-                WHERE status = "Pendente" 
+                SELECT MAX(id)
+                FROM tbl_enrollments
+                WHERE status = "Pendente"
                 GROUP BY student_id
             )
         ) as pending_enroll', 'pending_enroll.student_id = tbl_students.id', 'left')
         
         ->join('tbl_academic_years as pending_year', 'pending_year.id = pending_enroll.academic_year_id', 'left')
         ->join('tbl_grade_levels as pending_level', 'pending_level.id = pending_enroll.grade_level_id', 'left')
-        ->join('tbl_courses as pending_course', 'pending_course.id = pending_enroll.course_id', 'left'); // ADICIONAR
+        ->join('tbl_courses as pending_course', 'pending_course.id = pending_enroll.course_id', 'left');
     
-    // Aplicar filtros
+    // Aplicar filtro de busca
     if ($search) {
         $builder->groupStart()
             ->like('tbl_users.first_name', $search)
@@ -144,31 +137,16 @@ public function index()
             ->groupEnd();
     }
     
-    // FILTRO DE ANO LETIVO - CORRIGIDO
-    if ($academicYearId) {
-        if ($enrollmentStatus == 'nao_matriculado') {
-            // Para não matriculados: alunos que NÃO têm matrícula no ano selecionado
-            $builder->whereNotIn('tbl_students.id', function($builder) use ($academicYearId) {
-                return $builder->select('student_id')
-                    ->from('tbl_enrollments')
-                    ->where('academic_year_id', $academicYearId)
-                    ->whereIn('status', ['Ativo', 'Pendente', 'Concluído', 'Transferido']);
-            });
+    // FILTRO DE CURSO (incluindo Ensino Geral)
+    if ($courseId !== null && $courseId !== '') {
+        if ($courseId == '0') {
+            $builder->where('active_enroll.course_id IS NULL AND pending_enroll.course_id IS NULL');
         } else {
-            // Para outros status: alunos que têm matrícula no ano selecionado
-            $builder->where('(active_enroll.academic_year_id = ' . $academicYearId . ' OR pending_enroll.academic_year_id = ' . $academicYearId . ')');
+            $builder->where('(active_enroll.course_id = ' . $courseId . ' OR pending_enroll.course_id = ' . $courseId . ')');
         }
     }
-
-    // FILTRO DE CURSO
-    if ($courseId) {
-        $builder->where('(active_enroll.course_id = ' . $courseId . ' OR pending_enroll.course_id = ' . $courseId . ')');
-    }
-
-    if ($classId) {
-        $builder->where('active_enroll.class_id', $classId);
-    }
-
+    
+    // FILTRO DE STATUS DA MATRÍCULA
     if ($enrollmentStatus) {
         if ($enrollmentStatus == 'nao_matriculado') {
             $builder->where('active_enroll.id IS NULL AND pending_enroll.id IS NULL');
@@ -176,42 +154,55 @@ public function index()
             $builder->where('active_enroll.id IS NULL AND pending_enroll.id IS NOT NULL');
         } elseif ($enrollmentStatus == 'Ativo') {
             $builder->where('active_enroll.id IS NOT NULL');
+        } elseif ($enrollmentStatus == 'Concluído' || $enrollmentStatus == 'Transferido') {
+            // Para status concluído e transferido, buscar via histórico
+            $builder->join('(
+                SELECT student_id, status
+                FROM tbl_enrollments e2
+                WHERE status = "' . $enrollmentStatus . '"
+                GROUP BY student_id
+            ) as history_enroll', 'history_enroll.student_id = tbl_students.id', 'inner');
         }
     }
     
+    // FILTRO DE GÊNERO
     if ($gender) {
         $builder->where('tbl_students.gender', $gender);
     }
     
+    // FILTRO DE STATUS DO ESTUDANTE
     if ($status == 'active') {
         $builder->where('tbl_students.is_active', 1);
     } elseif ($status == 'inactive') {
         $builder->where('tbl_students.is_active', 0);
     }
     
+    // NOVO FILTRO: Data específica de cadastro
+    if ($createdDate) {
+        $builder->where('DATE(tbl_students.created_at)', $createdDate);
+    }
+    
+    // NOVO FILTRO: Mês/Ano de cadastro
+    if ($createdMonth) {
+        $builder->where('DATE_FORMAT(tbl_students.created_at, "%Y-%m")', $createdMonth);
+    }
+    
+    // Buscar alunos paginados
     $data['students'] = $builder->orderBy('tbl_users.first_name', 'ASC')
         ->paginate(10);
     
     $data['pager'] = $this->studentModel->pager;
+    
+    // Manter valores dos filtros na view
     $data['search'] = $search;
-    $data['selectedYear'] = $academicYearId;
-    $data['selectedClass'] = $classId;
-    $data['selectedCourse'] = $courseId; // NOVO
+    $data['selectedCourse'] = $courseId;
     $data['selectedEnrollmentStatus'] = $enrollmentStatus;
     $data['selectedGender'] = $gender;
     $data['selectedStatus'] = $status;
+    $data['selectedCreatedDate'] = $createdDate;
+    $data['selectedCreatedMonth'] = $createdMonth;
     
     // Dados para filtros
-    $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();
-    $data['classes'] = $this->classModel
-        ->select('tbl_classes.*, tbl_academic_years.year_name')
-        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-        ->where('tbl_classes.is_active', 1)
-        ->orderBy('tbl_academic_years.start_date', 'DESC')
-        ->orderBy('tbl_classes.class_name', 'ASC')
-        ->findAll();
-    
-    // ADICIONAR CURSOS PARA FILTRO
     $data['courses'] = $this->courseModel->getActive();
     
     // Estatísticas
@@ -388,9 +379,8 @@ public function studentForm($id = null)
     
     return view('admin/students/form', $data);
 }
-    
 /**
- * Save student
+ * Save student - VERSÃO CORRIGIDA
  */
 public function saveStudent()
 {
@@ -407,6 +397,7 @@ public function saveStudent()
     $birthDate = $this->request->getPost('birth_date');
     $age = date_diff(date_create($birthDate), date_create('today'))->y;
     if ($age < 5) {
+        $db->transRollback();
         return redirect()->back()->withInput()
             ->with('error', 'O aluno deve ter pelo menos 5 anos de idade');
     }
@@ -448,7 +439,7 @@ public function saveStudent()
         }
     }
     
-    // Preparar dados do aluno (SEM course_id)
+    // Preparar dados do aluno
     $studentData = [
         'user_id' => $userId,
         'birth_date' => $birthDate,
@@ -488,7 +479,8 @@ public function saveStudent()
         }
     }
     
-    // Criar matrícula pendente - AGORA COM COURSE_ID
+    // ===== PARTE CORRIGIDA =====
+    // Criar matrícula pendente - TRATANDO COURSE_ID CORRETAMENTE
     if ($studentId) {
         $existingEnrollment = $this->enrollmentModel
             ->where('student_id', $studentId)
@@ -497,11 +489,20 @@ public function saveStudent()
             ->first();
         
         if (!$existingEnrollment) {
+            
+            // CORREÇÃO: Tratar course_id adequadamente
+            $courseId = $this->request->getPost('course_id');
+            
+            // Se course_id for string vazia, converter para null
+            if ($courseId === '' || $courseId === null || $courseId === 'null') {
+                $courseId = null;
+            }
+            
             $enrollmentData = [
                 'student_id' => $studentId,
                 'academic_year_id' => $this->request->getPost('academic_year_id'),
                 'grade_level_id' => $this->request->getPost('grade_level_id'),
-                'course_id' => $this->request->getPost('course_id'), // INCLUIR COURSE_ID
+                'course_id' => $courseId, // AGORA CORRETO (null ou valor válido)
                 'enrollment_date' => date('Y-m-d'),
                 'enrollment_number' => $this->enrollmentModel->generateEnrollmentNumber(),
                 'enrollment_type' => $this->request->getPost('enrollment_type'),
@@ -509,13 +510,19 @@ public function saveStudent()
                 'created_by' => $this->session->get('user_id')
             ];
             
+            // Log para debug
+            log_message('info', 'Tentando inserir matrícula: ' . json_encode($enrollmentData));
+            
             if (!$this->enrollmentModel->insert($enrollmentData)) {
                 $db->transRollback();
+                $errors = $this->enrollmentModel->errors();
+                log_message('error', 'Erro ao inserir matrícula: ' . json_encode($errors));
                 return redirect()->back()->withInput()
-                    ->with('errors', $this->enrollmentModel->errors());
+                    ->with('errors', $errors);
             }
         }
     }
+    // ===== FIM DA PARTE CORRIGIDA =====
     
     // Upload da foto
     $photo = $this->request->getFile('photo');
@@ -536,8 +543,7 @@ public function saveStudent()
         return redirect()->back()->withInput()
             ->with('error', 'Erro ao salvar aluno');
     }
-}
-    
+}  
     /**
      * Save (alias for saveStudent)
      */

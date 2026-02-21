@@ -9,439 +9,482 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/classes/class-subjects') ?>">Disciplinas por Turma</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $title ?></li>
+            <li class="breadcrumb-item active">Atribuir Disciplinas</li>
         </ol>
     </nav>
 </div>
 
-<!-- Form -->
-<div class="card">
+<!-- Alertas -->
+<?= view('admin/partials/alerts') ?>
+
+<!-- Formulário de Seleção -->
+<div class="card mb-4">
     <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">
-            <i class="fas fa-<?= $assignment ? 'edit' : 'plus-circle' ?> me-2"></i>
-            <?= $title ?>
-        </h5>
+        <i class="fas fa-filter me-2"></i>Selecionar Turma
     </div>
     <div class="card-body">
-        <form action="<?= site_url('admin/classes/class-subjects/assign') ?>" method="post" id="assignmentForm">
-            <?= csrf_field() ?>
-            
-            <?php if ($assignment): ?>
-                <input type="hidden" name="id" value="<?= $assignment->id ?>">
-            <?php endif; ?>
-            
-            <!-- STEP 1: Selecionar Curso -->
-            <div class="card mb-3">
-                <div class="card-header bg-light py-2">
-                    <span class="fw-bold">Passo 1:</span> Selecione o Curso
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <select class="form-select" id="course_id" name="course_filter">
-                                <option value="">-- Selecione um curso --</option>
-                                <?php if (isset($hasGeneralEducation) && $hasGeneralEducation): ?>
-                                    <option value="0" <?= ($selectedCourseId === 0 || $selectedCourseId === '0') ? 'selected' : '' ?>>Ensino Geral</option>
-                                <?php endif; ?>
-                                <?php if (!empty($courses)): ?>
-                                    <?php foreach ($courses as $course): ?>
-                                        <option value="<?= $course->id ?>" <?= $selectedCourseId == $course->id ? 'selected' : '' ?>>
-                                            <?= esc($course->course_name) ?> (<?= esc($course->course_code) ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Turma <span class="text-danger">*</span></label>
+                <select class="form-select" id="class_id">
+                    <option value="">-- Selecione uma turma --</option>
+                    <?php foreach ($classes as $class): ?>
+                        <option value="<?= $class->id ?>" <?= ($selectedClassId == $class->id) ? 'selected' : '' ?>>
+                            <?= $class->class_name ?> (<?= $class->class_code ?>) - 
+                            <?= $class->class_shift ?> - 
+                            <?= $class->level_name ?> - 
+                            <?= $class->year_name ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <small class="text-muted">Escolha a turma para atribuir disciplinas</small>
             </div>
             
-            <!-- STEP 2: Selecionar Nível -->
-            <div class="card mb-3" id="levelCard" style="<?= !$selectedCourseId ? 'display:none;' : '' ?>">
-                <div class="card-header bg-light py-2">
-                    <span class="fw-bold">Passo 2:</span> Selecione o Nível
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <select class="form-select" id="grade_level_id" name="level_filter">
-                                <option value="">-- Selecione um nível --</option>
-                                <?php if (!empty($allLevels)): ?>
-                                    <?php foreach ($allLevels as $level): ?>
-                                        <option value="<?= $level->id ?>" <?= $selectedLevelId == $level->id ? 'selected' : '' ?>>
-                                            <?= esc($level->level_name) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Semestre</label>
+                <select class="form-select" id="semester_id">
+                    <option value="">-- Todos os semestres --</option>
+                    <?php foreach ($semesters as $sem): ?>
+                        <option value="<?= $sem->id ?>">
+                            <?= $sem->semester_name ?> (<?= date('d/m', strtotime($sem->start_date)) ?> - <?= date('d/m', strtotime($sem->end_date)) ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <small class="text-muted">Opcional - filtra disciplinas por semestre</small>
             </div>
-            
-            <!-- STEP 3: Selecionar Turma -->
-            <div class="card mb-3" id="classCard" style="<?= !$selectedLevelId ? 'display:none;' : '' ?>">
-                <div class="card-header bg-light py-2">
-                    <span class="fw-bold">Passo 3:</span> Selecione a Turma <span class="text-danger">*</span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <select class="form-select <?= session('errors.class_id') ? 'is-invalid' : '' ?>" 
-                                    id="class_id" 
-                                    name="class_id" 
-                                    required>
-                                <option value="">-- Selecione uma turma --</option>
-                                <?php if (!empty($filteredClasses)): ?>
-                                    <?php foreach ($filteredClasses as $class): ?>
-                                        <option value="<?= $class->id ?>" 
-                                            data-course-id="<?= $class->course_id ?? 0 ?>"
-                                            data-level-id="<?= $class->grade_level_id ?>"
-                                            <?= (old('class_id', $assignment->class_id ?? $selectedClass ?? '') == $class->id) ? 'selected' : '' ?>>
-                                            <?= esc($class->class_name) ?> (<?= esc($class->class_code) ?>) - 
-                                            <?= esc($class->class_shift) ?> - 
-                                            <?= esc($class->year_name) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                            <?php if (session('errors.class_id')): ?>
-                                <div class="invalid-feedback"><?= session('errors.class_id') ?></div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- STEP 4: Selecionar Disciplina -->
-            <div class="card mb-3" id="disciplineCard" style="display:none;">
-                <div class="card-header bg-light py-2">
-                    <span class="fw-bold">Passo 4:</span> Selecione a Disciplina <span class="text-danger">*</span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <select class="form-select <?= session('errors.discipline_id') ? 'is-invalid' : '' ?>" 
-                                    id="discipline_id" 
-                                    name="discipline_id" 
-                                    required>
-                                <option value="">-- Selecione uma disciplina --</option>
-                            </select>
-                            <?php if (session('errors.discipline_id')): ?>
-                                <div class="invalid-feedback"><?= session('errors.discipline_id') ?></div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="col-md-6">
-                            <div id="disciplineInfo" class="alert alert-info p-2 mb-0" style="display:none;">
-                                <small><i class="fas fa-info-circle"></i> <span id="disciplineHint"></span></small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Detalhes da atribuição -->
-            <div class="card mb-3" id="detailsCard" style="display:none;">
-                <div class="card-header bg-light py-2">
-                    <span class="fw-bold">Detalhes da Atribuição</span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="teacher_id" class="form-label fw-semibold">Professor</label>
-                            <select class="form-select" id="teacher_id" name="teacher_id">
-                                <option value="">-- Sem professor --</option>
-                                <?php if (!empty($teachers)): ?>
-                                    <?php foreach ($teachers as $teacher): ?>
-                                        <option value="<?= $teacher->id ?>" 
-                                            <?= (old('teacher_id', $assignment->teacher_id ?? '') == $teacher->id) ? 'selected' : '' ?>>
-                                            <?= esc($teacher->first_name) ?> <?= esc($teacher->last_name) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-3 mb-3">
-                            <label for="workload_hours" class="form-label fw-semibold">Carga Horária</label>
-                            <input type="number" class="form-control" id="workload_hours" name="workload_hours" 
-                                   value="<?= old('workload_hours', $assignment->workload_hours ?? '') ?>"
-                                   min="0" max="999" step="1"
-                                   placeholder="Sugerida">
-                        </div>
-                        
-                        <div class="col-md-3 mb-3">
-                            <label for="semester_id" class="form-label fw-semibold">Semestre</label>
-                            <select class="form-select" id="semester_id" name="semester_id">
-                                <option value="">-- Todos --</option>
-                                <?php if (!empty($semesters)): ?>
-                                    <?php foreach ($semesters as $semester): ?>
-                                        <option value="<?= $semester->id ?>" 
-                                            <?= (old('semester_id', $assignment->semester_id ?? '') == $semester->id) ? 'selected' : '' ?>>
-                                            <?= esc($semester->semester_name) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" 
-                                   id="is_active" 
-                                   name="is_active" 
-                                   value="1"
-                                   <?= (old('is_active', $assignment->is_active ?? true)) ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="is_active">
-                                <strong>Ativo</strong> - Marque para que esta disciplina fique ativa na turma
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Botões de ação -->
-            <div class="d-flex justify-content-between mt-4" id="formButtons" style="display:none;">
-                <a href="<?= site_url('admin/classes/class-subjects') ?>" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Cancelar
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Salvar Atribuição
-                </button>
-            </div>
-            
-            <!-- Mensagem de carregamento -->
-            <div id="loadingMessage" class="text-center text-muted py-3" style="display:none;">
-                <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
-                <p>Carregando...</p>
-            </div>
-        </form>
+        </div>
+        
+        <div class="mt-3 text-end">
+            <button class="btn btn-primary" onclick="loadDisciplines()" id="btnLoadDisciplines" <?= !$selectedClassId ? 'disabled' : '' ?>>
+                <i class="fas fa-search me-2"></i>Carregar Disciplinas
+            </button>
+        </div>
     </div>
 </div>
 
-<?= $this->endSection() ?>
-
-<?= $this->section('scripts') ?>
-<script>
-$(document).ready(function() {
-    
-    // Se estamos editando, disparar eventos para carregar os selects
-    <?php if ($selectedCourseId !== null): ?>
-        // Forçar o carregamento dos níveis
-        $('#course_id').val('<?= $selectedCourseId ?>').trigger('change');
-        
-        // Após carregar os níveis, selecionar o nível
-        setTimeout(function() {
-            $('#grade_level_id').val('<?= $selectedLevelId ?>').trigger('change');
-        }, 500);
-    <?php endif; ?>
-    
-    // Quando o curso muda
-    $('#course_id').change(function() {
-        const courseId = $(this).val();
-        $('#loadingMessage').show();
-        
-        if (courseId !== '') {
-            // Mostrar card de nível
-            $('#levelCard').show();
+<!-- Lista de Disciplinas -->
+<div id="disciplinesContainer" style="display: <?= $selectedClassId ? 'block' : 'none' ?>;">
+    <div class="card">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-book me-2"></i>Disciplinas da Turma</span>
+            <span id="selectedClassInfo" class="badge bg-light text-dark">
+                <?php if ($selectedClassId): ?>
+                    <?php 
+                    $selectedClass = array_filter($classes, fn($c) => $c->id == $selectedClassId);
+                    $selectedClass = reset($selectedClass);
+                    if ($selectedClass): 
+                    ?>
+                        <?= $selectedClass->class_name ?> | 
+                        <span class="text-success">0 atribuídas</span> / 
+                        <span class="text-primary">0 totais</span>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Marque as disciplinas que esta turma deve ter. Para disciplinas já atribuídas, você pode alterar o professor.
+                <br>
+                <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i> Use os atalhos: <kbd>Ctrl+A</kbd> (selecionar todas), <kbd>Ctrl+D</kbd> (limpar), <kbd>Ctrl+S</kbd> (salvar)
+                </small>
+            </div>
             
-            // Limpar selects dependentes
-            $('#grade_level_id').html('<option value="">Carregando níveis...</option>').prop('disabled', true);
-            $('#class_id').html('<option value="">-- Selecione uma turma --</option>').prop('disabled', true);
-            $('#discipline_id').html('<option value="">-- Selecione uma disciplina --</option>').prop('disabled', true);
+            <!-- Botões de ação rápida -->
+            <div class="mb-3">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">
+                        <i class="fas fa-check-double me-1"></i>Selecionar Todas
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">
+                        <i class="fas fa-times me-1"></i>Limpar Todas
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="selectMandatory()">
+                        <i class="fas fa-star me-1"></i>Apenas Obrigatórias
+                    </button>
+                </div>
+                <span class="float-end text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <span id="selectedCount">0</span> disciplinas selecionadas
+                </span>
+            </div>
             
-            // Ocultar seções seguintes
-            $('#classCard, #disciplineCard, #detailsCard, #formButtons').hide();
-            
-            // Buscar níveis por curso
-            let url = courseId == '0' 
-                ? '<?= site_url('admin/classes/class-subjects/get-levels-by-course') ?>'
-                : '<?= site_url('admin/classes/class-subjects/get-levels-by-course/') ?>' + courseId;
-            
-            $.get(url, function(levels) {
-                let options = '<option value="">-- Selecione um nível --</option>';
-                $.each(levels, function(i, level) {
-                    options += '<option value="' + level.id + '">' + level.level_name + '</option>';
-                });
-                $('#grade_level_id').html(options).prop('disabled', false);
-                $('#loadingMessage').hide();
-            }).fail(function() {
-                $('#loadingMessage').hide();
-                alert('Erro ao carregar níveis');
-            });
-        } else {
-            $('#levelCard').hide();
-            $('#classCard, #disciplineCard, #detailsCard, #formButtons').hide();
-            $('#loadingMessage').hide();
-        }
-    });
-    
-    // Quando o nível muda
-    $('#grade_level_id').change(function() {
-        const levelId = $(this).val();
-        const courseId = $('#course_id').val();
-        $('#loadingMessage').show();
-        
-        if (levelId !== '') {
-            // Mostrar card de turma
-            $('#classCard').show();
-            
-            // Limpar selects dependentes
-            $('#class_id').html('<option value="">Carregando turmas...</option>').prop('disabled', true);
-            $('#discipline_id').html('<option value="">-- Selecione uma disciplina --</option>').prop('disabled', true);
-            
-            // Ocultar seções seguintes
-            $('#disciplineCard, #detailsCard, #formButtons').hide();
-            
-            // Buscar turmas por curso e nível
-            let url = '<?= site_url('admin/classes/class-subjects/get-classes-by-course-level/') ?>' 
-                     + courseId + '/' + levelId;
-            
-            $.get(url, function(classes) {
-                let options = '<option value="">-- Selecione uma turma --</option>';
-                $.each(classes, function(i, cls) {
-                    options += '<option value="' + cls.id + '" ' +
-                               'data-course-id="' + (cls.course_id || 0) + '" ' +
-                               'data-level-id="' + cls.grade_level_id + '">' +
-                               cls.class_name + ' (' + cls.class_code + ') - ' + 
-                               cls.class_shift + ' - ' + cls.year_name +
-                               '</option>';
-                });
-                $('#class_id').html(options).prop('disabled', false);
-                $('#loadingMessage').hide();
-            }).fail(function() {
-                $('#loadingMessage').hide();
-                alert('Erro ao carregar turmas');
-            });
-        } else {
-            $('#classCard').hide();
-            $('#disciplineCard, #detailsCard, #formButtons').hide();
-            $('#loadingMessage').hide();
-        }
-    });
-    
-    // Quando a turma muda
-    $('#class_id').change(function() {
-        const classId = $(this).val();
-        $('#loadingMessage').show();
-        
-        if (classId !== '') {
-            // Mostrar card de disciplina
-            $('#disciplineCard').show();
-            
-            // Limpar select de disciplina
-            $('#discipline_id').html('<option value="">Carregando disciplinas...</option>').prop('disabled', true);
-            
-            // Ocultar seções seguintes
-            $('#detailsCard, #formButtons').hide();
-            
-            // Buscar disciplinas disponíveis para esta turma
-            let url = '<?= site_url('admin/classes/class-subjects/get-available-disciplines/') ?>' + classId;
-            
-            $.get(url, function(disciplines) {
-                if (disciplines.length > 0) {
-                    let options = '<option value="">-- Selecione uma disciplina --</option>';
-                    $.each(disciplines, function(i, disc) {
-                        options += '<option value="' + disc.id + '" ' +
-                                   'data-workload="' + (disc.suggested_workload || disc.workload_hours || '') + '" ' +
-                                   'data-semester="' + (disc.suggested_semester || '') + '">' +
-                                   disc.discipline_name + ' (' + disc.discipline_code + ')' +
-                                   (disc.is_mandatory ? ' [Obrigatória]' : '') +
-                                   '</option>';
-                    });
-                    $('#discipline_id').html(options).prop('disabled', false);
-                } else {
-                    $('#discipline_id').html('<option value="">-- Nenhuma disciplina disponível --</option>').prop('disabled', true);
-                }
-                $('#loadingMessage').hide();
-            }).fail(function() {
-                $('#loadingMessage').hide();
-                alert('Erro ao carregar disciplinas');
-            });
-        } else {
-            $('#disciplineCard').hide();
-            $('#detailsCard, #formButtons').hide();
-            $('#loadingMessage').hide();
-        }
-    });
-    
-    // Quando a disciplina muda
-    $('#discipline_id').change(function() {
-        const selectedOption = $(this).find('option:selected');
-        const workload = selectedOption.data('workload');
-        const semester = selectedOption.data('semester');
-        
-        if ($(this).val() !== '') {
-            // Mostrar seções seguintes
-            $('#detailsCard').show();
-            $('#formButtons').show();
-            
-            // Sugerir carga horária se disponível
-            if (workload) {
-                $('#workload_hours').attr('placeholder', 'Sugerido: ' + workload + 'h');
-                $('#disciplineInfo').show();
-                $('#disciplineHint').text('Carga horária sugerida: ' + workload + 'h');
+            <form id="bulkAssignForm" method="post" action="<?= site_url('admin/classes/class-subjects/save-bulk') ?>">
+                <?= csrf_field() ?>
+                <input type="hidden" name="class_id" id="form_class_id" value="<?= $selectedClassId ?? '' ?>">
+                <input type="hidden" name="semester_id" id="form_semester_id" value="">
                 
-                // Se o campo estiver vazio, sugerir o valor
-                if ($('#workload_hours').val() === '') {
-                    $('#workload_hours').val(workload);
-                }
-            } else {
-                $('#workload_hours').attr('placeholder', '');
-                $('#disciplineInfo').hide();
-            }
-            
-            // Sugerir semestre se disponível
-            if (semester) {
-                $('#semester_id option').each(function() {
-                    if ($(this).text().toLowerCase().includes(semester.toLowerCase())) {
-                        $(this).prop('selected', true);
-                    }
-                });
-            }
-        } else {
-            $('#detailsCard').hide();
-            $('#formButtons').hide();
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="50" class="text-center">
+                                    <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
+                                </th>
+                                <th>Disciplina</th>
+                                <th width="80">Código</th>
+                                <th>Professor</th>
+                                <th width="120">Carga Horária</th>
+                                <th width="100">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="disciplinesList">
+                            <?php if ($selectedClassId): ?>
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="spinner-border text-primary mb-2" role="status">
+                                            <span class="visually-hidden">Carregando...</span>
+                                        </div>
+                                        <p>Clique em "Carregar Disciplinas" para ver a lista</p>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-arrow-up fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Selecione uma turma no filtro acima</p>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <div class="text-muted small">
+                        <i class="fas fa-clock me-1"></i>
+                        Pressione <kbd>Ctrl</kbd> + <kbd>S</kbd> para salvar
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg" id="submitBtn" <?= !$selectedClassId ? 'disabled' : '' ?>>
+                        <i class="fas fa-save me-2"></i>Salvar Todas as Atribuições
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="bg-white p-4 rounded shadow text-center">
+            <i class="fas fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+            <h5>Processando...</h5>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variáveis globais
+let currentClassId = '<?= $selectedClassId ?? '' ?>';
+let teachers = <?= json_encode($teachers) ?>;
+
+$(document).ready(function() {
+    // Se já temos turma selecionada, habilitar botão
+    if (currentClassId) {
+        $('#btnLoadDisciplines').prop('disabled', false);
+    }
+    
+    // Quando turma muda
+    $('#class_id').change(function() {
+        let classId = $(this).val();
+        $('#btnLoadDisciplines').prop('disabled', !classId);
+        $('#form_class_id').val(classId);
+        
+        if (classId) {
+            currentClassId = classId;
         }
     });
     
+    // Quando semestre muda
+    $('#semester_id').change(function() {
+        let semesterId = $(this).val();
+        $('#form_semester_id').val(semesterId);
+    });
+    
+    // Checkbox "Selecionar Todos"
+    $('#selectAllCheckbox').change(function() {
+        let isChecked = $(this).prop('checked');
+        $('.discipline-checkbox').prop('checked', isChecked).trigger('change');
+    });
+});
+
+// Função para carregar disciplinas
+function loadDisciplines() {
+    let classId = $('#class_id').val();
+    let semesterId = $('#semester_id').val();
+    
+    if (!classId) {
+        alert('Selecione uma turma');
+        return;
+    }
+    
+    currentClassId = classId;
+    
+    $('#form_class_id').val(classId);
+    $('#form_semester_id').val(semesterId);
+    
+    $('#disciplinesContainer').show();
+    
+    // Mostrar loading
+    $('#disciplinesList').html(`
+        <tr>
+            <td colspan="6" class="text-center py-4">
+                <div class="spinner-border text-primary mb-2" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p>Carregando disciplinas...</p>
+            </td>
+        </tr>
+    `);
+    
+    // Buscar disciplinas
+    let url = '<?= site_url('admin/classes/class-subjects/get-class-disciplines/') ?>' + classId;
+    if (semesterId) {
+        url += '/' + semesterId;
+    }
+    
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'json',
+        success: function(disciplines) {
+            if (disciplines && disciplines.length > 0) {
+                renderDisciplines(disciplines);
+                updateSelectedClassInfo(disciplines);
+            } else {
+                $('#disciplinesList').html(`
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-info-circle fa-2x text-info mb-2"></i>
+                            <p>Nenhuma disciplina disponível para esta turma.</p>
+                            <small class="text-muted">Verifique se existem disciplinas cadastradas no sistema</small>
+                        </td>
+                    </tr>
+                `);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro:', error);
+            let errorMsg = 'Erro ao carregar disciplinas.';
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+                errorMsg = xhr.responseJSON.error;
+            }
+            $('#disciplinesList').html(`
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <p>${errorMsg}</p>
+                        <small>${error}</small>
+                    </td>
+                </tr>
+            `);
+        }
+    });
+}
+
+// Atualizar informações da turma selecionada
+function updateSelectedClassInfo(disciplines) {
+    let totalDisciplinas = disciplines.length;
+    let atribuidas = disciplines.filter(d => d.assigned).length;
+    let turmaNome = $('#class_id option:selected').text();
+    
+    $('#selectedClassInfo').html(`
+        ${turmaNome} | 
+        <span class="text-success">${atribuidas} atribuídas</span> / 
+        <span class="text-primary">${totalDisciplinas} totais</span>
+    `);
+}
+
+// Renderizar lista de disciplinas
+function renderDisciplines(disciplines) {
+    let html = '';
+    
+    disciplines.forEach((disc, index) => {
+        let teacherOptions = '<option value="">-- Sem professor --</option>';
+        teachers.forEach(t => {
+            let selected = disc.teacher_id == t.id ? 'selected' : '';
+            teacherOptions += `<option value="${t.id}" ${selected}>${t.first_name} ${t.last_name}</option>`;
+        });
+        
+        let checked = disc.assigned ? 'checked' : '';
+        let rowClass = disc.assigned ? 'table-success' : '';
+        
+        // Determinar o placeholder para carga horária
+        let workloadPlaceholder = disc.suggested_workload ? 
+            `Sugerida: ${disc.suggested_workload}h` : 
+            'Carga horária';
+        
+        html += `
+            <tr class="${rowClass}" data-discipline-id="${disc.id}">
+                <td class="text-center">
+                    <input type="checkbox" name="assignments[${disc.id}][selected]" 
+                           value="1" ${checked} class="form-check-input discipline-checkbox">
+                    <input type="hidden" name="assignments[${disc.id}][id]" value="${disc.id}">
+                </td>
+                <td>
+                    <strong>${disc.name}</strong>
+                    ${disc.is_mandatory ? ' <span class="badge bg-warning">Obrigatória</span>' : ''}
+                </td>
+                <td><span class="badge bg-info">${disc.code}</span></td>
+                <td>
+                    <select name="assignments[${disc.id}][teacher_id]" class="form-select form-select-sm">
+                        ${teacherOptions}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="assignments[${disc.id}][workload]" 
+                           value="${disc.workload || ''}" class="form-control form-control-sm" 
+                           placeholder="${workloadPlaceholder}" style="width: 100px;" min="0" max="999" step="1">
+                </td>
+                <td>
+                    ${disc.assigned ? 
+                        '<span class="badge bg-success">Atribuída</span>' : 
+                        '<span class="badge bg-secondary">Não atribuída</span>'}
+                </td>
+            </tr>
+        `;
+    });
+    
+    $('#disciplinesList').html(html);
+    updateSelectedCount();
+    
+    // Adicionar evento para mudar a cor da linha quando checkbox muda
+    $('.discipline-checkbox').on('change', function() {
+        let row = $(this).closest('tr');
+        row.toggleClass('table-success', this.checked);
+        updateSelectedCount();
+    });
+    
+    // Atualizar select all checkbox
+    $('#selectAllCheckbox').prop('checked', false);
+}
+
+// Atualizar contador de disciplinas selecionadas
+function updateSelectedCount() {
+    let count = $('.discipline-checkbox:checked').length;
+    $('#selectedCount').text(count);
+}
+
+// Funções de seleção rápida
+function selectAll() {
+    $('.discipline-checkbox').prop('checked', true).trigger('change');
+}
+
+function deselectAll() {
+    $('.discipline-checkbox').prop('checked', false).trigger('change');
+}
+
+function selectMandatory() {
+    $('.discipline-checkbox').each(function() {
+        let row = $(this).closest('tr');
+        let isMandatory = row.find('.badge.bg-warning').length > 0;
+        $(this).prop('checked', isMandatory).trigger('change');
+    });
+}
+
+// Validação antes de enviar o formulário
+$('#bulkAssignForm').on('submit', function(e) {
+    let selectedCount = $('.discipline-checkbox:checked').length;
+    
+    if (selectedCount === 0) {
+        e.preventDefault();
+        alert('Selecione pelo menos uma disciplina para atribuir à turma.');
+        return false;
+    }
+    
+    if (!confirm(`Confirmar atribuição de ${selectedCount} disciplinas?`)) {
+        e.preventDefault();
+        return false;
+    }
+    
+    // Mostrar loading overlay
+    $('#loadingOverlay').show();
+});
+
+// Atalhos de teclado
+document.addEventListener('keydown', function(e) {
+    // Ctrl + S para salvar
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        if ($('#disciplinesContainer').is(':visible')) {
+            $('#bulkAssignForm').submit();
+        }
+    }
+    
+    // Ctrl + A para selecionar todas
+    if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault();
+        if ($('#disciplinesContainer').is(':visible')) {
+            selectAll();
+        }
+    }
+    
+    // Ctrl + D para desmarcar todas
+    if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        if ($('#disciplinesContainer').is(':visible')) {
+            deselectAll();
+        }
+    }
 });
 </script>
 
 <style>
-.card {
-    border: 1px solid rgba(0,0,0,0.125);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    margin-bottom: 1rem;
+/* Estilo para a tabela */
+.table-hover tbody tr:hover {
+    background-color: rgba(0,123,255,0.05);
 }
 
-.card-header {
+/* Estilo para o loading overlay */
+#loadingOverlay {
+    backdrop-filter: blur(3px);
+}
+
+/* Badge de obrigatória */
+.badge.bg-warning {
+    font-size: 0.7rem;
+}
+
+/* Atalhos de teclado */
+kbd {
     background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0,0,0,0.125);
-}
-
-.form-label {
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-}
-
-#loadingMessage {
-    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 0.8rem;
 }
 
 /* Animações */
-.card {
-    transition: all 0.3s ease;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.card:hover {
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+#disciplinesContainer {
+    animation: fadeIn 0.3s ease-out;
 }
 
-/* Estilo para os passes */
-.fw-bold {
-    color: #495057;
+/* Responsividade */
+@media (max-width: 768px) {
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .btn-sm {
+        width: 100%;
+    }
+    
+    .float-end {
+        float: none !important;
+        display: block;
+        margin-top: 10px;
+        text-align: right;
+    }
 }
 </style>
+
 <?= $this->endSection() ?>

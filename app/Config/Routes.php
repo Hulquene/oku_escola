@@ -43,6 +43,7 @@ use App\Controllers\admin\DocumentGenerator;
 use App\Controllers\admin\Courses;
 use App\Controllers\admin\CourseCurriculum;
 use App\Controllers\admin\Grades;
+use App\Controllers\admin\AcademicRecords;
 
 use App\Controllers\auth\Auth;
 use App\Controllers\Home;
@@ -178,6 +179,8 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('get-by-year/(:num)', [Semesters::class, 'getByYear/$1'], ["as" => 'academic.semesters.getByYear']);
     });
 
+
+
     // Calendário Escolar
     $routes->group('calendar', function ($routes) {
       $routes->get('', [SchoolCalendar::class, 'index'], ["as" => 'academic.calendar']);
@@ -216,17 +219,6 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->post('save', [GradeLevels::class, 'save'], ["as" => 'classes.levels.save']);
       $routes->get('delete/(:num)', [GradeLevels::class, 'delete'], ["as" => 'classes.levels.delete/$1']);
     });
-
-    // Classes/Turmas
-    /* $routes->group('classes', function ($routes) {
-      $routes->get('', [Classes::class, 'index'], ["as" => 'classes']);
-      $routes->get('form-add', [Classes::class, 'form'], ["as" => 'classes.form']);
-      $routes->get('form-edit/(:num)', [Classes::class, 'form'], ["as" => 'classes.form/$1']);
-      $routes->post('save', [Classes::class, 'save'], ["as" => 'classes.save']);
-      $routes->get('delete/(:num)', [Classes::class, 'delete'], ["as" => 'classes.delete/$1']);
-      $routes->get('view/(:num)', [Classes::class, 'view'], ["as" => 'classes.view/$1']);
-      $routes->get('list-students/(:num)', [Classes::class, 'listStudents'], ["as" => 'classes.students/$1']);
-    }); */
 
     // Classes/Turmas
     $routes->group('classes', function ($routes) {
@@ -280,11 +272,155 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('get-classes-by-course-level/(:num)/(:num)', [ClassSubjects::class, 'getClassesByCourseAndLevel/$1/$2'], ["as" => 'classes.class-subjects.get-classes']);
         $routes->get('get-available-disciplines/(:num)', [ClassSubjects::class, 'getAvailableDisciplinesForClass/$1'], ["as" => 'classes.class-subjects.available-disciplines']);
         
+        
         // Rotas para atribuir professores
         $routes->get('assign-teachers/(:num)', [ClassSubjects::class, 'assignTeachers/$1'], ["as" => 'classes.class-subjects.assign-teachers']);
         $routes->post('save-teachers', [ClassSubjects::class, 'saveTeachers'], ["as" => 'classes.class-subjects.save-teachers']);
+
+        // Adicionar estas rotas no grupo class-subjects
+        $routes->post('save-bulk', [ClassSubjects::class, 'saveBulkAssignments'], ['as' => 'classes.class-subjects.save-bulk']);
+        $routes->get('get-class-disciplines/(:num)/(:num)', [ClassSubjects::class, 'getClassDisciplinesWithAssignments/$1/$2'], ['as' => 'classes.class-subjects.get-detailed']);
+        $routes->get('get-class-disciplines/(:num)', [ClassSubjects::class, 'getClassDisciplinesWithAssignments/$1'], ['as' => 'classes.class-subjects.get-detailed']);
+        
     });
   });
+
+
+  // ======================================================================
+  // NOVAS ROTAS PARA GESTÃO DE EXAMES (ESTRUTURA HÍBRIDA)
+  // ======================================================================
+
+  /**
+   * Gestão de Exames e Avaliações - NOVA ESTRUTURA
+   */
+  $routes->group('exams', function ($routes) {
+    
+    // === PERÍODOS DE EXAME ===
+    $routes->group('periods', function ($routes) {
+        $routes->get('/', [\App\Controllers\admin\ExamPeriods::class, 'index'], ['as' => 'exams.periods']);
+        $routes->get('create', [\App\Controllers\admin\ExamPeriods::class, 'create'], ['as' => 'exams.periods.create']);
+        $routes->get('edit/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'edit/$1'], ['as' => 'exams.periods.edit']);
+        $routes->get('view/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'view/$1'], ['as' => 'exams.periods.view']);
+        $routes->post('save', [\App\Controllers\admin\ExamPeriods::class, 'save'], ['as' => 'exams.periods.save']);
+        $routes->get('delete/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'delete/$1'], ['as' => 'exams.periods.delete']);
+        
+        // Geração automática de calendário
+        $routes->get('generate-schedule/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'generateSchedule/$1'], ['as' => 'exams.periods.generate-schedule']);
+        // $routes->post('generate-schedule/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'generateSchedule/$1'], ['as' => 'exams.periods.generate-schedule.post']);
+        $routes->post('save-schedule/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'saveSchedule/$1'], ['as' => 'exams.periods.save-schedule']);
+
+        // No grupo 'periods', adicione:
+        $routes->get('start/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'start/$1'], ['as' => 'exams.periods.start']);
+        $routes->get('pause/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'pause/$1'], ['as' => 'exams.periods.pause']);
+        $routes->get('complete/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'complete/$1'], ['as' => 'exams.periods.complete']);
+        $routes->get('cancel/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'cancel/$1'], ['as' => 'exams.periods.cancel']);
+    });
+
+    // === AGENDAMENTO DE EXAMES ===
+    $routes->group('schedules', function ($routes) {
+        $routes->get('/', [\App\Controllers\admin\ExamSchedules::class, 'index'], ['as' => 'exams.schedules']);
+        $routes->get('create', [\App\Controllers\admin\ExamSchedules::class, 'create'], ['as' => 'exams.schedules.create']);
+        $routes->get('edit/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'edit/$1'], ['as' => 'exams.schedules.edit']);
+        $routes->get('view/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'view/$1'], ['as' => 'exams.schedules.view']);
+        $routes->post('save', [\App\Controllers\admin\ExamSchedules::class, 'save'], ['as' => 'exams.schedules.save']);
+        $routes->post('update/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'update/$1'], ['as' => 'exams.schedules.update']);
+        $routes->get('delete/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'delete/$1'], ['as' => 'exams.schedules.delete']);
+        
+        // Gestão de presenças e notas
+        $routes->get('attendance/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'attendance/$1'], ['as' => 'exams.schedules.attendance']);
+        $routes->post('attendance/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'attendance/$1'], ['as' => 'exams.schedules.attendance.post']);
+        $routes->get('results/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'results/$1'], ['as' => 'exams.schedules.results']);
+        $routes->post('results/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'results/$1'], ['as' => 'exams.schedules.results.post']);
+        
+        // AJAX
+        $routes->get('get-disciplines/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'getDisciplinesByClass/$1'], ['as' => 'exams.schedules.get-disciplines']);
+    });
+
+    // === TIPOS DE EXAME (BOARDS) - Mantendo compatibilidade ===
+    $routes->group('boards', function ($routes) {
+        $routes->get('', [ExamBoards::class, 'index'], ["as" => 'exams.boards']);
+        $routes->post('save', [ExamBoards::class, 'save'], ["as" => 'exams.boards.save']);
+        $routes->get('delete/(:num)', [ExamBoards::class, 'delete'], ["as" => 'exams.boards.delete/$1']);
+    });
+
+    // === RESULTADOS E PAUTAS ===
+    $routes->group('results', function ($routes) {
+        $routes->get('', [ExamResults::class, 'index'], ["as" => 'exams.results']);
+        $routes->post('save', [ExamResults::class, 'save'], ["as" => 'exams.results.save']);
+        $routes->get('report-card/(:num)', [ExamResults::class, 'reportCard'], ["as" => 'exams.results.report/$1']);
+        $routes->get('transcript/(:num)', [ExamResults::class, 'transcript'], ["as" => 'exams.results.transcript/$1']);
+        $routes->get('class/(:num)', [ExamResults::class, 'classResults/$1'], ["as" => 'exams.results.class']);
+    });
+
+    // === PESOS DAS AVALIAÇÕES ===
+    $routes->group('weights', function ($routes) {
+        $routes->get('/', [\App\Controllers\admin\GradeWeights::class, 'index'], ['as' => 'exams.weights']);
+        $routes->get('create', [\App\Controllers\admin\GradeWeights::class, 'create'], ['as' => 'exams.weights.create']);
+        $routes->get('edit/(:num)', [\App\Controllers\admin\GradeWeights::class, 'edit/$1'], ['as' => 'exams.weights.edit']);
+        $routes->post('save', [\App\Controllers\admin\GradeWeights::class, 'save'], ['as' => 'exams.weights.save']);
+        $routes->get('delete/(:num)', [\App\Controllers\admin\GradeWeights::class, 'delete/$1'], ['as' => 'exams.weights.delete']);
+        $routes->get('by-level/(:num)', [\App\Controllers\admin\GradeWeights::class, 'getByLevel/$1'], ['as' => 'exams.weights.by-level']);
+        $routes->post('copy', [\App\Controllers\admin\GradeWeights::class, 'copyFromPrevious'], ['as' => 'exams.weights.copy']);
+    });
+
+    // === CÁLCULO DE MÉDIAS ===
+    $routes->group('calculate', function ($routes) {
+        $routes->get('discipline/(:num)/(:num)/(:num)', [\App\Controllers\admin\GradeCalculator::class, 'discipline/$1/$2/$3'], ['as' => 'exams.calculate.discipline']);
+        $routes->get('semester/(:num)/(:num)', [\App\Controllers\admin\GradeCalculator::class, 'semester/$1/$2'], ['as' => 'exams.calculate.semester']);
+        $routes->get('class/(:num)/(:num)', [\App\Controllers\admin\GradeCalculator::class, 'class/$1/$2'], ['as' => 'exams.calculate.class']);
+        $routes->post('run', [\App\Controllers\admin\GradeCalculator::class, 'runCalculation'], ['as' => 'exams.calculate.run']);
+    });
+
+    
+
+    // === EXAMES ANTIGOS (para compatibilidade temporária) ===
+    $routes->get('', [Exams::class, 'index'], ["as" => 'exams']);
+    $routes->get('form-add', [Exams::class, 'form'], ["as" => 'exams.form']);
+    $routes->get('form-edit/(:num)', [Exams::class, 'form'], ["as" => 'exams.form/$1']);
+    $routes->post('save', [Exams::class, 'save'], ["as" => 'exams.save']);
+    $routes->get('delete/(:num)', [Exams::class, 'delete'], ["as" => 'exams.delete/$1']);
+    $routes->get('schedule', [Exams::class, 'schedule'], ["as" => 'exams.schedule']);
+    $routes->get('view/(:num)', [Exams::class, 'view'], ["as" => 'exams.view/$1']);
+    $routes->post('save-results', [Exams::class, 'saveResults'], ["as" => 'exams.save-results']);
+    $routes->get('publish/(:num)', [Exams::class, 'publish'], ["as" => 'exams.publish/$1']);
+  });
+
+// === MÉDIAS DISCIPLINARES ===
+$routes->group('discipline-averages', function ($routes) {
+    // ROTA RAIZ - Listagem ou dashboard de médias
+    $routes->get('/', [\App\Controllers\admin\DisciplineAverages::class, 'index'], ['as' => 'discipline-averages.index']);
+    
+    $routes->get('student/(:num)/(:num)', [\App\Controllers\admin\DisciplineAverages::class, 'student/$1/$2'], ['as' => 'discipline-averages.student']);
+    $routes->get('class/(:num)/(:num)', [\App\Controllers\admin\DisciplineAverages::class, 'class/$1/$2'], ['as' => 'discipline-averages.class']);
+    $routes->get('export/(:num)/(:num)', [\App\Controllers\admin\DisciplineAverages::class, 'export/$1/$2'], ['as' => 'discipline-averages.export']);
+});
+
+  // === RESULTADOS SEMESTRAIS ===
+$routes->group('semester-results', function ($routes) {
+    // ROTA RAIZ - Dashboard de resultados semestrais
+    $routes->get('/', [\App\Controllers\admin\SemesterResults::class, 'index'], ['as' => 'semester-results.index']);
+    
+    $routes->get('student/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'student/$1/$2'], ['as' => 'semester-results.student']);
+    $routes->get('class/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'class/$1/$2'], ['as' => 'semester-results.class']);
+    $routes->get('summary/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'summary/$1/$2'], ['as' => 'semester-results.summary']);
+    $routes->get('export/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'export/$1/$2'], ['as' => 'semester-results.export']);
+});
+
+    // === EXAMES DE RECURSO ===
+    $routes->group('appeals', function ($routes) {
+        $routes->get('/', [\App\Controllers\admin\AppealExams::class, 'index'], ['as' => 'exams.appeals']);
+        $routes->post('generate', [\App\Controllers\admin\AppealExams::class, 'generateAppealExams'], ['as' => 'exams.appeals.generate']);
+        $routes->get('scheduled/(:num)', [\App\Controllers\admin\AppealExams::class, 'scheduled/$1'], ['as' => 'exams.appeals.scheduled']);
+        $routes->get('exam-students/(:num)', [\App\Controllers\admin\AppealExams::class, 'examStudents/$1'], ['as' => 'exams.appeals.exam-students']);
+        $routes->post('register-attendance/(:num)', [\App\Controllers\admin\AppealExams::class, 'registerAttendance/$1'], ['as' => 'exams.appeals.register-attendance']);
+        $routes->post('register-results/(:num)', [\App\Controllers\admin\AppealExams::class, 'registerResults/$1'], ['as' => 'exams.appeals.register-results']);
+        $routes->get('summary/(:num)', [\App\Controllers\admin\AppealExams::class, 'summary/$1'], ['as' => 'exams.appeals.summary']);
+        $routes->get('export/(:num)', [\App\Controllers\admin\AppealExams::class, 'export/$1'], ['as' => 'exams.appeals.export']);
+        $routes->get('get-stats/(:num)', [\App\Controllers\admin\AppealExams::class, 'getStats/$1'], ['as' => 'exams.appeals.stats']);
+    });
+  // ======================================================================
+  // FIM DAS NOVAS ROTAS
+  // ======================================================================
 
   /**
    * Gestão de Alunos (Estudantes)
@@ -391,7 +527,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
   /**
    * Gestão de Exames e Avaliações
    */
-  $routes->group('exams', function ($routes) {
+/*   $routes->group('exams', function ($routes) {
     // Tipos de Exames
     $routes->group('boards', function ($routes) {
       $routes->get('', [ExamBoards::class, 'index'], ["as" => 'exams.boards']);
@@ -417,7 +553,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('report-card/(:num)', [ExamResults::class, 'reportCard'], ["as" => 'exams.results.report/$1']);
       $routes->get('transcript/(:num)', [ExamResults::class, 'transcript'], ["as" => 'exams.results.transcript/$1']);
     });
-  });
+  }); */
 
     // Adicionar no grupo 'admin'
   $routes->group('grades', function($routes) {
@@ -430,6 +566,17 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('period', [Grades::class, 'period'], ['as' => 'admin.grades.period']);
   });
 
+    // Pautas/Histórico Acadêmico
+  $routes->group('academic-records', ['filter' => 'auth:admin,teachers'], function($routes) {
+      $routes->get('/', [AcademicRecords::class, 'index'], ['as' => 'academic.records']);
+      $routes->get('class/(:num)', [AcademicRecords::class, 'class/$1'], ['as' => 'academic.records.class']);
+      $routes->get('student/(:num)', [AcademicRecords::class, 'student/$1'], ['as' => 'academic.records.student']);
+      $routes->get('semester/(:num)', [AcademicRecords::class, 'semester/$1'], ['as' => 'academic.records.semester']);
+      $routes->get('export', [AcademicRecords::class, 'export'], ['as' => 'academic.records.export']);
+      $routes->post('finalize-year', [AcademicRecords::class, 'finalizeYear'], ['as' => 'academic.records.finalize']);
+      $routes->get('transcript/(:num)', [AcademicRecords::class, 'transcript/$1'], ['as' => 'academic.records.transcript']);
+      $routes->get('certificate/(:num)', [AcademicRecords::class, 'certificate/$1'], ['as' => 'academic.records.certificate']);
+  });
   /**
    * Gestão Financeira (mantendo módulos existentes)
    */
@@ -634,8 +781,50 @@ $routes->group('teachers', function ($routes) {
             $routes->get('students/(:num)', [TeacherClasses::class, 'students'], ["as" => 'teachers.classes.students/$1']);
         });
         
-       // Avaliações
+        // === NOVAS ROTAS PARA PROFESSORES - EXAMES ===
         $routes->group('exams', function ($routes) {
+            // Visão geral dos exames do professor
+            $routes->get('', [\App\Controllers\teachers\Exams::class, 'index'], ['as' => 'teachers.exams']);
+            
+            // Exames agendados
+            $routes->get('upcoming', [\App\Controllers\teachers\Exams::class, 'upcoming'], ['as' => 'teachers.exams.upcoming']);
+            $routes->get('completed', [\App\Controllers\teachers\Exams::class, 'completed'], ['as' => 'teachers.exams.completed']);
+            
+            // Gestão de presenças
+            $routes->get('attendance/(:num)', [\App\Controllers\teachers\Exams::class, 'attendance/$1'], ['as' => 'teachers.exams.attendance']);
+            $routes->post('attendance/(:num)', [\App\Controllers\teachers\Exams::class, 'saveAttendance/$1'], ['as' => 'teachers.exams.attendance.save']);
+            
+            // Gestão de notas
+            $routes->get('results/(:num)', [\App\Controllers\teachers\Exams::class, 'results/$1'], ['as' => 'teachers.exams.results']);
+            $routes->post('results/(:num)', [\App\Controllers\teachers\Exams::class, 'saveResults/$1'], ['as' => 'teachers.exams.results.save']);
+            
+            // Visualização de resultados
+            $routes->get('view/(:num)', [\App\Controllers\teachers\Exams::class, 'view/$1'], ['as' => 'teachers.exams.view']);
+            
+            // AJAX
+            $routes->get('get-disciplines/(:num)', [\App\Controllers\teachers\Exams::class, 'getDisciplines/$1'], ['as' => 'teachers.exams.get-disciplines']);
+        });
+        
+        // === NOVAS ROTAS PARA MÉDIAS DISCIPLINARES ===
+        $routes->group('averages', function ($routes) {
+            $routes->get('class/(:num)', [\App\Controllers\teachers\Averages::class, 'class/$1'], ['as' => 'teachers.averages.class']);
+            $routes->get('discipline/(:num)/(:num)', [\App\Controllers\teachers\Averages::class, 'discipline/$1/$2'], ['as' => 'teachers.averages.discipline']);
+            $routes->get('export/(:num)', [\App\Controllers\teachers\Averages::class, 'export/$1'], ['as' => 'teachers.averages.export']);
+        });
+        
+        // === AVALIAÇÕES CONTÍNUAS ===
+        $routes->group('continuous', function ($routes) {
+            $routes->get('', [\App\Controllers\teachers\ContinuousAssessment::class, 'index'], ['as' => 'teachers.continuous']);
+            $routes->get('class/(:num)', [\App\Controllers\teachers\ContinuousAssessment::class, 'byClass/$1'], ['as' => 'teachers.continuous.class']);
+            $routes->get('discipline/(:num)/(:num)', [\App\Controllers\teachers\ContinuousAssessment::class, 'byDiscipline/$1/$2'], ['as' => 'teachers.continuous.discipline']);
+            $routes->post('save', [\App\Controllers\teachers\ContinuousAssessment::class, 'save'], ['as' => 'teachers.continuous.save']);
+        });
+
+
+
+
+       // Avaliações
+  /*       $routes->group('exams', function ($routes) {
             $routes->get('', [TeacherExams::class, 'index'], ["as" => 'teachers.exams']);
             $routes->get('form-add', [TeacherExams::class, 'form'], ["as" => 'teachers.exams.form']);
             $routes->get('form-edit/(:num)', [TeacherExams::class, 'form/$1'], ["as" => 'teachers.exams.form.edit']);
@@ -644,9 +833,10 @@ $routes->group('teachers', function ($routes) {
             $routes->post('save-grades', [TeacherExams::class, 'saveGrades'], ["as" => 'teachers.exams.save_grades']);
             $routes->get('get-disciplines/(:num)', [TeacherExams::class, 'getDisciplines/$1'], ["as" => 'teachers.exams.get-disciplines']);
             $routes->get('results/(:num)', [TeacherExams::class, 'results/$1'], ["as" => 'teachers.exams.results']); // <-- NOVA ROTA
-        });
+        }); */
          // Notas (Avaliações Contínuas)
         $routes->group('grades', function ($routes) {
+      
             $routes->get('', [TeacherGrades::class, 'index'], ["as" => 'teachers.grades']);
             $routes->post('save', [TeacherGrades::class, 'save'], ["as" => 'teachers.grades.save']);
             $routes->get('get-disciplines/(:num)', [TeacherGrades::class, 'getDisciplines/$1'], ["as" => 'teachers.grades.get-disciplines']); // <-- AGORA AQUI
@@ -707,6 +897,23 @@ $routes->group('students', function ($routes) {
               $routes->get('/', [StudentsSubjects::class, 'index'], ['as' => 'students.subjects']);
               $routes->get('details/(:num)', [StudentsSubjects::class, 'details/$1'], ['as' => 'students.subjects.details']);
           });
+
+               
+        // === NOVAS ROTAS PARA ALUNOS - EXAMES ===
+        $routes->group('exams', function ($routes) {
+            // Calendário de exames
+            $routes->get('', [\App\Controllers\students\Exams::class, 'index'], ['as' => 'students.exams']);
+            $routes->get('schedule', [\App\Controllers\students\Exams::class, 'schedule'], ['as' => 'students.exams.schedule']);
+            $routes->get('upcoming', [\App\Controllers\students\Exams::class, 'upcoming'], ['as' => 'students.exams.upcoming']);
+            
+            // Resultados
+            $routes->get('results', [\App\Controllers\students\Exams::class, 'results'], ['as' => 'students.exams.results']);
+            $routes->get('results/semester/(:num)', [\App\Controllers\students\Exams::class, 'semesterResults/$1'], ['as' => 'students.exams.semester-results']);
+            $routes->get('results/discipline/(:num)', [\App\Controllers\students\Exams::class, 'disciplineResults/$1'], ['as' => 'students.exams.discipline-results']);
+            
+            // Detalhes de exame específico
+            $routes->get('view/(:num)', [\App\Controllers\students\Exams::class, 'view/$1'], ['as' => 'students.exams.view']);
+        });
           
         // Minhas Notas
         $routes->group('grades', function ($routes) {
@@ -716,11 +923,11 @@ $routes->group('students', function ($routes) {
         });
 
         // Meus Exames
-        $routes->group('exams', function ($routes) {
+     /*    $routes->group('exams', function ($routes) {
           $routes->get('', [StudentExams::class, 'index'], ["as" => 'students.exams']);
           $routes->get('schedule', [StudentExams::class, 'schedule'], ["as" => 'students.exams.schedule']);
           $routes->get('results', [StudentExams::class, 'results'], ["as" => 'students.exams.results']);
-        });
+        }); */
 
         // Minhas Presenças
         $routes->group('attendance', function ($routes) {

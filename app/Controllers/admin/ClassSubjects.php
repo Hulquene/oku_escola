@@ -166,8 +166,8 @@ public function index()
     
     return view('admin/classes/class-subjects/index', $data);
 }
-    /**
- * Assignment form - VERSÃO CORRIGIDA E OTIMIZADA
+ /**
+ * Assignment form - VERSÃO SIMPLIFICADA (apenas turma e semestre)
  */
 public function assign()
 {
@@ -179,10 +179,7 @@ public function assign()
     // Inicializar variáveis
     $data['assignment'] = null;
     $data['selectedDisciplineId'] = null;
-    $data['selectedCourseId'] = null;
-    $data['selectedLevelId'] = null;
-    $data['selectedClass'] = $classId;
-    $data['filteredClasses'] = [];
+    $data['selectedClassId'] = $classId;
     
     // Se temos um ID de atribuição (modo edição)
     if ($assignmentId) {
@@ -190,8 +187,7 @@ public function assign()
             ->select('
                 tbl_class_disciplines.*, 
                 tbl_classes.class_name, 
-                tbl_classes.course_id, 
-                tbl_classes.grade_level_id,
+                tbl_classes.id as class_id,
                 tbl_disciplines.id as discipline_id,
                 tbl_disciplines.discipline_name
             ')
@@ -201,96 +197,20 @@ public function assign()
             ->first();
         
         if ($data['assignment']) {
-            // Guardar o ID da disciplina para pré-seleção
             $data['selectedDisciplineId'] = $data['assignment']->discipline_id;
-            
-            // Log para debug
-            log_message('debug', '=== MODO EDIÇÃO ATIVADO ===');
-            log_message('debug', 'Assignment ID: ' . $assignmentId);
-            log_message('debug', 'Class ID: ' . $data['assignment']->class_id);
-            log_message('debug', 'Discipline ID: ' . $data['selectedDisciplineId']);
-            log_message('debug', 'Course ID: ' . ($data['assignment']->course_id ?? 'null'));
-            log_message('debug', 'Grade Level ID: ' . ($data['assignment']->grade_level_id ?? 'null'));
+            $data['selectedClassId'] = $data['assignment']->class_id;
         }
     }
     
-    // Carregar models adicionais necessários
-    $courseModel = new \App\Models\CourseModel();
-    $gradeLevelModel = new \App\Models\GradeLevelModel();
-    
-    // Buscar cursos ativos (para o filtro)
-    $data['courses'] = $courseModel
-        ->where('is_active', 1)
-        ->orderBy('course_name', 'ASC')
+    // Buscar todas as turmas ativas
+    $data['classes'] = $this->classModel
+        ->select('tbl_classes.*, tbl_academic_years.year_name, tbl_grade_levels.level_name')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->where('tbl_classes.is_active', 1)
+        ->orderBy('tbl_academic_years.start_date', 'DESC')
+        ->orderBy('tbl_classes.class_name', 'ASC')
         ->findAll();
-    
-    // Opção para "Ensino Geral"
-    $data['hasGeneralEducation'] = true;
-    
-    // Buscar todos os níveis ativos (inicialmente)
-    $data['allLevels'] = $gradeLevelModel
-        ->where('is_active', 1)
-        ->orderBy('sort_order', 'ASC')
-        ->findAll();
-    
-    // Determinar qual turma estamos editando/selecionando
-    $targetClassId = null;
-    
-    if ($classId) {
-        // Veio pelo parâmetro class na URL
-        $targetClassId = $classId;
-        log_message('debug', 'Target Class ID from URL: ' . $targetClassId);
-    } elseif ($data['assignment'] && $data['assignment']->class_id) {
-        // Veio pelo assignment em modo edição
-        $targetClassId = $data['assignment']->class_id;
-        log_message('debug', 'Target Class ID from Assignment: ' . $targetClassId);
-    }
-    
-    // Se temos uma turma alvo, buscar informações dela
-    if ($targetClassId) {
-        $classInfo = $this->classModel
-            ->select('
-                tbl_classes.*, 
-                tbl_courses.course_name,
-                tbl_academic_years.year_name
-            ')
-            ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
-            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-            ->where('tbl_classes.id', $targetClassId)
-            ->first();
-        
-        if ($classInfo) {
-            $data['selectedCourseId'] = $classInfo->course_id ?: 0; // 0 = Ensino Geral
-            $data['selectedLevelId'] = $classInfo->grade_level_id;
-            
-            log_message('debug', 'Class Info Found:');
-            log_message('debug', '- Course ID: ' . ($classInfo->course_id ?? 'null'));
-            log_message('debug', '- Grade Level ID: ' . $classInfo->grade_level_id);
-            log_message('debug', '- Class Name: ' . $classInfo->class_name);
-            
-            // Buscar turmas disponíveis para este curso e nível
-            $builder = $this->classModel
-                ->select('tbl_classes.*, tbl_academic_years.year_name')
-                ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-                ->where('tbl_classes.is_active', 1)
-                ->where('tbl_classes.grade_level_id', $classInfo->grade_level_id);
-            
-            if ($classInfo->course_id) {
-                $builder->where('tbl_classes.course_id', $classInfo->course_id);
-            } else {
-                $builder->where('tbl_classes.course_id IS NULL');
-            }
-            
-            $data['filteredClasses'] = $builder
-                ->orderBy('tbl_academic_years.start_date', 'DESC')
-                ->orderBy('tbl_classes.class_name', 'ASC')
-                ->findAll();
-            
-            log_message('debug', 'Filtered Classes Count: ' . count($data['filteredClasses']));
-        } else {
-            log_message('error', 'Class not found with ID: ' . $targetClassId);
-        }
-    }
     
     // Buscar professores
     $data['teachers'] = $this->userModel
@@ -310,14 +230,6 @@ public function assign()
     } else {
         $data['semesters'] = [];
     }
-    
-    // Log resumo para debug
-    log_message('debug', '=== DADOS ENVIADOS PARA VIEW ===');
-    log_message('debug', 'selectedCourseId: ' . ($data['selectedCourseId'] ?? 'null'));
-    log_message('debug', 'selectedLevelId: ' . ($data['selectedLevelId'] ?? 'null'));
-    log_message('debug', 'selectedDisciplineId: ' . ($data['selectedDisciplineId'] ?? 'null'));
-    log_message('debug', 'selectedClass: ' . ($data['selectedClass'] ?? 'null'));
-    log_message('debug', 'filteredClasses count: ' . count($data['filteredClasses']));
     
     return view('admin/classes/class-subjects/assign', $data);
 }
@@ -609,4 +521,75 @@ public function getAvailableDisciplinesForClass($classId)
     
     return $this->response->setJSON(array_values($available));
 }
+/**
+ * API: Buscar disciplinas da turma (TODAS as disciplinas do sistema)
+ * 
+ * @param int $classId ID da turma
+ * @param int|null $semesterId ID do semestre (opcional)
+ * @return JSON
+ */
+public function getClassDisciplinesWithAssignments($classId, $semesterId = null)
+{
+    // Validar se a turma existe
+    $class = $this->classModel->find($classId);
+    
+    if (!$class) {
+        return $this->response->setJSON([
+            'error' => 'Turma não encontrada'
+        ])->setStatusCode(404);
+    }
+    
+    // Buscar TODAS as disciplinas ativas do sistema
+    $allDisciplines = $this->disciplineModel
+        ->where('is_active', 1)
+        ->orderBy('discipline_name', 'ASC')
+        ->findAll();
+    
+    // Buscar atribuições existentes para esta turma
+    $builder = $this->classDisciplineModel
+        ->select('
+            tbl_class_disciplines.*,
+            tbl_users.first_name as teacher_first_name,
+            tbl_users.last_name as teacher_last_name
+        ')
+        ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
+        ->where('tbl_class_disciplines.class_id', $classId);
+    
+    // Filtrar por semestre se especificado
+    if ($semesterId && $semesterId != '') {
+        $builder->where('tbl_class_disciplines.semester_id', $semesterId);
+    }
+    
+    $assignments = $builder->findAll();
+    
+    // Mapear atribuições por discipline_id
+    $assignmentMap = [];
+    foreach ($assignments as $ass) {
+        $assignmentMap[$ass->discipline_id] = $ass;
+    }
+    
+    // Construir resultado
+    $result = [];
+    foreach ($allDisciplines as $disc) {
+        $assigned = isset($assignmentMap[$disc->id]);
+        $assignment = $assigned ? $assignmentMap[$disc->id] : null;
+        
+        $result[] = [
+            'id' => $disc->id,
+            'name' => $disc->discipline_name,
+            'code' => $disc->discipline_code,
+            'assigned' => $assigned,
+            'assignment_id' => $assignment ? $assignment->id : null,
+            'teacher_id' => $assignment ? $assignment->teacher_id : null,
+            'teacher_name' => $assignment ? ($assignment->teacher_first_name . ' ' . $assignment->teacher_last_name) : null,
+            'workload' => $assignment ? $assignment->workload_hours : null,
+            'suggested_workload' => null,
+            'is_mandatory' => false,
+            'is_active' => $assignment ? $assignment->is_active : false
+        ];
+    }
+    
+    return $this->response->setJSON($result);
+}
+
 }

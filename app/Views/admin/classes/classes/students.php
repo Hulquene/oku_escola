@@ -64,11 +64,15 @@
                                 <span class="badge bg-success">Ativo</span>
                             </td>
                             <td>
-                                <a href="<?= site_url('admin/students/view/' . $student->id) ?>" 
+                                <a href="<?= site_url('admin/students/view/' . $student->student_id) ?>" 
                                    class="btn btn-sm btn-info" title="Ver Aluno">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-user-graduate me-1"></i>
                                 </a>
-                                <a href="<?= site_url('admin/students/enrollments/history/' . $student->id) ?>" 
+                                <a href="<?= site_url('admin/students/enrollments/view/' . $student->id) ?>" 
+                                   class="btn btn-sm btn-info" title="Ver Matricula">
+                                    <i class="fas fa-file-signature"></i>
+                                </a>
+                                <a href="<?= site_url('admin/students/enrollments/history/' . $student->student_id) ?>" 
                                    class="btn btn-sm btn-primary" title="Histórico">
                                     <i class="fas fa-history"></i>
                                 </a>

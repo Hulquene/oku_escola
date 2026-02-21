@@ -4,154 +4,239 @@ namespace App\Controllers\admin;
 
 use App\Controllers\BaseController;
 use App\Models\ExamResultModel;
-use App\Models\ExamModel;
+use App\Models\ExamScheduleModel;
 use App\Models\EnrollmentModel;
 use App\Models\StudentModel;
 use App\Models\ClassModel;
 use App\Models\DisciplineModel;
 use App\Models\SemesterModel;
-use App\Models\FinalGradeModel;
+use App\Models\DisciplineAverageModel;
+use App\Models\SemesterResultModel;
+use App\Models\AcademicHistoryModel;
 
 class ExamResults extends BaseController
 {
     protected $examResultModel;
-    protected $examModel;
+    protected $examScheduleModel;
     protected $enrollmentModel;
     protected $studentModel;
     protected $classModel;
     protected $disciplineModel;
     protected $semesterModel;
-    protected $finalGradeModel;
+    protected $disciplineAverageModel;
+    protected $semesterResultModel;
+    protected $academicHistoryModel;
     
     public function __construct()
     {
         $this->examResultModel = new ExamResultModel();
-        $this->examModel = new ExamModel();
+        $this->examScheduleModel = new ExamScheduleModel();
         $this->enrollmentModel = new EnrollmentModel();
         $this->studentModel = new StudentModel();
         $this->classModel = new ClassModel();
         $this->disciplineModel = new DisciplineModel();
         $this->semesterModel = new SemesterModel();
-        $this->finalGradeModel = new FinalGradeModel();
+        $this->disciplineAverageModel = new DisciplineAverageModel();
+        $this->semesterResultModel = new SemesterResultModel();
+        $this->academicHistoryModel = new AcademicHistoryModel();
     }
     
+   /**
+ * List results (exam results view)
+ */
+public function index()
+{
+    $data['title'] = 'Resultados de Exames';
+    
+    $examId = $this->request->getGet('exam');
+    $classId = $this->request->getGet('class');
+    $disciplineId = $this->request->getGet('discipline');
+    $semesterId = $this->request->getGet('semester') ?: 
+        ($this->semesterModel->getCurrent()->id ?? null);
+    
+    $builder = $this->examResultModel
+        ->select('
+            tbl_exam_results.*,
+            tbl_exam_schedules.exam_date,
+            tbl_exam_schedules.exam_time,
+            tbl_exam_schedules.exam_room,
+            tbl_exam_boards.board_name,
+            tbl_exam_boards.board_type,
+            tbl_classes.class_name,
+            tbl_disciplines.discipline_name,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            tbl_students.student_number,
+            tbl_students.id as student_id,
+            tbl_exam_periods.semester_id
+        ')
+        ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id') // NOVO JOIN
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+        ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id');
+    
+    if ($examId) {
+        $builder->where('tbl_exam_schedules.id', $examId);
+    }
+    
+    if ($classId) {
+        $builder->where('tbl_enrollments.class_id', $classId);
+    }
+    
+    if ($disciplineId) {
+        $builder->where('tbl_exam_schedules.discipline_id', $disciplineId);
+    }
+    
+    if ($semesterId) {
+        // CORREÇÃO: filtrar pelo semester_id da tabela exam_periods
+        $builder->where('tbl_exam_periods.semester_id', $semesterId);
+    }
+    
+    $data['results'] = $builder->orderBy('tbl_exam_schedules.exam_date', 'DESC')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->paginate(20);
+    
+    $data['pager'] = $this->examResultModel->pager;
+    
+    // Filters
+    $data['exams'] = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.id, 
+            tbl_exam_schedules.exam_date,
+            tbl_disciplines.discipline_name
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->orderBy('tbl_exam_schedules.exam_date', 'DESC')
+        ->findAll(50);
+    
+    $data['classes'] = $this->classModel
+        ->where('is_active', 1)
+        ->orderBy('class_name', 'ASC')
+        ->findAll();
+    
+    $data['disciplines'] = $this->disciplineModel
+        ->where('is_active', 1)
+        ->orderBy('discipline_name', 'ASC')
+        ->findAll();
+    
+    $data['semesters'] = $this->semesterModel->getActive();
+    
+    $data['selectedExam'] = $examId;
+    $data['selectedClass'] = $classId;
+    $data['selectedDiscipline'] = $disciplineId;
+    $data['selectedSemester'] = $semesterId;
+    
+    return view('admin/exams/results/index', $data);
+}
+    
     /**
-     * List results
+     * View class results (pauta da turma)
      */
-    public function index()
+    public function classResults($classId)
     {
-        $data['title'] = 'Resultados de Exames';
+        $class = $this->classModel
+            ->select('
+                tbl_classes.*,
+                tbl_grade_levels.level_name,
+                tbl_academic_years.year_name
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+            ->find($classId);
         
-        $examId = $this->request->getGet('exam');
-        $classId = $this->request->getGet('class');
-        $disciplineId = $this->request->getGet('discipline');
+        if (!$class) {
+            return redirect()->to('/admin/classes')
+                ->with('error', 'Turma não encontrada.');
+        }
+        
         $semesterId = $this->request->getGet('semester') ?: 
             ($this->semesterModel->getCurrent()->id ?? null);
         
-        $builder = $this->examResultModel
-            ->select('
-                tbl_exam_results.*,
-                tbl_exams.exam_name,
-                tbl_exams.exam_date,
-                tbl_classes.class_name,
-                tbl_disciplines.discipline_name,
-                tbl_users.first_name,
-                tbl_users.last_name,
-                tbl_students.student_number
-            ')
-            ->join('tbl_exams', 'tbl_exams.id = tbl_exam_results.exam_id')
-            ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
-            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id');
+        $semester = $this->semesterModel->find($semesterId);
         
-        if ($examId) {
-            $builder->where('tbl_exam_results.exam_id', $examId);
-        }
-        
-        if ($classId) {
-            $builder->where('tbl_enrollments.class_id', $classId);
-        }
-        
-        if ($disciplineId) {
-            $builder->where('tbl_exams.discipline_id', $disciplineId);
-        }
-        
-        if ($semesterId) {
-            $builder->where('tbl_exams.semester_id', $semesterId);
-        }
-        
-        $data['results'] = $builder->orderBy('tbl_exams.exam_date', 'DESC')
-            ->orderBy('tbl_users.first_name', 'ASC')
-            ->paginate(20);
-        
-        $data['pager'] = $this->examResultModel->pager;
-        
-        // Filters
-        $data['exams'] = $this->examModel
-            ->select('tbl_exams.id, tbl_exams.exam_name, tbl_exams.exam_date')
-            ->orderBy('tbl_exams.exam_date', 'DESC')
-            ->findAll(50);
-        
-        $data['classes'] = $this->classModel
-            ->where('is_active', 1)
-            ->orderBy('class_name', 'ASC')
-            ->findAll();
-        
-        $data['disciplines'] = $this->disciplineModel
-            ->where('is_active', 1)
-            ->orderBy('discipline_name', 'ASC')
-            ->findAll();
-        
+        $data['title'] = 'Pauta da Turma - ' . $class->class_name;
+        $data['class'] = $class;
+        $data['semester'] = $semester;
         $data['semesters'] = $this->semesterModel->getActive();
-        
-        $data['selectedExam'] = $examId;
-        $data['selectedClass'] = $classId;
-        $data['selectedDiscipline'] = $disciplineId;
         $data['selectedSemester'] = $semesterId;
         
-        return view('admin/exams/results/index', $data);
-    }
-    
-    /**
-     * Save results (bulk)
-     */
-    public function save()
-    {
-        $examId = $this->request->getPost('exam_id');
-        $results = $this->request->getPost('results') ?? [];
+        // Get all active students
+        $students = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.id as enrollment_id,
+                tbl_students.id as student_id,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_enrollments.class_id', $classId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
         
-        if (!$examId || empty($results)) {
-            return redirect()->back()->with('error', 'Dados incompletos');
-        }
+        // Get all disciplines for this class
+        $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+        $disciplines = $classDisciplineModel
+            ->select('
+                tbl_disciplines.id,
+                tbl_disciplines.discipline_name,
+                tbl_disciplines.discipline_code
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.semester_id', $semesterId)
+            ->where('tbl_class_disciplines.is_active', 1)
+            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+            ->findAll();
         
-        $exam = $this->examModel->find($examId);
-        if (!$exam) {
-            return redirect()->back()->with('error', 'Exame não encontrado');
-        }
+        // Get semester results for all students
+        $results = [];
+        $semesterResults = [];
         
-        $data = [];
-        foreach ($results as $enrollmentId => $score) {
-            if ($score !== '') {
-                $data[] = [
-                    'exam_id' => $examId,
-                    'enrollment_id' => $enrollmentId,
-                    'score' => $score,
-                    'score_percentage' => ($score / $exam->max_score) * 100,
-                    'recorded_by' => $this->session->get('user_id')
+        foreach ($students as $student) {
+            $semesterResult = $this->semesterResultModel
+                ->where('enrollment_id', $student->enrollment_id)
+                ->where('semester_id', $semesterId)
+                ->first();
+            
+            if ($semesterResult) {
+                $semesterResults[$student->enrollment_id] = $semesterResult;
+            }
+            
+            // Get discipline averages for this student
+            $averages = $this->disciplineAverageModel
+                ->where('enrollment_id', $student->enrollment_id)
+                ->where('semester_id', $semesterId)
+                ->findAll();
+            
+            $studentData = [
+                'enrollment_id' => $student->enrollment_id,
+                'student_name' => $student->first_name . ' ' . $student->last_name,
+                'student_number' => $student->student_number,
+                'averages' => []
+            ];
+            
+            foreach ($averages as $avg) {
+                $studentData['averages'][$avg->discipline_id] = [
+                    'score' => $avg->final_score,
+                    'status' => $avg->status
                 ];
             }
+            
+            $results[] = $studentData;
         }
         
-        $result = $this->examResultModel->saveBulk($data);
+        $data['students'] = $results;
+        $data['disciplines'] = $disciplines;
+        $data['semesterResults'] = $semesterResults;
         
-        if ($result) {
-            return redirect()->to('/admin/exams/results?exam=' . $examId)
-                ->with('success', 'Resultados guardados com sucesso');
-        } else {
-            return redirect()->back()->with('error', 'Erro ao guardar resultados');
-        }
+        return view('admin/exams/results/class_results', $data);
     }
     
     /**
@@ -176,7 +261,12 @@ class ExamResults extends BaseController
         
         // Get current enrollment
         $enrollment = $this->enrollmentModel
-            ->select('tbl_enrollments.*, tbl_classes.class_name, tbl_classes.class_code, tbl_academic_years.year_name')
+            ->select('
+                tbl_enrollments.*, 
+                tbl_classes.class_name, 
+                tbl_classes.class_code, 
+                tbl_academic_years.year_name
+            ')
             ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
             ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
             ->where('tbl_enrollments.student_id', $studentId)
@@ -187,49 +277,52 @@ class ExamResults extends BaseController
         $data['enrollment'] = $enrollment;
         
         if ($enrollment && $semesterId) {
-            // Get exam results
-            $data['examResults'] = $this->examResultModel
+            // Get discipline averages
+            $data['disciplineAverages'] = $this->disciplineAverageModel
                 ->select('
-                    tbl_exam_results.*,
-                    tbl_exams.exam_name,
-                    tbl_exams.exam_date,
-                    tbl_exam_boards.board_name,
-                    tbl_exam_boards.board_type,
-                    tbl_exam_boards.weight,
-                    tbl_disciplines.discipline_name
+                    tbl_discipline_averages.*,
+                    tbl_disciplines.discipline_name,
+                    tbl_disciplines.discipline_code
                 ')
-                ->join('tbl_exams', 'tbl_exams.id = tbl_exam_results.exam_id')
-                ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exams.exam_board_id')
-                ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id')
-                ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
-                ->where('tbl_enrollments.id', $enrollment->id)
-                ->where('tbl_exams.semester_id', $semesterId)
-                ->orderBy('tbl_disciplines.discipline_name', 'ASC')
-                ->orderBy('tbl_exams.exam_date', 'ASC')
-                ->findAll();
-            
-            // Get final grades
-            $data['finalGrades'] = $this->finalGradeModel
-                ->select('
-                    tbl_final_grades.*,
-                    tbl_disciplines.discipline_name
-                ')
-                ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_final_grades.discipline_id')
-                ->where('tbl_final_grades.enrollment_id', $enrollment->id)
-                ->where('tbl_final_grades.semester_id', $semesterId)
+                ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
+                ->where('tbl_discipline_averages.enrollment_id', $enrollment->id)
+                ->where('tbl_discipline_averages.semester_id', $semesterId)
                 ->orderBy('tbl_disciplines.discipline_name', 'ASC')
                 ->findAll();
             
-            // Calculate averages
+            // Get semester result
+            $data['semesterResult'] = $this->semesterResultModel
+                ->where('enrollment_id', $enrollment->id)
+                ->where('semester_id', $semesterId)
+                ->first();
+            
+            // Calculate statistics
             $total = 0;
             $count = 0;
-            foreach ($data['finalGrades'] as $grade) {
-                if ($grade->final_score) {
-                    $total += $grade->final_score;
+            $approved = 0;
+            $appeal = 0;
+            $failed = 0;
+            
+            foreach ($data['disciplineAverages'] as $avg) {
+                if ($avg->final_score) {
+                    $total += $avg->final_score;
                     $count++;
+                    
+                    switch ($avg->status) {
+                        case 'Aprovado': $approved++; break;
+                        case 'Recurso': $appeal++; break;
+                        case 'Reprovado': $failed++; break;
+                    }
                 }
             }
+            
             $data['average'] = $count > 0 ? round($total / $count, 2) : 0;
+            $data['stats'] = [
+                'total' => $count,
+                'approved' => $approved,
+                'appeal' => $appeal,
+                'failed' => $failed
+            ];
         }
         
         return view('admin/exams/results/report_card', $data);
@@ -285,23 +378,37 @@ class ExamResults extends BaseController
             
             foreach ($semesters as $semester) {
                 if ($semester->academic_year_id == $enrollment->academic_year_id) {
-                    $grades = $this->finalGradeModel
+                    $averages = $this->disciplineAverageModel
                         ->select('
-                            tbl_final_grades.*,
+                            tbl_discipline_averages.*,
                             tbl_disciplines.discipline_name
                         ')
-                        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_final_grades.discipline_id')
-                        ->where('tbl_final_grades.enrollment_id', $enrollment->id)
-                        ->where('tbl_final_grades.semester_id', $semester->id)
+                        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
+                        ->where('tbl_discipline_averages.enrollment_id', $enrollment->id)
+                        ->where('tbl_discipline_averages.semester_id', $semester->id)
                         ->orderBy('tbl_disciplines.discipline_name', 'ASC')
                         ->findAll();
                     
+                    $semesterResult = $this->semesterResultModel
+                        ->where('enrollment_id', $enrollment->id)
+                        ->where('semester_id', $semester->id)
+                        ->first();
+                    
                     $yearData['semesters'][$semester->id] = [
                         'semester' => $semester,
-                        'grades' => $grades
+                        'averages' => $averages,
+                        'result' => $semesterResult
                     ];
                 }
             }
+            
+            // Get yearly result from academic history
+            $yearlyResult = $this->academicHistoryModel
+                ->where('student_id', $studentId)
+                ->where('academic_year_id', $enrollment->academic_year_id)
+                ->first();
+            
+            $yearData['yearly_result'] = $yearlyResult;
             
             $transcript[] = $yearData;
         }
@@ -311,12 +418,87 @@ class ExamResults extends BaseController
         return view('admin/exams/results/transcript', $data);
     }
     
+  /**
+ * Save results (bulk) - Updated for new structure
+ */
+public function save()
+{
+    $examScheduleId = $this->request->getPost('exam_schedule_id');
+    $results = $this->request->getPost('results') ?? [];
+    
+    if (!$examScheduleId || empty($results)) {
+        return redirect()->back()->with('error', 'Dados incompletos');
+    }
+    
+    // Buscar o exame com JOIN para obter o semester_id via exam_periods
+    $exam = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.*,
+            tbl_exam_periods.semester_id,
+            tbl_exam_schedules.discipline_id
+        ')
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+        ->find($examScheduleId);
+    
+    if (!$exam) {
+        return redirect()->back()->with('error', 'Exame não encontrado');
+    }
+    
+    // Delete existing results
+    $this->examResultModel->where('exam_schedule_id', $examScheduleId)->delete();
+    
+    // Insert new results
+    $data = [];
+    foreach ($results as $enrollmentId => $score) {
+        if ($score !== '') {
+            $data[] = [
+                'exam_schedule_id' => $examScheduleId,
+                'enrollment_id' => $enrollmentId,
+                'score' => $score,
+                'is_absent' => 0,
+                'recorded_by' => session()->get('user_id')
+            ];
+        }
+    }
+    
+    if (!empty($data)) {
+        $result = $this->examResultModel->insertBatch($data);
+        
+        if ($result) {
+            // Recalculate averages for affected students
+            $semesterId = $exam->semester_id; // AGORA VEM DO JOIN
+            $disciplineId = $exam->discipline_id;
+            
+            foreach ($data as $item) {
+                $this->disciplineAverageModel->calculate(
+                    $item['enrollment_id'],
+                    $disciplineId,
+                    $semesterId,
+                    session()->get('user_id')
+                );
+            }
+            
+            return redirect()->to('/admin/exams/results?exam=' . $examScheduleId)
+                ->with('success', 'Resultados guardados com sucesso');
+        }
+    }
+    
+    return redirect()->back()->with('error', 'Erro ao guardar resultados');
+}
     /**
      * Export results to CSV
      */
-    public function export($examId)
+    public function export($examScheduleId)
     {
-        $exam = $this->examModel->getWithDetails($examId);
+        $exam = $this->examScheduleModel
+            ->select('
+                tbl_exam_schedules.*,
+                tbl_disciplines.discipline_name,
+                tbl_classes.class_name
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+            ->find($examScheduleId);
         
         if (!$exam) {
             return redirect()->back()->with('error', 'Exame não encontrado');
@@ -327,36 +509,104 @@ class ExamResults extends BaseController
                 tbl_students.student_number,
                 tbl_users.first_name,
                 tbl_users.last_name,
-                tbl_exam_results.score,
-                tbl_exam_results.score_percentage,
-                tbl_exam_results.grade
+                tbl_exam_results.score
             ')
             ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
             ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
             ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-            ->where('tbl_exam_results.exam_id', $examId)
+            ->where('tbl_exam_results.exam_schedule_id', $examScheduleId)
             ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
         
-        $filename = 'resultados_' . $exam->exam_name . '_' . date('Ymd') . '.csv';
+        $filename = 'resultados_' . $exam->discipline_name . '_' . date('Ymd') . '.csv';
         
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         
         $output = fopen('php://output', 'w');
-        fputcsv($output, ['Nº Matrícula', 'Nome', 'Nota', 'Percentagem', 'Classificação'], ';');
+        fputcsv($output, ['Nº Matrícula', 'Nome', 'Nota'], ';');
         
         foreach ($results as $row) {
             fputcsv($output, [
                 $row->student_number,
                 $row->first_name . ' ' . $row->last_name,
-                $row->score,
-                number_format($row->score_percentage, 1) . '%',
-                $row->grade
+                $row->score
             ], ';');
         }
         
         fclose($output);
         exit;
+    }
+    
+    /**
+     * Print class results (pauta)
+     */
+    public function printClass($classId, $semesterId)
+    {
+        $class = $this->classModel
+            ->select('
+                tbl_classes.*,
+                tbl_grade_levels.level_name,
+                tbl_academic_years.year_name
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+            ->find($classId);
+        
+        $semester = $this->semesterModel->find($semesterId);
+        
+        $data['class'] = $class;
+        $data['semester'] = $semester;
+        
+        // Get data (similar to classResults method)
+        $students = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.id as enrollment_id,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_enrollments.class_id', $classId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+        
+        $disciplines = $this->disciplineModel
+            ->select('
+                tbl_disciplines.id,
+                tbl_disciplines.discipline_name
+            ')
+            ->join('tbl_class_disciplines', 'tbl_class_disciplines.discipline_id = tbl_disciplines.id')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.semester_id', $semesterId)
+            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+            ->findAll();
+        
+        $results = [];
+        foreach ($students as $student) {
+            $averages = $this->disciplineAverageModel
+                ->where('enrollment_id', $student->enrollment_id)
+                ->where('semester_id', $semesterId)
+                ->findAll();
+            
+            $studentData = [
+                'student_number' => $student->student_number,
+                'student_name' => $student->first_name . ' ' . $student->last_name,
+                'averages' => []
+            ];
+            
+            foreach ($averages as $avg) {
+                $studentData['averages'][$avg->discipline_id] = $avg->final_score;
+            }
+            
+            $results[] = $studentData;
+        }
+        
+        $data['students'] = $results;
+        $data['disciplines'] = $disciplines;
+        
+        return view('admin/exams/results/print_class', $data);
     }
 }

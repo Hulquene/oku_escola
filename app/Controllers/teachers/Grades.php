@@ -88,34 +88,46 @@ class Grades extends BaseController
      * @param int $classId ID da turma
      * @return JSON
      */
-    public function getDisciplines($classId = null)
-    {
-        // Verificar se é requisição AJAX
-        if (!$this->request->isAJAX()) {
-            return $this->response->setJSON([]);
-        }
-        
-        // Verificar se o classId foi fornecido
-        if (!$classId) {
-            log_message('error', 'Grades::getDisciplines chamado sem classId');
-            return $this->response->setJSON([]);
-        }
-        
-        $teacherId = $this->session->get('user_id');
-        
-        $disciplines = $this->classDisciplineModel
-            ->select('tbl_disciplines.id, tbl_disciplines.discipline_name, tbl_disciplines.discipline_code')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
-            ->where('tbl_class_disciplines.class_id', $classId)
-            ->where('tbl_class_disciplines.teacher_id', $teacherId)
-            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
-            ->findAll();
-        
-        log_message('info', "Grades: Disciplinas para turma {$classId}: " . json_encode($disciplines));
-        
-        return $this->response->setJSON($disciplines);
+public function getDisciplines($classId = null)
+{
+
+    
+    // Ignorar verificação AJAX por enquanto (para testes)
+    // if (!$this->request->isAJAX()) {
+    //     return $this->response->setJSON([]);
+    // }
+    
+    if (!$classId) {
+        return $this->response->setJSON(['error' => 'classId não fornecido']);
     }
     
+    // Tentar obter o user_id de diferentes formas
+    $teacherId = currentUserId(); // Usando o helper
+    
+    // Fallback: tentar da sessão diretamente
+    if (!$teacherId) {
+        $teacherId = $this->session->get('user_id');
+    }
+    
+    // Se ainda não encontrou, retornar erro
+    if (!$teacherId) {
+        return $this->response->setJSON([
+            'error' => 'Usuário não autenticado',
+            'session_data' => $_SESSION ?? []
+        ]);
+    }
+    
+    // Buscar disciplinas
+    $disciplines = $this->classDisciplineModel
+        ->select('tbl_disciplines.id, tbl_disciplines.discipline_name, tbl_disciplines.discipline_code')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.teacher_id', $teacherId)
+        ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+        ->findAll();
+    
+    return $this->response->setJSON($disciplines);
+}
     /**
      * Save continuous assessments
      */

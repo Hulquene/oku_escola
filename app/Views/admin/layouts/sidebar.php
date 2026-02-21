@@ -24,7 +24,7 @@
             </ul>
         </li>
         
-        <!-- Cursos (Ensino Médio) - NOVO ITEM -->
+        <!-- Cursos (Ensino Médio) -->
         <li>
             <a href="#coursesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/courses', 'admin/courses/curriculum']) ? 'active' : '' ?>">
                 <i class="fas fa-layer-group"></i> Cursos (Ensino Médio)
@@ -37,42 +37,18 @@
                 <?php endif; ?>
             </a>
             <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/courses', 'admin/courses/curriculum']) ? 'show' : '' ?>" id="coursesSubmenu">
-                <li>
-                    <a href="<?= site_url('admin/courses') ?>" class="<?= uri_string() == 'admin/courses' ? 'active' : '' ?>">
-                        <i class="fas fa-list"></i> Lista de Cursos
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= site_url('admin/courses/form-add') ?>" class="<?= uri_string() == 'admin/courses/form-add' ? 'active' : '' ?>">
-                        <i class="fas fa-plus-circle"></i> Novo Curso
-                    </a>
-                </li>
+                <li><a href="<?= site_url('admin/courses') ?>" class="<?= uri_string() == 'admin/courses' ? 'active' : '' ?>"><i class="fas fa-list"></i> Lista de Cursos</a></li>
+                <li><a href="<?= site_url('admin/courses/form-add') ?>" class="<?= uri_string() == 'admin/courses/form-add' ? 'active' : '' ?>"><i class="fas fa-plus-circle"></i> Novo Curso</a></li>
                 <li class="sidebar-divider"></li>
                 <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Tipos de Cursos</li>
-                <li>
-                    <a href="<?= site_url('admin/courses?type=Ciências') ?>">
-                        <i class="fas fa-flask"></i> Ciências
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= site_url('admin/courses?type=Humanidades') ?>">
-                        <i class="fas fa-book"></i> Humanidades
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= site_url('admin/courses?type=Económico-Jurídico') ?>">
-                        <i class="fas fa-chart-bar"></i> Económico-Jurídico
-                    </a>
-                </li>
-                <li>
-                    <a href="<?= site_url('admin/courses?type=Técnico') ?>">
-                        <i class="fas fa-tools"></i> Técnico
-                    </a>
-                </li>
+                <li><a href="<?= site_url('admin/courses?type=Ciências') ?>"><i class="fas fa-flask"></i> Ciências</a></li>
+                <li><a href="<?= site_url('admin/courses?type=Humanidades') ?>"><i class="fas fa-book"></i> Humanidades</a></li>
+                <li><a href="<?= site_url('admin/courses?type=Económico-Jurídico') ?>"><i class="fas fa-chart-bar"></i> Económico-Jurídico</a></li>
+                <li><a href="<?= site_url('admin/courses?type=Técnico') ?>"><i class="fas fa-tools"></i> Técnico</a></li>
             </ul>
         </li>
         
-        <!-- Classes/Turmas - Atualizado -->
+        <!-- Classes/Turmas -->
         <li>
             <a href="#classesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/classes/levels', 'admin/classes/classes', 'admin/classes/subjects', 'admin/classes/class-subjects']) ? 'active' : '' ?>">
                 <i class="fas fa-school"></i> Classes/Turmas
@@ -123,28 +99,103 @@
             </ul>
         </li>
         
-        <!-- Exames e Avaliações -->
+        <!-- ================================================== -->
+        <!-- NOVA ESTRUTURA DE EXAMES E AVALIAÇÕES (ATUALIZADA) -->
+        <!-- ================================================== -->
+        <li class="sidebar-header small text-uppercase px-3 mt-3 mb-1 text-white-50">
+            <i class="fas fa-pencil-alt me-1"></i> Avaliações
+        </li>
+        
+        <!-- Exames e Avaliações - Menu Principal -->
         <li>
-            <a href="#examsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/exams/boards', 'admin/exams', 'admin/exams/results', 'admin/exams/schedule']) ? 'active' : '' ?>">
+            <a href="#examsMainSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= 
+                in_array(uri_string(), [
+                    'admin/exams/periods', 
+                    'admin/exams/schedules', 
+                    'admin/exams/boards', 
+                    'admin/exams/results',
+                    'admin/exams/weights',
+                    'admin/exams/calculate',
+                    'admin/exams/appeals'
+                ]) ? 'active' : '' ?>">
                 <i class="fas fa-pencil-alt"></i> Exames e Avaliações
+                <?php
+                // Contar exames pendentes (opcional)
+                $examScheduleModel = new \App\Models\ExamScheduleModel();
+                $pendingExams = $examScheduleModel
+                    ->where('status', 'Agendado')
+                    ->where('exam_date >=', date('Y-m-d'))
+                    ->countAllResults();
+                if ($pendingExams > 0):
+                ?>
+                    <span class="badge bg-warning text-dark float-end"><?= $pendingExams ?></span>
+                <?php endif; ?>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/exams/boards', 'admin/exams', 'admin/exams/results', 'admin/exams/schedule']) ? 'show' : '' ?>" id="examsSubmenu">
+            <ul class="collapse list-unstyled <?= 
+                in_array(uri_string(), [
+                    'admin/exams/periods', 
+                    'admin/exams/schedules', 
+                    'admin/exams/boards', 
+                    'admin/exams/results',
+                    'admin/exams/weights',
+                    'admin/exams/calculate',
+                    'admin/exams/appeals'
+                ]) ? 'show' : '' ?>" id="examsMainSubmenu">
+                
+                <!-- Planeamento -->
+                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Planeamento</li>
+                <li><a href="<?= site_url('admin/exams/periods') ?>" class="<?= uri_string() == 'admin/exams/periods' ? 'active' : '' ?>"><i class="fas fa-calendar-alt"></i> Períodos de Exame</a></li>
+                <li><a href="<?= site_url('admin/exams/schedules') ?>" class="<?= uri_string() == 'admin/exams/schedules' ? 'active' : '' ?>"><i class="fas fa-clock"></i> Agendamentos</a></li>
+                
+                <!-- Configurações -->
+                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Configurações</li>
                 <li><a href="<?= site_url('admin/exams/boards') ?>" class="<?= uri_string() == 'admin/exams/boards' ? 'active' : '' ?>"><i class="fas fa-clipboard-list"></i> Tipos de Exames</a></li>
-                <li><a href="<?= site_url('admin/exams') ?>" class="<?= uri_string() == 'admin/exams' ? 'active' : '' ?>"><i class="fas fa-calendar-alt"></i> Exames</a></li>
-                <li><a href="<?= site_url('admin/exams/results') ?>" class="<?= uri_string() == 'admin/exams/results' ? 'active' : '' ?>"><i class="fas fa-star"></i> Resultados</a></li>
-                <li><a href="<?= site_url('admin/exams/schedule') ?>" class="<?= uri_string() == 'admin/exams/schedule' ? 'active' : '' ?>"><i class="fas fa-clock"></i> Calendário de Exames</a></li>
+                <li><a href="<?= site_url('admin/exams/weights') ?>" class="<?= uri_string() == 'admin/exams/weights' ? 'active' : '' ?>"><i class="fas fa-weight-hanging"></i> Pesos das Avaliações</a></li>
+                
+                <!-- Resultados -->
+                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Resultados</li>
+                <li><a href="<?= site_url('admin/exams/results') ?>" class="<?= uri_string() == 'admin/exams/results' ? 'active' : '' ?>"><i class="fas fa-star"></i> Resultados de Exames</a></li>
+                <li><a href="<?= site_url('admin/discipline-averages') ?>" class="<?= uri_string() == 'admin/discipline-averages' ? 'active' : '' ?>"><i class="fas fa-chart-line"></i> Médias Disciplinares</a></li>
+                <li><a href="<?= site_url('admin/semester-results') ?>" class="<?= uri_string() == 'admin/semester-results' ? 'active' : '' ?>"><i class="fas fa-calendar-check"></i> Resultados Semestrais</a></li>
+                
+                <!-- Cálculo -->
+                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Processamento</li>
+                <li><a href="<?= site_url('admin/exams/calculate') ?>" class="<?= uri_string() == 'admin/exams/calculate' ? 'active' : '' ?>"><i class="fas fa-calculator"></i> Calculadora de Médias</a></li>
+                
+                <!-- Recurso -->
+                <li><a href="<?= site_url('admin/exams/appeals') ?>" class="<?= uri_string() == 'admin/exams/appeals' ? 'active' : '' ?>">
+                    <i class="fas fa-exclamation-triangle"></i> Exames de Recurso
+                    <?php
+                    $disciplineAvgModel = new \App\Models\DisciplineAverageModel();
+                    $appealStudents = $disciplineAvgModel
+                        ->where('status', 'Recurso')
+                        ->countAllResults();
+                    if ($appealStudents > 0):
+                    ?>
+                        <span class="badge bg-warning text-dark float-end"><?= $appealStudents ?></span>
+                    <?php endif; ?>
+                </a></li>
             </ul>
         </li>
-        <!-- Adicionar no menu do admin -->
+
+        <!-- Pautas Acadêmicas - Destaque separado -->
         <li>
-            <a href="#gradesSubmenu" data-bs-toggle="collapse">
-                <i class="fas fa-star"></i> Notas e Avaliações
+            <a href="<?= site_url('admin/academic-records') ?>" 
+               class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
+                <i class="fas fa-chart-line"></i> Pautas Acadêmicas
+                <?php 
+                $enrollmentModel = new \App\Models\EnrollmentModel();
+                $pendingRecords = $enrollmentModel
+                    ->where('final_result', 'Em Andamento')
+                    ->where('status', 'Ativo')
+                    ->countAllResults();
+                if ($pendingRecords > 0): 
+                ?>
+                    <span class="badge bg-warning text-dark float-end"><?= $pendingRecords ?></span>
+                <?php endif; ?>
             </a>
-            <ul class="collapse list-unstyled" id="gradesSubmenu">
-                <li><a href="<?= site_url('admin/grades') ?>"><i class="fas fa-list"></i> Visão Geral</a></li>
-                <li><a href="<?= site_url('admin/grades/report') ?>"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
-            </ul>
         </li>
+
         <!-- Financeiro -->
         <li>
             <a href="#financialSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/financial/invoices', 'admin/financial/payments', 'admin/financial/expenses', 'admin/financial/currencies', 'admin/financial/taxes']) ? 'active' : '' ?>">
@@ -220,6 +271,10 @@
         </li>
         
         <!-- CONFIGURAÇÕES COMPLETAS -->
+        <li class="sidebar-header small text-uppercase px-3 mt-3 mb-1 text-white-50">
+            <i class="fas fa-cog me-1"></i> Sistema
+        </li>
+        
         <li>
             <a href="#settingsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), [
                 'admin/school-settings', 

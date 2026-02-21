@@ -165,58 +165,84 @@
 <?php endif; ?>
 
 <?= $this->endSection() ?>
-
 <?= $this->section('scripts') ?>
 <script>
-// Load disciplines when class changes
-document.getElementById('class').addEventListener('change', function() {
-    const classId = this.value;
+document.addEventListener('DOMContentLoaded', function() {
+    const classSelect = document.getElementById('class');
     const disciplineSelect = document.getElementById('discipline');
     const selectedDiscipline = '<?= $selectedDiscipline ?? '' ?>';
     
-    if (classId) {
-        // CORRIGIDO: Agora aponta para grades, não para exams
-        fetch(`<?= site_url('teachers/grades/get-disciplines/') ?>/${classId}`)
-            .then(response => response.json())
-            .then(data => {
-                disciplineSelect.innerHTML = '<option value="">Selecione...</option>';
-                data.forEach(discipline => {
-                    const selected = discipline.id == selectedDiscipline ? 'selected' : '';
-                    disciplineSelect.innerHTML += `<option value="${discipline.id}" ${selected}>${discipline.discipline_name}</option>`;
+    classSelect.addEventListener('change', function() {
+        const classId = this.value;
+        
+        if (classId) {
+            // Mostrar loading
+            disciplineSelect.innerHTML = '<option value="">Carregando...</option>';
+            disciplineSelect.disabled = true;
+            
+            // CORRIGIDO: Usar a URL correta
+            fetch(`<?= site_url('teachers/grades/get-disciplines/') ?>${classId}`)
+                .then(response => response.json())
+                .then(data => {
+                    disciplineSelect.innerHTML = '<option value="">Selecione a disciplina...</option>';
+                    disciplineSelect.disabled = false;
+                    
+                    if (data && data.length > 0) {
+                        data.forEach(discipline => {
+                            const option = document.createElement('option');
+                            option.value = discipline.id;
+                            option.textContent = `${discipline.discipline_name} (${discipline.discipline_code})`;
+                            
+                            if (discipline.id == selectedDiscipline) {
+                                option.selected = true;
+                            }
+                            
+                            disciplineSelect.appendChild(option);
+                        });
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Nenhuma disciplina disponível';
+                        option.disabled = true;
+                        disciplineSelect.appendChild(option);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    disciplineSelect.innerHTML = '<option value="">Erro ao carregar disciplinas</option>';
+                    disciplineSelect.disabled = false;
+                    alert('Erro ao carregar disciplinas. Tente novamente.');
                 });
-            });
-    } else {
-        disciplineSelect.innerHTML = '<option value="">Selecione...</option>';
+        } else {
+            disciplineSelect.innerHTML = '<option value="">Selecione a turma primeiro...</option>';
+            disciplineSelect.disabled = true;
+        }
+    });
+    
+    // Trigger change if class is selected
+    <?php if ($selectedClass): ?>
+    if (classSelect) {
+        classSelect.dispatchEvent(new Event('change'));
     }
+    <?php endif; ?>
 });
-
-// Trigger change if class is selected
-<?php if ($selectedClass): ?>
-document.getElementById('class').dispatchEvent(new Event('change'));
-<?php endif; ?>
 
 // Helper functions
 function fillAllAC1() {
     document.querySelectorAll('input[name^="ac1"]').forEach(input => {
-        if (!input.value) {
-            input.value = '14';
-        }
+        input.value = '14';
     });
 }
 
 function fillAllAC2() {
     document.querySelectorAll('input[name^="ac2"]').forEach(input => {
-        if (!input.value) {
-            input.value = '14';
-        }
+        input.value = '14';
     });
 }
 
 function fillAllAC3() {
     document.querySelectorAll('input[name^="ac3"]').forEach(input => {
-        if (!input.value) {
-            input.value = '14';
-        }
+        input.value = '14';
     });
 }
 
