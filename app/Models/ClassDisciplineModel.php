@@ -63,4 +63,19 @@ class ClassDisciplineModel extends BaseModel
         
         return $builder->findAll();
     }
+    public function getByClassAndSemester($classId, $semesterId)
+    {
+        return $this->select('
+                tbl_class_disciplines.*,
+                tbl_disciplines.discipline_name,
+                tbl_disciplines.discipline_code,
+                CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as teacher_name
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.semester_id', $semesterId)
+            ->where('tbl_class_disciplines.is_active', 1)
+            ->findAll();
+    }
 }

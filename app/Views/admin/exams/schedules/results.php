@@ -41,8 +41,8 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form method="post" id="resultsForm">
-                    <?= csrf_field() ?>
+        <form method="post" action="<?= route_to('exams.schedules.results.post', $schedule->id) ?>" id="resultsForm">
+    <?= csrf_field() ?>
                     
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">

@@ -5,7 +5,7 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1><?= $title ?></h1>
+        <h1><?= $title ?? 'Meus Exames' ?></h1>
         <div>
             <a href="<?= site_url('students/exams/schedule') ?>" class="btn btn-info me-2">
                 <i class="fas fa-calendar-alt"></i> Calendário
@@ -26,15 +26,24 @@
 <!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
+<!-- Informação da Matrícula -->
+<?php if (isset($enrollment) && $enrollment): ?>
+<div class="alert alert-info mb-4">
+    <i class="fas fa-graduation-cap"></i> 
+    <strong>Turma:</strong> <?= $enrollment->class_name ?? 'N/A' ?> | 
+    <strong>Ano Letivo:</strong> <?= $enrollment->year_name ?? date('Y') ?>
+</div>
+<?php endif; ?>
+
 <!-- Stats Cards -->
 <div class="row mb-4">
     <div class="col-md-4">
-        <div class="card bg-primary text-white">
+        <div class="card bg-primary text-white stat-card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="card-title text-white-50">Total de Exames</h6>
-                        <h2 class="mb-0"><?= count($upcomingExams) + count($pastExams) ?></h2>
+                        <h2 class="mb-0"><?= (count($upcomingExams ?? []) + count($pastExams ?? [])) ?></h2>
                     </div>
                     <i class="fas fa-pencil-alt fa-3x text-white-50"></i>
                 </div>
@@ -43,12 +52,12 @@
     </div>
     
     <div class="col-md-4">
-        <div class="card bg-warning text-white">
+        <div class="card bg-warning text-white stat-card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="card-title text-white-50">Próximos Exames</h6>
-                        <h2 class="mb-0"><?= count($upcomingExams) ?></h2>
+                        <h2 class="mb-0"><?= count($upcomingExams ?? []) ?></h2>
                     </div>
                     <i class="fas fa-clock fa-3x text-white-50"></i>
                 </div>
@@ -57,7 +66,7 @@
     </div>
     
     <div class="col-md-4">
-        <div class="card bg-success text-white">
+        <div class="card bg-success text-white stat-card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -105,10 +114,10 @@
                         ?>
                             <tr class="<?= $isToday ? 'table-warning' : '' ?>">
                                 <td>
-                                    <strong><?= $exam->exam_name ?></strong>
+                                    <strong><?= $exam->board_name ?? 'Exame' ?></strong>
                                 </td>
                                 <td><?= $exam->discipline_name ?></td>
-                                <td><span class="badge bg-info"><?= $exam->board_name ?></span></td>
+                                <td><span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span></td>
                                 <td>
                                     <?= date('d/m/Y', strtotime($exam->exam_date)) ?>
                                     <?php if ($isToday): ?>
@@ -170,25 +179,30 @@
                         <?php 
                         $aprovados = 0;
                         $totalNotas = 0;
+                        $countComNota = 0;
+                        
                         foreach ($pastExams as $exam): 
                             $result = $results[$exam->id] ?? null;
                             $nota = $result ? $result->score : null;
-                            $percentual = $nota ? round(($nota / $exam->max_score) * 100, 1) : 0;
+                            $percentual = $nota ? round(($nota / ($exam->max_score ?? 20)) * 100, 1) : 0;
                             $statusClass = !$nota ? 'warning' : ($nota >= 10 ? 'success' : 'danger');
                             $statusText = !$nota ? 'Aguardando' : ($nota >= 10 ? 'Aprovado' : 'Reprovado');
                             
-                            if ($nota && $nota >= 10) $aprovados++;
-                            if ($nota) $totalNotas += $nota;
+                            if ($nota) {
+                                if ($nota >= 10) $aprovados++;
+                                $totalNotas += $nota;
+                                $countComNota++;
+                            }
                         ?>
                             <tr>
-                                <td><strong><?= $exam->exam_name ?></strong></td>
+                                <td><strong><?= $exam->board_name ?? 'Exame' ?></strong></td>
                                 <td><?= $exam->discipline_name ?></td>
                                 <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
                                 <td>
                                     <?php if ($nota): ?>
                                         <span class="fw-bold <?= $nota >= 10 ? 'text-success' : 'text-danger' ?>">
                                             <?= number_format($nota, 1) ?>
-                                        </span> / <?= $exam->max_score ?>
+                                        </span> / <?= $exam->max_score ?? 20 ?>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
@@ -230,6 +244,7 @@
             </div>
             
             <!-- Resumo de Desempenho -->
+            <?php if ($countComNota > 0): ?>
             <div class="row mt-4">
                 <div class="col-md-4">
                     <div class="card bg-success text-white">
@@ -243,9 +258,7 @@
                     <div class="card bg-info text-white">
                         <div class="card-body text-center">
                             <?php 
-                            $media = $totalNotas > 0 ? round($totalNotas / count(array_filter($pastExams, function($e) use ($results) { 
-                                return isset($results[$e->id]); 
-                            })), 1) : 0;
+                            $media = $totalNotas > 0 ? round($totalNotas / $countComNota, 1) : 0;
                             ?>
                             <h3><?= number_format($media, 1) ?></h3>
                             <small>Média Geral</small>
@@ -256,9 +269,7 @@
                     <div class="card bg-warning text-white">
                         <div class="card-body text-center">
                             <?php 
-                            $taxa = $aprovados > 0 ? round(($aprovados / count(array_filter($pastExams, function($e) use ($results) { 
-                                return isset($results[$e->id]); 
-                            }))) * 100, 1) : 0;
+                            $taxa = $aprovados > 0 ? round(($aprovados / $countComNota) * 100, 1) : 0;
                             ?>
                             <h3><?= $taxa ?>%</h3>
                             <small>Taxa de Aprovação</small>
@@ -266,6 +277,7 @@
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
             
         <?php else: ?>
             <div class="text-center py-5">
@@ -297,8 +309,8 @@
                                 <div class="rounded-circle bg-info d-inline-flex p-3 mb-3">
                                     <i class="fas fa-pencil-alt fa-2x text-white"></i>
                                 </div>
-                                <h4><?= $exam->exam_name ?></h4>
-                                <span class="badge bg-info"><?= $exam->board_name ?></span>
+                                <h4><?= $exam->board_name ?? 'Exame' ?></h4>
+                                <span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span>
                             </div>
                             
                             <table class="table table-bordered">
@@ -321,13 +333,13 @@
                                 <tr>
                                     <th>Nota Obtida</th>
                                     <td class="fw-bold <?= $result->score >= 10 ? 'text-success' : 'text-danger' ?>">
-                                        <?= number_format($result->score, 1) ?> / <?= $exam->max_score ?>
+                                        <?= number_format($result->score, 1) ?> / <?= $exam->max_score ?? 20 ?>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th>Percentual</th>
                                     <td>
-                                        <?php $percent = round(($result->score / $exam->max_score) * 100, 1); ?>
+                                        <?php $percent = round(($result->score / ($exam->max_score ?? 20)) * 100, 1); ?>
                                         <div class="d-flex align-items-center">
                                             <div class="progress flex-grow-1 me-2" style="height: 10px;">
                                                 <div class="progress-bar bg-<?= $result->score >= 10 ? 'success' : 'danger' ?>" 
@@ -348,10 +360,10 @@
                                 </tr>
                             </table>
                             
-                            <?php if ($exam->description): ?>
+                            <?php if ($exam->observations ?? false): ?>
                                 <div class="mt-3">
                                     <strong>Observações:</strong>
-                                    <p class="text-muted"><?= $exam->description ?></p>
+                                    <p class="text-muted"><?= $exam->observations ?></p>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -394,13 +406,14 @@ setTimeout(function() {
 
 <style>
 /* Animações e estilos adicionais */
-.card {
+.stat-card {
     border: none;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
 }
 
-.card:hover {
+.stat-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
 }

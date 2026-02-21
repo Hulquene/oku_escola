@@ -146,14 +146,14 @@
             </div>
             
             <!-- FILTRO: Curso -->
-            <div class="col-md-2">
+           <div class="col-md-2">
                 <label for="course" class="form-label fw-semibold">Curso</label>
                 <select class="form-select" id="course" name="course">
                     <option value="">Todos</option>
                     <option value="0" <?= ($selectedCourse === '0' || $selectedCourse === 0) ? 'selected' : '' ?>>Ensino Geral</option>
                     <?php if (!empty($courses)): ?>
                         <?php foreach ($courses as $course): ?>
-                            <option value="<?= $course->id ?>" <?= $selectedCourse == $course->id ? 'selected' : '' ?>>
+                            <option value="<?= $course->id ?>" <?= ($selectedCourse == $course->id) ? 'selected' : '' ?>>
                                 <?= $course->course_name ?> (<?= $course->course_code ?>)
                             </option>
                         <?php endforeach; ?>
@@ -332,12 +332,16 @@
                 if (!isset($classTotals[$assignment->class_id])) {
                     $classTotals[$assignment->class_id] = [
                         'total' => 0,
-                        'with_teacher' => 0
+                        'with_teacher' => 0,
+                        'without_semester' => 0
                     ];
                 }
                 $classTotals[$assignment->class_id]['total']++;
                 if ($assignment->teacher_id) {
                     $classTotals[$assignment->class_id]['with_teacher']++;
+                }
+                if (empty($assignment->semester_id)) {
+                    $classTotals[$assignment->class_id]['without_semester']++;
                 }
             endforeach;
             
@@ -345,7 +349,7 @@
                 if ($currentClass != $assignment->class_name):
                     if ($currentClass !== null) echo '</tbody></table>';
                     $currentClass = $assignment->class_name;
-                    $classTotal = $classTotals[$assignment->class_id] ?? ['total' => 0, 'with_teacher' => 0];
+                    $classTotal = $classTotals[$assignment->class_id] ?? ['total' => 0, 'with_teacher' => 0, 'without_semester' => 0];
             ?>
                 <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
                     <div>
@@ -357,7 +361,10 @@
                         </h5>
                         <small class="text-muted">
                             <i class="fas fa-check-circle text-success me-1"></i><?= $classTotal['with_teacher'] ?> com professor |
-                            <i class="fas fa-clock text-warning me-1"></i><?= $classTotal['total'] - $classTotal['with_teacher'] ?> pendentes
+                            <i class="fas fa-clock text-warning me-1"></i><?= $classTotal['total'] - $classTotal['with_teacher'] ?> pendentes |
+                            <?php if ($classTotal['without_semester'] > 0): ?>
+                                <i class="fas fa-exclamation-triangle text-danger me-1"></i><span class="text-danger"><?= $classTotal['without_semester'] ?> sem período</span>
+                            <?php endif; ?>
                         </small>
                     </div>
                     <div>
@@ -378,14 +385,38 @@
                             <th>Código</th>
                             <th>Professor</th>
                             <th>Carga Horária</th>
-                            <th>Semestre</th>
+                            <th>Semestre/Período</th>
                             <th>Status</th>
                             <th width="120">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
             <?php endif; ?>
-                        <tr>
+                        <?php
+                        // Determinar classe CSS baseada no semestre
+                        $rowClass = '';
+                        $semesterDisplay = '';
+                        
+                        if (empty($assignment->semester_id)) {
+                            $rowClass = 'table-warning'; // Amarelo claro para destacar
+                            $semesterDisplay = '<span class="badge bg-warning text-dark" title="Período não definido">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Não definido
+                            </span>';
+                        } elseif (!empty($assignment->semester_name)) {
+                            if (strpos($assignment->semester_name, '1º') !== false) {
+                                $semesterDisplay = '<span class="badge bg-primary"><i class="fas fa-sun me-1"></i>' . $assignment->semester_name . '</span>';
+                            } elseif (strpos($assignment->semester_name, '2º') !== false) {
+                                $semesterDisplay = '<span class="badge bg-warning text-dark"><i class="fas fa-cloud-sun me-1"></i>' . $assignment->semester_name . '</span>';
+                            } elseif (strpos($assignment->semester_name, '3º') !== false) {
+                                $semesterDisplay = '<span class="badge bg-info"><i class="fas fa-cloud-rain me-1"></i>' . $assignment->semester_name . '</span>';
+                            } else {
+                                $semesterDisplay = '<span class="badge bg-secondary">' . $assignment->semester_name . '</span>';
+                            }
+                        } else {
+                            $semesterDisplay = '<span class="badge bg-success"><i class="fas fa-calendar-alt me-1"></i>Anual</span>';
+                        }
+                        ?>
+                        <tr class="<?= $rowClass ?>" data-semester-id="<?= $assignment->semester_id ?? '' ?>">
                             <td><strong><?= $assignment->discipline_name ?></strong></td>
                             <td><span class="badge bg-info"><?= $assignment->discipline_code ?></span></td>
                             <td>
@@ -410,7 +441,14 @@
                                     <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= $assignment->semester_name ?: 'Anual' ?></td>
+                            <td>
+                                <?= $semesterDisplay ?>
+                                <?php if (empty($assignment->semester_id)): ?>
+                                    <br><small class="text-warning">
+                                        <i class="fas fa-info-circle me-1"></i>Configure o período
+                                    </small>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php if ($assignment->is_active): ?>
                                     <span class="badge bg-success">Ativa</span>
@@ -598,7 +636,22 @@ $(document).ready(function() {
             $(this).closest('form').submit();
         }, 500);
     });
+    
+    // Destacar linhas com semestre não definido
+    highlightMissingSemester();
 });
+
+// Função para destacar linhas com semestre não definido
+function highlightMissingSemester() {
+    $('tr[data-semester-id=""]').each(function() {
+        // Adicionar tooltip à célula do período
+        const periodCell = $(this).find('td:nth-child(5)');
+        periodCell.find('small.text-warning').css('font-weight', 'bold');
+        
+        // Adicionar borda esquerda colorida para destacar
+        $(this).css('border-left', '3px solid #ffc107');
+    });
+}
 
 // Variável para armazenar o ID da disciplina a ser removida
 let deleteId = null;
@@ -717,6 +770,31 @@ document.addEventListener('keydown', function(e) {
 
 .card {
     animation: fadeIn 0.3s ease-out;
+}
+
+/* Estilo para linhas com semestre não definido */
+tr[data-semester-id=""] {
+    border-left: 3px solid #ffc107 !important;
+}
+
+tr[data-semester-id=""] td:first-child {
+    position: relative;
+}
+
+tr[data-semester-id=""] td:first-child::before {
+    content: "⚠️";
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Hover effect para linhas com problema */
+tr[data-semester-id=""]:hover {
+    background-color: #fff3cd !important;
+    transition: background-color 0.2s;
 }
 </style>
 <?= $this->endSection() ?>

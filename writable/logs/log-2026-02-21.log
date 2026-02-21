@@ -1,169 +1,499 @@
-DEBUG - 2026-02-21 00:00:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:06:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:06:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-ERROR - 2026-02-21 00:06:38 --> Unknown column 'tbl_exam_schedules.semester_id' in 'where clause'
+DEBUG - 2026-02-21 17:23:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 17:23:50 --> Error: Call to undefined function App\Controllers\students\getStudentCurrentEnrollment()
+[Method: GET, Route: students/dashboard]
+in APPPATH/Controllers/students/Dashboard.php on line 46.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Dashboard->index()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:29:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:29:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:29:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 17:29:43 --> ErrorException: Undefined array key "total_workload"
+[Method: GET, Route: students/subjects]
+in APPPATH/Views/students/subjects/index.php on line 63.
+ 1 APPPATH/Views/students/subjects/index.php(63): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/subjects/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/students/Subjects.php(57): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Subjects->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:32:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:33:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 17:33:25 --> ErrorException: Undefined variable $subject
+[Method: GET, Route: students/subjects/details/12]
+in APPPATH/Views/students/subjects/details.php on line 6.
+ 1 APPPATH/Views/students/subjects/details.php(6): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/subjects/details.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/students/Subjects.php(165): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Subjects->details()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:33:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:36:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:37:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:37:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:37:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 17:37:27 --> Error: Class "App\Models\FinalGradeModel" not found
+[Method: GET, Route: students/grades/report-card]
+in APPPATH/Models/ReportCardModel.php on line 66.
+ 1 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:37:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 17:37:49 --> Error: Class "App\Models\FinalGradeModel" not found
+[Method: GET, Route: students/grades/report-card]
+in APPPATH/Models/ReportCardModel.php on line 66.
+ 1 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:41:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-02-21 17:41:26 --> Unknown column 'semester_id' in 'where clause'
 in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
  1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
  2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
  3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 4 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
- 5 SYSTEMPATH/Model.php(524): CodeIgniter\Database\BaseBuilder->countAllResults()
- 6 SYSTEMPATH/BaseModel.php(1312): CodeIgniter\Model->countAllResults()
- 7 APPPATH/Controllers/admin/ExamResults.php(98): CodeIgniter\BaseModel->paginate()
- 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\ExamResults->index()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(296): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(713): CodeIgniter\Model->doFirst()
+ 7 APPPATH/Models/ReportCardModel.php(96): CodeIgniter\BaseModel->first()
+ 8 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 9 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+10 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+14 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+15 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:41:26 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'semester_id' in 'where clause'
+[Method: GET, Route: students/grades/report-card]
+in SYSTEMPATH/Database/BaseConnection.php on line 724.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(296): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(713): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Models/ReportCardModel.php(96): CodeIgniter\BaseModel->first()
+ 5 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:41:26 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'semester_id' in 'where clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 310.
+ 1 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 2 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 3 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+ 4 SYSTEMPATH/Model.php(296): CodeIgniter\Database\BaseBuilder->get()
+ 5 SYSTEMPATH/BaseModel.php(713): CodeIgniter\Model->doFirst()
+ 6 APPPATH/Models/ReportCardModel.php(96): CodeIgniter\BaseModel->first()
+ 7 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
  9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
 10 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
 11 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
 12 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
 13 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
 14 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-CRITICAL - 2026-02-21 00:06:38 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'tbl_exam_schedules.semester_id' in 'where clause'
-[Method: GET, Route: admin/exams/results]
+CRITICAL - 2026-02-21 17:41:26 --> [Caused by] mysqli_sql_exception: Unknown column 'semester_id' in 'where clause'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(296): CodeIgniter\Database\BaseBuilder->get()
+ 6 SYSTEMPATH/BaseModel.php(713): CodeIgniter\Model->doFirst()
+ 7 APPPATH/Models/ReportCardModel.php(96): CodeIgniter\BaseModel->first()
+ 8 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 9 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+10 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+14 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+15 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:51:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-02-21 17:51:31 --> Unknown column 'updated_at' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 9 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:51:31 --> CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'updated_at' in 'field list'
+[Method: GET, Route: students/grades/report-card]
 in SYSTEMPATH/Database/BaseConnection.php on line 724.
- 1 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
- 2 SYSTEMPATH/Model.php(524): CodeIgniter\Database\BaseBuilder->countAllResults()
- 3 SYSTEMPATH/BaseModel.php(1312): CodeIgniter\Model->countAllResults()
- 4 APPPATH/Controllers/admin/ExamResults.php(98): CodeIgniter\BaseModel->paginate()
- 5 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\ExamResults->index()
- 6 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 7 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 8 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 9 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-10 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-11 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-CRITICAL - 2026-02-21 00:06:38 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'tbl_exam_schedules.semester_id' in 'where clause'
-in SYSTEMPATH/Database/MySQLi/Connection.php on line 310.
- 1 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
- 2 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 3 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
- 4 SYSTEMPATH/Model.php(524): CodeIgniter\Database\BaseBuilder->countAllResults()
- 5 SYSTEMPATH/BaseModel.php(1312): CodeIgniter\Model->countAllResults()
- 6 APPPATH/Controllers/admin/ExamResults.php(98): CodeIgniter\BaseModel->paginate()
- 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\ExamResults->index()
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 6 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
  8 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
  9 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
 10 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
 11 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
 12 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
 13 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-CRITICAL - 2026-02-21 00:06:38 --> [Caused by] mysqli_sql_exception: Unknown column 'tbl_exam_schedules.semester_id' in 'where clause'
+CRITICAL - 2026-02-21 17:51:31 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Unknown column 'updated_at' in 'field list'
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 310.
+ 1 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 2 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 3 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 4 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 6 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 7 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 8 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 9 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+10 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+14 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+15 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:51:31 --> [Caused by] mysqli_sql_exception: Unknown column 'updated_at' in 'field list'
 in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
  1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
  2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
  3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
- 4 SYSTEMPATH/Database/BaseBuilder.php(1733): CodeIgniter\Database\BaseConnection->query()
- 5 SYSTEMPATH/Model.php(524): CodeIgniter\Database\BaseBuilder->countAllResults()
- 6 SYSTEMPATH/BaseModel.php(1312): CodeIgniter\Model->countAllResults()
- 7 APPPATH/Controllers/admin/ExamResults.php(98): CodeIgniter\BaseModel->paginate()
- 8 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\ExamResults->index()
- 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
-10 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
-11 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
-12 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
-13 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-14 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:11:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:11:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:13:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-21 00:13:33 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/exams/discipline_averages/index.php"
-[Method: GET, Route: admin/discipline-averages]
-in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
- 1 SYSTEMPATH/View/View.php(226): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
- 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 3 APPPATH/Controllers/admin/DisciplineAverages.php(85): view()
- 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DisciplineAverages->index()
- 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:15:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-21 00:15:07 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/exams/discipline_averages/index.php"
-[Method: GET, Route: admin/discipline-averages]
-in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
- 1 SYSTEMPATH/View/View.php(226): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
- 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 3 APPPATH/Controllers/admin/DisciplineAverages.php(85): view()
- 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DisciplineAverages->index()
- 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:15:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-21 00:15:40 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/exams/discipline_averages/index.php"
-[Method: GET, Route: admin/discipline-averages]
-in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
- 1 SYSTEMPATH/View/View.php(226): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
- 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 3 APPPATH/Controllers/admin/DisciplineAverages.php(83): view()
- 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DisciplineAverages->index()
- 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:16:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-21 00:16:09 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/exams/discipline_averages/index.php"
-[Method: GET, Route: admin/discipline-averages]
-in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
- 1 SYSTEMPATH/View/View.php(226): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
- 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 3 APPPATH/Controllers/admin/DisciplineAverages.php(83): view()
- 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DisciplineAverages->index()
- 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:16:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-21 00:16:41 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/exams/discipline_averages/index.php"
-[Method: GET, Route: admin/discipline-averages]
-in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
- 1 SYSTEMPATH/View/View.php(226): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
- 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 3 APPPATH/Controllers/admin/DisciplineAverages.php(83): view()
- 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\DisciplineAverages->index()
- 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:19:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:25:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-21 00:25:19 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/exams/semester_results/index.php"
-[Method: GET, Route: admin/semester-results]
-in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
- 1 SYSTEMPATH/View/View.php(226): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
- 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 3 APPPATH/Controllers/admin/SemesterResults.php(86): view()
- 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\SemesterResults->index()
- 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:25:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-CRITICAL - 2026-02-21 00:25:33 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/exams/semester_results/index.php"
-[Method: GET, Route: admin/semester-results]
-in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
- 1 SYSTEMPATH/View/View.php(226): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
- 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
- 3 APPPATH/Controllers/admin/SemesterResults.php(86): view()
- 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\admin\SemesterResults->index()
- 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
- 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
- 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
- 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
- 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
-10 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
-DEBUG - 2026-02-21 00:25:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:26:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:26:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
-DEBUG - 2026-02-21 00:26:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 9 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:53:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-02-21 17:53:41 --> Column 'semester_id' cannot be null
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 9 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:53:41 --> CodeIgniter\Database\Exceptions\DatabaseException: Column 'semester_id' cannot be null
+[Method: GET, Route: students/grades/report-card]
+in SYSTEMPATH/Database/BaseConnection.php on line 724.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 6 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+ 8 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+10 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+12 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+13 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:53:41 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Column 'semester_id' cannot be null
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 310.
+ 1 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 2 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 3 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 4 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 6 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 7 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 8 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 9 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+10 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+14 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+15 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:53:41 --> [Caused by] mysqli_sql_exception: Column 'semester_id' cannot be null
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Models/ReportCardModel.php(109): CodeIgniter\Model->insert()
+ 9 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:54:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-02-21 17:54:25 --> Column 'semester_id' cannot be null
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Models/ReportCardModel.php(111): CodeIgniter\Model->insert()
+ 9 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:54:25 --> CodeIgniter\Database\Exceptions\DatabaseException: Column 'semester_id' cannot be null
+[Method: GET, Route: students/grades/report-card]
+in SYSTEMPATH/Database/BaseConnection.php on line 724.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Models/ReportCardModel.php(111): CodeIgniter\Model->insert()
+ 6 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 7 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+ 8 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 9 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+10 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+12 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+13 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:54:25 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Column 'semester_id' cannot be null
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 310.
+ 1 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 2 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 3 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 4 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 6 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 7 APPPATH/Models/ReportCardModel.php(111): CodeIgniter\Model->insert()
+ 8 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+ 9 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+10 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+11 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+12 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+14 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+15 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+CRITICAL - 2026-02-21 17:54:25 --> [Caused by] mysqli_sql_exception: Column 'semester_id' cannot be null
+in SYSTEMPATH/Database/MySQLi/Connection.php on line 300.
+ 1 SYSTEMPATH/Database/MySQLi/Connection.php(300): mysqli->query()
+ 2 SYSTEMPATH/Database/BaseConnection.php(769): CodeIgniter\Database\MySQLi\Connection->execute()
+ 3 SYSTEMPATH/Database/BaseConnection.php(686): CodeIgniter\Database\BaseConnection->simpleQuery()
+ 4 SYSTEMPATH/Database/BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query()
+ 5 SYSTEMPATH/Model.php(356): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH/BaseModel.php(898): CodeIgniter\Model->doInsert()
+ 7 SYSTEMPATH/Model.php(665): CodeIgniter\BaseModel->insert()
+ 8 APPPATH/Models/ReportCardModel.php(111): CodeIgniter\Model->insert()
+ 9 APPPATH/Controllers/students/Grades.php(160): App\Models\ReportCardModel->generateForStudent()
+10 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+11 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+12 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+13 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+14 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+15 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+16 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:56:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:56:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 17:56:44 --> ErrorException: Undefined property: stdClass::$exam_name
+[Method: GET, Route: students/exams]
+in APPPATH/Views/students/exams/index.php on line 108.
+ 1 APPPATH/Views/students/exams/index.php(108): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/exams/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/students/Exams.php(96): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Exams->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:59:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:59:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 17:59:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 17:59:38 --> ErrorException: Undefined variable $total
+[Method: GET, Route: students/exams/results]
+in APPPATH/Views/students/exams/results.php on line 67.
+ 1 APPPATH/Views/students/exams/results.php(67): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/exams/results.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/students/Exams.php(198): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Exams->results()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 17:59:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:00:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:02:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:06:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:07:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:10:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:10:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:10:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:10:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:10:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:13:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:13:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:13:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:13:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:14:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:14:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:14:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:14:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:24:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:25:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:27:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:27:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 18:27:17 --> Error: Class "App\Models\FinalGradeModel" not found
+[Method: GET, Route: students/profile/academic-history]
+in APPPATH/Controllers/students/Profile.php on line 305.
+ 1 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Profile->academicHistory()
+ 2 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 3 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 4 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 5 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 6 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 7 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 18:27:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:27:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:27:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:28:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:29:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:29:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:29:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:29:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:29:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:30:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:30:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:30:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:31:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:31:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 18:31:37 --> ErrorException: Attempt to read property "total" on array
+[Method: GET, Route: students/dashboard]
+in APPPATH/Views/students/dashboard/index.php on line 136.
+ 1 APPPATH/Views/students/dashboard/index.php(136): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/View/View.php(238): include('/home/hu/Documentos/oku_escola/app/Views/students/dashboard/index.php')
+ 3 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 5 APPPATH/Controllers/students/Dashboard.php(125): view()
+ 6 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Dashboard->index()
+ 7 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 9 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+11 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+12 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 18:33:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 18:33:11 --> Error: Cannot use object of type stdClass as array
+[Method: GET, Route: students/dashboard]
+in APPPATH/Views/students/dashboard/index.php on line 241.
+ 1 SYSTEMPATH/View/View.php(238): include()
+ 2 SYSTEMPATH/View/View.php(241): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 3 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 4 APPPATH/Controllers/students/Dashboard.php(157): view()
+ 5 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Dashboard->index()
+ 6 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 8 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+10 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+11 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 18:34:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:36:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-02-21 18:36:31 --> ErrorException: Attempt to read property "id" on array
+[Method: GET, Route: students/grades/report-card]
+in APPPATH/Controllers/students/Grades.php on line 182.
+ 1 APPPATH/Controllers/students/Grades.php(182): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\students\Grades->reportCard()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/hu/Documentos/oku_escola/public/index.php')
+DEBUG - 2026-02-21 18:39:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-02-21 18:39:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

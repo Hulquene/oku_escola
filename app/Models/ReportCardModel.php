@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-class ReportCardModel extends BaseModel
+use CodeIgniter\Model;
+
+class ReportCardModel extends Model
 {
     protected $table = 'tbl_report_cards';
     protected $primaryKey = 'id';
@@ -20,41 +22,18 @@ class ReportCardModel extends BaseModel
         'generated_by'
     ];
     
-    protected $validationRules = [
-        'enrollment_id' => 'required|numeric',
-        'semester_id' => 'required|numeric',
-        'report_number' => 'required|is_unique[tbl_report_cards.report_number,id,{id}]'
-    ];
-    
+    // Se você adicionou a coluna updated_at, mantenha true
+    // Se não adicionou, mude para false
     protected $useTimestamps = true;
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at'; // Comente esta linha se não tiver a coluna
     
     /**
-     * Generate report number
-     */
-    public function generateReportNumber()
-    {
-        $year = date('Y');
-        $last = $this->select('report_number')
-            ->like('report_number', "RPT{$year}", 'after')
-            ->orderBy('id', 'DESC')
-            ->first();
-        
-        if ($last) {
-            $lastNumber = intval(substr($last->report_number, -4));
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '0001';
-        }
-        
-        return "RPT{$year}{$newNumber}";
-    }
-    
-    /**
-     * Generate report card for student
+     * Gera um novo boletim para o aluno
      */
     public function generateForStudent($enrollmentId, $semesterId)
     {
-        // Check if already generated
+        // Verificar se já existe
         $existing = $this->where('enrollment_id', $enrollmentId)
             ->where('semester_id', $semesterId)
             ->first();
@@ -63,89 +42,130 @@ class ReportCardModel extends BaseModel
             return $existing->id;
         }
         
-        $finalGradeModel = new FinalGradeModel();
+        // Usar os novos modelos
+        $disciplineAverageModel = new DisciplineAverageModel();
         $attendanceModel = new AttendanceModel();
         $semesterModel = new SemesterModel();
+        $enrollmentModel = new EnrollmentModel();
         
-        // Get grades
-        $grades = $finalGradeModel->where('enrollment_id', $enrollmentId)
-            ->where('semester_id', $semesterId)
+        // Buscar informações da matrícula
+        $enrollment = $enrollmentModel
+            ->select('
+                tbl_enrollments.*,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_classes.class_name,
+                tbl_academic_years.year_name
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+            ->find($enrollmentId);
+        
+        // Buscar médias por disciplina
+        $averages = $disciplineAverageModel
+            ->select('
+                tbl_discipline_averages.*,
+                tbl_disciplines.discipline_name
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
+            ->where('tbl_discipline_averages.enrollment_id', $enrollmentId)
+            ->where('tbl_discipline_averages.semester_id', $semesterId)
             ->findAll();
         
-        // Calculate average
-        $total = 0;
-        $average = 0;
-        if (!empty($grades)) {
-            foreach ($grades as $grade) {
-                $total += $grade->final_score;
+        // Calcular média geral
+        $totalScore = 0;
+        $count = 0;
+        foreach ($averages as $avg) {
+            if ($avg->final_score) {
+                $totalScore += $avg->final_score;
+                $count++;
             }
-            $average = round($total / count($grades), 2);
         }
+        $averageScore = $count > 0 ? round($totalScore / $count, 2) : 0;
         
-        // Get semester details
-        $semester = $semesterModel->where('id', $semesterId)->first();
+        // Buscar presenças
+        $attendanceStats = $attendanceModel->getStatsBySemester($enrollmentId, $semesterId);
         
-        // Build attendance query
-        $attendanceQuery = $attendanceModel->select('
-                COUNT(*) as total,
-                SUM(CASE WHEN tbl_attendance.status = "Ausente" THEN 1 ELSE 0 END) as absent,
-                SUM(CASE WHEN tbl_attendance.status = "Falta Justificada" THEN 1 ELSE 0 END) as justified
-            ')
-            ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_attendance.enrollment_id')
-            ->where('tbl_enrollments.id', $enrollmentId);
+        // Buscar informações do semestre
+        $semester = $semesterModel->find($semesterId);
         
-        // Filter by semester period if available
-        if ($semester && isset($semester->start_date) && isset($semester->end_date)) {
-            $attendanceQuery->where('tbl_attendance.attendance_date >=', $semester->start_date)
-                           ->where('tbl_attendance.attendance_date <=', $semester->end_date);
-        }
+        // Gerar número do boletim
+        $reportNumber = 'REL-' . date('Y') . '-' . str_pad($enrollmentId, 5, '0', STR_PAD_LEFT) . '-' . $semesterId;
         
-        $attendanceResult = $attendanceQuery->first();
-        
-        // Create report card
+        // Inserir novo boletim
         $data = [
             'enrollment_id' => $enrollmentId,
             'semester_id' => $semesterId,
-            'report_number' => $this->generateReportNumber(),
+            'report_number' => $reportNumber,
             'generated_date' => date('Y-m-d'),
-            'average_score' => $average,
-            'total_absences' => $attendanceResult->absent ?? 0,
-            'justified_absences' => $attendanceResult->justified ?? 0,
+            'average_score' => $averageScore,
+            'total_absences' => $attendanceStats->total_absences ?? 0,
+            'justified_absences' => $attendanceStats->justified_absences ?? 0,
             'status' => 'Emitido',
             'generated_by' => session()->get('user_id')
         ];
         
-        return $this->insert($data);
+        $this->insert($data);
+        
+        return $this->getInsertID();
     }
     
     /**
-     * Get report card with details
+     * Busca boletim com todos os detalhes
      */
+    /**
+ * Busca boletim com todos os detalhes
+ */
     public function getWithDetails($id)
     {
-        return $this->select('
+        $result = $this->select('
                 tbl_report_cards.*,
                 tbl_enrollments.student_id,
+                tbl_enrollments.class_id,
+                tbl_enrollments.enrollment_number,
                 tbl_students.student_number,
-                tbl_students.birth_date,
                 tbl_users.first_name,
                 tbl_users.last_name,
                 tbl_classes.class_name,
-                tbl_classes.class_code,
+                tbl_classes.class_shift,
+                tbl_academic_years.year_name,
                 tbl_semesters.semester_name,
                 tbl_semesters.semester_type,
-                tbl_academic_years.year_name,
-                tbl_users_generated.first_name as generated_by_name,
-                tbl_users_generated.last_name as generated_by_lastname
+                tbl_semesters.start_date as semester_start,
+                tbl_semesters.end_date as semester_end
             ')
             ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_report_cards.enrollment_id')
             ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
             ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
             ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
             ->join('tbl_semesters', 'tbl_semesters.id = tbl_report_cards.semester_id')
-            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_semesters.academic_year_id')
-            ->join('tbl_users as tbl_users_generated', 'tbl_users_generated.id = tbl_report_cards.generated_by', 'left')
             ->where('tbl_report_cards.id', $id)
             ->first();
+        
+        // Garantir que retorna como objeto
+        return is_array($result) ? (object)$result : $result;
+    }
+        
+    /**
+     * Busca boletins do aluno
+     */
+    public function getStudentReportCards($studentId)
+    {
+        return $this->select('
+                tbl_report_cards.*,
+                tbl_semesters.semester_name,
+                tbl_semesters.semester_type,
+                tbl_academic_years.year_name
+            ')
+            ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_report_cards.enrollment_id')
+            ->join('tbl_semesters', 'tbl_semesters.id = tbl_report_cards.semester_id')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
+            ->where('tbl_enrollments.student_id', $studentId)
+            ->orderBy('tbl_semesters.start_date', 'DESC')
+            ->findAll();
     }
 }

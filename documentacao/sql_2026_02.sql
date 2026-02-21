@@ -115,9 +115,11 @@ CREATE TABLE `tbl_academic_years` (
     `is_current` TINYINT(1) DEFAULT '0',
     `is_active` TINYINT(1) DEFAULT '1',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `year_name` (`year_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE `tbl_semesters` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -129,6 +131,7 @@ CREATE TABLE `tbl_semesters` (
     `is_current` TINYINT(1) DEFAULT '0',
     `is_active` TINYINT(1) DEFAULT '1',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `academic_year_id` (`academic_year_id`),
     CONSTRAINT `fk_semesters_academic_year` FOREIGN KEY (`academic_year_id`) REFERENCES `tbl_academic_years` (`id`) ON DELETE CASCADE
@@ -226,7 +229,6 @@ CREATE TABLE `tbl_students` (
     `municipality` VARCHAR(100),
     `province` VARCHAR(100),
     `phone` VARCHAR(20),
-    `email` VARCHAR(255),
     `emergency_contact` VARCHAR(20),
     `emergency_contact_name` VARCHAR(255),
     `previous_school` VARCHAR(255),
@@ -293,7 +295,7 @@ CREATE TABLE `tbl_student_guardians` (
 CREATE TABLE `tbl_enrollments` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `student_id` INT(11) NOT NULL,
-    `class_id` INT(11) NOT NULL,
+    `class_id` INT(11),
     `academic_year_id` INT(11) NOT NULL,
     `enrollment_date` DATE NOT NULL,
     `enrollment_number` VARCHAR(50) NOT NULL,
@@ -324,6 +326,8 @@ CREATE TABLE `tbl_enrollment_documents` (
     `document_type` VARCHAR(100) NOT NULL,
     `document_path` VARCHAR(255) NOT NULL,
     `uploaded_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `enrollment_id` (`enrollment_id`),
     CONSTRAINT `fk_enrollment_documents_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `tbl_enrollments` (`id`) ON DELETE CASCADE
@@ -338,11 +342,13 @@ CREATE TABLE `tbl_attendance` (
     `enrollment_id` INT(11) NOT NULL,
     `class_id` INT(11) NOT NULL,
     `discipline_id` INT(11),
+    `semester_id` INT(11),
     `attendance_date` DATE NOT NULL,
     `status` ENUM('Presente','Ausente','Atrasado','Dispensado','Falta Justificada') NOT NULL,
     `justification` TEXT,
     `marked_by` INT(11),
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `attendance_unique` (`enrollment_id`, `class_id`, `attendance_date`, `discipline_id`),
     KEY `class_id` (`class_id`),
@@ -354,6 +360,7 @@ CREATE TABLE `tbl_attendance` (
     CONSTRAINT `fk_attendance_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_attendance_marked_by` FOREIGN KEY (`marked_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 -- Tabelas de Avaliações e Notas
@@ -371,40 +378,15 @@ CREATE TABLE `tbl_exam_boards` (
     UNIQUE KEY `board_code` (`board_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `tbl_exams` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `exam_name` VARCHAR(255) NOT NULL,
-    `class_id` INT(11) NOT NULL,
-    `discipline_id` INT(11) NOT NULL,
-    `semester_id` INT(11) NOT NULL,
-    `exam_board_id` INT(11) NOT NULL,
-    `exam_date` DATE NOT NULL,
-    `exam_time` TIME,
-    `exam_room` VARCHAR(50),
-    `max_score` DECIMAL(5,2) DEFAULT '20.00',
-    `min_score` DECIMAL(5,2) DEFAULT '0.00',
-    `approval_score` DECIMAL(5,2) DEFAULT '10.00',
-    `description` TEXT,
-    `is_published` TINYINT(1) DEFAULT '0',
-    `created_by` INT(11),
-    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `class_id` (`class_id`),
-    KEY `discipline_id` (`discipline_id`),
-    KEY `semester_id` (`semester_id`),
-    KEY `exam_board_id` (`exam_board_id`),
-    KEY `created_by` (`created_by`),
-    CONSTRAINT `fk_exams_class` FOREIGN KEY (`class_id`) REFERENCES `tbl_classes` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_exams_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_exams_semester` FOREIGN KEY (`semester_id`) REFERENCES `tbl_semesters` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_exams_board` FOREIGN KEY (`exam_board_id`) REFERENCES `tbl_exam_boards` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_exams_created_by` FOREIGN KEY (`created_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `tbl_exam_results` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `exam_id` INT(11) NOT NULL,
     `enrollment_id` INT(11) NOT NULL,
+    `exam_schedule_id` INT(11) NULL,
+    `is_absent` TINYINT(1) DEFAULT '0' AFTER `score`,
+    `is_cheating` TINYINT(1) DEFAULT '0' AFTER `is_absent`,
+    `verified_by` INT(11) NULL AFTER `recorded_by`,
+    `verified_at` DATETIME NULL AFTER `verified_by`,
     `score` DECIMAL(5,2) NOT NULL,
     `score_percentage` DECIMAL(5,2),
     `grade` VARCHAR(5),
@@ -412,58 +394,14 @@ CREATE TABLE `tbl_exam_results` (
     `recorded_by` INT(11),
     `recorded_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `recorded_at`,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `exam_student` (`exam_id`, `enrollment_id`),
     KEY `enrollment_id` (`enrollment_id`),
     KEY `recorded_by` (`recorded_by`),
-    CONSTRAINT `fk_exam_results_exam` FOREIGN KEY (`exam_id`) REFERENCES `tbl_exams` (`id`) ON DELETE CASCADE,
+    UNIQUE KEY `exam_schedule_student` (`exam_schedule_id`, `enrollment_id`),
     CONSTRAINT `fk_exam_results_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `tbl_enrollments` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_exam_results_recorded_by` FOREIGN KEY (`recorded_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/* CREATE TABLE `tbl_continuous_assessment` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `enrollment_id` INT(11) NOT NULL,
-    `discipline_id` INT(11) NOT NULL,
-    `semester_id` INT(11) NOT NULL,
-    `assessment_type` VARCHAR(100) NOT NULL,
-    `score` DECIMAL(5,2) NOT NULL,
-    `assessment_date` DATE,
-    `recorded_by` INT(11),
-    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `enrollment_id` (`enrollment_id`),
-    KEY `discipline_id` (`discipline_id`),
-    KEY `semester_id` (`semester_id`),
-    KEY `recorded_by` (`recorded_by`),
-    CONSTRAINT `fk_continuous_assessment_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `tbl_enrollments` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_continuous_assessment_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_continuous_assessment_semester` FOREIGN KEY (`semester_id`) REFERENCES `tbl_semesters` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_continuous_assessment_recorded_by` FOREIGN KEY (`recorded_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; */
-
-/* CREATE TABLE `tbl_final_grades` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `enrollment_id` INT(11) NOT NULL,
-    `discipline_id` INT(11) NOT NULL,
-    `semester_id` INT(11) NOT NULL,
-    `average_score` DECIMAL(5,2) NOT NULL,
-    `final_score` DECIMAL(5,2),
-    `exam_score` DECIMAL(5,2),
-    `status` ENUM('Aprovado','Reprovado','Recurso','Dispensado') NOT NULL,
-    `observations` TEXT,
-    `calculated_by` INT(11),
-    `calculated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `enrollment_discipline_semester` (`enrollment_id`, `discipline_id`, `semester_id`),
-    KEY `discipline_id` (`discipline_id`),
-    KEY `semester_id` (`semester_id`),
-    KEY `calculated_by` (`calculated_by`),
-    CONSTRAINT `fk_final_grades_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `tbl_enrollments` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_final_grades_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_final_grades_semester` FOREIGN KEY (`semester_id`) REFERENCES `tbl_semesters` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_final_grades_calculated_by` FOREIGN KEY (`calculated_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; */
 
 -- --------------------------------------------------------
 -- Tabelas de Propinas e Taxas
@@ -747,6 +685,7 @@ CREATE TABLE `tbl_report_cards` (
     `observations` TEXT,
     `generated_by` INT(11),
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `report_number` (`report_number`),
     UNIQUE KEY `enrollment_semester` (`enrollment_id`, `semester_id`),
@@ -1099,14 +1038,6 @@ CREATE TABLE IF NOT EXISTS `tbl_courses` (
     CONSTRAINT `fk_courses_end_grade` FOREIGN KEY (`end_grade_id`) REFERENCES `tbl_grade_levels` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Inserir cursos padrão do sistema angolano
-INSERT INTO `tbl_courses` (`course_name`, `course_code`, `course_type`, `start_grade_id`, `end_grade_id`, `duration_years`) VALUES
-('Ciências Físicas e Biológicas', 'CFB', 'Ciências', 13, 15, 3),
-('Ciências Económicas e Jurídicas', 'CEJ', 'Económico-Jurídico', 13, 15, 3),
-('Ciências Humanas', 'CH', 'Humanidades', 13, 15, 3),
-('Ensino Técnico-Profissional', 'ETP', 'Técnico', 13, 15, 3),
-('Formação de Professores', 'FP', 'Profissional', 13, 16, 4); -- Alguns cursos vão até 13ª
-
 -- --------------------------------------------------------
 -- Tabela de Associação Curso x Disciplinas
 -- --------------------------------------------------------
@@ -1128,6 +1059,12 @@ CREATE TABLE IF NOT EXISTS `tbl_course_disciplines` (
     CONSTRAINT `fk_course_disciplines_grade` FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+ALTER TABLE `tbl_enrollments` 
+ADD COLUMN `grade_level_id` INT NOT NULL AFTER `academic_year_id`,
+ADD COLUMN `previous_grade_id` INT NULL AFTER `grade_level_id`,
+ADD FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels`(`id`),
+ADD FOREIGN KEY (`previous_grade_id`) REFERENCES `tbl_grade_levels`(`id`);
 -- --------------------------------------------------------
 -- Adicionar campo course_id à tabela tbl_enrollments
 -- --------------------------------------------------------
@@ -1160,15 +1097,6 @@ ADD INDEX `idx_final_result` (`final_result`);
 -- Adicionar colunas created_at e updated_at nas tabelas que não possuem
 -- --------------------------------------------------------
 
--- 1. Tabela: tbl_academic_years
-ALTER TABLE `tbl_academic_years` 
-ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
--- 2. Tabela: tbl_semesters (já tem created_at, adicionar updated_at)
-ALTER TABLE `tbl_semesters` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
 -- 3. Tabela: tbl_grade_levels
 ALTER TABLE `tbl_grade_levels` 
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
@@ -1193,30 +1121,11 @@ ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRE
 ALTER TABLE `tbl_student_guardians` 
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
--- 9. Tabela: tbl_enrollment_documents
-ALTER TABLE `tbl_enrollment_documents` 
-ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
--- 10. Tabela: tbl_attendance
-ALTER TABLE `tbl_attendance` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 -- 11. Tabela: tbl_exam_boards
 ALTER TABLE `tbl_exam_boards` 
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
--- 12. Tabela: tbl_exams
-ALTER TABLE `tbl_exams` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
--- 13. Tabela: tbl_continuous_assessment
-/* ALTER TABLE `tbl_continuous_assessment` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
- */
--- 14. Tabela: tbl_final_grades
-/* ALTER TABLE `tbl_final_grades` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP; */
 
 -- 15. Tabela: tbl_fee_types
 ALTER TABLE `tbl_fee_types` 
@@ -1251,14 +1160,6 @@ ALTER TABLE `tbl_academic_history`
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 
--- Adicionar colunas created_at e updated_at na tabela tbl_semesters
-ALTER TABLE `tbl_semesters` 
-ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
-
-ALTER TABLE `tbl_exam_results` 
-ADD COLUMN `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `recorded_at`;
 
 
 ALTER TABLE `tbl_user_logs` 
@@ -1269,12 +1170,6 @@ ADD COLUMN `request_method` VARCHAR(10) NULL AFTER `user_agent`,
 ADD COLUMN `request_url` VARCHAR(500) NULL AFTER `request_method`,
 ADD COLUMN `details` TEXT NULL AFTER `request_url`;
 
-
-ALTER TABLE tbl_enrollments 
-ADD COLUMN grade_level_id INT NOT NULL AFTER academic_year_id,
-ADD COLUMN previous_grade_id INT NULL AFTER grade_level_id,
-ADD FOREIGN KEY (grade_level_id) REFERENCES tbl_grade_levels(id),
-ADD FOREIGN KEY (previous_grade_id) REFERENCES tbl_grade_levels(id);
 
 
 ALTER TABLE `tbl_documents` 
@@ -1345,14 +1240,7 @@ CREATE TABLE IF NOT EXISTS `tbl_exam_schedules` (
     CONSTRAINT `fk_exam_schedules_board` FOREIGN KEY (`exam_board_id`) REFERENCES `tbl_exam_boards` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2.3. Resultados de Exames (já existe - apenas ajustes)
-ALTER TABLE `tbl_exam_results` 
-ADD COLUMN `exam_schedule_id` INT(11) NULL AFTER `exam_id`,
-ADD COLUMN `is_absent` TINYINT(1) DEFAULT '0' AFTER `score`,
-ADD COLUMN `is_cheating` TINYINT(1) DEFAULT '0' AFTER `is_absent`,
-ADD COLUMN `verified_by` INT(11) NULL AFTER `recorded_by`,
-ADD COLUMN `verified_at` DATETIME NULL AFTER `verified_by`,
-ADD INDEX `idx_exam_schedule` (`exam_schedule_id`);
+
 
 -- 2.4. Histórico de presenças em exames
 CREATE TABLE IF NOT EXISTS `tbl_exam_attendance` (
@@ -1365,6 +1253,7 @@ CREATE TABLE IF NOT EXISTS `tbl_exam_attendance` (
     `observations` TEXT,
     `recorded_by` INT(11),
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_attendance` (`exam_schedule_id`, `enrollment_id`),
     KEY `enrollment_id` (`enrollment_id`),
@@ -1530,6 +1419,14 @@ INSERT INTO `tbl_grade_levels` (`level_name`, `level_code`, `education_level`, `
 ('11ª Classe', '2CIC-11', '2º Ciclo', 11, 14),
 ('12ª Classe', '2CIC-12', '2º Ciclo', 12, 15),
 ('13ª Classe', 'MED-13', 'Ensino Médio', 13, 16);
+
+-- Inserir cursos padrão do sistema angolano
+INSERT INTO `tbl_courses` (`course_name`, `course_code`, `course_type`, `start_grade_id`, `end_grade_id`, `duration_years`) VALUES
+('Ciências Físicas e Biológicas', 'CFB', 'Ciências', 13, 15, 3),
+('Ciências Económicas e Jurídicas', 'CEJ', 'Económico-Jurídico', 13, 15, 3),
+('Ciências Humanas', 'CH', 'Humanidades', 13, 15, 3),
+('Ensino Técnico-Profissional', 'ETP', 'Técnico', 13, 15, 3),
+('Formação de Professores', 'FP', 'Profissional', 13, 16, 4); -- Alguns cursos vão até 13ª
 
 -- Inserir tipos de taxas/propinas
 INSERT INTO `tbl_fee_types` (`type_name`, `type_code`, `type_category`, `is_recurring`, `recurrence_period`) VALUES

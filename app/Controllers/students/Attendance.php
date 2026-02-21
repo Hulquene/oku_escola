@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Controllers\students;
 
 use App\Controllers\BaseController;
 use App\Models\StudentModel;
 use App\Models\EnrollmentModel;
 use App\Models\AttendanceModel;
+use App\Models\SemesterModel;
 use App\Models\DisciplineModel;
 
 class Attendance extends BaseController
@@ -13,40 +13,33 @@ class Attendance extends BaseController
     protected $studentModel;
     protected $enrollmentModel;
     protected $attendanceModel;
+    protected $semesterModel;
     protected $disciplineModel;
     
     public function __construct()
     {
+        helper(['auth', 'student', 'student_new']);
+        
         $this->studentModel = new StudentModel();
         $this->enrollmentModel = new EnrollmentModel();
         $this->attendanceModel = new AttendanceModel();
+        $this->semesterModel = new SemesterModel();
         $this->disciplineModel = new DisciplineModel();
-        
-        // Check if user is student
-/*         if ($this->session->get('user_type') !== 'student') {
-            return redirect()->to('/auth/login')->with('error', 'Acesso não autorizado');
-        } */
     }
     
     /**
-     * My attendance
+     * Presenças do mês atual
      */
     public function index()
     {
         $data['title'] = 'Minhas Presenças';
-           var_dump("teste 11");die;
-        $userId = $this->session->get('user_id');
-        $student = $this->studentModel->getByUserId($userId);
         
-        if (!$student) {
-            return redirect()->to('/students/dashboard')->with('error', 'Perfil não encontrado');
-        }
-        
-        // Get current enrollment
-        $enrollment = $this->studentModel->getCurrentEnrollment($student->id);
+        $studentId = getStudentIdFromUser();
+        $enrollment = getStudentCurrentEnrollment($studentId);
         
         if (!$enrollment) {
-            return redirect()->to('/students/dashboard')->with('error', 'Nenhuma matrícula ativa encontrada');
+            return redirect()->to('/students/dashboard')
+                ->with('error', 'Nenhuma matrícula ativa encontrada');
         }
         
         $month = $this->request->getGet('month') ?: date('m');
@@ -55,9 +48,17 @@ class Attendance extends BaseController
         $startDate = "$year-$month-01";
         $endDate = date('Y-m-t', strtotime($startDate));
         
-        // Get attendance for the month
+        // Buscar semestre atual para filtrar
+        $currentSemester = $this->semesterModel->where('is_current', 1)->first();
+        $semesterId = $currentSemester ? $currentSemester->id : null;
+        
+        // Presenças do mês
         $data['attendances'] = $this->attendanceModel
-            ->select('tbl_attendance.*, tbl_disciplines.discipline_name')
+            ->select('
+                tbl_attendance.*,
+                tbl_disciplines.discipline_name,
+                DATE_FORMAT(attendance_date, "%d/%m/%Y") as formatted_date
+            ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_attendance.discipline_id', 'left')
             ->where('tbl_attendance.enrollment_id', $enrollment->id)
             ->where('tbl_attendance.attendance_date >=', $startDate)
@@ -65,95 +66,129 @@ class Attendance extends BaseController
             ->orderBy('tbl_attendance.attendance_date', 'DESC')
             ->findAll();
         
-        // Calculate statistics
-        $total = count($data['attendances']);
-        $present = 0;
-        $absent = 0;
-        $late = 0;
-        $justified = 0;
+        // Calcular estatísticas
+        $stats = [
+            'total' => 0,
+            'present' => 0,
+            'absent' => 0,
+            'late' => 0,
+            'justified' => 0,
+            'rate' => 0
+        ];
         
         foreach ($data['attendances'] as $att) {
+            $stats['total']++;
             switch ($att->status) {
                 case 'Presente':
-                    $present++;
-                    break;
-                case 'Ausente':
-                    $absent++;
+                    $stats['present']++;
                     break;
                 case 'Atrasado':
-                    $late++;
+                    $stats['late']++;
                     break;
                 case 'Falta Justificada':
-                    $justified++;
+                    $stats['justified']++;
+                    break;
+                case 'Ausente':
+                    $stats['absent']++;
                     break;
             }
         }
         
-        $data['statistics'] = (object)[
-            'total' => $total,
-            'present' => $present,
-            'absent' => $absent,
-            'late' => $late,
-            'justified' => $justified,
-            'rate' => $total > 0 ? round(($present / $total) * 100, 1) : 0
-        ];
+        $stats['effective_present'] = $stats['present'] + $stats['late'] + $stats['justified'];
+        $stats['rate'] = $stats['total'] > 0 
+            ? round(($stats['effective_present'] / $stats['total']) * 100, 1) 
+            : 0;
         
+        $data['statistics'] = (object)$stats;
         $data['month'] = $month;
         $data['year'] = $year;
-        $data['months'] = [
-            '01' => 'Janeiro', '02' => 'Fevereiro', '03' => 'Março', '04' => 'Abril',
-            '05' => 'Maio', '06' => 'Junho', '07' => 'Julho', '08' => 'Agosto',
-            '09' => 'Setembro', '10' => 'Outubro', '11' => 'Novembro', '12' => 'Dezembro'
-        ];
+        $data['months'] = $this->getMonths();
         
         return view('students/attendance/index', $data);
     }
     
     /**
-     * Attendance history
+     * Histórico completo de presenças
      */
     public function history()
     {
         $data['title'] = 'Histórico de Presenças';
         
-        $userId = $this->session->get('user_id');
-        $student = $this->studentModel->getByUserId($userId);
-        
-        if (!$student) {
-            return redirect()->to('/students/dashboard')->with('error', 'Perfil não encontrado');
-        }
-        
-        // Get current enrollment
-        $enrollment = $this->studentModel->getCurrentEnrollment($student->id);
+        $studentId = getStudentIdFromUser();
+        $enrollment = getStudentCurrentEnrollment($studentId);
         
         if (!$enrollment) {
-            return redirect()->to('/students/dashboard')->with('error', 'Nenhuma matrícula ativa encontrada');
+            return redirect()->to('/students/dashboard')
+                ->with('error', 'Nenhuma matrícula ativa encontrada');
         }
         
+        // Filtros
         $semesterId = $this->request->getGet('semester');
+        $disciplineFilter = $this->request->getGet('discipline');
+        $statusFilter = $this->request->getGet('status');
+        $yearFilter = $this->request->getGet('year');
         
-        // Get attendance by semester
+        // Construir query
         $builder = $this->attendanceModel
-            ->select('tbl_attendance.*, tbl_disciplines.discipline_name')
+            ->select('
+                tbl_attendance.*,
+                tbl_disciplines.discipline_name,
+                DATE_FORMAT(attendance_date, "%d/%m/%Y") as formatted_date
+            ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_attendance.discipline_id', 'left')
             ->where('tbl_attendance.enrollment_id', $enrollment->id);
         
+        // Aplicar filtros
         if ($semesterId) {
             $builder->where('tbl_attendance.semester_id', $semesterId);
+        }
+        
+        if ($disciplineFilter) {
+            $builder->where('tbl_disciplines.discipline_name', $disciplineFilter);
+        }
+        
+        if ($statusFilter) {
+            $builder->where('tbl_attendance.status', $statusFilter);
+        }
+        
+        if ($yearFilter) {
+            $builder->where('YEAR(tbl_attendance.attendance_date)', $yearFilter);
         }
         
         $data['attendances'] = $builder->orderBy('tbl_attendance.attendance_date', 'DESC')
             ->findAll();
         
-        // Get semesters for filter
-        $semesterModel = new \App\Models\SemesterModel();
-        $data['semesters'] = $semesterModel
-            ->where('academic_year_id', $enrollment->academic_year_id)
-            ->orderBy('start_date', 'ASC')
+        // Semestres para filtro
+        $data['semesters'] = $this->semesterModel
+            ->orderBy('start_date', 'DESC')
             ->findAll();
         
         $data['selectedSemester'] = $semesterId;
+        $data['selectedDiscipline'] = $disciplineFilter;
+        $data['selectedStatus'] = $statusFilter;
+        $data['selectedYear'] = $yearFilter;
         
         return view('students/attendance/history', $data);
+    }
+    
+    /**
+     * Lista de meses
+     */
+    private function getMonths()
+    {
+        return [
+            '01' => 'Janeiro',
+            '02' => 'Fevereiro',
+            '03' => 'Março',
+            '04' => 'Abril',
+            '05' => 'Maio',
+            '06' => 'Junho',
+            '07' => 'Julho',
+            '08' => 'Agosto',
+            '09' => 'Setembro',
+            '10' => 'Outubro',
+            '11' => 'Novembro',
+            '12' => 'Dezembro'
+        ];
     }
 }

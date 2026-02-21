@@ -120,131 +120,9 @@ class Classes extends BaseController
      * Save class - Atualizado para incluir course_id
      */
     /**
- * Save class - COM SUGESTÃO AUTOMÁTICA DE DISCIPLINAS
- */
-public function save()
-{
-    $id = $this->request->getPost('id');
-    
-    // Preparar dados
-    $data = [
-        'class_name' => $this->request->getPost('class_name'),
-        'class_code' => $this->request->getPost('class_code'),
-        'grade_level_id' => $this->request->getPost('grade_level_id'),
-        'course_id' => $this->request->getPost('course_id') ?: null, // NOVO
-        'academic_year_id' => $this->request->getPost('academic_year_id'),
-        'class_shift' => $this->request->getPost('class_shift'),
-        'class_room' => $this->request->getPost('class_room'),
-        'capacity' => $this->request->getPost('capacity') ?: null,
-        'class_teacher_id' => $this->request->getPost('class_teacher_id') ?: null,
-        'is_active' => $this->request->getPost('is_active') ? 1 : 0
-    ];
-    
-    // Se for atualização, incluir o ID
-    if ($id) {
-        $data['id'] = $id;
-    }
-    
-    // Validações existentes...
-    $existingClass = $this->classModel
-        ->where('class_name', $data['class_name'])
-        ->where('academic_year_id', $data['academic_year_id'])
-        ->where('id !=', $id ?: 0)
-        ->first();
-    
-    if ($existingClass) {
-        return redirect()->back()->withInput()
-            ->with('error', 'Já existe uma turma com este nome no mesmo ano letivo.');
-    }
-    
-    $existingCode = $this->classModel
-        ->where('class_code', $data['class_code'])
-        ->where('id !=', $id ?: 0)
-        ->first();
-    
-    if ($existingCode) {
-        return redirect()->back()->withInput()
-            ->with('error', 'Este código de turma já está em uso.');
-    }
-    
-    // Salvar turma
-    if ($this->classModel->save($data)) {
-        $classId = $id ?: $this->classModel->getInsertID();
-        $action = $id ? 'atualizada' : 'criada';
-        
-        // --- NOVA LÓGICA: Sugerir disciplinas do currículo ---
-        // Se for uma turma NOVA e tem curso definido
-        if (!$id && !empty($data['course_id'])) {
-            $this->suggestDisciplinesFromCurriculum($classId, $data['course_id'], $data['grade_level_id']);
-        }
-        // ----------------------------------------------------
-        
-        $message = "Turma '{$data['class_name']}' {$action} com sucesso!";
-        
-        // Redirecionar para página de alocação de professores se for turma nova com curso
-        if (!$id && !empty($data['course_id'])) {
-            session()->setFlashdata('info', 'Sugestão: Atribua os professores às disciplinas sugeridas.');
-            return redirect()->to('/admin/classes/class-subjects/assign-teachers/' . $classId)
-                ->with('success', $message);
-        }
-        
-        return redirect()->to('/admin/classes/classes')
-            ->with('success', $message);
-    } else {
-        $errors = $this->classModel->errors();
-        if (!empty($errors)) {
-            return redirect()->back()->withInput()
-                ->with('errors', $errors);
-        }
-        return redirect()->back()->withInput()
-            ->with('error', 'Erro ao ' . ($id ? 'atualizar' : 'criar') . ' turma.');
-    }
-}
-
-/**
- * Método auxiliar para sugerir disciplinas do currículo
- */
-private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLevelId)
-{
-    // Carregar models necessários
-    $courseDisciplineModel = new \App\Models\CourseDisciplineModel();
-    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
-    
-    // Buscar disciplinas do currículo para este curso e nível
-    $curriculumDisciplines = $courseDisciplineModel
-        ->where('course_id', $courseId)
-        ->where('grade_level_id', $gradeLevelId)
-        ->where('is_mandatory', 1) // Só obrigatórias por padrão
-        ->findAll();
-    
-    $suggestedCount = 0;
-    
-    foreach ($curriculumDisciplines as $cd) {
-        // Verificar se já não está atribuída
-        $exists = $classDisciplineModel
-            ->where('class_id', $classId)
-            ->where('discipline_id', $cd->discipline_id)
-            ->first();
-        
-        if (!$exists) {
-            // Criar disciplina na turma (sem professor ainda)
-            $classDisciplineModel->insert([
-                'class_id' => $classId,
-                'discipline_id' => $cd->discipline_id,
-                'workload_hours' => $cd->workload_hours,
-                'is_active' => 1,
-                'teacher_id' => null // Professor será atribuído depois
-            ]);
-            $suggestedCount++;
-        }
-    }
-    
-    // Log da sugestão
-    log_message('info', "Sugeridas {$suggestedCount} disciplinas do currículo para turma ID {$classId}");
-    
-    return $suggestedCount;
-}
-    /* public function save()
+     * Save class - COM SUGESTÃO AUTOMÁTICA DE DISCIPLINAS
+     */
+    public function save()
     {
         $id = $this->request->getPost('id');
         
@@ -253,7 +131,7 @@ private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLev
             'class_name' => $this->request->getPost('class_name'),
             'class_code' => $this->request->getPost('class_code'),
             'grade_level_id' => $this->request->getPost('grade_level_id'),
-            'course_id' => $this->request->getPost('course_id') ?: null, // <-- NOVO
+            'course_id' => $this->request->getPost('course_id') ?: null, // NOVO
             'academic_year_id' => $this->request->getPost('academic_year_id'),
             'class_shift' => $this->request->getPost('class_shift'),
             'class_room' => $this->request->getPost('class_room'),
@@ -262,12 +140,12 @@ private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLev
             'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
         
-        // Se for atualização, incluir o ID nos dados
+        // Se for atualização, incluir o ID
         if ($id) {
             $data['id'] = $id;
         }
         
-        // Validação adicional: verificar se já existe turma com mesmo nome no mesmo ano letivo
+        // Validações existentes...
         $existingClass = $this->classModel
             ->where('class_name', $data['class_name'])
             ->where('academic_year_id', $data['academic_year_id'])
@@ -279,7 +157,6 @@ private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLev
                 ->with('error', 'Já existe uma turma com este nome no mesmo ano letivo.');
         }
         
-        // Validação adicional: código único
         $existingCode = $this->classModel
             ->where('class_code', $data['class_code'])
             ->where('id !=', $id ?: 0)
@@ -290,12 +167,26 @@ private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLev
                 ->with('error', 'Este código de turma já está em uso.');
         }
         
-        // Usar o método save() do model que já lida com placeholders
+        // Salvar turma
         if ($this->classModel->save($data)) {
+            $classId = $id ?: $this->classModel->getInsertID();
             $action = $id ? 'atualizada' : 'criada';
+            
+            // --- NOVA LÓGICA: Sugerir disciplinas do currículo ---
+            // Se for uma turma NOVA e tem curso definido
+            if (!$id && !empty($data['course_id'])) {
+                $this->suggestDisciplinesFromCurriculum($classId, $data['course_id'], $data['grade_level_id']);
+            }
+            // ----------------------------------------------------
+            
             $message = "Turma '{$data['class_name']}' {$action} com sucesso!";
             
-            log_message('info', "Turma ID " . ($id ?: $this->classModel->getInsertID()) . " {$action} por usuário " . session()->get('user_id'));
+            // Redirecionar para página de alocação de professores se for turma nova com curso
+            if (!$id && !empty($data['course_id'])) {
+                session()->setFlashdata('info', 'Sugestão: Atribua os professores às disciplinas sugeridas.');
+                return redirect()->to('/admin/classes/class-subjects/assign-teachers/' . $classId)
+                    ->with('success', $message);
+            }
             
             return redirect()->to('/admin/classes/classes')
                 ->with('success', $message);
@@ -308,8 +199,116 @@ private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLev
             return redirect()->back()->withInput()
                 ->with('error', 'Erro ao ' . ($id ? 'atualizar' : 'criar') . ' turma.');
         }
-    } */
-
+    }
+    /**
+     * Método auxiliar para sugerir disciplinas do currículo (VERSÃO CORRIGIDA)
+     */
+    private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLevelId)
+    {
+        // Carregar models necessários
+        $courseDisciplineModel = new \App\Models\CourseDisciplineModel();
+        $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+        $semesterModel = new \App\Models\SemesterModel();
+        
+        // Buscar a turma para saber o ano letivo
+        $class = $this->classModel->find($classId);
+        if (!$class) {
+            log_message('error', "Turma ID {$classId} não encontrada para sugerir disciplinas");
+            return 0;
+        }
+        
+        // Buscar TODOS os semestres do ano letivo da turma
+        $semesters = $semesterModel
+            ->where('academic_year_id', $class->academic_year_id)
+            ->where('is_active', 1)
+            ->orderBy('start_date', 'ASC')
+            ->findAll();
+        
+        if (empty($semesters)) {
+            log_message('warning', "Nenhum semestre ativo encontrado para o ano letivo da turma ID {$classId}");
+            return 0;
+        }
+        
+        // Buscar disciplinas do currículo para este curso e nível
+        $curriculumDisciplines = $courseDisciplineModel
+            ->select('
+                tbl_course_disciplines.*,
+                tbl_disciplines.discipline_name
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_course_disciplines.discipline_id')
+            ->where('tbl_course_disciplines.course_id', $courseId)
+            ->where('tbl_course_disciplines.grade_level_id', $gradeLevelId)
+            ->where('tbl_course_disciplines.is_mandatory', 1) // Só obrigatórias por padrão
+            ->findAll();
+        
+        $suggestedCount = 0;
+        $insertData = [];
+        
+        foreach ($curriculumDisciplines as $cd) {
+            $semesterType = $cd->semester ?? 'Anual'; // Pega do currículo
+            
+            if ($semesterType === 'Anual') {
+                // Disciplina Anual: criar para TODOS os semestres
+                foreach ($semesters as $semester) {
+                    // Verificar se já não existe para este semestre
+                    $exists = $classDisciplineModel
+                        ->where('class_id', $classId)
+                        ->where('discipline_id', $cd->discipline_id)
+                        ->where('semester_id', $semester->id)
+                        ->first();
+                    
+                    if (!$exists) {
+                        $insertData[] = [
+                            'class_id' => $classId,
+                            'discipline_id' => $cd->discipline_id,
+                            'workload_hours' => $cd->workload_hours,
+                            'semester_id' => $semester->id,
+                            'teacher_id' => null,
+                            'is_active' => 1,
+                            'created_at' => date('Y-m-d H:i:s')
+                        ];
+                        $suggestedCount++;
+                    }
+                }
+            } else {
+                // Disciplina de semestre específico (1º ou 2º)
+                foreach ($semesters as $semester) {
+                    // Verificar se o tipo do semestre corresponde
+                    if (strpos($semester->semester_type, $semesterType) !== false) {
+                        $exists = $classDisciplineModel
+                            ->where('class_id', $classId)
+                            ->where('discipline_id', $cd->discipline_id)
+                            ->where('semester_id', $semester->id)
+                            ->first();
+                        
+                        if (!$exists) {
+                            $insertData[] = [
+                                'class_id' => $classId,
+                                'discipline_id' => $cd->discipline_id,
+                                'workload_hours' => $cd->workload_hours,
+                                'semester_id' => $semester->id,
+                                'teacher_id' => null,
+                                'is_active' => 1,
+                                'created_at' => date('Y-m-d H:i:s')
+                            ];
+                            $suggestedCount++;
+                        }
+                        break; // Encontrou o semestre, pode parar
+                    }
+                }
+            }
+        }
+        
+        // Inserir em lote para melhor performance
+        if (!empty($insertData)) {
+            $db = db_connect();
+            $db->table('tbl_class_disciplines')->insertBatch($insertData);
+            log_message('info', "Sugeridas {$suggestedCount} disciplinas do currículo para turma ID {$classId}");
+        }
+        
+        return $suggestedCount;
+    }
+    
     /**
      * View class details - Atualizado para incluir curso
      */

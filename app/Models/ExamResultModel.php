@@ -8,19 +8,38 @@ class ExamResultModel extends BaseModel
     protected $primaryKey = 'id';
     
     protected $allowedFields = [
-        'exam_id',
+        'exam_schedule_id',  // ← AGORA é o campo principal
         'enrollment_id',
         'score',
         'score_percentage',
         'grade',
+        'is_absent',
+        'is_cheating',
         'observations',
-        'recorded_by'
+        'recorded_by',
+        'verified_by',
+        'verified_at'
     ];
     
     protected $validationRules = [
-        'exam_id' => 'required|numeric',
+        'exam_schedule_id' => 'required|numeric',  // ← AGORA é obrigatório
         'enrollment_id' => 'required|numeric',
         'score' => 'required|numeric'
+    ];
+    
+    protected $validationMessages = [
+        'exam_schedule_id' => [
+            'required' => 'O ID do agendamento é obrigatório',
+            'numeric' => 'O ID do agendamento deve ser numérico'
+        ],
+        'enrollment_id' => [
+            'required' => 'O ID da matrícula é obrigatório',
+            'numeric' => 'O ID da matrícula deve ser numérico'
+        ],
+        'score' => [
+            'required' => 'A nota é obrigatória',
+            'numeric' => 'A nota deve ser numérica'
+        ]
     ];
     
     protected $useTimestamps = true;
@@ -35,18 +54,18 @@ class ExamResultModel extends BaseModel
         $this->transStart();
         
         foreach ($results as $result) {
-            // Check if already exists
-            $existing = $this->where('exam_id', $result['exam_id'])
+            // Verificar se já existe (agora por exam_schedule_id + enrollment_id)
+            $existing = $this->where('exam_schedule_id', $result['exam_schedule_id'])
                 ->where('enrollment_id', $result['enrollment_id'])
                 ->first();
             
-            // Calculate percentage if needed
-            if (isset($result['max_score']) && $result['max_score'] > 0) {
-                $result['score_percentage'] = ($result['score'] / $result['max_score']) * 100;
-            }
+            // Buscar o agendamento para obter a nota máxima
+            $scheduleModel = new \App\Models\ExamScheduleModel();
+            $schedule = $scheduleModel->find($result['exam_schedule_id']);
             
-            // Calculate grade (simplified - can be customized)
-            if (isset($result['score_percentage'])) {
+            // Calcular percentual se necessário
+            if ($schedule && isset($result['score']) && $schedule->max_score > 0) {
+                $result['score_percentage'] = ($result['score'] / $schedule->max_score) * 100;
                 $result['grade'] = $this->calculateGrade($result['score_percentage']);
             }
             
@@ -89,9 +108,9 @@ class ExamResultModel extends BaseModel
     }
     
     /**
-     * Get results by exam
+     * Get results by exam schedule
      */
-    public function getByExam($examId)
+    public function getByExamSchedule($examScheduleId)
     {
         return $this->select('
                 tbl_exam_results.*,
@@ -103,7 +122,7 @@ class ExamResultModel extends BaseModel
             ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
             ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
             ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-            ->where('tbl_exam_results.exam_id', $examId)
+            ->where('tbl_exam_results.exam_schedule_id', $examScheduleId)
             ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
     }
@@ -115,83 +134,81 @@ class ExamResultModel extends BaseModel
     {
         $builder = $this->select('
                 tbl_exam_results.*,
-                tbl_exams.exam_name,
-                tbl_exams.exam_date,
+                tbl_exam_schedules.exam_date,
                 tbl_disciplines.discipline_name,
                 tbl_exam_boards.board_name,
-                tbl_exam_boards.board_type
+                tbl_exam_boards.board_type,
+                tbl_exam_boards.weight
             ')
-            ->join('tbl_exams', 'tbl_exams.id = tbl_exam_results.exam_id')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id')
-            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exams.exam_board_id')
+            ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
             ->where('tbl_enrollments.student_id', $studentId);
         
         if ($semesterId) {
-            $builder->where('tbl_exams.semester_id', $semesterId);
+            $builder->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+                ->where('tbl_exam_periods.semester_id', $semesterId);
         }
         
-        return $builder->orderBy('tbl_exams.exam_date', 'DESC')
+        return $builder->orderBy('tbl_exam_schedules.exam_date', 'DESC')
             ->findAll();
     }
+    
     /**
- * Get exam statistics
- * 
- * @param int $examId ID do exame
- * @return object|array Estatísticas do exame
- */
-public function getExamStatistics($examId)
-{
-    // Buscar o exame para obter a nota máxima
-    $examModel = new \App\Models\ExamModel();
-    $exam = $examModel->find($examId);
-    
-    if (!$exam) {
-        return (object)[
-            'total' => 0,
-            'average' => 0,
-            'minimum' => 0,
-            'maximum' => 0,
-            'approved' => 0,
-            'failed' => 0,
-            'approval_rate' => 0
-        ];
+     * Get exam statistics
+     */
+    public function getExamStatistics($examScheduleId)
+    {
+        // Buscar o agendamento para obter a nota máxima
+        $scheduleModel = new \App\Models\ExamScheduleModel();
+        $schedule = $scheduleModel->find($examScheduleId);
+        
+        if (!$schedule) {
+            return (object)[
+                'total' => 0,
+                'average' => 0,
+                'minimum' => 0,
+                'maximum' => 0,
+                'approved' => 0,
+                'failed' => 0,
+                'approval_rate' => 0
+            ];
+        }
+        
+        $maxScore = $schedule->max_score ?? 20;
+        $passingScore = $schedule->approval_score ?? 10; // Nota mínima para aprovação
+        
+        // Consulta SQL otimizada
+        $stats = $this->select("
+                COUNT(*) as total,
+                AVG(score) as average,
+                MIN(score) as minimum,
+                MAX(score) as maximum,
+                SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN score < {$passingScore} THEN 1 ELSE 0 END) as failed,
+                ROUND((SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) / COUNT(*)) * 100, 1) as approval_rate
+            ")
+            ->where('exam_schedule_id', $examScheduleId)
+            ->first();
+        
+        if (!$stats || $stats->total == 0) {
+            return (object)[
+                'total' => 0,
+                'average' => 0,
+                'minimum' => 0,
+                'maximum' => 0,
+                'approved' => 0,
+                'failed' => 0,
+                'approval_rate' => 0
+            ];
+        }
+        
+        // Arredondar valores
+        $stats->average = round($stats->average, 1);
+        $stats->minimum = round($stats->minimum, 1);
+        $stats->maximum = round($stats->maximum, 1);
+        
+        return $stats;
     }
-    
-    $maxScore = $exam->max_score ?? 20;
-    $passingScore = $maxScore * 0.5; // 50% da nota máxima
-    
-    // Consulta SQL otimizada
-    $stats = $this->select("
-            COUNT(*) as total,
-            AVG(score) as average,
-            MIN(score) as minimum,
-            MAX(score) as maximum,
-            SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) as approved,
-            SUM(CASE WHEN score < {$passingScore} THEN 1 ELSE 0 END) as failed,
-            ROUND((SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) / COUNT(*)) * 100, 1) as approval_rate
-        ")
-        ->where('exam_id', $examId)
-        ->first();
-    
-    // Se não houver resultados, retorna valores padrão
-    if (!$stats || $stats->total == 0) {
-        return (object)[
-            'total' => 0,
-            'average' => 0,
-            'minimum' => 0,
-            'maximum' => 0,
-            'approved' => 0,
-            'failed' => 0,
-            'approval_rate' => 0
-        ];
-    }
-    
-    // Arredondar valores
-    $stats->average = round($stats->average, 1);
-    $stats->minimum = round($stats->minimum, 1);
-    $stats->maximum = round($stats->maximum, 1);
-    
-    return $stats;
-}
 }

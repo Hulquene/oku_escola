@@ -1,0 +1,86 @@
+
+
+ano letivo
+semestre
+disciplina
+cursos
+Atribuir disciplina aos curso
+Cadastrar os professores ???
+criar turma
+
+
+
+┌─────────────────────────────────────────────────────────────────┐
+│                      CONFIGURAÇÃO INICIAL                        │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. Ano Letivo + Semestres (tbl_academic_years + tbl_semesters)  │
+│ 2. Cursos + Níveis (tbl_courses + tbl_grade_levels)            │
+│ 3. Disciplinas (tbl_disciplines)                                │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      CURRÍCULO (PLANEJAMENTO)                    │
+├─────────────────────────────────────────────────────────────────┤
+│ Curso + Nível + Disciplina                                      │
+│ ├── Define: semester = 'Anual', '1º', '2º'                    │
+│ ├── Define: workload_hours, is_mandatory                        │
+│ └── Tabela: tbl_course_disciplines                              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     CRIAÇÃO DE TURMAS                            │
+├─────────────────────────────────────────────────────────────────┤
+│ Classe = Curso + Nível + Turno + Ano Letivo                     │
+│ Tabela: tbl_classes                                             │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              ATRIBUIÇÃO DE DISCIPLINAS (EXECUÇÃO)                │
+├─────────────────────────────────────────────────────────────────┤
+│                         [AÇÃO CHAVE]                              │
+│                                                                   │
+│  Disciplina do Currículo → Para a Turma                           │
+│                                                                   │
+│  Se 'Anual'    → Cria 2 registros (semester_id = 1 e 2)         │
+│  Se '1º'       → Cria 1 registro (semester_id = 1)              │
+│  Se '2º'       → Cria 1 registro (semester_id = 2)              │
+│                                                                   │
+│  Tabela: tbl_class_disciplines                                   │
+│  (Cada linha = 1 disciplina em 1 semestre na turma)              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                ┌───────────────┴───────────────┐
+                ▼                               ▼
+┌─────────────────────────────┐   ┌─────────────────────────────┐
+│    ATRIBUIR PROFESSORES     │   │   GERAR CALENDÁRIO EXAMES   │
+├─────────────────────────────┤   ├─────────────────────────────┤
+│ Professor João → Matemática │   │ Período de Exames →         │
+│       (1º Semestre)         │   │ Busca disciplinas do        │
+│ Professor Maria → Matemática│   │ SEMESTRE CORRESPONDENTE     │
+│       (2º Semestre)         │   │ e gera agendamento          │
+└─────────────────────────────┘   └─────────────────────────────┘
+                ▼                               ▼
+┌─────────────────────────────┐   ┌─────────────────────────────┐
+│   REGISTRO DE NOTAS (ACs)   │   │   REGISTRO DE NOTAS EXAMES  │
+└─────────────────────────────┘   └─────────────────────────────┘
+                ▼                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    CÁLCULO DE MÉDIAS                             │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. Média por Disciplina (AC + Exame) → tbl_discipline_averages │
+│ 2. Resultado Semestral → tbl_semester_results                   │
+│ 3. Histórico Anual → tbl_academic_history                      │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        RELATÓRIOS                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ • Pautas de Turma                                               │
+│ • Boletins Individuais                                          │
+│ • Histórico Escolar                                             │
+│ • Estatísticas de Aproveitamento                                │
+└─────────────────────────────────────────────────────────────────┘

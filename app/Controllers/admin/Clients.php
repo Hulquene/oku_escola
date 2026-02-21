@@ -44,7 +44,7 @@ class Clients extends BaseController
         return $this->index();
     }
 /**
- * Students list - VERSÃO COMPLETA COM NOVOS FILTROS
+ * Students list
  */
 public function index()
 {
@@ -210,23 +210,29 @@ public function index()
     $data['enrolledStudents'] = $this->enrollmentModel->where('status', 'Ativo')->countAllResults();
     $data['pendingEnrollments'] = $this->enrollmentModel->where('status', 'Pendente')->countAllResults();
     
-    $enrolledIds = $this->enrollmentModel
+    // CORREÇÃO AQUI: Verificar se há IDs antes de usar whereNotIn
+    $enrolledStudents = $this->enrollmentModel
         ->select('student_id')
         ->whereIn('status', ['Ativo', 'Pendente'])
         ->findAll();
-    $enrolledIds = array_column($enrolledIds, 'student_id');
     
-    $data['nonEnrolledStudents'] = $this->studentModel
-        ->whereNotIn('id', $enrolledIds)
-        ->countAllResults();
+    $enrolledIds = array_column($enrolledStudents, 'student_id');
+    
+    if (!empty($enrolledIds)) {
+        $data['nonEnrolledStudents'] = $this->studentModel
+            ->whereNotIn('id', $enrolledIds)
+            ->countAllResults();
+    } else {
+        // Se não há alunos matriculados, todos os alunos são não matriculados
+        $data['nonEnrolledStudents'] = $this->studentModel->countAllResults();
+    }
     
     $data['maleCount'] = $this->studentModel->where('gender', 'Masculino')->countAllResults();
     $data['femaleCount'] = $this->studentModel->where('gender', 'Feminino')->countAllResults();
     $data['totalFiltered'] = $builder->countAllResults(false);
     
     return view('admin/students/index', $data);
-}
-    /**
+} /**
      * Get students for datatable
      */
     public function get_students_table()
@@ -380,7 +386,7 @@ public function studentForm($id = null)
     return view('admin/students/form', $data);
 }
 /**
- * Save student - VERSÃO CORRIGIDA
+ * Save student
  */
 public function saveStudent()
 {
@@ -392,7 +398,9 @@ public function saveStudent()
     
     $userId = $this->request->getPost('user_id');
     $studentId = $this->request->getPost('id');
+    $email = $this->request->getPost('email');
     
+    //var_dump($userId,$studentId);die;
     // Verificar idade mínima
     $birthDate = $this->request->getPost('birth_date');
     $age = date_diff(date_create($birthDate), date_create('today'))->y;
@@ -402,11 +410,25 @@ public function saveStudent()
             ->with('error', 'O aluno deve ter pelo menos 5 anos de idade');
     }
     
+    // VALIDAÇÃO MANUAL DE EMAIL ÚNICO (para garantir)
+    if ($email) {
+        $existingUser = $this->userModel
+            ->where('email', $email)
+            ->where('id !=', $userId) // Ignorar o próprio usuário se for edição
+            ->first();
+
+        if ($existingUser) {
+            $db->transRollback();
+            return redirect()->back()->withInput()
+                ->with('error', 'Este email já está em uso por outro usuário teste.');
+        }
+    }
+    
     // Preparar dados do usuário
     $userData = [
         'first_name' => $this->request->getPost('first_name'),
         'last_name' => $this->request->getPost('last_name'),
-        'email' => $this->request->getPost('email'),
+        'email' => $email,
         'phone' => $this->request->getPost('phone'),
         'address' => $this->request->getPost('address'),
         'user_type' => 'student',
@@ -424,18 +446,22 @@ public function saveStudent()
         
         if (!$this->userModel->update($userId, $userData)) {
             $db->transRollback();
+            $errors = $this->userModel->errors();
+            log_message('error', 'Erro ao atualizar usuário: ' . json_encode($errors));
             return redirect()->back()->withInput()
-                ->with('errors', $this->userModel->errors());
+                ->with('errors', $errors);
         }
     } else {
-        $userData['username'] = $this->request->getPost('email');
+        $userData['username'] = $email;
         $userData['password'] = password_hash('123456', PASSWORD_DEFAULT);
         $userId = $this->userModel->insert($userData);
         
         if (!$userId) {
             $db->transRollback();
+            $errors = $this->userModel->errors();
+            log_message('error', 'Erro ao inserir usuário: ' . json_encode($errors));
             return redirect()->back()->withInput()
-                ->with('errors', $this->userModel->errors());
+                ->with('errors', $errors);
         }
     }
     
@@ -465,8 +491,10 @@ public function saveStudent()
         
         if (!$this->studentModel->update($studentId, $studentData)) {
             $db->transRollback();
+            $errors = $this->studentModel->errors();
+            log_message('error', 'Erro ao atualizar aluno: ' . json_encode($errors));
             return redirect()->back()->withInput()
-                ->with('errors', $this->studentModel->errors());
+                ->with('errors', $errors);
         }
     } else {
         $studentData['student_number'] = $this->studentModel->generateStudentNumber();
@@ -474,43 +502,49 @@ public function saveStudent()
         
         if (!$studentId) {
             $db->transRollback();
+            $errors = $this->studentModel->errors();
+            log_message('error', 'Erro ao inserir aluno: ' . json_encode($errors));
             return redirect()->back()->withInput()
-                ->with('errors', $this->studentModel->errors());
+                ->with('errors', $errors);
         }
     }
     
-    // ===== PARTE CORRIGIDA =====
-    // Criar matrícula pendente - TRATANDO COURSE_ID CORRETAMENTE
+    // ===== CRIAÇÃO DA MATRÍCULA PENDENTE =====
     if ($studentId) {
+        $academicYearId = $this->request->getPost('academic_year_id');
+        $gradeLevelId = $this->request->getPost('grade_level_id');
+        $courseId = $this->request->getPost('course_id');
+        
+        // Verificar se já existe matrícula
         $existingEnrollment = $this->enrollmentModel
             ->where('student_id', $studentId)
-            ->where('academic_year_id', $this->request->getPost('academic_year_id'))
+            ->where('academic_year_id', $academicYearId)
             ->whereIn('status', ['Pendente', 'Ativo'])
             ->first();
         
         if (!$existingEnrollment) {
             
-            // CORREÇÃO: Tratar course_id adequadamente
-            $courseId = $this->request->getPost('course_id');
-            
-            // Se course_id for string vazia, converter para null
+            // Tratar course_id adequadamente
             if ($courseId === '' || $courseId === null || $courseId === 'null') {
                 $courseId = null;
             }
             
+            // Buscar uma turma automaticamente (opcional - pode ser null)
+            $classId = null;
+            
             $enrollmentData = [
                 'student_id' => $studentId,
-                'academic_year_id' => $this->request->getPost('academic_year_id'),
-                'grade_level_id' => $this->request->getPost('grade_level_id'),
-                'course_id' => $courseId, // AGORA CORRETO (null ou valor válido)
+                'class_id' => $classId,
+                'academic_year_id' => $academicYearId,
+                'grade_level_id' => $gradeLevelId,
+                'course_id' => $courseId,
                 'enrollment_date' => date('Y-m-d'),
                 'enrollment_number' => $this->enrollmentModel->generateEnrollmentNumber(),
-                'enrollment_type' => $this->request->getPost('enrollment_type'),
+                'enrollment_type' => $this->request->getPost('enrollment_type') ?: 'Nova',
                 'status' => 'Pendente',
                 'created_by' => $this->session->get('user_id')
             ];
             
-            // Log para debug
             log_message('info', 'Tentando inserir matrícula: ' . json_encode($enrollmentData));
             
             if (!$this->enrollmentModel->insert($enrollmentData)) {
@@ -520,9 +554,10 @@ public function saveStudent()
                 return redirect()->back()->withInput()
                     ->with('errors', $errors);
             }
+            
+            log_message('info', 'Matrícula criada com sucesso para o aluno ID: ' . $studentId);
         }
     }
-    // ===== FIM DA PARTE CORRIGIDA =====
     
     // Upload da foto
     $photo = $this->request->getFile('photo');
@@ -543,7 +578,7 @@ public function saveStudent()
         return redirect()->back()->withInput()
             ->with('error', 'Erro ao salvar aluno');
     }
-}  
+}
     /**
      * Save (alias for saveStudent)
      */

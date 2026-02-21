@@ -25,7 +25,7 @@ class UserModel extends BaseModel
     protected $validationRules = [
         'id' => 'permit_empty|is_natural_no_zero',
         'username' => 'required|min_length[3]|is_unique[tbl_users.username,id,{id}]',
-        'email' => 'required|valid_email|is_unique[tbl_users.email,id,{id}]',
+        'email' => 'required|valid_email',
         'first_name' => 'required',
         'last_name' => 'required',
         'role_id' => 'required|numeric',

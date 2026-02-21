@@ -22,7 +22,6 @@ class StudentModel extends BaseModel
         'municipality',
         'province',
         'phone',
-        'email',
         'emergency_contact',
         'emergency_contact_name',
         'previous_school',
@@ -44,7 +43,6 @@ class StudentModel extends BaseModel
         'identity_document' => 'permit_empty|max_length[50]',
         'identity_type' => 'permit_empty|in_list[BI,Passaporte,Cédula,Outro]',
         'nif' => 'permit_empty|max_length[20]',
-        'email' => 'permit_empty|valid_email',
         'phone' => 'permit_empty|max_length[20]',
         'emergency_contact' => 'permit_empty|max_length[20]',
         'emergency_contact_name' => 'permit_empty|max_length[255]',
@@ -95,13 +93,15 @@ class StudentModel extends BaseModel
     
     /**
      * Get student with user info
-     */
+     *//**
+ * Get student with user info
+ */
     public function getWithUser($id)
     {
         return $this->select('
                 tbl_students.*, 
                 tbl_users.username, 
-                tbl_users.email as user_email, 
+                tbl_users.email,
                 tbl_users.first_name, 
                 tbl_users.last_name, 
                 tbl_users.phone as user_phone,
@@ -206,7 +206,6 @@ class StudentModel extends BaseModel
                 ->orLike('CONCAT(tbl_users.first_name, " ", tbl_users.last_name)', $query)
                 ->orLike('tbl_students.student_number', $query)
                 ->orLike('tbl_students.identity_document', $query)
-                ->orLike('tbl_students.email', $query)
             ->groupEnd()
             ->where('tbl_students.is_active', 1)
             ->orderBy('tbl_users.first_name', 'ASC')
