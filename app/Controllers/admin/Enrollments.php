@@ -482,9 +482,9 @@ public function approve($id)
         return redirect()->back()->with('error', 'Matrícula não encontrada');
     }
     
-    if ($enrollment->status != 'Pendente') {
+   /*  if ($enrollment->status != 'Pendente') {
         return redirect()->back()->with('error', 'Esta matrícula não está pendente');
-    }
+    } */
     
     // Verificar se tem turma atribuída
     if (!$enrollment->class_id) {

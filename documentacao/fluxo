@@ -84,3 +84,323 @@ criar turma
 │ • Histórico Escolar                                             │
 │ • Estatísticas de Aproveitamento                                │
 └─────────────────────────────────────────────────────────────────┘
+
+
+
+
+
+
+
+
+┌─────────────────┐
+│ tbl_exam_results│ ◄── Notas lançadas (exames individuais)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│tbl_discipline_  │ ◄── Média por disciplina (agrupado)
+│   averages      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│tbl_semester_    │ ◄── Resultado do semestre (média geral)
+│   results       │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│tbl_academic_    │ ◄── Histórico anual (pauta final)
+│   history       │
+└─────────────────┘
+
+
+
+
+
+FLUXO COMPLETO DO PROCESSAMENTO DE NOTAS
+┌─────────────────────────────────────────────────────────────────┐
+│                      INÍCIO                                      │
+│              Usuário clica em "Processar Semestre"              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. DADOS DE ENTRADA (tbl_exam_results)                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌────────────── ENROLLMENT 1 (Aluno 1) ──────────────┐        │
+│  │  • Matemática (disc_id=2)  → 8.0  (Recurso)        │        │
+│  │  • Ciências (disc_id=3)     → 12.0 (Aprovado)      │        │
+│  │  • Biologia (disc_id=12)    → 17.0 (Aprovado)      │        │
+│  └─────────────────────────────────────────────────────┘        │
+│                                                                  │
+│  ┌────────────── ENROLLMENT 2 (Aluno 2) ──────────────┐        │
+│  │  • Matemática (disc_id=2)  → 5.0  (Reprovado)      │        │
+│  │  • Ciências (disc_id=3)     → 10.0 (Aprovado)      │        │
+│  │  • Biologia (disc_id=12)    → 14.0 (Aprovado)      │        │
+│  └─────────────────────────────────────────────────────┘        │
+│                                                                  │
+│  Total: 6 registros de notas                                    │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. PASSO 1: calculateDisciplineAverages()                        │
+│    (Agrupa notas por aluno + disciplina)                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  INSERT INTO tbl_discipline_averages ...                         │
+│  GROUP BY er.enrollment_id, es.discipline_id                     │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │           tbl_discipline_averages                        │    │
+│  ├───────┬───────────────┬───────────┬─────────────────────┤    │
+│  │ enrol │ disciplina_id │ final_score │ status            │    │
+│  ├───────┼───────────────┼───────────┼─────────────────────┤    │
+│  │ 1     │ 2 (Matemática)│ 8.0       │ Recurso  (≥7 e <10) │    │
+│  │ 1     │ 3 (Ciências)  │ 12.0      │ Aprovado (≥10)      │    │
+│  │ 1     │ 12 (Biologia) │ 17.0      │ Aprovado (≥10)      │    │
+│  │ 2     │ 2 (Matemática)│ 5.0       │ Reprovado (<7)      │    │
+│  │ 2     │ 3 (Ciências)  │ 10.0      │ Aprovado (≥10)      │    │
+│  │ 2     │ 12 (Biologia) │ 14.0      │ Aprovado (≥10)      │    │
+│  └───────┴───────────────┴───────────┴─────────────────────┘    │
+│                                                                  │
+│  Resultado: 6 registros (2 alunos × 3 disciplinas)              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. PASSO 2: calculateSemesterResults()                           │
+│    (Consolida resultados por aluno)                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  INSERT INTO tbl_semester_results ...                            │
+│  GROUP BY da.enrollment_id, da.semester_id                       │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │           tbl_semester_results                            │    │
+│  ├───────┬─────────────┬──────────┬─────────┬──────────────┤    │
+│  │ enrol │ overall_avg │ approved │ failed  │ status       │    │
+│  ├───────┼─────────────┼──────────┼─────────┼──────────────┤    │
+│  │ 1     │ 12.3        │ 2        │ 0       │ Recurso      │    │
+│  │       │ (8+12+17)/3 │          │         │              │    │
+│  ├───────┼─────────────┼──────────┼─────────┼──────────────┤    │
+│  │ 2     │ 9.7         │ 2        │ 1       │ Reprovado    │    │
+│  │       │ (5+10+14)/3 │          │         │              │    │
+│  └───────┴─────────────┴──────────┴─────────┴──────────────┘    │
+│                                                                  │
+│  Resultado: 2 registros (1 por aluno)                           │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. PASSO 3: generateReportCards() (se solicitado)                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Para cada resultado em tbl_semester_results:                    │
+│  → Gerar boletim em tbl_report_cards                            │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │           tbl_report_cards                               │    │
+│  ├───────┬─────────────┬─────────────────┬─────────────────┤    │
+│  │ id    │ enrollment  │ report_number   │ status          │    │
+│  ├───────┼─────────────┼─────────────────┼─────────────────┤    │
+│  │ 1     │ 1           │ REL-2026-0001-1 │ Emitido         │    │
+│  │ 2     │ 2           │ REL-2026-0002-1 │ Emitido         │    │
+│  └───────┴─────────────┴─────────────────┴─────────────────┘    │
+│                                                                  │
+│  Resultado: 2 boletins gerados                                  │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 5. PASSO 4: closeSemester() (se solicitado)                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  UPDATE tbl_semesters SET is_active = 0 WHERE id = {$semesterId}│
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │           tbl_semesters                                  │    │
+│  ├───────┬─────────────────┬───────────┬───────────────────┤    │
+│  │ id    │ semester_name   │ is_active │ is_current        │    │
+│  ├───────┼─────────────────┼───────────┼───────────────────┤    │
+│  │ 1     │ 1º Trimestre    │ 0         │ 0                 │    │
+│  └───────┴─────────────────┴───────────┴───────────────────┘    │
+│                                                                  │
+│  Resultado: Semestre fechado para novos lançamentos             │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      FIM                                          │
+│              Mensagem de sucesso com contagens:                  │
+│              • Resultados calculados: 2                          │
+│              • Boletins gerados: 2                               │
+└─────────────────────────────────────────────────────────────────┘
+
+
+FLUXO GENÉRICO DO PROCESSAMENTO
+┌─────────────────────────────────────────────────────────────────┐
+│                      INÍCIO                                      │
+│              Usuário clica em "Processar Semestre"              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. VERIFICAÇÕES INICIAIS                                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  • Semestre ID foi fornecido?                                   │
+│  • Semestre existe no banco?                                    │
+│                                                                  │
+│  Se qualquer verificação falhar → Retorna erro                  │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. INICIAR TRANSAÇÃO NO BANCO DE DADOS                          │
+│    (Tudo ou nada - se algo falhar, tudo é desfeito)             │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. PASSO 1: calculateDisciplineAverages()                        │
+│    (Calcula médias por disciplina)                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  INSERT INTO tbl_discipline_averages                             │
+│  SELECT                                                          │
+│    er.enrollment_id,                                             │
+│    es.discipline_id,                                             │
+│    ep.semester_id,                                               │
+│    AVG(er.score) as final_score,                                 │
+│    CASE                                                          │
+│        WHEN AVG(er.score) >= 10 THEN 'Aprovado'                  │
+│        WHEN AVG(er.score) >= 7 THEN 'Recurso'                    │
+│        ELSE 'Reprovado'                                          │
+│    END as status                                                 │
+│  FROM tbl_exam_results er                                        │
+│  JOIN tbl_exam_schedules es ON es.id = er.exam_schedule_id      │
+│  JOIN tbl_exam_periods ep ON ep.id = es.exam_period_id          │
+│  WHERE ep.semester_id = {$semesterId}                            │
+│  GROUP BY er.enrollment_id, es.discipline_id                     │
+│  ON DUPLICATE KEY UPDATE ...                                     │
+│                                                                  │
+│  Resultado:                                                      │
+│  • N registros (N = total de alunos × total de disciplinas)     │
+│  • Exemplo: 2 alunos × 3 disciplinas = 6 registros              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. PASSO 2: calculateSemesterResults()                           │
+│    (Consolida resultados por aluno)                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  INSERT INTO tbl_semester_results                                │
+│  SELECT                                                          │
+│    da.enrollment_id,                                             │
+│    da.semester_id,                                               │
+│    AVG(da.final_score) as overall_average,                      │
+│    COUNT(*) as total_disciplines,                                │
+│    SUM(CASE WHEN da.status = 'Aprovado' THEN 1 ELSE 0 END)      │
+│        as approved_disciplines,                                  │
+│    SUM(CASE WHEN da.status = 'Reprovado' THEN 1 ELSE 0 END)     │
+│        as failed_disciplines,                                    │
+│    SUM(CASE WHEN da.status = 'Recurso' THEN 1 ELSE 0 END)       │
+│        as appeal_disciplines,                                    │
+│    CASE                                                          │
+│        WHEN SUM(da.status = 'Reprovado') > 0 THEN 'Reprovado'   │
+│        WHEN SUM(da.status = 'Recurso') > 0 THEN 'Recurso'       │
+│        ELSE 'Aprovado'                                           │
+│    END as status                                                 │
+│  FROM tbl_discipline_averages da                                 │
+│  WHERE da.semester_id = {$semesterId}                            │
+│  GROUP BY da.enrollment_id                                       │
+│  ON DUPLICATE KEY UPDATE ...                                     │
+│                                                                  │
+│  Resultado:                                                      │
+│  • M registros (M = número de alunos)                           │
+│  • Exemplo: 2 alunos = 2 registros                              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 5. PASSO 3: generateReportCards() (OPCIONAL)                     │
+│    (Gera boletins para cada aluno)                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Para cada registro em tbl_semester_results:                     │
+│  → Verificar se já existe boletim                               │
+│  → Se não existir, gerar novo boletim                           │
+│     usando ReportCardModel::generateForStudent()                │
+│                                                                  │
+│  Resultado:                                                      │
+│  • P boletins gerados (P ≤ M)                                   │
+│  • Exemplo: 2 alunos = até 2 boletins                           │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 6. PASSO 4: closeSemester() (OPCIONAL)                           │
+│    (Fecha o semestre para novos lançamentos)                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  UPDATE tbl_semesters                                            │
+│  SET is_active = 0,                                              │
+│      is_current = 0                                              │
+│  WHERE id = {$semesterId}                                        │
+│                                                                  │
+│  Resultado:                                                      │
+│  • Semestre fica inativo                                         │
+│  • Não permite novos lançamentos de notas                       │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 7. FINALIZAR TRANSAÇÃO                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Se tudo OK → COMMIT (salvar todas as alterações)               │
+│  Se algo errado → ROLLBACK (desfazer tudo)                      │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ 8. RETORNAR RESULTADO                                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ✅ SUCESSO:                                                     │
+│     {                                                           │
+│       "success": true,                                          │
+│       "message": "Semestre processado com sucesso!<br>          │
+│                   Resultados calculados: X<br>                  │
+│                   Boletins gerados: Y"                          │
+│     }                                                           │
+│                                                                  │
+│  ❌ ERRO:                                                        │
+│     {                                                           │
+│       "success": false,                                         │
+│       "message": "Erro ao processar semestre: ..."             │
+│     }                                                           │
+└─────────────────────────────────────────────────────────────────┘
+
+
+
+
+
+
+
+a nota final (media) de cada disciplina de cada trimestre ou semestre somam e divedem por numero de semestre ou trimestre essa é regra de aprovacao por disciplina
+se essa nota dividida for notas ≥ 10 aprova na disciplina se enferior reprova na disciplina
+agora o numero de disciplina aprovadas ou reprovada vai difinir se ele vai ao recusro,reprova,ou aprova de ano
+
+essa regra do ano deve ser insirida no sistema
+
+agora o sistema precisa mostrar essa media por disciplina,e as notas por semestre na pauta
+
+por semestre vai mostrar as notas que ele teve por disciplina
+e no anual ou pauta vai mostrar  as media por disciplina do semestre
+
+

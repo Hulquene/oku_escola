@@ -5,19 +5,16 @@ namespace App\Controllers\admin;
 use App\Controllers\BaseController;
 use App\Models\SemesterModel;
 use App\Models\AcademicYearModel;
-use App\Models\ExamModel;
 
 class Semesters extends BaseController
 {
     protected $semesterModel;
     protected $academicYearModel;
-    protected $examModel;
     
     public function __construct()
     {
         $this->semesterModel = new SemesterModel();
         $this->academicYearModel = new AcademicYearModel();
-        $this->examModel = new ExamModel();
         
         // Carregar helper de log (certifique-se que o arquivo existe)
         helper('log');
@@ -42,13 +39,9 @@ public function index()
         $builder->where('tbl_semesters.academic_year_id', $academicYearId);
     }
     
-    // Filtrar por status do semestre (ativo/inativo/concluido)
+     // Filtrar por status (CORRIGIDO)
     if ($status && in_array($status, ['ativo', 'inativo', 'processado', 'concluido'])) {
         $builder->where('tbl_semesters.status', $status);
-    } elseif ($status == 'active') {
-        $builder->where('tbl_semesters.is_active', 1);
-    } elseif ($status == 'inactive') {
-        $builder->where('tbl_semesters.is_active', 0);
     }
     
     $semesters = $builder->orderBy('tbl_academic_years.start_date', 'DESC')
@@ -211,7 +204,7 @@ public function form($id = null)
         $semesterType = $this->request->getPost('semester_type');
         $startDate = $this->request->getPost('start_date');
         $endDate = $this->request->getPost('end_date');
-        $isActive = $this->request->getPost('is_active') ? 1 : 0;
+        $status = $this->request->getPost('is_active') ? 'ativo' : 'inativo';
         $isCurrent = $this->request->getPost('is_current');
         
         // Validar ordem das datas
@@ -257,8 +250,7 @@ public function form($id = null)
             'semester_type' => $semesterType,
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'is_active' => $isActive,
-            'status' => $isActive ? 'ativo' : 'inativo'
+            'status' => $status
         ];
         
         if ($id) {
@@ -343,7 +335,7 @@ public function form($id = null)
         }
         
         // Verificar se o período está ativo
-        if (!$semester->is_active) {
+        if ($semester->status !== 'ativo') {
             log_message('warning', "Tentativa de definir período inativo como atual: ID {$id}");
             return redirect()->back()->with('error', 'Não é possível definir um período inativo como atual.');
         }
@@ -464,7 +456,12 @@ public function delete($id)
     }
     
     // Check if has exams
-    $exams = $this->examModel->where('semester_id', $id)->countAllResults();
+    $examScheduleModel = new \App\Models\ExamScheduleModel();
+    $exams = $examScheduleModel
+    ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+    ->where('tbl_exam_periods.semester_id', $id)
+    ->countAllResults();
+    //$exams = $this->examModel->where('semester_id', $id)->countAllResults();
     
     if ($exams > 0) {
         log_message('warning', "Tentativa de eliminar período com {$exams} exames associados: ID {$id}");

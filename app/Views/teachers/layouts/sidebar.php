@@ -19,9 +19,6 @@
             <strong><?= session()->get('name') ?></strong>
             <small class="d-block text-white-50">
                 <i class="fas fa-chalkboard-teacher"></i> Professor
-                <?php if (session()->has('total_classes')): ?>
-                    <br><span class="badge bg-light text-success mt-1"><?= session()->get('total_classes') ?> turma(s)</span>
-                <?php endif; ?>
             </small>
         </div>
     </div>
@@ -36,6 +33,7 @@
                 <?php endif; ?>
             </a>
         </li>
+        
         <!-- Perfil -->
         <li>
             <a href="<?= site_url('teachers/profile') ?>" class="<?= uri_string() == 'teachers/profile' ? 'active' : '' ?>">
@@ -45,17 +43,12 @@
                 <?php endif; ?>
             </a>
         </li>
+        
         <!-- Minhas Turmas -->
         <li>
             <a href="#classesSubmenu" data-bs-toggle="collapse" 
                class="dropdown-toggle <?= in_array(uri_string(), ['teachers/classes', 'teachers/classes/students']) ? 'active' : '' ?>">
                 <i class="fas fa-school"></i> Minhas Turmas
-                <?php 
-                $totalClasses = session()->get('total_classes') ?? 0;
-                if ($totalClasses > 0): 
-                ?>
-                    <span class="badge bg-warning text-dark float-end"><?= $totalClasses ?></span>
-                <?php endif; ?>
             </a>
             <ul class="collapse list-unstyled <?= in_array(uri_string(), ['teachers/classes', 'teachers/classes/students']) ? 'show' : '' ?>" id="classesSubmenu">
                 <li>
@@ -63,20 +56,6 @@
                         <i class="fas fa-list"></i> Lista de Turmas
                     </a>
                 </li>
-                
-                <!-- Lista dinâmica de turmas com disciplinas -->
-                <?php if (!empty(session()->get('teacher_classes'))): ?>
-                    <?php foreach (session()->get('teacher_classes') as $class): ?>
-                        <li>
-                            <a href="<?= site_url('teachers/classes/students/' . $class->id) ?>" 
-                               class="<?= uri_string() == 'teachers/classes/students/' . $class->id ? 'active' : '' ?>">
-                                <i class="fas fa-users"></i> 
-                                <?= $class->class_name ?> 
-                                <small class="d-block text-white-50"><?= $class->discipline_name ?></small>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                <?php endif; ?>
             </ul>
         </li>
         
@@ -151,22 +130,12 @@
                 </li>
             </ul>
         </li>
-        <!-- No sidebar do professor, adicionar após Presenças -->
+        
         <!-- Documentos -->
         <li>
             <a href="#documentsSubmenu" data-bs-toggle="collapse" 
-            class="dropdown-toggle <?= in_array(uri_string(), ['teachers/documents', 'teachers/documents/requests', 'teachers/documents/archive']) ? 'active' : '' ?>">
+               class="dropdown-toggle <?= in_array(uri_string(), ['teachers/documents', 'teachers/documents/requests', 'teachers/documents/archive']) ? 'active' : '' ?>">
                 <i class="fas fa-folder-open"></i> Documentos
-                <?php 
-                $documentModel = new \App\Models\DocumentModel();
-                $pendingDocs = $documentModel->where('user_id', currentUserId())
-                    ->where('user_type', 'teacher')
-                    ->where('is_verified', 0)
-                    ->countAllResults();
-                if ($pendingDocs > 0): 
-                ?>
-                    <span class="badge bg-warning text-dark float-end"><?= $pendingDocs ?></span>
-                <?php endif; ?>
             </a>
             <ul class="collapse list-unstyled <?= in_array(uri_string(), ['teachers/documents', 'teachers/documents/requests', 'teachers/documents/archive']) ? 'show' : '' ?>" id="documentsSubmenu">
                 <li>
@@ -177,16 +146,6 @@
                 <li>
                     <a href="<?= site_url('teachers/documents/requests') ?>" class="<?= uri_string() == 'teachers/documents/requests' ? 'active' : '' ?>">
                         <i class="fas fa-file-signature"></i> Solicitar Documento
-                        <?php 
-                        $requestModel = new \App\Models\DocumentRequestModel();
-                        $pendingRequests = $requestModel->where('user_id', currentUserId())
-                            ->where('user_type', 'teacher')
-                            ->where('status', 'pending')
-                            ->countAllResults();
-                        if ($pendingRequests > 0): 
-                        ?>
-                            <span class="badge bg-warning text-dark float-end"><?= $pendingRequests ?></span>
-                        <?php endif; ?>
                     </a>
                 </li>
                 <li>
@@ -196,67 +155,21 @@
                 </li>
             </ul>
         </li>
+        
         <!-- Separador -->
         <li class="sidebar-divider"></li>
         
-        <!-- Estatísticas Rápidas (visíveis apenas no dashboard) -->
-        <?php if (uri_string() == 'teachers/dashboard'): ?>
-        <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Resumo Rápido</li>
+        <!-- Informações do Sistema -->
+        <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Sistema</li>
         <li class="px-3 mb-2">
             <div class="small text-white-50">
-                <i class="fas fa-users"></i> Total Alunos: 
-                <span class="float-end text-white fw-bold">
-                    <?php
-                    $totalAlunos = 0;
-                    $teacherId = session()->get('user_id');
-                    $classModel = new \App\Models\ClassDisciplineModel();
-                    $classes = $classModel
-                        ->select('class_id')
-                        ->where('teacher_id', $teacherId)
-                        ->distinct()
-                        ->findAll();
-                    
-                    $enrollmentModel = new \App\Models\EnrollmentModel();
-                    foreach ($classes as $class) {
-                        $totalAlunos += $enrollmentModel
-                            ->where('class_id', $class->class_id)
-                            ->where('status', 'Ativo')
-                            ->countAllResults();
-                    }
-                    echo $totalAlunos;
-                    ?>
-                </span>
+                <i class="fas fa-calendar"></i> <?= date('Y') ?>
+                <span class="float-end text-white"><?= date('d/m/Y') ?></span>
             </div>
         </li>
-        <li class="px-3 mb-2">
-            <div class="small text-white-50">
-                <i class="fas fa-pencil-alt"></i> Próximos Exames: 
-                <span class="float-end text-white fw-bold">
-                    <?php
-                    $examModel = new \App\Models\ExamModel();
-                    $exams = $examModel->getByTeacher($teacherId);
-                    $pendingCount = 0;
-                    foreach ($exams as $exam) {
-                        if ($exam->exam_date >= date('Y-m-d')) {
-                            $pendingCount++;
-                        }
-                    }
-                    echo $pendingCount;
-                    ?>
-                </span>
-            </div>
-        </li>
-        <?php endif; ?>
     </ul>
     
     <div class="sidebar-footer p-3">
-        <div class="small text-white-50">
-            <i class="fas fa-calendar"></i> <?= date('Y') ?>
-            <?php if (session()->has('academic_year')): ?>
-                <br><i class="fas fa-database"></i> Ano: <?= session()->get('academic_year') ?>
-            <?php endif; ?>
-        </div>
-        
         <!-- Logout Button -->
         <div class="mt-3">
             <a href="<?= site_url('teachers/auth/logout') ?>" class="btn btn-outline-light btn-sm w-100" 

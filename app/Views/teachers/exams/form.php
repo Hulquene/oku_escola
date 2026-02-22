@@ -91,17 +91,17 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label for="semester_id" class="form-label">Semestre <span class="text-danger">*</span></label>
-                        <select class="form-select" id="semester_id" name="semester_id" required>
+                        <label for="exam_period_id" class="form-label">Período <span class="text-danger">*</span></label>
+                        <select class="form-select" id="exam_period_id" name="exam_period_id" required>
                             <option value="">Selecione...</option>
-                            <?php if (!empty($semesters)): ?>
-                                <?php foreach ($semesters as $semester): ?>
-                                    <option value="<?= $semester->id ?>" <?= old('semester_id', $exam->semester_id ?? '') == $semester->id ? 'selected' : '' ?>>
-                                        <?= esc($semester->semester_name) ?>
+                            <?php if (!empty($periods)): ?>
+                                <?php foreach ($periods as $period): ?>
+                                    <option value="<?= $period->id ?>" <?= old('exam_period_id', $exam->exam_period_id ?? '') == $period->id ? 'selected' : '' ?>>
+                                        <?= esc($period->period_name) ?> (<?= $period->period_type ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <option value="" disabled>Nenhum semestre ativo</option>
+                                <option value="" disabled>Nenhum período ativo</option>
                             <?php endif; ?>
                         </select>
                     </div>
@@ -137,6 +137,15 @@
                 
                 <div class="col-md-4">
                     <div class="mb-3">
+                        <label for="duration_minutes" class="form-label">Duração (minutos)</label>
+                        <input type="number" class="form-control" id="duration_minutes" name="duration_minutes" 
+                               value="<?= old('duration_minutes', $exam->duration_minutes ?? 120) ?>" 
+                               min="30" max="240" step="30">
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="mb-3">
                         <label for="max_score" class="form-label">Valor Máximo</label>
                         <input type="number" class="form-control" id="max_score" name="max_score" 
                                step="0.01" min="0" max="100" value="<?= old('max_score', $exam->max_score ?? 20) ?>">
@@ -146,9 +155,9 @@
             </div>
             
             <div class="mb-3">
-                <label for="description" class="form-label">Descrição / Instruções</label>
-                <textarea class="form-control" id="description" name="description" rows="3" 
-                          placeholder="Instruções para os alunos, conteúdo da prova, etc."><?= old('description', $exam->description ?? '') ?></textarea>
+                <label for="observations" class="form-label">Observações / Instruções</label>
+                <textarea class="form-control" id="observations" name="observations" rows="3" 
+                          placeholder="Instruções para os alunos, conteúdo da prova, etc."><?= old('observations', $exam->observations ?? '') ?></textarea>
             </div>
             
             <hr>
@@ -249,6 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('examForm').addEventListener('submit', function(e) {
     const classId = classSelect.value;
     const disciplineId = disciplineSelect.value;
+    const periodId = document.getElementById('exam_period_id').value;
     
     if (!classId) {
         e.preventDefault();
@@ -259,6 +269,12 @@ document.getElementById('examForm').addEventListener('submit', function(e) {
     if (!disciplineId) {
         e.preventDefault();
         alert('Por favor, selecione uma disciplina.');
+        return false;
+    }
+    
+    if (!periodId) {
+        e.preventDefault();
+        alert('Por favor, selecione um período.');
         return false;
     }
     

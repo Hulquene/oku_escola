@@ -11,7 +11,7 @@
                 <i class="fas fa-calendar-alt"></i> Calendário
             </a>
             <a href="<?= site_url('teachers/exams/form-add') ?>" class="btn btn-success">
-                <i class="fas fa-plus-circle"></i> Novo Exame
+                <i class="fas fa-plus-circle"></i> Agendar Exame
             </a>
         </div>
     </div>
@@ -41,18 +41,8 @@
                     <!-- Linha 1: Filtros principais -->
                     <div class="col-md-3">
                         <label class="form-label fw-bold">Turma</label>
-                        <select class="form-select" name="class">
+                        <select class="form-select" name="class" id="classFilter">
                             <option value="">Todas as turmas</option>
-                            <?php 
-                            $classDisciplineModel = new \App\Models\ClassDisciplineModel();
-                            $teacherId = session()->get('user_id');
-                            $classes = $classDisciplineModel
-                                ->select('tbl_classes.id, tbl_classes.class_name')
-                                ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
-                                ->where('tbl_class_disciplines.teacher_id', $teacherId)
-                                ->distinct()
-                                ->findAll();
-                            ?>
                             <?php if (!empty($classes)): ?>
                                 <?php foreach ($classes as $class): ?>
                                     <option value="<?= $class->id ?>" <?= ($filters['class'] ?? '') == $class->id ? 'selected' : '' ?>>
@@ -75,15 +65,13 @@
                         <label class="form-label fw-bold">Tipo de Exame</label>
                         <select class="form-select" name="board">
                             <option value="">Todos</option>
-                            <?php 
-                            $boardModel = new \App\Models\ExamBoardModel();
-                            $boards = $boardModel->where('is_active', 1)->findAll();
-                            ?>
-                            <?php foreach ($boards as $board): ?>
-                                <option value="<?= $board->id ?>" <?= ($filters['board'] ?? '') == $board->id ? 'selected' : '' ?>>
-                                    <?= $board->board_name ?>
-                                </option>
-                            <?php endforeach; ?>
+                            <?php if (!empty($boards)): ?>
+                                <?php foreach ($boards as $board): ?>
+                                    <option value="<?= $board->id ?>" <?= ($filters['board'] ?? '') == $board->id ? 'selected' : '' ?>>
+                                        <?= $board->board_name ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     
@@ -98,22 +86,16 @@
                     </div>
                     
                     <div class="col-md-2">
-                        <label class="form-label fw-bold">Semestre</label>
-                        <select class="form-select" name="semester">
+                        <label class="form-label fw-bold">Período</label>
+                        <select class="form-select" name="period">
                             <option value="">Todos</option>
-                            <?php 
-                            $semesterModel = new \App\Models\SemesterModel();
-                            $currentYear = model('App\Models\AcademicYearModel')->getCurrent();
-                            $semesters = $currentYear ? $semesterModel
-                                ->where('academic_year_id', $currentYear->id)
-                                ->where('is_active', 1)
-                                ->findAll() : [];
-                            ?>
-                            <?php foreach ($semesters as $semester): ?>
-                                <option value="<?= $semester->id ?>" <?= ($filters['semester'] ?? '') == $semester->id ? 'selected' : '' ?>>
-                                    <?= $semester->semester_name ?>
-                                </option>
-                            <?php endforeach; ?>
+                            <?php if (!empty($periods)): ?>
+                                <?php foreach ($periods as $period): ?>
+                                    <option value="<?= $period->id ?>" <?= ($filters['period'] ?? '') == $period->id ? 'selected' : '' ?>>
+                                        <?= $period->period_name ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </div>
@@ -138,15 +120,6 @@
                             <option value="">Todos</option>
                             <option value="yes" <?= ($filters['has_results'] ?? '') == 'yes' ? 'selected' : '' ?>>Com notas lançadas</option>
                             <option value="no" <?= ($filters['has_results'] ?? '') == 'no' ? 'selected' : '' ?>>Sem notas</option>
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Publicado</label>
-                        <select class="form-select" name="published">
-                            <option value="">Todos</option>
-                            <option value="1" <?= ($filters['published'] ?? '') == '1' ? 'selected' : '' ?>>Publicados</option>
-                            <option value="0" <?= ($filters['published'] ?? '') == '0' ? 'selected' : '' ?>>Não publicados</option>
                         </select>
                     </div>
                 </div>
@@ -255,12 +228,13 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Exame</th>
+                            <th>Tipo</th>
                             <th>Turma</th>
                             <th>Disciplina</th>
-                            <th>Tipo</th>
                             <th>Data</th>
                             <th>Hora</th>
                             <th>Sala</th>
+                            <th>Período</th>
                             <th>Notas</th>
                             <th>Status</th>
                             <th>Ações</th>
@@ -274,22 +248,31 @@
                                           ($exam->exam_date == date('Y-m-d') ? 'success' : 'primary');
                             $statusText = $exam->exam_date < date('Y-m-d') ? 'Realizado' : 
                                          ($exam->exam_date == date('Y-m-d') ? 'Hoje' : 'Agendado');
+                            $boardTypeClass = match($exam->board_type) {
+                                'Avaliação Contínua' => 'info',
+                                'Prova Professor' => 'primary',
+                                'Prova Trimestral' => 'warning',
+                                'Exame Final' => 'danger',
+                                default => 'secondary'
+                            };
                             ?>
                             <tr>
                                 <td>
-                                    <strong><?= $exam->exam_name ?></strong>
-                                    <?php if ($exam->is_published): ?>
-                                        <span class="badge bg-success ms-1" title="Publicado">
-                                            <i class="fas fa-check-circle"></i>
-                                        </span>
-                                    <?php endif; ?>
+                                    <strong><?= $exam->exam_name ?? $exam->board_name ?></strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<?= $boardTypeClass ?>"><?= $exam->board_type ?></span>
                                 </td>
                                 <td><?= $exam->class_name ?></td>
                                 <td><?= $exam->discipline_name ?></td>
-                                <td><span class="badge bg-info"><?= $exam->board_name ?></span></td>
                                 <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
                                 <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
                                 <td><?= $exam->exam_room ?: '-' ?></td>
+                                <td>
+                                    <span class="badge bg-secondary" title="<?= $exam->period_name ?>">
+                                        <?= $exam->period_type ?? 'Normal' ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <?php if ($hasResults): ?>
                                         <span class="badge bg-success" title="Notas lançadas">
@@ -329,6 +312,10 @@
                                         <a href="<?= site_url('teachers/exams/results/' . $exam->id) ?>" 
                                            class="btn btn-sm btn-primary" title="Ver Resultados">
                                             <i class="fas fa-chart-bar"></i>
+                                        </a>
+                                        <a href="<?= site_url('teachers/exams/attendance/' . $exam->id) ?>" 
+                                           class="btn btn-sm btn-warning" title="Registrar Presenças">
+                                            <i class="fas fa-user-check"></i>
                                         </a>
                                     </div>
                                 </td>
@@ -400,12 +387,12 @@ $(document).ready(function() {
         searching: true,
         responsive: true,
         columnDefs: [
-            { orderable: false, targets: [9] } // Desabilitar ordenação para ações
+            { orderable: false, targets: [10] } // Desabilitar ordenação para ações
         ]
     });
     
     // Carregar disciplinas quando turma mudar
-    $('#class').change(function() {
+    $('#classFilter').change(function() {
         const classId = $(this).val();
         const disciplineSelect = $('#disciplineFilter');
         

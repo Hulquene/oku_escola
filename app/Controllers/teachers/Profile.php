@@ -8,7 +8,7 @@ use App\Models\UserModel;
 use App\Models\TeacherModel;
 use App\Models\ClassDisciplineModel;
 use App\Models\EnrollmentModel;
-use App\Models\ExamModel;
+use App\Models\ExamScheduleModel; // ALTERADO
 
 class Profile extends BaseController
 {
@@ -16,7 +16,7 @@ class Profile extends BaseController
     protected $teacherModel;
     protected $classDisciplineModel;
     protected $enrollmentModel;
-    protected $examModel;
+    protected $examScheduleModel; // ALTERADO
     
     public function __construct()
     {
@@ -26,7 +26,7 @@ class Profile extends BaseController
         $this->teacherModel = new TeacherModel();
         $this->classDisciplineModel = new ClassDisciplineModel();
         $this->enrollmentModel = new EnrollmentModel();
-        $this->examModel = new ExamModel();
+        $this->examScheduleModel = new ExamScheduleModel(); // ALTERADO
     }
     
     /**
@@ -242,15 +242,23 @@ class Profile extends BaseController
             $totalStudents += $students;
         }
         
-        // Buscar próximos exames
-        $upcomingExams = $this->examModel
-            ->select('tbl_exams.*, tbl_disciplines.discipline_name, tbl_classes.class_name')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id')
-            ->join('tbl_classes', 'tbl_classes.id = tbl_exams.class_id')
-            ->join('tbl_class_disciplines', 'tbl_class_disciplines.class_id = tbl_exams.class_id AND tbl_class_disciplines.discipline_id = tbl_exams.discipline_id')
+        // ✅ CORRIGIDO: Buscar próximos exames usando ExamScheduleModel
+        $upcomingExams = $this->examScheduleModel
+            ->select('
+                tbl_exam_schedules.*,
+                tbl_disciplines.discipline_name,
+                tbl_classes.class_name,
+                tbl_exam_boards.board_name,
+                tbl_exam_boards.board_type
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+            ->join('tbl_class_disciplines', 'tbl_class_disciplines.class_id = tbl_exam_schedules.class_id AND tbl_class_disciplines.discipline_id = tbl_exam_schedules.discipline_id')
             ->where('tbl_class_disciplines.teacher_id', $userId)
-            ->where('tbl_exams.exam_date >=', date('Y-m-d'))
-            ->orderBy('tbl_exams.exam_date', 'ASC')
+            ->where('tbl_exam_schedules.exam_date >=', date('Y-m-d'))
+            ->where('tbl_exam_schedules.status', 'Agendado')
+            ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
             ->limit(5)
             ->findAll();
         

@@ -127,6 +127,11 @@
     <div class="card">
         <div class="card-header">
             <i class="fas fa-table"></i> Relatório de Presenças
+            <span class="float-end">
+                <?php if ($selectedClass): ?>
+                    <span class="badge bg-info">Turma selecionada</span>
+                <?php endif; ?>
+            </span>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -152,10 +157,10 @@
                             <tr>
                                 <td><?= $row->student_number ?></td>
                                 <td><?= $row->first_name ?> <?= $row->last_name ?></td>
-                                <td class="text-center text-success"><?= $row->present ?></td>
-                                <td class="text-center text-danger"><?= $row->absent ?></td>
-                                <td class="text-center text-warning"><?= $row->late ?></td>
-                                <td class="text-center text-info"><?= $row->justified ?></td>
+                                <td class="text-center text-success fw-bold"><?= $row->present ?></td>
+                                <td class="text-center text-danger fw-bold"><?= $row->absent ?></td>
+                                <td class="text-center text-warning fw-bold"><?= $row->late ?></td>
+                                <td class="text-center text-info fw-bold"><?= $row->justified ?></td>
                                 <td class="text-center fw-bold"><?= $total ?></td>
                                 <td class="text-center">
                                     <span class="badge bg-<?= $rateClass ?>"><?= $rate ?>%</span>
@@ -168,7 +173,8 @@
         </div>
         
         <div class="card-footer text-muted">
-            <small>Relatório gerado em <?= date('d/m/Y H:i') ?> | Período: <?= date('d/m/Y', strtotime($startDate)) ?> a <?= date('d/m/Y', strtotime($endDate)) ?></small>
+            <i class="fas fa-clock"></i> Relatório gerado em <?= date('d/m/Y H:i') ?> | 
+            <i class="fas fa-calendar"></i> Período: <?= date('d/m/Y', strtotime($startDate)) ?> a <?= date('d/m/Y', strtotime($endDate)) ?>
         </div>
     </div>
     
@@ -193,8 +199,14 @@
         padding: 0 !important;
     }
     .card {
-        border: none !important;
+        border: 1px solid #ddd !important;
         box-shadow: none !important;
+    }
+    .table th {
+        background-color: #f2f2f2 !important;
+    }
+    @page {
+        size: landscape;
     }
 </style>
 

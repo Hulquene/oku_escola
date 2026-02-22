@@ -229,23 +229,23 @@ public function save()
         
         // Atualizar dados do professor
         $teacherData = [
-            'birth_date' => $this->request->getPost('birth_date'),
+            'birth_date' => $this->request->getPost('birth_date') ?: null,
             'gender' => $this->request->getPost('gender'),
-            'nationality' => $this->request->getPost('nationality'),
-            'identity_type' => $this->request->getPost('identity_type'),
-            'identity_document' => $this->request->getPost('identity_document'),
-            'nif' => $this->request->getPost('nif'),
-            'province' => $this->request->getPost('province'),
-            'municipality' => $this->request->getPost('municipality'),
-            'city' => $this->request->getPost('city'),
-            'address' => $this->request->getPost('address'),
-            'emergency_contact' => $this->request->getPost('emergency_contact'),
-            'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-            'qualifications' => $this->request->getPost('qualifications'),
-            'specialization' => $this->request->getPost('specialization'),
-            'admission_date' => $this->request->getPost('admission_date'),
-            'bank_name' => $this->request->getPost('bank_name'),
-            'bank_account' => $this->request->getPost('bank_account')
+            'nationality' => $this->request->getPost('nationality') ?: null,
+            'identity_type' => $this->request->getPost('identity_type') ?: null,
+            'identity_document' => $this->request->getPost('identity_document') ?: null, // ← AGORA É NULL SE VAZIO
+            'nif' => $this->request->getPost('nif') ?: null, // ← AGORA É NULL SE VAZIO
+            'province' => $this->request->getPost('province') ?: null,
+            'municipality' => $this->request->getPost('municipality') ?: null,
+            'city' => $this->request->getPost('city') ?: null,
+            'address' => $this->request->getPost('address') ?: null,
+            'emergency_contact' => $this->request->getPost('emergency_contact') ?: null,
+            'emergency_contact_name' => $this->request->getPost('emergency_contact_name') ?: null,
+            'qualifications' => $this->request->getPost('qualifications') ?: null,
+            'specialization' => $this->request->getPost('specialization') ?: null,
+            'admission_date' => $this->request->getPost('admission_date') ?: null,
+            'bank_name' => $this->request->getPost('bank_name') ?: null,
+            'bank_account' => $this->request->getPost('bank_account') ?: null
         ];
         
         $this->teacherModel->update($teacherId, $teacherData);
@@ -277,27 +277,26 @@ public function save()
         $userId = $this->userModel->getInsertID();
         
         // Criar professor
-        $teacherData = [
+         $teacherData = [
             'user_id' => $userId,
-            'birth_date' => $this->request->getPost('birth_date'),
+            'birth_date' => $this->request->getPost('birth_date') ?: null,
             'gender' => $this->request->getPost('gender'),
-            'nationality' => $this->request->getPost('nationality'),
-            'identity_type' => $this->request->getPost('identity_type'),
-            'identity_document' => $this->request->getPost('identity_document'),
-            'nif' => $this->request->getPost('nif'),
-            'province' => $this->request->getPost('province'),
-            'municipality' => $this->request->getPost('municipality'),
-            'city' => $this->request->getPost('city'),
-            'address' => $this->request->getPost('address'),
-            'emergency_contact' => $this->request->getPost('emergency_contact'),
-            'emergency_contact_name' => $this->request->getPost('emergency_contact_name'),
-            'qualifications' => $this->request->getPost('qualifications'),
-            'specialization' => $this->request->getPost('specialization'),
-            'admission_date' => $this->request->getPost('admission_date'),
-            'bank_name' => $this->request->getPost('bank_name'),
-            'bank_account' => $this->request->getPost('bank_account')
+            'nationality' => $this->request->getPost('nationality') ?: null,
+            'identity_type' => $this->request->getPost('identity_type') ?: null,
+            'identity_document' => $this->request->getPost('identity_document') ?: null, // ← AGORA É NULL SE VAZIO
+            'nif' => $this->request->getPost('nif') ?: null, // ← AGORA É NULL SE VAZIO
+            'province' => $this->request->getPost('province') ?: null,
+            'municipality' => $this->request->getPost('municipality') ?: null,
+            'city' => $this->request->getPost('city') ?: null,
+            'address' => $this->request->getPost('address') ?: null,
+            'emergency_contact' => $this->request->getPost('emergency_contact') ?: null,
+            'emergency_contact_name' => $this->request->getPost('emergency_contact_name') ?: null,
+            'qualifications' => $this->request->getPost('qualifications') ?: null,
+            'specialization' => $this->request->getPost('specialization') ?: null,
+            'admission_date' => $this->request->getPost('admission_date') ?: null,
+            'bank_name' => $this->request->getPost('bank_name') ?: null,
+            'bank_account' => $this->request->getPost('bank_account') ?: null
         ];
-        
         if (!$this->teacherModel->insert($teacherData)) {
             $db->transRollback();
             return redirect()->back()->withInput()

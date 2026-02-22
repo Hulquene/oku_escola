@@ -34,7 +34,17 @@
                             </div>
                             <div class="card-body text-center">
                                 <i class="fas fa-school fa-4x text-success mb-3"></i>
-                                <p class="text-muted">Clique abaixo para ver o relatório completo de notas desta turma.</p>
+                                <p class="text-muted">
+                                    <?php
+                                    // Contar disciplinas da turma
+                                    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+                                    $disciplineCount = $classDisciplineModel
+                                        ->where('class_id', $class->id)
+                                        ->where('is_active', 1)
+                                        ->countAllResults();
+                                    ?>
+                                    <strong><?= $disciplineCount ?></strong> disciplinas
+                                </p>
                             </div>
                             <div class="card-footer bg-white text-center">
                                 <a href="<?= site_url('teachers/grades/report/' . $class->id) ?>" 

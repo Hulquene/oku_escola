@@ -35,7 +35,6 @@ class ExamPeriods extends BaseController
         $data['periods'] = $this->examPeriodModel->getActivePeriods($academicYearId);
         $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();
         $data['selectedYear'] = $academicYearId;
-        
         return view('admin/exams/periods/index', $data);
     }
     
@@ -46,7 +45,7 @@ class ExamPeriods extends BaseController
     {
         $data['title'] = 'Novo Período de Exame';
         $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();
-        $data['semesters'] = $this->semesterModel->where('is_active', 1)->findAll();
+        $data['semesters'] = $this->semesterModel->where('status', 'ativo')->findAll();
         
         return view('admin/exams/periods/form', $data);
     }
@@ -65,7 +64,7 @@ class ExamPeriods extends BaseController
         }
         
         $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();
-        $data['semesters'] = $this->semesterModel->where('is_active', 1)->findAll();
+        $data['semesters'] = $this->semesterModel->where('status', 'ativo')->findAll();
         
         return view('admin/exams/periods/form', $data);
     }

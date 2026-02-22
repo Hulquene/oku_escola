@@ -220,7 +220,7 @@ class Classes extends BaseController
         // Buscar TODOS os semestres do ano letivo da turma
         $semesters = $semesterModel
             ->where('academic_year_id', $class->academic_year_id)
-            ->where('is_active', 1)
+            ->whereIn('status', ['ativo', 'processado'])  // ✅ CAMPO NOVO
             ->orderBy('start_date', 'ASC')
             ->findAll();
         

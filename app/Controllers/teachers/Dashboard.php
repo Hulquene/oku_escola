@@ -4,19 +4,22 @@ namespace App\Controllers\teachers;
 
 use App\Controllers\BaseController;
 use App\Models\ClassDisciplineModel;
-use App\Models\ExamModel;
+use App\Models\ExamScheduleModel;
+use App\Models\ExamPeriodModel;
 use App\Models\AttendanceModel;
 
 class Dashboard extends BaseController
 {
     protected $classDisciplineModel;
-    protected $examModel;
+    protected $examScheduleModel;
+    protected $examPeriodModel;
     protected $attendanceModel;
     
     public function __construct()
     {
         $this->classDisciplineModel = new ClassDisciplineModel();
-        $this->examModel = new ExamModel();
+        $this->examScheduleModel = new ExamScheduleModel();
+        $this->examPeriodModel = new ExamPeriodModel();
         $this->attendanceModel = new AttendanceModel();
     }
     
@@ -40,28 +43,51 @@ class Dashboard extends BaseController
                 tbl_classes.capacity,
                 tbl_disciplines.id as discipline_id,
                 tbl_disciplines.discipline_name,
-                tbl_disciplines.discipline_code
+                tbl_disciplines.discipline_code,
+                tbl_grade_levels.level_name
             ')
             ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id', 'left')
             ->where('tbl_class_disciplines.teacher_id', $teacherId)
-            ->where('tbl_classes.is_active', 1)
+            ->where('tbl_classes.is_active', 1) // VOLTAR PARA is_active
             ->orderBy('tbl_classes.class_name', 'ASC')
             ->orderBy('tbl_disciplines.discipline_name', 'ASC')
             ->findAll();
         
-        // Get upcoming exams
-        $data['upcomingExams'] = $this->examModel
+        // Calcular total de alunos
+        $totalStudents = 0;
+        $enrollmentModel = new \App\Models\EnrollmentModel();
+        $processedClasses = [];
+        
+        foreach ($data['myClasses'] as $class) {
+            if (!in_array($class->class_id, $processedClasses)) {
+                $processedClasses[] = $class->class_id;
+                $totalStudents += $enrollmentModel
+                    ->where('class_id', $class->class_id)
+                    ->where('status', 'Ativo')
+                    ->countAllResults();
+            }
+        }
+        $data['totalStudents'] = $totalStudents;
+        
+        // Get upcoming exams (via exam_schedules)
+        $data['upcomingExams'] = $this->examScheduleModel
             ->select('
-                tbl_exams.*,
+                tbl_exam_schedules.*,
                 tbl_classes.class_name,
-                tbl_disciplines.discipline_name
+                tbl_disciplines.discipline_name,
+                tbl_exam_boards.board_name,
+                tbl_exam_boards.board_type
             ')
-            ->join('tbl_classes', 'tbl_classes.id = tbl_exams.class_id')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exams.discipline_id')
-            ->where('tbl_exams.created_by', $teacherId)
-            ->where('tbl_exams.exam_date >=', date('Y-m-d'))
-            ->orderBy('tbl_exams.exam_date', 'ASC')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+            ->join('tbl_class_disciplines', 'tbl_class_disciplines.class_id = tbl_exam_schedules.class_id AND tbl_class_disciplines.discipline_id = tbl_exam_schedules.discipline_id')
+            ->where('tbl_class_disciplines.teacher_id', $teacherId)
+            ->where('tbl_exam_schedules.exam_date >=', date('Y-m-d'))
+            ->where('tbl_exam_schedules.status', 'Agendado')
+            ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
             ->limit(5)
             ->findAll();
         

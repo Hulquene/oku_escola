@@ -14,8 +14,7 @@ class SemesterModel extends BaseModel
         'start_date',
         'end_date',
         'is_current',
-        'is_active',
-        'status'  // NOVO CAMPO ADICIONADO
+        'status'  // APENAS status, NÃO is_active
     ];
     
     protected $validationRules = [
@@ -48,12 +47,12 @@ class SemesterModel extends BaseModel
     protected $updatedField = 'updated_at';
     
     /**
-     * Get semesters by academic year
+     * Get semesters by academic year (apenas ativos)
      */
     public function getByAcademicYear($academicYearId)
     {
         return $this->where('academic_year_id', $academicYearId)
-            ->where('is_active', 1)
+            ->whereIn('status', ['ativo', 'processado'])  // Ativos ou processados
             ->orderBy('start_date', 'ASC')
             ->findAll();
     }
@@ -64,7 +63,7 @@ class SemesterModel extends BaseModel
     public function getCurrent()
     {
         return $this->where('is_current', 1)
-            ->where('is_active', 1)
+            ->whereIn('status', ['ativo', 'processado'])  // Não mostrar concluídos
             ->first();
     }
     
@@ -95,7 +94,7 @@ class SemesterModel extends BaseModel
     }
     
     /**
-     * Get active semesters
+     * Get active semesters (status = 'ativo')
      */
     public function getActive()
     {
@@ -107,7 +106,7 @@ class SemesterModel extends BaseModel
         }
         
         return $this->where('academic_year_id', $currentYear->id)
-            ->where('is_active', 1)
+            ->where('status', 'ativo')
             ->orderBy('start_date', 'ASC')
             ->findAll();
     }
@@ -145,5 +144,30 @@ class SemesterModel extends BaseModel
     public function updateStatus($id, $status)
     {
         return $this->update($id, ['status' => $status]);
+    }
+    
+    /**
+     * Verificar se um semestre está ativo
+     */
+    public function isActive($id)
+    {
+        $semester = $this->find($id);
+        return $semester && $semester->status === 'ativo';
+    }
+    
+    /**
+     * Ativar semestre
+     */
+    public function activate($id)
+    {
+        return $this->update($id, ['status' => 'ativo']);
+    }
+    
+    /**
+     * Desativar semestre
+     */
+    public function deactivate($id)
+    {
+        return $this->update($id, ['status' => 'inativo']);
     }
 }

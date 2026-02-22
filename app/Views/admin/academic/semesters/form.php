@@ -221,11 +221,19 @@
                             </div>
                             <div class="col-md-4">
                                 <small class="text-muted d-block">Status:</small>
-                                <?php if ($semester->is_active): ?>
-                                    <span class="badge bg-success">Ativo</span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">Inativo</span>
-                                <?php endif; ?>
+                                <?php 
+                                // Mapeamento de status para cores e labels
+                                $statusMap = [
+                                    'ativo' => ['class' => 'bg-success', 'label' => 'Ativo'],
+                                    'inativo' => ['class' => 'bg-danger', 'label' => 'Inativo'],
+                                    'processado' => ['class' => 'bg-info', 'label' => 'Processado'],
+                                    'concluido' => ['class' => 'bg-secondary', 'label' => 'Concluído']
+                                ];
+                                
+                                $currentStatus = $semester->status ?? 'inativo';
+                                $statusInfo = $statusMap[$currentStatus] ?? ['class' => 'bg-secondary', 'label' => ucfirst($currentStatus)];
+                                ?>
+                                <span class="badge <?= $statusInfo['class'] ?>"><?= $statusInfo['label'] ?></span>
                                 
                                 <?php if ($semester->is_current): ?>
                                     <span class="badge bg-warning text-dark">Período Atual</span>

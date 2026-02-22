@@ -39,12 +39,6 @@
             <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/courses', 'admin/courses/curriculum']) ? 'show' : '' ?>" id="coursesSubmenu">
                 <li><a href="<?= site_url('admin/courses') ?>" class="<?= uri_string() == 'admin/courses' ? 'active' : '' ?>"><i class="fas fa-list"></i> Lista de Cursos</a></li>
                 <li><a href="<?= site_url('admin/courses/form-add') ?>" class="<?= uri_string() == 'admin/courses/form-add' ? 'active' : '' ?>"><i class="fas fa-plus-circle"></i> Novo Curso</a></li>
-                <li class="sidebar-divider"></li>
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Tipos de Cursos</li>
-                <li><a href="<?= site_url('admin/courses?type=Ciências') ?>"><i class="fas fa-flask"></i> Ciências</a></li>
-                <li><a href="<?= site_url('admin/courses?type=Humanidades') ?>"><i class="fas fa-book"></i> Humanidades</a></li>
-                <li><a href="<?= site_url('admin/courses?type=Económico-Jurídico') ?>"><i class="fas fa-chart-bar"></i> Económico-Jurídico</a></li>
-                <li><a href="<?= site_url('admin/courses?type=Técnico') ?>"><i class="fas fa-tools"></i> Técnico</a></li>
             </ul>
         </li>
         
@@ -87,24 +81,14 @@
             </ul>
         </li>
         
-        <!-- Propinas e Taxas -->
-        <li>
-            <a href="#feesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'active' : '' ?>">
-                <i class="fas fa-money-bill"></i> Propinas e Taxas
-            </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'show' : '' ?>" id="feesSubmenu">
-                <li><a href="<?= site_url('admin/fees/types') ?>" class="<?= uri_string() == 'admin/fees/types' ? 'active' : '' ?>"><i class="fas fa-tag"></i> Tipos de Taxas</a></li>
-                <li><a href="<?= site_url('admin/fees/structure') ?>" class="<?= uri_string() == 'admin/fees/structure' ? 'active' : '' ?>"><i class="fas fa-table"></i> Estrutura de Taxas</a></li>
-                <li><a href="<?= site_url('admin/fees/payments') ?>" class="<?= uri_string() == 'admin/fees/payments' ? 'active' : '' ?>"><i class="fas fa-credit-card"></i> Pagamentos</a></li>
-            </ul>
-        </li>
+       
         
         <!-- ================================================== -->
         <!-- NOVA ESTRUTURA DE EXAMES E AVALIAÇÕES (ATUALIZADA) -->
         <!-- ================================================== -->
-        <li class="sidebar-header small text-uppercase px-3 mt-3 mb-1 text-white-50">
+       <!--  <li class="sidebar-header small text-uppercase px-3 mt-3 mb-1 text-white-50">
             <i class="fas fa-pencil-alt me-1"></i> Avaliações
-        </li>
+        </li> -->
         
         <!-- Exames e Avaliações - Menu Principal -->
         <li>
@@ -143,23 +127,23 @@
                 ]) ? 'show' : '' ?>" id="examsMainSubmenu">
                 
                 <!-- Planeamento -->
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Planeamento</li>
+        <!--         <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Planeamento</li> -->
                 <li><a href="<?= site_url('admin/exams/periods') ?>" class="<?= uri_string() == 'admin/exams/periods' ? 'active' : '' ?>"><i class="fas fa-calendar-alt"></i> Períodos de Exame</a></li>
                 <li><a href="<?= site_url('admin/exams/schedules') ?>" class="<?= uri_string() == 'admin/exams/schedules' ? 'active' : '' ?>"><i class="fas fa-clock"></i> Agendamentos</a></li>
                 
                 <!-- Configurações -->
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Configurações</li>
+            <!--     <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Configurações</li> -->
                 <li><a href="<?= site_url('admin/exams/boards') ?>" class="<?= uri_string() == 'admin/exams/boards' ? 'active' : '' ?>"><i class="fas fa-clipboard-list"></i> Tipos de Exames</a></li>
                 <li><a href="<?= site_url('admin/exams/weights') ?>" class="<?= uri_string() == 'admin/exams/weights' ? 'active' : '' ?>"><i class="fas fa-weight-hanging"></i> Pesos das Avaliações</a></li>
                 
                 <!-- Resultados -->
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Resultados</li>
+           <!--      <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Resultados</li> -->
                 <li><a href="<?= site_url('admin/exams/results') ?>" class="<?= uri_string() == 'admin/exams/results' ? 'active' : '' ?>"><i class="fas fa-star"></i> Resultados de Exames</a></li>
                 <li><a href="<?= site_url('admin/discipline-averages') ?>" class="<?= uri_string() == 'admin/discipline-averages' ? 'active' : '' ?>"><i class="fas fa-chart-line"></i> Médias Disciplinares</a></li>
                 <li><a href="<?= site_url('admin/semester-results') ?>" class="<?= uri_string() == 'admin/semester-results' ? 'active' : '' ?>"><i class="fas fa-calendar-check"></i> Resultados Semestrais</a></li>
                 
                 <!-- Cálculo -->
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Processamento</li>
+        <!--         <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Processamento</li> -->
                 <li><a href="<?= site_url('admin/exams/calculate') ?>" class="<?= uri_string() == 'admin/exams/calculate' ? 'active' : '' ?>"><i class="fas fa-calculator"></i> Calculadora de Médias</a></li>
                 
                 <!-- Recurso -->
@@ -195,7 +179,17 @@
                 <?php endif; ?>
             </a>
         </li>
-
+              <!-- Propinas e Taxas -->
+        <li>
+            <a href="#feesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'active' : '' ?>">
+                <i class="fas fa-money-bill"></i> Propinas e Taxas
+            </a>
+            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'show' : '' ?>" id="feesSubmenu">
+                <li><a href="<?= site_url('admin/fees/types') ?>" class="<?= uri_string() == 'admin/fees/types' ? 'active' : '' ?>"><i class="fas fa-tag"></i> Tipos de Taxas</a></li>
+                <li><a href="<?= site_url('admin/fees/structure') ?>" class="<?= uri_string() == 'admin/fees/structure' ? 'active' : '' ?>"><i class="fas fa-table"></i> Estrutura de Taxas</a></li>
+                <li><a href="<?= site_url('admin/fees/payments') ?>" class="<?= uri_string() == 'admin/fees/payments' ? 'active' : '' ?>"><i class="fas fa-credit-card"></i> Pagamentos</a></li>
+            </ul>
+        </li>
         <!-- Financeiro -->
         <li>
             <a href="#financialSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/financial/invoices', 'admin/financial/payments', 'admin/financial/expenses', 'admin/financial/currencies', 'admin/financial/taxes']) ? 'active' : '' ?>">
@@ -208,8 +202,7 @@
                 <li><a href="<?= site_url('admin/financial/currencies') ?>" class="<?= uri_string() == 'admin/financial/currencies' ? 'active' : '' ?>"><i class="fas fa-coins"></i> Moedas</a></li>
                 <li><a href="<?= site_url('admin/financial/taxes') ?>" class="<?= uri_string() == 'admin/financial/taxes' ? 'active' : '' ?>"><i class="fas fa-percent"></i> Taxas</a></li>
             </ul>
-        </li>
-        
+        </li>    
         <!-- Central de Documentos -->
         <li>
             <a href="#adminDocumentsSubmenu" data-bs-toggle="collapse" 

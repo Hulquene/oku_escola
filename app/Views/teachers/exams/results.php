@@ -10,6 +10,9 @@
             <a href="<?= site_url('teachers/exams/grade/' . $exam->id) ?>" class="btn btn-success me-2">
                 <i class="fas fa-pencil-alt"></i> Lançar/Editar Notas
             </a>
+            <a href="<?= site_url('teachers/exams/attendance/' . $exam->id) ?>" class="btn btn-info me-2">
+                <i class="fas fa-user-check"></i> Presenças
+            </a>
             <a href="<?= site_url('teachers/exams') ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
@@ -35,12 +38,12 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-4">
-                <p><strong>Exame:</strong> <?= esc($exam->exam_name) ?></p>
-                <p><strong>Disciplina:</strong> <?= esc($exam->discipline_name) ?></p>
+                <p><strong>Exame:</strong> <?= esc($exam->exam_name ?? $exam->board_name) ?></p>
+                <p><strong>Tipo:</strong> <span class="badge bg-info"><?= esc($exam->board_type) ?></span></p>
             </div>
             <div class="col-md-4">
                 <p><strong>Turma:</strong> <?= esc($exam->class_name) ?></p>
-                <p><strong>Tipo:</strong> <span class="badge bg-info"><?= esc($exam->board_name) ?></span></p>
+                <p><strong>Disciplina:</strong> <?= esc($exam->discipline_name) ?></p>
             </div>
             <div class="col-md-4">
                 <p><strong>Data:</strong> <?= date('d/m/Y', strtotime($exam->exam_date)) ?></p>
@@ -86,7 +89,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="card-title text-white-50">Média</h6>
-                        <h2 class="mb-0"><?= $statistics->average ?? 0 ?></h2>
+                        <h2 class="mb-0"><?= number_format($statistics->average ?? 0, 1) ?></h2>
                     </div>
                     <i class="fas fa-chart-line fa-3x text-white-50"></i>
                 </div>
@@ -135,6 +138,7 @@
                             <th>Aluno</th>
                             <th>Nota</th>
                             <th>Percentual</th>
+                            <th>Falta</th>
                             <th>Status</th>
                             <th>Data Registro</th>
                         </tr>
@@ -142,32 +146,38 @@
                     <tbody>
                         <?php foreach ($results as $result): ?>
                             <?php 
-                            $percentage = ($result->score / $exam->max_score) * 100;
-                            $statusClass = $percentage >= 50 ? 'success' : 'danger';
-                            $statusText = $percentage >= 50 ? 'Aprovado' : 'Reprovado';
-                            $dateField = isset($result->created_at) ? $result->created_at : ($result->recorded_at ?? null);
+                            $percentage = $exam->max_score > 0 ? ($result->score / $exam->max_score) * 100 : 0;
+                            $statusClass = $result->is_absent ? 'secondary' : 
+                                          ($percentage >= 50 ? 'success' : 'danger');
+                            $statusText = $result->is_absent ? 'Falta' : 
+                                         ($percentage >= 50 ? 'Aprovado' : 'Reprovado');
+                            $dateField = $result->created_at ?? $result->recorded_at ?? null;
                             ?>
                             <tr>
                                 <td><span class="badge bg-secondary"><?= $result->student_number ?></span></td>
                                 <td><?= $result->first_name ?> <?= $result->last_name ?></td>
                                 <td>
                                     <strong><?= number_format($result->score, 1) ?></strong> / <?= $exam->max_score ?>
-                                    <?php if (isset($result->grade) && $result->grade): ?>
-                                        <br><small class="text-muted">Nota: <?= $result->grade ?></small>
-                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                            <div class="progress-bar bg-<?= $statusClass ?>" 
+                                            <div class="progress-bar bg-<?= $result->is_absent ? 'secondary' : ($percentage >= 50 ? 'success' : 'danger') ?>" 
                                                  style="width: <?= $percentage ?>%"></div>
                                         </div>
                                         <span><?= number_format($percentage, 1) ?>%</span>
                                     </div>
                                 </td>
+                                <td class="text-center">
+                                    <?php if ($result->is_absent): ?>
+                                        <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Sim</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Não</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <span class="badge bg-<?= $statusClass ?> p-2">
-                                        <i class="fas fa-<?= $percentage >= 50 ? 'check-circle' : 'times-circle' ?> me-1"></i>
+                                        <i class="fas fa-<?= $result->is_absent ? 'user-times' : ($percentage >= 50 ? 'check-circle' : 'times-circle') ?> me-1"></i>
                                         <?= $statusText ?>
                                     </span>
                                 </td>
@@ -180,8 +190,8 @@
                     <tfoot class="table-light">
                         <tr>
                             <th colspan="2">Totais</th>
-                            <th><?= count($results) ?> alunos</th>
-                            <th colspan="3">Média: <?= number_format($statistics->average ?? 0, 1) ?></th>
+                            <th><?= $statistics->total ?? 0 ?> alunos</th>
+                            <th colspan="4">Média: <?= number_format($statistics->average ?? 0, 1) ?></th>
                         </tr>
                     </tfoot>
                 </table>
@@ -199,7 +209,8 @@
                     <div class="alert alert-secondary mb-0">
                         <i class="fas fa-chart-pie me-2"></i>
                         <strong>Aprovados:</strong> <?= $statistics->approved ?? 0 ?> | 
-                        <strong>Reprovados:</strong> <?= $statistics->failed ?? 0 ?>
+                        <strong>Reprovados:</strong> <?= $statistics->failed ?? 0 ?> |
+                        <strong>Faltas:</strong> <?= $statistics->absent ?? 0 ?>
                     </div>
                 </div>
             </div>
@@ -262,10 +273,5 @@ function exportTableToExcel() {
     link.setAttribute('download', 'resultados_exame_<?= $exam->id ?>_' + new Date().toISOString().split('T')[0] + '.csv');
     link.click();
 }
-
-// Atualizar página a cada 30 segundos (opcional)
-// setTimeout(function() {
-//     location.reload();
-// }, 30000);
 </script>
 <?= $this->endSection() ?>

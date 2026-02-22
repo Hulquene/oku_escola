@@ -22,6 +22,24 @@
 <!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
+<!-- Antes do calendário, adicione uma legenda -->
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+            <span class="fw-bold me-2">Legenda:</span>
+            <span><i class="fas fa-circle text-primary me-1"></i> Eventos Manuais</span>
+            <span><i class="fas fa-circle text-danger me-1"></i> Exames</span>
+            <span><i class="fas fa-circle text-success me-1"></i> Fim de Semestre (Concluído)</span>
+            <span><i class="fas fa-circle text-warning me-1"></i> Fim de Semestre (Processado)</span>
+            <span><i class="fas fa-circle text-secondary me-1"></i> Fim de Semestre (Inativo)</span>
+            <span><i class="fas fa-circle text-info me-1"></i> Fim de Semestre (Atual)</span>
+            <span class="ms-auto">
+                <small class="text-muted">Os eventos podem ser arrastados apenas para eventos manuais</small>
+            </span>
+        </div>
+    </div>
+</div>
+
 <!-- Calendar -->
 <div class="card">
     <div class="card-header">

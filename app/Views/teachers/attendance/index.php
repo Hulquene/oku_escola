@@ -138,6 +138,9 @@
             <i class="fas fa-book me-2"></i>
             <strong>Disciplina:</strong> 
             <span id="selectedDisciplineName"><?= $selectedDisciplineName ?></span>
+            <?php if (!empty($currentSemester)): ?>
+                | <strong>Semestre:</strong> <?= $currentSemester->semester_name ?? '' ?>
+            <?php endif; ?>
         </div>
         
         <!-- Formulário de Presenças -->
@@ -268,7 +271,7 @@ classSelect.addEventListener('change', function() {
         disciplineSelect.innerHTML = '<option value="">Carregando...</option>';
         disciplineSelect.disabled = true;
         
-        fetch(`<?= site_url('teachers/attendance/get-disciplines/') ?>/${classId}`, {
+        fetch(`<?= site_url('teachers/attendance/get-disciplines/') ?>${classId}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
@@ -278,12 +281,17 @@ classSelect.addEventListener('change', function() {
             disciplineSelect.innerHTML = '<option value="">Selecione...</option>';
             disciplineSelect.disabled = false;
             
-            data.forEach(discipline => {
-                const selected = (selectedDisciplineId == discipline.id) ? 'selected' : '';
-                disciplineSelect.innerHTML += `<option value="${discipline.id}" ${selected}>${discipline.discipline_name}</option>`;
-            });
+            if (data && data.length > 0) {
+                data.forEach(discipline => {
+                    const selected = (selectedDisciplineId == discipline.id) ? 'selected' : '';
+                    disciplineSelect.innerHTML += `<option value="${discipline.id}" ${selected}>${discipline.discipline_name}</option>`;
+                });
+                
+                console.log('Disciplinas carregadas:', data);
+            } else {
+                disciplineSelect.innerHTML = '<option value="" disabled>Nenhuma disciplina disponível</option>';
+            }
             
-            console.log('Disciplinas carregadas:', data);
             checkFormCompletion();
         })
         .catch(error => {
@@ -340,6 +348,7 @@ function updateStats() {
             case 'Ausente': absent++; break;
             case 'Atrasado': late++; break;
             case 'Falta Justificada': justified++; break;
+            // Dispensado não conta nas estatísticas
         }
     });
     
@@ -348,7 +357,7 @@ function updateStats() {
     document.getElementById('statLate').textContent = late;
     document.getElementById('statJustified').textContent = justified;
     
-    // Calcular percentuais
+    // Calcular percentuais (baseado no total de alunos, não apenas nos com status)
     if (total > 0) {
         document.getElementById('presentPercent').textContent = Math.round((present / total) * 100) + '%';
         document.getElementById('absentPercent').textContent = Math.round((absent / total) * 100) + '%';

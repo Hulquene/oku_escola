@@ -373,23 +373,44 @@ CREATE TABLE `tbl_exam_boards` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `board_name` VARCHAR(255) NOT NULL,
     `board_code` VARCHAR(50) NOT NULL,
-    `board_type` ENUM('Normal','Recurso','Especial','Final','Admissão') NOT NULL,
+    `board_type` ENUM(
+    'Avaliação Contínua',  -- MAC
+    'Prova Professor',     -- NPP
+    'Prova Trimestral',    -- NPT
+    'Exame Final',         -- E
+    'Recurso',             -- Exame Recurso
+    'Especial',            -- Exame Especial
+    'Combinado'            -- MEC (Escrito+Oral+Prático)
+) NOT NULL,
     `weight` DECIMAL(5,2) DEFAULT '1.00',
     `is_active` TINYINT(1) DEFAULT '1',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `board_code` (`board_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 
 CREATE TABLE `tbl_exam_results` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `enrollment_id` INT(11) NOT NULL,
     `exam_schedule_id` INT(11) NULL,
-    `is_absent` TINYINT(1) DEFAULT '0' AFTER `score`,
-    `is_cheating` TINYINT(1) DEFAULT '0' AFTER `is_absent`,
-    `verified_by` INT(11) NULL AFTER `recorded_by`,
-    `verified_at` DATETIME NULL AFTER `verified_by`,
+    `assessment_type` ENUM(
+    'AC',      -- Avaliação Contínua
+    'NPP',     -- Prova Professor
+    'NPT',     -- Prova Trimestral
+    'E',       -- Exame Final
+    'NEE',     -- Exame Combinado Escrito
+    'NEO',     -- Exame Combinado Oral
+    'NEP',     -- Exame Combinado Prático
+    'PAP',     -- Prova Aptidão Profissional
+    'NEC'      -- Nota Estágio Curricular
+) NOT NULL,
+    `is_absent` TINYINT(1) DEFAULT '0',
+    `is_cheating` TINYINT(1) DEFAULT '0',
+    `verified_by` INT(11) NULL,
+    `verified_at` DATETIME NULL,
     `score` DECIMAL(5,2) NOT NULL,
     `score_percentage` DECIMAL(5,2),
     `grade` VARCHAR(5),
@@ -397,7 +418,7 @@ CREATE TABLE `tbl_exam_results` (
     `recorded_by` INT(11),
     `recorded_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `recorded_at`,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `enrollment_id` (`enrollment_id`),
     KEY `recorded_by` (`recorded_by`),
@@ -1125,11 +1146,6 @@ ALTER TABLE `tbl_student_guardians`
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 
--- 11. Tabela: tbl_exam_boards
-ALTER TABLE `tbl_exam_boards` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
-
 -- 15. Tabela: tbl_fee_types
 ALTER TABLE `tbl_fee_types` 
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
@@ -1329,6 +1345,8 @@ CREATE TABLE IF NOT EXISTS `tbl_semester_results` (
     `observations` TEXT,
     `calculated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `calculated_by` INT(11),
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_semester_result` (`enrollment_id`, `semester_id`),
     KEY `semester_id` (`semester_id`),
@@ -1383,6 +1401,38 @@ CREATE TABLE IF NOT EXISTS `tbl_exam_supervisors` (
     CONSTRAINT `fk_exam_supervisors_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `tbl_teachers` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- --------------------------------------------------------
+-- Estrutura da tabela `tbl_notifications`
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_notifications` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL COMMENT 'ID do usuário destinatário',
+    `user_type` ENUM('admin','teacher','student','guardian','staff') NOT NULL COMMENT 'Tipo de usuário',
+    `title` VARCHAR(255) NOT NULL COMMENT 'Título da notificação',
+    `message` TEXT NOT NULL COMMENT 'Mensagem da notificação',
+    `icon` VARCHAR(50) DEFAULT 'fa-info-circle' COMMENT 'Ícone FontAwesome',
+    `color` VARCHAR(20) DEFAULT 'primary' COMMENT 'Cor do ícone (primary, success, warning, danger, info)',
+    `link` VARCHAR(500) DEFAULT NULL COMMENT 'Link para acessar a notificação',
+    `link_text` VARCHAR(100) DEFAULT 'Ver detalhes' COMMENT 'Texto do link',
+    `entity_type` VARCHAR(50) DEFAULT NULL COMMENT 'Tipo de entidade relacionada (enrollment, exam, fee, etc)',
+    `entity_id` INT(11) DEFAULT NULL COMMENT 'ID da entidade relacionada',
+    `is_read` TINYINT(1) DEFAULT '0' COMMENT '0=não lida, 1=lida',
+    `read_at` DATETIME NULL COMMENT 'Data/hora da leitura',
+    `is_global` TINYINT(1) DEFAULT '0' COMMENT '1=para todos os usuários de um tipo',
+    `expires_at` DATETIME NULL COMMENT 'Data de expiração da notificação',
+    `created_by` INT(11) DEFAULT NULL COMMENT 'ID do usuário que gerou a notificação',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `user_id` (`user_id`),
+    KEY `user_type` (`user_type`),
+    KEY `is_read` (`is_read`),
+    KEY `created_at` (`created_at`),
+    KEY `entity_type_entity_id` (`entity_type`, `entity_id`),
+    KEY `expires_at` (`expires_at`),
+    CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- --------------------------------------------------------
 -- Inserção de Dados Iniciais
 -- --------------------------------------------------------
@@ -1442,16 +1492,28 @@ INSERT INTO `tbl_fee_types` (`type_name`, `type_code`, `type_category`, `is_recu
 ('Taxa de Certificado', 'FEE-CERT', 'Taxa Administrativa', 0, NULL),
 ('Material Escolar', 'FEE-MAT', 'Outro', 0, NULL);
 
--- Inserir tipos de exames/avaliações
-INSERT INTO `tbl_exam_boards` (`board_name`, `board_code`, `board_type`, `weight`) VALUES
-('Avaliação Contínua 1', 'AC1', 'Normal', 1.0),
-('Avaliação Contínua 2', 'AC2', 'Normal', 1.0),
-('Avaliação Contínua 3', 'AC3', 'Normal', 1.0),
-('Exame Trimestral', 'EX-TRI', 'Normal', 2.0),
-('Exame Semestral', 'EX-SEM', 'Normal', 2.0),
-('Exame Final', 'EX-FIN', 'Final', 3.0),
-('Exame de Recurso', 'EX-REC', 'Recurso', 1.5),
-('Exame Especial', 'EX-ESP', 'Especial', 1.0);
+INSERT INTO `tbl_exam_boards` 
+(`board_name`, `board_code`, `board_type`, `weight`, `is_active`) VALUES
+-- AVALIAÇÕES CONTÍNUAS (MAC)
+('Avaliação Contínua', 'AC', 'Avaliação Contínua', 1.00, 1),
+-- PROVA DO PROFESSOR (NPP)
+('Prova do Professor', 'NPP', 'Prova Professor', 1.00, 1),
+-- PROVAS TRIMESTRAIS (NPT)
+('Prova Trimestral', 'NPT', 'Prova Trimestral', 2.00, 1),
+-- EXAMES FINAIS (E)
+('Exame Final', 'EX-FIN', 'Exame Final', 3.00, 1),
+-- EXAMES DE RECURSO
+('Exame de Recurso', 'REC', 'Recurso', 1.50, 1),
+-- EXAMES ESPECIAIS
+('Exame Especial', 'ESP', 'Especial', 1.00, 1),
+-- EXAMES COMBINADOS (MEC) - 3 registros
+('Exame Combinado - Escrito', 'EC-ESC', 'Combinado', 1.00, 1),
+('Exame Combinado - Oral', 'EC-ORAL', 'Combinado', 1.00, 1),
+('Exame Combinado - Prático', 'EC-PRAT', 'Combinado', 1.00, 1),
+-- CURSOS TÉCNICOS
+('Prova Aptidão Profissional', 'PAP', 'Especial', 2.00, 1),
+('Nota Estágio Curricular', 'NEC', 'Especial', 2.00, 1);
+
 
 -- Inserir categorias de despesas
 INSERT INTO `tbl_expense_categories` (`category_name`, `category_code`) VALUES

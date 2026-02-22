@@ -48,7 +48,7 @@ abstract class BaseController extends Controller
     /**
      * Helpers to load
      */
-    protected $helpers = ['url', 'form', 'html', 'text', 'log','date', 'student','auth'];
+    protected $helpers = ['url', 'form', 'html', 'text', 'log','date', 'student','teacher','auth','notification'];
     
     /**
      * Data to be passed to views
@@ -78,10 +78,16 @@ abstract class BaseController extends Controller
             ];
         }
         
+         
+        // DADOS GLOBAIS PARA TODAS AS VIEWS
         // Set common view data
         $this->data['currentUser'] = $this->currentUser;
         $this->data['session'] = $this->session;
         $this->data['request'] = $this->request;
+
+         // NOTIFICAÇÕES GLOBAIS (disponíveis em todas as views)
+        $this->data['unreadNotifications'] = get_unread_notifications_count();
+        $this->data['recentNotifications'] = get_recent_notifications(5);
     }
     
     /**
