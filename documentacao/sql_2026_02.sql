@@ -304,7 +304,14 @@ CREATE TABLE `tbl_enrollments` (
     `enrollment_number` VARCHAR(50) NOT NULL,
     `enrollment_type` ENUM('Nova','Renovação','Transferência') NOT NULL,
     `previous_class_id` INT(11),
+    `final_average` DECIMAL(5,2) NULL AFTER `final_result`,
+    `completion_date` DATE NULL AFTER `final_average`,
+    `certificate_number` VARCHAR(50) NULL AFTER `completion_date`,
+    `grade_level_id` INT NOT NULL AFTER `academic_year_id`,
+    `previous_grade_id` INT NULL AFTER `grade_level_id`,
+    `course_id` INT(11) NULL AFTER `grade_level_id`,
     `status` ENUM('Pendente','Ativo','Concluído','Transferido','Anulado') NOT NULL DEFAULT 'Pendente',
+    `final_result` ENUM('Aprovado', 'Reprovado', 'Recurso', 'Em Andamento', 'Dispensado') NULL DEFAULT 'Em Andamento' AFTER `status`,
     `observations` TEXT,
     `created_by` INT(11),
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -315,13 +322,27 @@ CREATE TABLE `tbl_enrollments` (
     KEY `class_id` (`class_id`),
     KEY `academic_year_id` (`academic_year_id`),
     KEY `status` (`status`),
+    KEY `course_id` (`course_id`),
     KEY `created_by` (`created_by`),
+    FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels`(`id`),
+    FOREIGN KEY (`previous_grade_id`) REFERENCES `tbl_grade_levels`(`id`),
+    FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_enrollments_student` FOREIGN KEY (`student_id`) REFERENCES `tbl_students` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_enrollments_class` FOREIGN KEY (`class_id`) REFERENCES `tbl_classes` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_enrollments_academic_year` FOREIGN KEY (`academic_year_id`) REFERENCES `tbl_academic_years` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_enrollments_previous_class` FOREIGN KEY (`previous_class_id`) REFERENCES `tbl_classes` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_enrollments_created_by` FOREIGN KEY (`created_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Adicionar campos para controle de resultado final
+/* 
+ADD COLUMN 
+ADD INDEX `idx_final_result` (`final_result`); 
+
+/* 
+ADD CONSTRAINT `fk_enrollments_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE SET NULL; */
+
+
 
 CREATE TABLE `tbl_enrollment_documents` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -1084,18 +1105,6 @@ CREATE TABLE IF NOT EXISTS `tbl_course_disciplines` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-ALTER TABLE `tbl_enrollments` 
-ADD COLUMN `grade_level_id` INT NOT NULL AFTER `academic_year_id`,
-ADD COLUMN `previous_grade_id` INT NULL AFTER `grade_level_id`,
-ADD FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels`(`id`),
-ADD FOREIGN KEY (`previous_grade_id`) REFERENCES `tbl_grade_levels`(`id`);
--- --------------------------------------------------------
--- Adicionar campo course_id à tabela tbl_enrollments
--- --------------------------------------------------------
-ALTER TABLE `tbl_enrollments` 
-ADD COLUMN `course_id` INT(11) NULL AFTER `grade_level_id`,
-ADD KEY `course_id` (`course_id`),
-ADD CONSTRAINT `fk_enrollments_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE SET NULL;
 
 -- --------------------------------------------------------
 -- Adicionar campo course_id à tabela tbl_classes
@@ -1109,13 +1118,6 @@ ALTER TABLE `tbl_course_disciplines`
 ADD COLUMN `updated_at` timestamp NULL DEFAULT NULL AFTER `created_at`;
 
 
--- Adicionar campos para controle de resultado final
-ALTER TABLE `tbl_enrollments` 
-ADD COLUMN `final_result` ENUM('Aprovado', 'Reprovado', 'Recurso', 'Em Andamento', 'Dispensado') NULL DEFAULT 'Em Andamento' AFTER `status`,
-ADD COLUMN `final_average` DECIMAL(5,2) NULL AFTER `final_result`,
-ADD COLUMN `completion_date` DATE NULL AFTER `final_average`,
-ADD COLUMN `certificate_number` VARCHAR(50) NULL AFTER `completion_date`,
-ADD INDEX `idx_final_result` (`final_result`);
 
 -- --------------------------------------------------------
 -- Adicionar colunas created_at e updated_at nas tabelas que não possuem

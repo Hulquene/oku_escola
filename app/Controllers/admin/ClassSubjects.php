@@ -270,7 +270,7 @@ public function assign()
             // Buscar todos os semestres do ano letivo
             $allSemesters = $this->semesterModel
                 ->where('academic_year_id', $data['selectedClassInfo']->academic_year_id)
-                ->where('is_active', 1)
+                ->where('status', 'ativo')
                 ->orderBy('start_date', 'ASC')
                 ->findAll();
             
@@ -596,7 +596,7 @@ public function assignTeachers($classId)
     // Buscar todos os semestres do ano letivo para referência
     $data['all_semesters'] = $this->semesterModel
         ->where('academic_year_id', $data['class']->academic_year_id)
-        ->whereIn('status', ['ativo', 'processado'])  // ✅ CORRIGIDO
+        ->where('status', 'ativo')
         ->orderBy('start_date', 'ASC')
         ->findAll();
     

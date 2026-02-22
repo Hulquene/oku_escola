@@ -240,4 +240,52 @@ public function generateForPeriod($periodId, $classIds = [], $examBoardId = null
         
         return $builder->countAllResults() > 0;
     }
+
+/**
+ * Update exam status
+ * 
+ * @param int $id ID do agendamento
+ * @param string $status Novo status (Agendado, Realizado, Cancelado, Adiado)
+ * @param int $userId ID do usuário que está alterando (opcional)
+ * @return bool
+ */
+public function updateStatus($id, $status, $userId = null)
+{
+    // Validar status permitidos
+    $allowedStatus = ['Agendado', 'Realizado', 'Cancelado', 'Adiado'];
+    if (!in_array($status, $allowedStatus)) {
+        log_message('error', "Tentativa de atualizar status para valor inválido: {$status}");
+        return false;
+    }
+    
+    // Buscar o exame para verificar se existe
+    $exam = $this->find($id);
+    if (!$exam) {
+        log_message('error', "Tentativa de atualizar status de exame inexistente ID: {$id}");
+        return false;
+    }
+    
+    // Verificar se já está com o mesmo status
+    if ($exam->status === $status) {
+        log_message('info', "Exame ID {$id} já está com status {$status}");
+        return true; // Nada a fazer, mas consideramos sucesso
+    }
+    
+    // Registrar status anterior para log
+    $oldStatus = $exam->status;
+    
+    // Atualizar status
+    $result = $this->update($id, ['status' => $status]);
+    
+    if ($result) {
+        log_message('info', "Exame ID {$id} status alterado de {$oldStatus} para {$status}" . 
+                    ($userId ? " pelo usuário {$userId}" : ""));
+        
+        // Disparar evento ou trigger se necessário
+        $this->afterStatusChange($id, $oldStatus, $status, $userId);
+    }
+    
+    return $result;
+}
+
 }

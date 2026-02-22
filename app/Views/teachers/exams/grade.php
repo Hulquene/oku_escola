@@ -4,7 +4,17 @@
 
 <!-- Page Header -->
 <div class="page-header">
-    <h1>Lançar Notas - <?= $exam->exam_name ?? $exam->board_name ?></h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Lançar Notas - <?= $exam->exam_name ?? $exam->board_name ?></h1>
+        <div>
+            <a href="<?= site_url('teachers/exams/attendance/' . $exam->id) ?>" class="btn btn-info me-2">
+                <i class="fas fa-user-check"></i> Presenças
+            </a>
+            <a href="<?= site_url('teachers/exams') ?>" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('teachers/dashboard') ?>">Dashboard</a></li>
@@ -43,17 +53,30 @@
         <div class="col-md-3">
             <strong>Nota Mínima Aprovação:</strong> <?= $exam->approval_score ?? 10 ?>
         </div>
+        <div class="col-md-3">
+            <strong>Presenças:</strong>
+            <span class="badge bg-success"><?= $attendanceStats['present'] ?? 0 ?> presentes</span>
+            <span class="badge bg-danger"><?= $attendanceStats['absent'] ?? 0 ?> ausentes</span>
+        </div>
     </div>
 </div>
 
 <!-- Grades Form -->
 <div class="card">
-    <div class="card-header bg-success text-white">
-        <i class="fas fa-star"></i> Notas dos Alunos
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Notas dos Alunos</h5>
+        <div>
+            <span class="badge bg-light text-dark me-2">
+                <i class="fas fa-check-circle text-success"></i> Aprovado: ≥ <?= $exam->approval_score ?? 10 ?>
+            </span>
+            <span class="badge bg-light text-dark">
+                <i class="fas fa-times-circle text-danger"></i> Reprovado: < <?= $exam->approval_score ?? 10 ?>
+            </span>
+        </div>
     </div>
     <div class="card-body">
         <?php if (!empty($students)): ?>
-            <form action="<?= site_url('teachers/exams/save-grades') ?>" method="post">
+            <form action="<?= site_url('teachers/exams/save-grades') ?>" method="post" id="gradeForm">
                 <?= csrf_field() ?>
                 <input type="hidden" name="exam_schedule_id" value="<?= $exam->id ?>">
                 
@@ -63,8 +86,8 @@
                             <tr>
                                 <th>Nº Matrícula</th>
                                 <th>Aluno</th>
+                                <th>Presença</th>
                                 <th>Nota (0-<?= $exam->max_score ?>)</th>
-                                <th>Falta</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -72,35 +95,37 @@
                             <?php foreach ($students as $student): ?>
                                 <?php 
                                 $result = $results[$student->enrollment_id] ?? null;
+                                $attendance = $attendances[$student->enrollment_id] ?? null;
                                 $score = $result ? $result->score : '';
-                                $isAbsent = $result && $result->is_absent ? 'checked' : '';
+                                $isAbsent = $attendance && !$attendance->attended;
+                                $absentChecked = $isAbsent ? 'checked' : '';
+                                $scoreDisabled = $isAbsent ? 'disabled' : '';
                                 ?>
                                 <tr>
-                                    <td><?= $student->student_number ?></td>
+                                    <td><span class="badge bg-secondary"><?= $student->student_number ?></span></td>
                                     <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                                    <td class="text-center">
+                                        <?php if ($isAbsent): ?>
+                                            <span class="badge bg-danger">Faltou</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-success">Presente</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td style="width: 150px;">
                                         <input type="number" 
-                                               class="form-control score-input" 
+                                               class="form-control form-control-sm score-input" 
                                                name="scores[<?= $student->enrollment_id ?>]" 
                                                value="<?= $score ?>"
                                                step="0.1"
                                                min="0"
-                                               max="<?= $exam->max_score ?>">
+                                               max="<?= $exam->max_score ?>"
+                                               <?= $scoreDisabled ?>>
                                     </td>
-                                    <td class="text-center">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" 
-                                                   name="absences[<?= $student->enrollment_id ?>]" 
-                                                   value="1" <?= $isAbsent ?>>
-                                            <label class="form-check-label">Faltou</label>
-                                        </div>
-                                    </td>
-                                    <td>
+                                    <td class="status-cell">
                                         <?php if ($isAbsent): ?>
                                             <span class="badge bg-danger">Falta</span>
                                         <?php elseif ($score !== ''): ?>
-                                            <?php $approvalScore = $exam->approval_score ?? 10; ?>
-                                            <?php if ($score >= $approvalScore): ?>
+                                            <?php if ($score >= $exam->approval_score): ?>
                                                 <span class="badge bg-success">Aprovado</span>
                                             <?php else: ?>
                                                 <span class="badge bg-danger">Reprovado</span>
@@ -117,16 +142,21 @@
                 
                 <hr>
                 
-                <div class="d-flex justify-content-between">
-                    <a href="<?= site_url('teachers/exams') ?>" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Voltar
-                    </a>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-muted">
+                        <i class="fas fa-users me-1"></i> Total: <strong><?= $totalStudents ?></strong> alunos
+                        <span class="ms-3">
+                            <i class="fas fa-check-circle text-success"></i> 
+                            <span id="approvedCount">0</span> aprovados
+                        </span>
+                        <span class="ms-3">
+                            <i class="fas fa-times-circle text-danger"></i> 
+                            <span id="failedCount">0</span> reprovados
+                        </span>
+                    </div>
                     <div>
                         <button type="button" class="btn btn-info me-2" onclick="fillAllScores()">
                             <i class="fas fa-magic"></i> Preencher Todos
-                        </button>
-                        <button type="button" class="btn btn-warning me-2" onclick="markAllAbsent()">
-                            <i class="fas fa-user-times"></i> Todos Faltaram
                         </button>
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save"></i> Salvar Notas
@@ -135,7 +165,7 @@
                 </div>
             </form>
         <?php else: ?>
-            <p class="text-muted text-center">Nenhum aluno encontrado para esta turma.</p>
+            <p class="text-muted text-center py-4">Nenhum aluno encontrado para esta turma.</p>
         <?php endif; ?>
     </div>
 </div>
@@ -144,21 +174,16 @@
 
 <?= $this->section('scripts') ?>
 <script>
+const maxScore = <?= $exam->max_score ?>;
+const approvalScore = <?= $exam->approval_score ?? 10 ?>;
+
 function fillAllScores() {
-    const inputs = document.querySelectorAll('.score-input');
+    const inputs = document.querySelectorAll('.score-input:not(:disabled)');
     inputs.forEach(input => {
         if (!input.value) {
-            input.value = '<?= ($exam->max_score / 2) ?>';
+            input.value = (maxScore / 2).toFixed(1);
+            input.dispatchEvent(new Event('change'));
         }
-    });
-}
-
-function markAllAbsent() {
-    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.checked = true;
-    });
-    document.querySelectorAll('.score-input').forEach(input => {
-        input.value = '';
     });
 }
 
@@ -166,14 +191,10 @@ function markAllAbsent() {
 document.querySelectorAll('.score-input').forEach(input => {
     input.addEventListener('change', function() {
         const row = this.closest('tr');
-        const statusCell = row.querySelector('td:last-child');
+        const statusCell = row.querySelector('.status-cell');
         const score = parseFloat(this.value);
-        const absentCheck = row.querySelector('input[type="checkbox"]');
-        const approvalScore = <?= $exam->approval_score ?? 10 ?>;
         
-        if (absentCheck.checked) {
-            statusCell.innerHTML = '<span class="badge bg-danger">Falta</span>';
-        } else if (score !== '' && !isNaN(score)) {
+        if (!isNaN(score)) {
             if (score >= approvalScore) {
                 statusCell.innerHTML = '<span class="badge bg-success">Aprovado</span>';
             } else {
@@ -182,29 +203,27 @@ document.querySelectorAll('.score-input').forEach(input => {
         } else {
             statusCell.innerHTML = '<span class="badge bg-secondary">Pendente</span>';
         }
+        updateStats();
     });
 });
 
-// Update status when checkbox changes
-document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-        const row = this.closest('tr');
-        const statusCell = row.querySelector('td:last-child');
-        const score = row.querySelector('.score-input').value;
-        const approvalScore = <?= $exam->approval_score ?? 10 ?>;
-        
-        if (this.checked) {
-            statusCell.innerHTML = '<span class="badge bg-danger">Falta</span>';
-        } else if (score !== '' && !isNaN(parseFloat(score))) {
-            if (parseFloat(score) >= approvalScore) {
-                statusCell.innerHTML = '<span class="badge bg-success">Aprovado</span>';
-            } else {
-                statusCell.innerHTML = '<span class="badge bg-danger">Reprovado</span>';
-            }
-        } else {
-            statusCell.innerHTML = '<span class="badge bg-secondary">Pendente</span>';
-        }
+// Atualizar estatísticas
+function updateStats() {
+    let approved = 0, failed = 0;
+    
+    document.querySelectorAll('.status-cell').forEach(cell => {
+        const text = cell.textContent.trim();
+        if (text === 'Aprovado') approved++;
+        else if (text === 'Reprovado') failed++;
     });
+    
+    document.getElementById('approvedCount').textContent = approved;
+    document.getElementById('failedCount').textContent = failed;
+}
+
+// Atualizar na carga inicial
+document.addEventListener('DOMContentLoaded', function() {
+    updateStats();
 });
 </script>
 <?= $this->endSection() ?>

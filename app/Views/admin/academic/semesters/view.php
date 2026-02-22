@@ -57,13 +57,21 @@
                 <h5 class="card-title">Status</h5>
                 <h2>
                     <?php if ($semester->is_current): ?>
-                        <span class="badge bg-light text-dark">Atual</span>
+                        <span class="badge bg-light text-dark me-2">Atual</span>
                     <?php endif; ?>
-                    <?php if ($semester->is_active): ?>
-                        <span class="badge bg-light text-dark">Ativo</span>
-                    <?php else: ?>
-                        <span class="badge bg-light text-dark">Inativo</span>
-                    <?php endif; ?>
+                    
+                    <?php
+                    $statusMap = [
+                        'ativo' => ['badge' => 'bg-light text-dark', 'label' => 'Ativo'],
+                        'inativo' => ['badge' => 'bg-light text-dark', 'label' => 'Inativo'],
+                        'processado' => ['badge' => 'bg-warning text-dark', 'label' => 'Processado'],
+                        'concluido' => ['badge' => 'bg-secondary text-white', 'label' => 'Concluído']
+                    ];
+                    
+                    $currentStatus = $semester->status ?? 'ativo';
+                    $statusInfo = $statusMap[$currentStatus] ?? ['badge' => 'bg-light text-dark', 'label' => ucfirst($currentStatus)];
+                    ?>
+                    <span class="badge <?= $statusInfo['badge'] ?>"><?= $statusInfo['label'] ?></span>
                 </h2>
             </div>
         </div>
@@ -110,7 +118,7 @@
                         <td><?= date('d/m/Y', strtotime($semester->end_date)) ?></td>
                     </tr>
                     <tr>
-                        <th>Status</th>
+                        <th style="width: 200px;">Status</th>
                         <td>
                             <?php
                             $statusLabels = [
@@ -119,7 +127,7 @@
                                 'processado' => ['badge' => 'warning', 'text' => 'Processado'],
                                 'concluido' => ['badge' => 'dark', 'text' => 'Concluído']
                             ];
-                            $status = $semester->status ?? ($semester->is_active ? 'ativo' : 'inativo');
+                            $status = $semester->status ?? 'ativo';
                             $label = $statusLabels[$status] ?? ['badge' => 'secondary', 'text' => $status];
                             ?>
                             <span class="badge bg-<?= $label['badge'] ?>"><?= $label['text'] ?></span>

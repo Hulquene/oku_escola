@@ -244,10 +244,33 @@
                         <?php foreach ($exams as $exam): ?>
                             <?php 
                             $hasResults = ($exam->results_count ?? 0) > 0;
-                            $statusClass = $exam->exam_date < date('Y-m-d') ? 'secondary' : 
-                                          ($exam->exam_date == date('Y-m-d') ? 'success' : 'primary');
-                            $statusText = $exam->exam_date < date('Y-m-d') ? 'Realizado' : 
-                                         ($exam->exam_date == date('Y-m-d') ? 'Hoje' : 'Agendado');
+                            
+                            // CORREÇÃO 1: Usar o status real da tabela
+                            switch($exam->status) {
+                                case 'Realizado':
+                                    $statusClass = 'secondary';
+                                    $statusText = 'Realizado';
+                                    break;
+                                case 'Cancelado':
+                                    $statusClass = 'danger';
+                                    $statusText = 'Cancelado';
+                                    break;
+                                case 'Adiado':
+                                    $statusClass = 'warning';
+                                    $statusText = 'Adiado';
+                                    break;
+                                default: // Agendado
+                                    $statusClass = 'primary';
+                                    $statusText = 'Agendado';
+                            }
+                            
+                            // Se for hoje, destacar (apenas se ainda estiver agendado)
+                            if ($exam->exam_date == date('Y-m-d') && $exam->status == 'Agendado') {
+                                $statusClass = 'success';
+                                $statusText = 'Hoje';
+                            }
+                            
+                            // CORREÇÃO 2: Mapear board_type para classe do badge
                             $boardTypeClass = match($exam->board_type) {
                                 'Avaliação Contínua' => 'info',
                                 'Prova Professor' => 'primary',
@@ -261,7 +284,9 @@
                                     <strong><?= $exam->exam_name ?? $exam->board_name ?></strong>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?= $boardTypeClass ?>"><?= $exam->board_type ?></span>
+                                    <span class="badge bg-<?= $boardTypeClass ?>">
+                                        <?= $exam->board_type ?? 'Normal' ?>
+                                    </span>
                                 </td>
                                 <td><?= $exam->class_name ?></td>
                                 <td><?= $exam->discipline_name ?></td>
@@ -269,7 +294,7 @@
                                 <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
                                 <td><?= $exam->exam_room ?: '-' ?></td>
                                 <td>
-                                    <span class="badge bg-secondary" title="<?= $exam->period_name ?>">
+                                    <span class="badge bg-secondary" title="<?= $exam->period_name ?? '' ?>">
                                         <?= $exam->period_type ?? 'Normal' ?>
                                     </span>
                                 </td>
@@ -285,7 +310,8 @@
                                 <td>
                                     <span class="badge bg-<?= $statusClass ?> p-2">
                                         <i class="fas fa-<?= $statusClass == 'success' ? 'check-circle' : 
-                                            ($statusClass == 'primary' ? 'calendar' : 'history') ?> me-1"></i>
+                                            ($statusClass == 'primary' ? 'calendar' : 
+                                            ($statusClass == 'danger' ? 'times-circle' : 'history')) ?> me-1"></i>
                                         <?= $statusText ?>
                                     </span>
                                 </td>

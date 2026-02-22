@@ -213,15 +213,24 @@ if (!function_exists('getStudentAttendanceStats')) {
         $results = $builder->groupBy('tbl_attendance.discipline_id')
             ->findAll();
         
-        // Calcular percentuais
-        foreach ($results as &$result) {
+        // ✅ CORRIGIDO: Converter arrays para objetos e calcular percentuais
+        $formattedResults = [];
+        foreach ($results as $result) {
+            // Converter para objeto se for array
+            if (is_array($result)) {
+                $result = (object)$result;
+            }
+            
+            // Calcular percentuais
             $result->percentage = $result->total > 0 
                 ? round(($result->present / $result->total) * 100, 1) 
                 : 0;
             $result->absent = $result->total - $result->present;
+            
+            $formattedResults[] = $result;
         }
         
-        return $results;
+        return $formattedResults;
     }
 }
 

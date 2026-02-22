@@ -71,31 +71,81 @@
     </div>
 </div>
 
-<!-- Current Enrollment Card -->
+<!-- Current Enrollment Card - COM DADOS REAIS -->
+<!-- Current Enrollment Card - COM DADOS REAIS -->
 <?php if (!empty($enrollment)): ?>
 <div class="row mb-4">
     <div class="col-md-12">
         <div class="card border-info">
-            <div class="card-header bg-info text-white">
-                <i class="fas fa-graduation-cap"></i> Matrícula Atual - Ano Letivo <?= $enrollment->year_name ?? date('Y') ?>
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-graduation-cap"></i> Matrícula Atual - Ano Letivo <?= $enrollment->year_name ?? date('Y') ?></span>
+                <span class="badge bg-<?php 
+                    switch($enrollment->status ?? '') {
+                        case 'Ativo': echo 'success'; break;
+                        case 'Pendente': echo 'warning'; break;
+                        case 'Concluído': echo 'secondary'; break;
+                        case 'Transferido': echo 'info'; break;
+                        case 'Anulado': echo 'danger'; break;
+                        default: echo 'light text-dark';
+                    }
+                ?> p-2">
+                    <i class="fas fa-<?php 
+                        switch($enrollment->status ?? '') {
+                            case 'Ativo': echo 'check-circle'; break;
+                            case 'Pendente': echo 'clock'; break;
+                            case 'Concluído': echo 'flag-checkered'; break;
+                            case 'Transferido': echo 'exchange-alt'; break;
+                            case 'Anulado': echo 'times-circle'; break;
+                            default: echo 'question-circle';
+                        }
+                    ?> me-1"></i>
+                    <?= $enrollment->status ?? 'Não definido' ?>
+                </span>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Turma:</strong></p>
                         <h5><?= $enrollment->class_name ?? 'Não definida' ?></h5>
+                        <small class="text-muted">Cód: <?= $enrollment->class_code ?? 'N/A' ?></small>
                     </div>
                     <div class="col-md-3">
-                        <p class="mb-1"><strong>Curso/Nível:</strong></p>
-                        <h5><?= $enrollment->level_name ?? 'N/A' ?></h5>
+                        <p class="mb-1"><strong>Curso:</strong></p>
+                        <h5>
+                            <?php if (isset($enrollment->course_name) && $enrollment->course_name): ?>
+                                <?= $enrollment->course_name ?>
+                                <small class="text-white-50">(<?= $enrollment->course_code ?? '' ?>)</small>
+                            <?php else: ?>
+                                Ensino Geral
+                            <?php endif; ?>
+                        </h5>
                     </div>
+                    <div class="col-md-3">
+                        <p class="mb-1"><strong>Nível/Classe:</strong></p>
+                        <h5><?= $enrollment->level_name ?? 'N/A' ?></h5>
+                        <small class="text-muted"><?= $enrollment->education_level ?? '' ?></small>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1"><strong>Turno:</strong></p>
+                        <h5><?= $enrollment->class_shift ?? 'N/A' ?></h5>
+                    </div>
+                </div>
+                <div class="row mt-3">
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Data Matrícula:</strong></p>
-                        <h5><?= isset($enrollment->enrollment_date) ? date('d/m/Y', strtotime($enrollment->enrollment_date)) : 'N/A' ?></h5>
+                        <h6><?= isset($enrollment->enrollment_date) ? date('d/m/Y', strtotime($enrollment->enrollment_date)) : 'N/A' ?></h6>
                     </div>
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Nº Matrícula:</strong></p>
-                        <h5><?= $enrollment->enrollment_number ?? 'N/A' ?></h5>
+                        <h6><?= $enrollment->enrollment_number ?? 'N/A' ?></h6>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1"><strong>Sala:</strong></p>
+                        <h6><?= $enrollment->class_room ?? 'N/A' ?></h6>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-1"><strong>Professor Responsável:</strong></p>
+                        <h6><?= isset($enrollment->teacher_name) ? $enrollment->teacher_name : 'Não atribuído' ?></h6>
                     </div>
                 </div>
                 <?php if ($enrollment->status ?? '' == 'Pendente'): ?>
@@ -119,6 +169,7 @@
                     <div>
                         <h6 class="text-white-50">Média Geral</h6>
                         <h2 class="text-white mb-0"><?= $stats['average_grade'] ?? '-' ?></h2>
+                        <small><?= isset($stats['total_grades']) ? $stats['total_grades'] . ' notas' : '' ?></small>
                     </div>
                     <i class="fas fa-star fa-2x text-white-50"></i>
                 </div>
@@ -150,6 +201,9 @@
                     <div>
                         <h6 class="text-white-50">Propinas Pendentes</h6>
                         <h2 class="text-white mb-0"><?= count($pendingFees ?? []) ?></h2>
+                        <?php if (!empty($pendingFees)): ?>
+                            <small>Total: <?= number_format(array_sum(array_column($pendingFees, 'total_amount')), 0, ',', '.') ?> Kz</small>
+                        <?php endif; ?>
                     </div>
                     <i class="fas fa-money-bill fa-2x text-white-50"></i>
                 </div>
@@ -163,7 +217,10 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="text-white-50">Próximo Exame</h6>
-                        <h6 class="text-white mb-0"><?= $stats['next_exam'] ?? '-' ?></h6>
+                        <h5 class="text-white mb-0"><?= $stats['next_exam'] ?? '-' ?></h5>
+                        <?php if (!empty($upcomingExams)): ?>
+                            <small><?= date('d/m', strtotime($upcomingExams[0]->exam_date)) ?></small>
+                        <?php endif; ?>
                     </div>
                     <i class="fas fa-pencil-alt fa-2x text-white-50"></i>
                 </div>
@@ -196,8 +253,8 @@
                             <?php foreach ($upcomingExams as $exam): ?>
                                 <tr>
                                     <td><strong><?= $exam->discipline_name ?></strong></td>
-                                    <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
-                                    <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '--:--' ?></td>
+                                    <td><?= $exam->formatted_date ?? date('d/m/Y', strtotime($exam->exam_date)) ?></td>
+                                    <td><?= $exam->formatted_time ?? ($exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '--:--') ?></td>
                                     <td><?= $exam->exam_room ?? 'N/D' ?></td>
                                     <td><span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span></td>
                                 </tr>
@@ -233,21 +290,16 @@
                                     <th>Disciplina</th>
                                     <th>Nota</th>
                                     <th>Avaliação</th>
+                                    <th>Data</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($recentGrades as $grade): ?>
                                     <?php 
-                                    // Verificar se é objeto ou array e normalizar
-                                    if (is_object($grade)) {
-                                        $discipline = $grade->discipline_name ?? 'N/A';
-                                        $score = $grade->score ?? 0;
-                                        $board = $grade->board_type ?? 'Exame';
-                                    } else {
-                                        $discipline = $grade['discipline'] ?? $grade['discipline_name'] ?? 'N/A';
-                                        $score = $grade['score'] ?? 0;
-                                        $board = $grade['board'] ?? $grade['board_type'] ?? 'Exame';
-                                    }
+                                    $score = is_object($grade) ? $grade->score : ($grade['score'] ?? 0);
+                                    $discipline = is_object($grade) ? ($grade->discipline_name ?? 'N/A') : ($grade['discipline_name'] ?? 'N/A');
+                                    $board = is_object($grade) ? ($grade->board_type ?? 'Exame') : ($grade['board_type'] ?? 'Exame');
+                                    $date = is_object($grade) ? ($grade->exam_date ?? null) : ($grade['exam_date'] ?? null);
                                     ?>
                                     <tr>
                                         <td><?= $discipline ?></td>
@@ -259,6 +311,7 @@
                                                 <?= $board ?>
                                             </span>
                                         </td>
+                                        <td><small><?= $date ? date('d/m', strtotime($date)) : '' ?></small></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -299,18 +352,24 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($pendingFees as $fee): ?>
+                                    <?php 
+                                    $dueDate = strtotime($fee->due_date);
+                                    $isOverdue = $dueDate < time() && $fee->status == 'Pendente';
+                                    $status = $isOverdue ? 'Vencido' : $fee->status;
+                                    $statusClass = $isOverdue ? 'danger' : ($fee->status == 'Vencido' ? 'danger' : 'warning');
+                                    ?>
                                     <tr>
                                         <td><?= $fee->type_name ?? $fee->description ?? 'Propina' ?></td>
                                         <td>
-                                            <?= date('d/m/Y', strtotime($fee->due_date)) ?>
-                                            <?php if (strtotime($fee->due_date) < time()): ?>
+                                            <?= date('d/m/Y', $dueDate) ?>
+                                            <?php if ($isOverdue): ?>
                                                 <span class="badge bg-danger">Vencido</span>
                                             <?php endif; ?>
                                         </td>
                                         <td class="fw-bold"><?= number_format($fee->total_amount ?? $fee->amount ?? 0, 2, ',', '.') ?> Kz</td>
                                         <td>
-                                            <span class="badge bg-<?= ($fee->status == 'Vencido' || ($fee->due_date < date('Y-m-d') && $fee->status == 'Pendente')) ? 'danger' : 'warning' ?>">
-                                                <?= $fee->status == 'Pendente' && $fee->due_date < date('Y-m-d') ? 'Vencido' : $fee->status ?>
+                                            <span class="badge bg-<?= $statusClass ?>">
+                                                <?= $status ?>
                                             </span>
                                         </td>
                                     </tr>
@@ -448,49 +507,6 @@
         </div>
     </div>
 </div>
-
-<!-- Recent Activities -->
-<?php if (!empty($recentActivities)): ?>
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <i class="fas fa-history"></i> Atividades Recentes
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    <?php foreach ($recentActivities as $activity): ?>
-                        <div class="list-group-item list-group-item-action d-flex align-items-center">
-                            <div class="me-3">
-                                <div class="bg-<?= $activity['color'] ?? 'secondary' ?> rounded-circle p-2 text-white">
-                                    <i class="fas <?= $activity['icon'] ?? 'fa-circle' ?>"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1"><?= $activity['title'] ?? 'Atividade' ?></h6>
-                                    <small class="text-muted"><?= date('d/m/Y', strtotime($activity['date'] ?? 'now')) ?></small>
-                                </div>
-                                <p class="mb-1">
-                                    <?= $activity['description'] ?? '' ?>
-                                    <?php if (isset($activity['value'])): ?>
-                                        <span class="badge bg-info"><?= $activity['value'] ?></span>
-                                    <?php endif; ?>
-                                    <?php if (isset($activity['status'])): ?>
-                                        <span class="badge bg-<?= $activity['status'] == 'Presente' ? 'success' : 'warning' ?>">
-                                            <?= $activity['status'] ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </p>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
 
 <!-- If no enrollment -->
 <?php if (empty($enrollment)): ?>

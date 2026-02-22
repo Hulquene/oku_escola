@@ -42,7 +42,6 @@ class Dashboard extends BaseController
         
         $userId = currentUserId();
         $studentId = getStudentIdFromUser();
-        $enrollmentId = getStudentEnrollmentId($studentId);
         
         if (!$studentId) {
             return redirect()->to('/auth/logout')->with('error', 'Perfil de aluno não encontrado');
@@ -52,10 +51,41 @@ class Dashboard extends BaseController
         $student = $this->studentModel->getByUserId($userId);
         $data['student'] = $student;
         
-        // Buscar matrícula atual
-        $data['enrollment'] = $this->enrollmentModel->getCurrentForStudent($studentId);
+        // Buscar matrícula atual com todas as informações
+        $enrollment = $this->enrollmentModel->getCurrentForStudent($studentId);
+        
+        // Buscar informações completas da matrícula (curso, nível, professor, status)
+        if ($enrollment) {
+            $data['enrollment'] = $this->enrollmentModel
+                ->select('
+                    tbl_enrollments.*,
+                    tbl_classes.class_name,
+                    tbl_classes.class_code,
+                    tbl_classes.class_shift,
+                    tbl_classes.class_room,
+                    tbl_academic_years.year_name,
+                    tbl_grade_levels.level_name,
+                    tbl_grade_levels.education_level,
+                    tbl_courses.course_name,
+                    tbl_courses.course_code,
+                    tbl_courses.course_type,
+                    CONCAT(tbl_teacher.first_name, " ", tbl_teacher.last_name) as teacher_name
+                ')
+                ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id', 'left')
+                ->join('tbl_users as tbl_teacher', 'tbl_teacher.id = tbl_classes.class_teacher_id', 'left')
+                ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id', 'left')
+                ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id', 'left')
+                ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left')
+                ->where('tbl_enrollments.id', $enrollment->id)
+                ->first();
+        } else {
+            $data['enrollment'] = null;
+        }
         
         if ($data['enrollment']) {
+            // ✅ ADICIONADO: Log para debug do status
+            log_message('debug', 'Status da matrícula: ' . ($data['enrollment']->status ?? 'NULL'));
+            
             // Próximos exames
             $data['upcomingExams'] = $this->examScheduleModel
                 ->select('
@@ -114,7 +144,7 @@ class Dashboard extends BaseController
                 ->orderBy('tbl_student_fees.due_date', 'ASC')
                 ->findAll();
             
-            // Presenças do mês atual - AGORA COMO OBJETO
+            // Presenças do mês atual
             $attendanceStats = $this->attendanceModel
                 ->select('
                     COUNT(*) as total,
@@ -125,7 +155,6 @@ class Dashboard extends BaseController
                 ->where('attendance_date <=', date('Y-m-t'))
                 ->first();
             
-            // Garantir que seja um objeto
             $data['attendance'] = (object)[
                 'total' => $attendanceStats->total ?? 0,
                 'present' => $attendanceStats->present ?? 0
@@ -133,6 +162,14 @@ class Dashboard extends BaseController
             
             // Resumo financeiro
             $data['financialSummary'] = $this->getFinancialSummary($data['enrollment']->id);
+            
+            // Total de disciplinas do aluno
+            $db = db_connect();
+            $totalDisciplines = $db->table('tbl_class_disciplines')
+                ->where('class_id', $data['enrollment']->class_id)
+                ->countAllResults();
+            $data['totalDisciplines'] = $totalDisciplines;
+            
         } else {
             $data['upcomingExams'] = [];
             $data['recentGrades'] = [];
@@ -144,6 +181,7 @@ class Dashboard extends BaseController
                 'pending' => 0,
                 'balance' => 0
             ];
+            $data['totalDisciplines'] = 0;
         }
         
         // Estatísticas usando helpers
@@ -151,7 +189,8 @@ class Dashboard extends BaseController
             'average_grade' => getStudentAverageGrade($studentId),
             'attendance_percentage' => getStudentAttendancePercentage($studentId),
             'next_exam' => getNextStudentExam($studentId),
-            'pending_fees_count' => count($data['pendingFees']) . ' pendente(s)'
+            'pending_fees_count' => count($data['pendingFees']) . ' pendente(s)',
+            'total_disciplines' => $data['totalDisciplines']
         ];
         
         return view('students/dashboard/index', $data);

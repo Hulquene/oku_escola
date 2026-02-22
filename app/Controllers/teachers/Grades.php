@@ -3,8 +3,10 @@
 namespace App\Controllers\teachers;
 
 use App\Controllers\BaseController;
-use App\Models\ExamResultModel;           // NOVO (substitui ContinuousAssessment)
-use App\Models\ExamBoardModel;             // NOVO
+use App\Models\ExamResultModel;
+use App\Models\ExamBoardModel;
+use App\Models\ExamScheduleModel;  // NOVO
+use App\Models\ExamPeriodModel;    // NOVO
 use App\Models\ClassDisciplineModel;
 use App\Models\EnrollmentModel;
 use App\Models\DisciplineModel;
@@ -12,8 +14,10 @@ use App\Models\SemesterModel;
 
 class Grades extends BaseController
 {
-    protected $examResultModel;             // NOVO
-    protected $examBoardModel;               // NOVO
+    protected $examResultModel;
+    protected $examBoardModel;
+    protected $examScheduleModel;   // NOVO
+    protected $examPeriodModel;      // NOVO
     protected $classDisciplineModel;
     protected $enrollmentModel;
     protected $disciplineModel;
@@ -21,93 +25,98 @@ class Grades extends BaseController
     
     public function __construct()
     {
-        $this->examResultModel = new ExamResultModel();       // NOVO
-        $this->examBoardModel = new ExamBoardModel();         // NOVO
+        $this->examResultModel = new ExamResultModel();
+        $this->examBoardModel = new ExamBoardModel();
+        $this->examScheduleModel = new ExamScheduleModel();   // NOVO
+        $this->examPeriodModel = new ExamPeriodModel();       // NOVO
         $this->classDisciplineModel = new ClassDisciplineModel();
         $this->enrollmentModel = new EnrollmentModel();
         $this->disciplineModel = new DisciplineModel();
         $this->semesterModel = new SemesterModel();
     }
     
-    /**
-     * List grades page with filter (Avaliações Contínuas - MAC)
-     */
-    /**
-     * List grades page with filter
-     */
-    public function index()
-    {
-        $data['title'] = 'Lançar Notas';
-        
-        $teacherId = $this->session->get('user_id');
-        
-        // Get classes for filter
-        $data['classes'] = $this->classDisciplineModel
-            ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
-            ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
-            ->where('tbl_class_disciplines.teacher_id', $teacherId)
-            ->where('tbl_classes.is_active', 1)  // ✅ CORRIGIDO
-            ->distinct()
+ public function index()
+{
+    $data['title'] = 'Lançar Notas';
+    
+    $teacherId = $this->session->get('user_id');
+    
+    // Get classes for filter
+    $data['classes'] = $this->classDisciplineModel
+        ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
+        ->where('tbl_class_disciplines.teacher_id', $teacherId)
+        ->where('tbl_classes.is_active', 1)
+        ->distinct()
+        ->findAll();
+    
+    $classId = $this->request->getGet('class');
+    $disciplineId = $this->request->getGet('discipline');
+    
+    $data['selectedClass'] = $classId;
+    $data['selectedDiscipline'] = $disciplineId;
+    
+    if ($classId && $disciplineId) {
+        // Get students
+        $data['students'] = $this->enrollmentModel
+            ->select('tbl_enrollments.id as enrollment_id, tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_enrollments.class_id', $classId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
         
-        $classId = $this->request->getGet('class');
-        $disciplineId = $this->request->getGet('discipline');
+        // DEBUG: Quantos alunos encontrou?
+        log_message('debug', "Alunos encontrados: " . count($data['students']));
         
-        $data['selectedClass'] = $classId;
-        $data['selectedDiscipline'] = $disciplineId;
+        // Get current semester
+        $currentSemester = $this->semesterModel->getCurrent();
+        $data['currentSemester'] = $currentSemester;
         
-        if ($classId && $disciplineId) {
-            // Get students
-            $data['students'] = $this->enrollmentModel
-                ->select('tbl_enrollments.id as enrollment_id, tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
-                ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-                ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-                ->where('tbl_enrollments.class_id', $classId)
-                ->where('tbl_enrollments.status', 'Ativo')
-                ->orderBy('tbl_users.first_name', 'ASC')
+        // DEBUG: Semestre atual
+        log_message('debug', "Semestre atual: " . ($currentSemester ? $currentSemester->id : 'NULL'));
+        
+        // Buscar todas as avaliações AC para esta disciplina
+        foreach ($data['students'] as $student) {
+            // Buscar todos os exam_schedules do tipo AC para esta disciplina
+            $acSchedules = $this->examScheduleModel
+                ->select('tbl_exam_schedules.*')
+                ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+                ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+                ->where('tbl_exam_schedules.class_id', $classId)
+                ->where('tbl_exam_schedules.discipline_id', $disciplineId)
+                ->where('tbl_exam_boards.board_code', 'AC')
+                ->where('tbl_exam_periods.semester_id', $currentSemester->id ?? null)
+                ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
                 ->findAll();
             
-            // Get current semester
-            $currentSemester = $this->semesterModel->getCurrent();
-            $data['currentSemester'] = $currentSemester;
+            // DEBUG: Quantos agendamentos AC encontrou?
+            log_message('debug', "Agendamentos AC para turma {$classId}, disciplina {$disciplineId}: " . count($acSchedules));
             
-            // Get AC board ID
-            $acBoard = $this->examBoardModel->where('board_code', 'AC')->first();
-            $acBoardId = $acBoard ? $acBoard->id : null;
-            
-            // Get existing AC assessments for each student
-            foreach ($data['students'] as $student) {
-                $assessments = $this->examResultModel
-                    ->select('tbl_exam_results.*, tbl_exam_boards.board_code')
-                    ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_results.exam_schedule_id')
-                    ->where('tbl_exam_results.enrollment_id', $student->enrollment_id)
-                    ->where('tbl_exam_boards.board_code', 'AC')
-                    ->where('tbl_exam_results.assessment_type', 'AC')
-                    ->where('tbl_exam_results.discipline_id', $disciplineId)
-                    ->where('tbl_exam_results.semester_id', $currentSemester->id ?? null)
-                    ->orderBy('tbl_exam_results.assessment_sequence', 'ASC')
-                    ->findAll();
+            $student->assessments = [];
+            $seq = 1;
+            foreach ($acSchedules as $schedule) {
+                $result = $this->examResultModel
+                    ->where('exam_schedule_id', $schedule->id)
+                    ->where('enrollment_id', $student->enrollment_id)
+                    ->first();
                 
-                $student->assessments = [];
-                foreach ($assessments as $ass) {
-                    $seq = $ass->assessment_sequence ?? 1;
-                    $student->assessments[$seq] = $ass;
-                }
+                $student->assessments[$seq] = $result;
+                $seq++;
             }
-            
-            // Número de avaliações contínuas (configurável)
-            $data['acCount'] = 6; // Até 6 ACs por trimestre
         }
         
-        return view('teachers/grades/index', $data);
+        // Número de avaliações contínuas (configurável)
+        $data['acCount'] = 6; // Até 6 ACs por trimestre
     }
+    
+    return view('teachers/grades/index', $data);
+}
     
     /**
      * Get disciplines for a class (AJAX)
      */
-    /**
- * Get disciplines for a class (AJAX)
- */
     public function getDisciplines($classId = null)
     {
         if (!$classId) {
@@ -140,10 +149,20 @@ class Grades extends BaseController
             return redirect()->back()->with('error', 'Dados incompletos');
         }
         
-        // Get AC board ID
+        // Buscar o board AC
         $acBoard = $this->examBoardModel->where('board_code', 'AC')->first();
         if (!$acBoard) {
             return redirect()->back()->with('error', 'Tipo de avaliação "AC" não configurado');
+        }
+        
+        // Buscar o período atual para este semestre
+        $currentPeriod = $this->examPeriodModel
+            ->where('semester_id', $semesterId)
+            ->where('status', 'Planejado')
+            ->first();
+        
+        if (!$currentPeriod) {
+            return redirect()->back()->with('error', 'Nenhum período de exames ativo para este semestre');
         }
         
         // Receber notas por sequência (AC1, AC2, AC3...)
@@ -155,25 +174,48 @@ class Grades extends BaseController
         foreach ($acScores as $sequence => $enrollmentScores) {
             foreach ($enrollmentScores as $enrollmentId => $score) {
                 if ($score !== '') {
+                    // Buscar ou criar agendamento para esta AC
+                    $schedule = $this->examScheduleModel
+                        ->where('exam_period_id', $currentPeriod->id)
+                        ->where('class_id', $classId)
+                        ->where('discipline_id', $disciplineId)
+                        ->where('exam_board_id', $acBoard->id)
+                        ->first();
+                    
+                    if (!$schedule) {
+                        // Criar novo agendamento
+                        $scheduleId = $this->examScheduleModel->insert([
+                            'exam_period_id' => $currentPeriod->id,
+                            'class_id' => $classId,
+                            'discipline_id' => $disciplineId,
+                            'exam_board_id' => $acBoard->id,
+                            'exam_date' => date('Y-m-d'),
+                            'status' => 'Agendado'
+                        ]);
+                    } else {
+                        $scheduleId = $schedule->id;
+                    }
+                    
+                    // Buscar o agendamento para obter max_score
+                    $scheduleData = $this->examScheduleModel->find($scheduleId);
+                    
+                    // Calcular percentual
+                    $scorePercentage = $scheduleData->max_score > 0 
+                        ? ($score / $scheduleData->max_score) * 100 
+                        : 0;
+                    
                     $data = [
                         'enrollment_id' => $enrollmentId,
-                        'exam_schedule_id' => $acBoard->id,
-                        'assessment_type' => 'AC',
-                        'assessment_sequence' => $sequence,
-                        'discipline_id' => $disciplineId,
-                        'semester_id' => $semesterId,
+                        'exam_schedule_id' => $scheduleId,
                         'score' => $score,
-                        'recorded_by' => $this->session->get('user_id'),
-                        'recorded_at' => date('Y-m-d H:i:s')
+                        'score_percentage' => $scorePercentage,
+                        'recorded_by' => $this->session->get('user_id')
                     ];
                     
                     // Verificar se já existe
                     $existing = $this->examResultModel
+                        ->where('exam_schedule_id', $scheduleId)
                         ->where('enrollment_id', $enrollmentId)
-                        ->where('assessment_type', 'AC')
-                        ->where('assessment_sequence', $sequence)
-                        ->where('discipline_id', $disciplineId)
-                        ->where('semester_id', $semesterId)
                         ->first();
                     
                     if ($existing) {
@@ -195,97 +237,99 @@ class Grades extends BaseController
         }
     }
     
-   /**
- * Report for a specific class/discipline
- */
-public function report($classId)
-{
-    $data['title'] = 'Relatório de Notas';
-    
-    $teacherId = $this->session->get('user_id');
-    $disciplineId = $this->request->getGet('discipline');
-    
-    if (!$disciplineId) {
-        return redirect()->to('/teachers/grades')->with('error', 'Selecione uma disciplina');
-    }
-    
-    // Get class info
-    $classModel = new \App\Models\ClassModel();
-    $data['class'] = $classModel->find($classId);
-    
-    // Get discipline info
-    $data['discipline'] = $this->disciplineModel->find($disciplineId);
-    
-    // Get students
-    $data['students'] = $this->enrollmentModel
-        ->select('tbl_enrollments.id as enrollment_id, tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
-        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-        ->where('tbl_enrollments.class_id', $classId)
-        ->where('tbl_enrollments.status', 'Ativo')
-        ->orderBy('tbl_users.first_name', 'ASC')
-        ->findAll();
-    
-    // Get current semester
-    $currentSemester = $this->semesterModel->getCurrent();
-    $data['currentSemester'] = $currentSemester;
-    
-    // Get AC assessments for each student
-    foreach ($data['students'] as $student) {
-        $assessments = $this->examResultModel
-            ->select('tbl_exam_results.*')
-            ->where('enrollment_id', $student->enrollment_id)
-            ->where('discipline_id', $disciplineId)
-            ->where('semester_id', $currentSemester->id ?? null)
-            ->where('assessment_type', 'AC')
-            ->orderBy('assessment_sequence', 'ASC')
+    /**
+     * Report for a specific class/discipline
+     */
+    public function report($classId)
+    {
+        $data['title'] = 'Relatório de Notas';
+        
+        $teacherId = $this->session->get('user_id');
+        $disciplineId = $this->request->getGet('discipline');
+        
+        if (!$disciplineId) {
+            return redirect()->to('/teachers/grades')->with('error', 'Selecione uma disciplina');
+        }
+        
+        // Get class info
+        $classModel = new \App\Models\ClassModel();
+        $data['class'] = $classModel->find($classId);
+        
+        // Get discipline info
+        $data['discipline'] = $this->disciplineModel->find($disciplineId);
+        
+        // Get students
+        $data['students'] = $this->enrollmentModel
+            ->select('tbl_enrollments.id as enrollment_id, tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_enrollments.class_id', $classId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
         
-        $scores = [];
-        $total = 0;
-        $count = 0;
+        // Get current semester
+        $currentSemester = $this->semesterModel->getCurrent();
+        $data['currentSemester'] = $currentSemester;
         
-        foreach ($assessments as $ass) {
-            $seq = $ass->assessment_sequence ?? $count + 1;
-            $scores["ac{$seq}"] = $ass->score;
-            $total += $ass->score;
-            $count++;
-        }
+        // Buscar todos os agendamentos AC para esta disciplina
+        $acSchedules = $this->examScheduleModel
+            ->select('tbl_exam_schedules.*')
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+            ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+            ->where('tbl_exam_schedules.class_id', $classId)
+            ->where('tbl_exam_schedules.discipline_id', $disciplineId)
+            ->where('tbl_exam_boards.board_code', 'AC')
+            ->where('tbl_exam_periods.semester_id', $currentSemester->id ?? null)
+            ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
+            ->findAll();
         
-        $student->ac_scores = $scores;
-        $student->ac_average = $count > 0 ? round($total / $count, 1) : 0;
-        
-        // Preencher até 6 ACs para exibição
-        for ($i = 1; $i <= 6; $i++) {
-            $key = "ac{$i}";
-            if (!isset($scores[$key])) {
-                $scores[$key] = '-';
+        // Para cada aluno, buscar notas
+        foreach ($data['students'] as $student) {
+            $scores = [];
+            $total = 0;
+            $count = 0;
+            
+            foreach ($acSchedules as $index => $schedule) {
+                $result = $this->examResultModel
+                    ->where('exam_schedule_id', $schedule->id)
+                    ->where('enrollment_id', $student->enrollment_id)
+                    ->first();
+                
+                $seq = $index + 1;
+                $scores["ac{$seq}"] = $result ? $result->score : '-';
+                
+                if ($result && $result->score) {
+                    $total += $result->score;
+                    $count++;
+                }
             }
+            
+            $student->ac_scores = $scores;
+            $student->ac_average = $count > 0 ? round($total / $count, 1) : 0;
         }
-        ksort($scores);
-        $student->ac_scores = $scores;
+        
+        return view('teachers/grades/report', $data);
     }
     
-    return view('teachers/grades/report', $data);
-}
-/**
- * Select class for report
- */
-public function selectReport()
-{
-    $data['title'] = 'Selecionar Relatório';
-    
-    $teacherId = $this->session->get('user_id');
-    
-    // Get teacher's classes
-    $data['classes'] = $this->classDisciplineModel
-        ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
-        ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
-        ->where('tbl_class_disciplines.teacher_id', $teacherId)
-        ->where('tbl_classes.is_active', 1)  // ✅ CORRETO
-        ->distinct()
-        ->findAll();
-    
-    return view('teachers/grades/select_report', $data);
-}
+    /**
+     * Select class for report
+     */
+    public function selectReport()
+    {
+        $data['title'] = 'Selecionar Relatório';
+        
+        $teacherId = $this->session->get('user_id');
+        
+        // Get teacher's classes
+        $data['classes'] = $this->classDisciplineModel
+            ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
+            ->where('tbl_class_disciplines.teacher_id', $teacherId)
+            ->where('tbl_classes.is_active', 1)
+            ->distinct()
+            ->findAll();
+        
+        return view('teachers/grades/select_report', $data);
+    }
 }

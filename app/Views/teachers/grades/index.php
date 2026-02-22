@@ -61,7 +61,7 @@
     
     <div class="card">
         <div class="card-header bg-success text-white">
-            <i class="fas fa-star"></i> Avaliações Contínuas (MAC)
+            <i class="fas fa-star"></i> Avaliações Contínuas
         </div>
         <div class="card-body">
             <form action="<?= site_url('teachers/grades/save') ?>" method="post">
@@ -76,48 +76,43 @@
                             <tr>
                                 <th>Nº Matrícula</th>
                                 <th>Aluno</th>
-                                <?php for ($i = 1; $i <= ($acCount ?? 6); $i++): ?>
-                                    <th class="text-center">AC<?= $i ?></th>
-                                <?php endfor; ?>
+                                <th class="text-center">AC1</th>
+                                <th class="text-center">AC2</th>
+                                <th class="text-center">AC3</th>
                                 <th class="text-center">Média</th>
-                                <th class="text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($students as $student): 
-                                $scores = [];
-                                $total = 0;
-                                $count = 0;
+                                $ac1 = $student->assessments['AC1']->score ?? '';
+                                $ac2 = $student->assessments['AC2']->score ?? '';
+                                $ac3 = $student->assessments['AC3']->score ?? '';
+                                
+                                $scores = array_filter([$ac1, $ac2, $ac3]);
+                                $average = !empty($scores) ? round(array_sum($scores) / count($scores), 1) : 0;
                             ?>
                                 <tr>
                                     <td><?= $student->student_number ?></td>
                                     <td><?= $student->first_name ?> <?= $student->last_name ?></td>
-                                    
-                                    <?php for ($i = 1; $i <= ($acCount ?? 6); $i++): 
-                                        $score = $student->assessments[$i]->score ?? '';
-                                        if ($score !== '') {
-                                            $scores[] = $score;
-                                            $total += $score;
-                                            $count++;
-                                        }
-                                    ?>
-                                        <td class="text-center">
-                                            <input type="number" class="form-control form-control-sm text-center" 
-                                                   name="ac[<?= $i ?>][<?= $student->enrollment_id ?>]" 
-                                                   value="<?= $score ?>" step="0.1" min="0" max="20"
-                                                   style="width: 80px; margin: 0 auto;">
-                                        </td>
-                                    <?php endfor; ?>
-                                    
-                                    <?php 
-                                    $average = $count > 0 ? round($total / $count, 1) : 0;
-                                    $status = $average >= 10 ? 'Aprovado' : ($average > 0 ? 'Reprovado' : 'Pendente');
-                                    $statusClass = $average >= 10 ? 'success' : ($average > 0 ? 'danger' : 'secondary');
-                                    ?>
-                                    <td class="text-center fw-bold"><?= number_format($average, 1) ?></td>
                                     <td class="text-center">
-                                        <span class="badge bg-<?= $statusClass ?>"><?= $status ?></span>
+                                        <input type="number" class="form-control form-control-sm text-center" 
+                                               name="ac1[<?= $student->enrollment_id ?>]" 
+                                               value="<?= $ac1 ?>" step="0.1" min="0" max="20"
+                                               style="width: 80px; margin: 0 auto;">
                                     </td>
+                                    <td class="text-center">
+                                        <input type="number" class="form-control form-control-sm text-center" 
+                                               name="ac2[<?= $student->enrollment_id ?>]" 
+                                               value="<?= $ac2 ?>" step="0.1" min="0" max="20"
+                                               style="width: 80px; margin: 0 auto;">
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="number" class="form-control form-control-sm text-center" 
+                                               name="ac3[<?= $student->enrollment_id ?>]" 
+                                               value="<?= $ac3 ?>" step="0.1" min="0" max="20"
+                                               style="width: 80px; margin: 0 auto;">
+                                    </td>
+                                    <td class="text-center fw-bold"><?= number_format($average, 1) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -146,19 +141,18 @@
                     <i class="fas fa-bolt"></i> Ações Rápidas
                 </div>
                 <div class="card-body">
-                    <div class="btn-group flex-wrap" role="group">
-                        <?php for ($i = 1; $i <= ($acCount ?? 6); $i++): ?>
-                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillAllAC(<?= $i ?>)">
-                                <i class="fas fa-magic"></i> Preencher AC<?= $i ?>
-                            </button>
-                        <?php endfor; ?>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="fillAllWithValue(14)">
-                            <i class="fas fa-magic"></i> Todas com 14
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearAll()">
-                            <i class="fas fa-eraser"></i> Limpar Todos
-                        </button>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="fillAllAC1()">
+                        <i class="fas fa-magic"></i> Preencher AC1 com 14
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="fillAllAC2()">
+                        <i class="fas fa-magic"></i> Preencher AC2 com 14
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="fillAllAC3()">
+                        <i class="fas fa-magic"></i> Preencher AC3 com 14
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAll()">
+                        <i class="fas fa-eraser"></i> Limpar Todos
+                    </button>
                 </div>
             </div>
         </div>
@@ -171,7 +165,6 @@
 <?php endif; ?>
 
 <?= $this->endSection() ?>
-
 <?= $this->section('scripts') ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -183,9 +176,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const classId = this.value;
         
         if (classId) {
+            // Mostrar loading
             disciplineSelect.innerHTML = '<option value="">Carregando...</option>';
             disciplineSelect.disabled = true;
             
+            // CORRIGIDO: Usar a URL correta
             fetch(`<?= site_url('teachers/grades/get-disciplines/') ?>${classId}`)
                 .then(response => response.json())
                 .then(data => {
@@ -205,12 +200,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             disciplineSelect.appendChild(option);
                         });
                     } else {
-                        disciplineSelect.innerHTML = '<option value="" disabled>Nenhuma disciplina disponível</option>';
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Nenhuma disciplina disponível';
+                        option.disabled = true;
+                        disciplineSelect.appendChild(option);
                     }
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    disciplineSelect.innerHTML = '<option value="" disabled>Erro ao carregar disciplinas</option>';
+                    disciplineSelect.innerHTML = '<option value="">Erro ao carregar disciplinas</option>';
                     disciplineSelect.disabled = false;
                     alert('Erro ao carregar disciplinas. Tente novamente.');
                 });
@@ -220,6 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Trigger change if class is selected
     <?php if ($selectedClass): ?>
     if (classSelect) {
         classSelect.dispatchEvent(new Event('change'));
@@ -227,18 +227,23 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php endif; ?>
 });
 
-function fillAllAC(acNumber) {
-    document.querySelectorAll(`input[name^="ac[${acNumber}]"]`).forEach(input => {
+// Helper functions
+function fillAllAC1() {
+    document.querySelectorAll('input[name^="ac1"]').forEach(input => {
         input.value = '14';
     });
 }
 
-function fillAllWithValue(value) {
-    if (confirm(`Preencher todas as notas com ${value}?`)) {
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.value = value;
-        });
-    }
+function fillAllAC2() {
+    document.querySelectorAll('input[name^="ac2"]').forEach(input => {
+        input.value = '14';
+    });
+}
+
+function fillAllAC3() {
+    document.querySelectorAll('input[name^="ac3"]').forEach(input => {
+        input.value = '14';
+    });
 }
 
 function clearAll() {
