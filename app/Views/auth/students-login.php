@@ -233,13 +233,13 @@
                     </div>
                 <?php endif; ?>
                 
-                <div class="student-info">
+          <!--       <div class="student-info">
                     <i class="fas fa-lightbulb"></i>
                     <p><strong>Informações de Acesso:</strong></p>
                     <p>Use seu <strong>nome de usuário</strong> ou <strong>email</strong> cadastrado</p>
                     <p>Digite sua <strong>senha</strong> de acesso</p>
                 </div>
-                
+                 -->
                 <form action="<?= site_url('auth/students/signin') ?>" method="post">
                     <?= csrf_field() ?>
                     

@@ -73,26 +73,23 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
+// $routes->get('/', 'Home::index');
+// Páginas Públicas
+$routes->get('/', 'PublicSite::index');
+$routes->get('/cursos', 'PublicSite::courses');
+$routes->get('/sobre', 'PublicSite::about');
+$routes->get('/contato', 'PublicSite::contact');
+
+// Inscrição
+$routes->get('/inscricao', 'PublicEnrollment::index');
+$routes->post('/inscricao/submit', 'PublicEnrollment::submit');
 //$routes->get('/viewinvoice', 'Home::index');
 //$routes->get('lang/{locale}', [Language::class, 'index']);
 
 
 
-/**
- * Rotas de Autenticação
- */
-/* $routes->group('auth', function ($routes) {
-  $routes->get('', [Auth::class, 'index'], ["as" => 'auth']);
-  $routes->get('login', [Auth::class, 'index'], ["as" => 'auth']);
-  $routes->post('signin', [Auth::class, 'signin'], ["as" => 'auth.signin']);
-  $routes->get('logout', [Auth::class, 'logout'], ["as" => 'auth.logout']);
-  $routes->get('forgetpassword', [Auth::class, 'forgetpassword'], ["as" => 'auth.forgetpassword']);
-}); */
 // Rotas de autenticação específicas
 $routes->group('auth', function ($routes) {
-
-//var_dump("teste");die;
     // Login geral
     $routes->get('/', [Auth::class, 'index'], ["as" => 'auth']);
     $routes->get('login', [Auth::class, 'index'], ["as" => 'auth.login']);

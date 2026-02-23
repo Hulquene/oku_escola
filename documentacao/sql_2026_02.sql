@@ -99,12 +99,12 @@ CREATE TABLE `tbl_user_logs` (
     `action` VARCHAR(255) NOT NULL,
     `ip_address` VARCHAR(45),
     `user_agent` TEXT,
-    `description` TEXT NULL AFTER `action`,
-    `target_id` INT(11) NULL AFTER `description`,
-    `target_type` VARCHAR(50) NULL AFTER `target_id`,
-    `request_method` VARCHAR(10) NULL AFTER `user_agent`,
-    `request_url` VARCHAR(500) NULL AFTER `request_method`,
-    `details` TEXT NULL AFTER `request_url`,
+    `description` TEXT NULL,
+    `target_id` INT(11) NULL,
+    `target_type` VARCHAR(50) NULL,
+    `request_method` VARCHAR(10) NULL,
+    `request_url` VARCHAR(500) NULL,
+    `details` TEXT NULL,
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -302,6 +302,55 @@ CREATE TABLE `tbl_student_guardians` (
     CONSTRAINT `fk_student_guardians_guardian` FOREIGN KEY (`guardian_id`) REFERENCES `tbl_guardians` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+
+
+
+-- --------------------------------------------------------
+-- Tabela de Cursos (para o Ensino Médio)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_courses` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `course_name` VARCHAR(100) NOT NULL,
+    `course_code` VARCHAR(20) NOT NULL,
+    `course_type` ENUM('Ciências', 'Humanidades', 'Económico-Jurídico', 'Técnico', 'Profissional', 'Outro') NOT NULL,
+    `description` TEXT,
+    `duration_years` INT(2) DEFAULT '3' COMMENT 'Duração em anos (normalmente 3)',
+    `start_grade_id` INT(11) NOT NULL COMMENT 'Nível inicial (ex: 10ª classe)',
+    `end_grade_id` INT(11) NOT NULL COMMENT 'Nível final (ex: 12ª ou 13ª classe)',
+    `is_active` TINYINT(1) DEFAULT '1',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `course_code` (`course_code`),
+    KEY `start_grade_id` (`start_grade_id`),
+    KEY `end_grade_id` (`end_grade_id`),
+    CONSTRAINT `fk_courses_start_grade` FOREIGN KEY (`start_grade_id`) REFERENCES `tbl_grade_levels` (`id`),
+    CONSTRAINT `fk_courses_end_grade` FOREIGN KEY (`end_grade_id`) REFERENCES `tbl_grade_levels` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+-- Tabela de Associação Curso x Disciplinas
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_course_disciplines` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `course_id` INT(11) NOT NULL,
+    `discipline_id` INT(11) NOT NULL,
+    `grade_level_id` INT(11) NOT NULL COMMENT 'Classe específica onde a disciplina é lecionada',
+    `workload_hours` INT(4),
+    `is_mandatory` TINYINT(1) DEFAULT '1',
+    `semester` ENUM('1', '2', '3', 'Anual') DEFAULT 'Anual',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `course_discipline_grade` (`course_id`, `discipline_id`, `grade_level_id`),
+    KEY `discipline_id` (`discipline_id`),
+    KEY `grade_level_id` (`grade_level_id`),
+    CONSTRAINT `fk_course_disciplines_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_course_disciplines_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_course_disciplines_grade` FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- --------------------------------------------------------
 -- Tabelas de Matrículas
 -- --------------------------------------------------------
@@ -315,14 +364,14 @@ CREATE TABLE `tbl_enrollments` (
     `enrollment_number` VARCHAR(50) NOT NULL,
     `enrollment_type` ENUM('Nova','Renovação','Transferência') NOT NULL,
     `previous_class_id` INT(11),
-    `final_average` DECIMAL(5,2) NULL AFTER `final_result`,
-    `completion_date` DATE NULL AFTER `final_average`,
-    `certificate_number` VARCHAR(50) NULL AFTER `completion_date`,
-    `grade_level_id` INT NOT NULL AFTER `academic_year_id`,
-    `previous_grade_id` INT NULL AFTER `grade_level_id`,
-    `course_id` INT(11) NULL AFTER `grade_level_id`,
+    `final_average` DECIMAL(5,2) NULL,
+    `completion_date` DATE NULL,
+    `certificate_number` VARCHAR(50) NULL,
+    `grade_level_id` INT NOT NULL,
+    `previous_grade_id` INT NULL,
+    `course_id` INT(11) NULL,
     `status` ENUM('Pendente','Ativo','Concluído','Transferido','Anulado') NOT NULL DEFAULT 'Pendente',
-    `final_result` ENUM('Aprovado', 'Reprovado', 'Recurso', 'Em Andamento', 'Dispensado') NULL DEFAULT 'Em Andamento' AFTER `status`,
+    `final_result` ENUM('Aprovado', 'Reprovado', 'Recurso', 'Em Andamento', 'Dispensado') NULL DEFAULT 'Em Andamento',
     `observations` TEXT,
     `created_by` INT(11),
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1069,52 +1118,6 @@ CREATE INDEX idx_expense_status ON tbl_expenses(payment_status);
 
 
 
-
-
--- --------------------------------------------------------
--- Tabela de Cursos (para o Ensino Médio)
--- --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tbl_courses` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `course_name` VARCHAR(100) NOT NULL,
-    `course_code` VARCHAR(20) NOT NULL,
-    `course_type` ENUM('Ciências', 'Humanidades', 'Económico-Jurídico', 'Técnico', 'Profissional', 'Outro') NOT NULL,
-    `description` TEXT,
-    `duration_years` INT(2) DEFAULT '3' COMMENT 'Duração em anos (normalmente 3)',
-    `start_grade_id` INT(11) NOT NULL COMMENT 'Nível inicial (ex: 10ª classe)',
-    `end_grade_id` INT(11) NOT NULL COMMENT 'Nível final (ex: 12ª ou 13ª classe)',
-    `is_active` TINYINT(1) DEFAULT '1',
-    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `course_code` (`course_code`),
-    KEY `start_grade_id` (`start_grade_id`),
-    KEY `end_grade_id` (`end_grade_id`),
-    CONSTRAINT `fk_courses_start_grade` FOREIGN KEY (`start_grade_id`) REFERENCES `tbl_grade_levels` (`id`),
-    CONSTRAINT `fk_courses_end_grade` FOREIGN KEY (`end_grade_id`) REFERENCES `tbl_grade_levels` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
--- Tabela de Associação Curso x Disciplinas
--- --------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tbl_course_disciplines` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `course_id` INT(11) NOT NULL,
-    `discipline_id` INT(11) NOT NULL,
-    `grade_level_id` INT(11) NOT NULL COMMENT 'Classe específica onde a disciplina é lecionada',
-    `workload_hours` INT(4),
-    `is_mandatory` TINYINT(1) DEFAULT '1',
-    `semester` ENUM('1', '2', '3', 'Anual') DEFAULT 'Anual',
-    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` timestamp NULL DEFAULT NULL AFTER `created_at`,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `course_discipline_grade` (`course_id`, `discipline_id`, `grade_level_id`),
-    KEY `discipline_id` (`discipline_id`),
-    KEY `grade_level_id` (`grade_level_id`),
-    CONSTRAINT `fk_course_disciplines_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_course_disciplines_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_course_disciplines_grade` FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 -- Adicionar campo course_id à tabela tbl_classes

@@ -1,7 +1,6 @@
 # CodeIgniter 4
 /vendor/
 .env
-.env.example
 
 # Composer
 composer.phar
