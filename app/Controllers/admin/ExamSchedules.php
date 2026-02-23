@@ -795,4 +795,155 @@ public function update($id)
             ->withInput();
     }
 }
+/**
+ * Get calendar events for FullCalendar
+ * 
+ * @return JSON
+ */
+public function getCalendarEvents()
+{
+    // Buscar todos os agendamentos
+    $schedules = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.id,
+            tbl_exam_schedules.exam_date,
+            tbl_exam_schedules.exam_time,
+            tbl_exam_schedules.status,
+            tbl_exam_schedules.exam_room,
+            tbl_exam_schedules.duration_minutes,
+            CONCAT(tbl_disciplines.discipline_name, " - ", tbl_classes.class_name) as title,
+            tbl_exam_boards.board_name,
+            tbl_exam_boards.board_type,
+            tbl_classes.class_name,
+            tbl_disciplines.discipline_name
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+        ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
+        ->orderBy('tbl_exam_schedules.exam_time', 'ASC')
+        ->findAll();
+    
+    $events = [];
+    
+    // Cores por status
+    $colors = [
+        'Agendado' => '#0d6efd',   // Azul
+        'Realizado' => '#198754',   // Verde
+        'Cancelado' => '#dc3545',   // Vermelho
+        'Adiado' => '#ffc107'       // Amarelo
+    ];
+    
+    foreach ($schedules as $schedule) {
+        // Formatar data e hora para o FullCalendar
+        $start = $schedule->exam_date;
+        if ($schedule->exam_time) {
+            $start .= 'T' . $schedule->exam_time;
+        }
+        
+        // Calcular end com base na duração (se tiver)
+        $end = null;
+        if (!empty($schedule->duration_minutes)) {
+            $end = date('Y-m-d H:i:s', strtotime($start . ' + ' . $schedule->duration_minutes . ' minutes'));
+        }
+        
+        $events[] = [
+            'id' => $schedule->id,
+            'title' => $schedule->title,
+            'start' => $start,
+            'end' => $end,
+            'color' => $colors[$schedule->status] ?? '#6c757d',
+            'textColor' => '#ffffff',
+            'extendedProps' => [
+                'status' => $schedule->status,
+                'board' => $schedule->board_name,
+                'board_type' => $schedule->board_type,
+                'room' => $schedule->exam_room ?? 'Não definida',
+                'class' => $schedule->class_name,
+                'discipline' => $schedule->discipline_name
+            ]
+        ];
+    }
+    
+    return $this->response->setJSON($events);
+}
+
+/**
+ * Get calendar events filtered by parameters
+ * 
+ * @return JSON
+ */
+public function getFilteredCalendarEvents()
+{
+    $periodId = $this->request->getGet('period_id');
+    $classId = $this->request->getGet('class_id');
+    $startDate = $this->request->getGet('start');
+    $endDate = $this->request->getGet('end');
+    
+    $builder = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.id,
+            tbl_exam_schedules.exam_date,
+            tbl_exam_schedules.exam_time,
+            tbl_exam_schedules.status,
+            tbl_exam_schedules.exam_room,
+            CONCAT(tbl_disciplines.discipline_name, " - ", tbl_classes.class_name) as title,
+            tbl_exam_boards.board_name,
+            tbl_exam_boards.board_type,
+            tbl_exam_boards.board_code,
+            tbl_classes.class_name,
+            tbl_disciplines.discipline_name
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id');
+    
+    if ($periodId) {
+        $builder->where('tbl_exam_schedules.exam_period_id', $periodId);
+    }
+    
+    if ($classId) {
+        $builder->where('tbl_exam_schedules.class_id', $classId);
+    }
+    
+    if ($startDate && $endDate) {
+        $builder->where('tbl_exam_schedules.exam_date >=', $startDate)
+                ->where('tbl_exam_schedules.exam_date <=', $endDate);
+    }
+    
+    $schedules = $builder->orderBy('tbl_exam_schedules.exam_date', 'ASC')
+        ->orderBy('tbl_exam_schedules.exam_time', 'ASC')
+        ->findAll();
+    
+    $events = [];
+    $colors = [
+        'Agendado' => '#0d6efd',
+        'Realizado' => '#198754',
+        'Cancelado' => '#dc3545',
+        'Adiado' => '#ffc107'
+    ];
+    
+    foreach ($schedules as $schedule) {
+        $start = $schedule->exam_date;
+        if ($schedule->exam_time) {
+            $start .= 'T' . $schedule->exam_time;
+        }
+        
+        $events[] = [
+            'id' => $schedule->id,
+            'title' => $schedule->title,
+            'start' => $start,
+            'color' => $colors[$schedule->status] ?? '#6c757d',
+            'textColor' => '#ffffff',
+            'url' => site_url('admin/exams/schedules/view/' . $schedule->id),
+            'extendedProps' => [
+                'status' => $schedule->status,
+                'board' => $schedule->board_name,
+                'room' => $schedule->exam_room
+            ]
+        ];
+    }
+    
+    return $this->response->setJSON($events);
+}
 }

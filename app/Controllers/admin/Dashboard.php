@@ -385,39 +385,40 @@ class Dashboard extends BaseController
         ];
     }
     
-    /**
-     * Get student performance chart data (distribuição de notas)
-     */
-    protected function getPerformanceChartData()
-    {
-        $currentSemester = $this->semesterModel->getCurrent();
-        
-        if (!$currentSemester) {
-            return [
-                'excelente' => 0,
-                'bom' => 0,
-                'satisfatorio' => 0,
-                'insuficiente' => 0
-            ];
-        }
-        
-        $db = db_connect();
-        
-        $result = $db->query("
-            SELECT 
-                SUM(CASE WHEN final_score >= 17 THEN 1 ELSE 0 END) as excelente,
-                SUM(CASE WHEN final_score >= 14 AND final_score < 17 THEN 1 ELSE 0 END) as bom,
-                SUM(CASE WHEN final_score >= 10 AND final_score < 14 THEN 1 ELSE 0 END) as satisfatorio,
-                SUM(CASE WHEN final_score < 10 THEN 1 ELSE 0 END) as insuficiente
-            FROM tbl_semester_results
-            WHERE semester_id = ?
-        ", [$currentSemester->id])->getRow();
-        
+   /**
+ * Get student performance chart data (distribuição de notas)
+ */
+protected function getPerformanceChartData()
+{
+    $currentSemester = $this->semesterModel->getCurrent();
+    
+    if (!$currentSemester) {
         return [
-            'excelente' => $result->excelente ?? 0,
-            'bom' => $result->bom ?? 0,
-            'satisfatorio' => $result->satisfatorio ?? 0,
-            'insuficiente' => $result->insuficiente ?? 0
+            'excelente' => 0,
+            'bom' => 0,
+            'satisfatorio' => 0,
+            'insuficiente' => 0
         ];
     }
+    
+    $db = db_connect();
+    
+    // ✅ CORRIGIDO: Usar overall_average em vez de final_score
+    $result = $db->query("
+        SELECT 
+            SUM(CASE WHEN overall_average >= 17 THEN 1 ELSE 0 END) as excelente,
+            SUM(CASE WHEN overall_average >= 14 AND overall_average < 17 THEN 1 ELSE 0 END) as bom,
+            SUM(CASE WHEN overall_average >= 10 AND overall_average < 14 THEN 1 ELSE 0 END) as satisfatorio,
+            SUM(CASE WHEN overall_average < 10 THEN 1 ELSE 0 END) as insuficiente
+        FROM tbl_semester_results
+        WHERE semester_id = ?
+    ", [$currentSemester->id])->getRow();
+    
+    return [
+        'excelente' => $result->excelente ?? 0,
+        'bom' => $result->bom ?? 0,
+        'satisfatorio' => $result->satisfatorio ?? 0,
+        'insuficiente' => $result->insuficiente ?? 0
+    ];
+}
 }

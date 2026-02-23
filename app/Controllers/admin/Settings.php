@@ -210,32 +210,7 @@ class Settings extends BaseController
             ->with('success', 'Configurações de pagamento salvas com sucesso');
     }
     
-    /**
-     * Permissions settings page
-     */
-    public function grouppermissions()
-    {
-        $data['title'] = 'Configurações de Permissões';
-        
-        // Get all roles
-        $data['roles'] = $this->roleModel->findAll();
-        
-        // Get all permissions grouped by module
-        $permissions = $this->permissionModel
-            ->orderBy('module', 'ASC')
-            ->orderBy('permission_name', 'ASC')
-            ->findAll();
-        
-        $permissionsByModule = [];
-        foreach ($permissions as $perm) {
-            $permissionsByModule[$perm->module][] = $perm;
-        }
-        
-        $data['permissionsByModule'] = $permissionsByModule;
-        
-        return view('admin/settings/permissions', $data);
-    }
-    
+  
     /**
      * Test email connection
      */

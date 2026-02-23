@@ -280,7 +280,7 @@
                 </div>
                 
                 <div class="card-footer">
-                    <a href="<?= site_url('admin/exams') ?>" class="btn btn-info btn-sm w-100">
+                    <a href="<?= site_url('admin/exams/schedules') ?>" class="btn btn-info btn-sm w-100">
                         <i class="fas fa-calendar"></i> Ver Calendário de Exames
                     </a>
                 </div>
@@ -321,7 +321,7 @@
                 </div>
                 
                 <div class="card-footer">
-                    <a href="<?= site_url('admin/enrollments') ?>" class="btn btn-success btn-sm w-100">
+                    <a href="<?= site_url('admin/students/enrollments') ?>" class="btn btn-success btn-sm w-100">
                         <i class="fas fa-plus"></i> Nova Matrícula
                     </a>
                 </div>
@@ -354,7 +354,7 @@
                         </a>
                     </div>
                     <div class="col-md-2 col-6">
-                        <a href="<?= site_url('admin/enrollments/form-add') ?>" class="quick-action-card">
+                        <a href="<?= site_url('admin/students/enrollments') ?>" class="quick-action-card">
                             <i class="fas fa-file-signature fa-2x mb-2 text-info"></i>
                             <h6>Nova Matrícula</h6>
                             <small class="text-muted">Matricular aluno</small>
@@ -368,7 +368,7 @@
                         </a>
                     </div>
                     <div class="col-md-2 col-6">
-                        <a href="<?= site_url('admin/exams/form-add') ?>" class="quick-action-card">
+                        <a href="<?= site_url('admin/exams/schedules') ?>" class="quick-action-card">
                             <i class="fas fa-pencil-alt fa-2x mb-2 text-danger"></i>
                             <h6>Agendar Exame</h6>
                             <small class="text-muted">Criar exame</small>

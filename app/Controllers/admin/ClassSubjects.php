@@ -46,7 +46,7 @@ public function index()
     $disciplineId = $this->request->getGet('discipline');
     $teacherId = $this->request->getGet('teacher');
     
-    // Construir query base
+    // Construir query base - REMOVIDO semester_id e adicionado teacher_id da tbl_teachers
     $builder = $this->classDisciplineModel
         ->select('
             tbl_class_disciplines.*,
@@ -56,16 +56,21 @@ public function index()
             tbl_classes.course_id,
             tbl_disciplines.discipline_name,
             tbl_disciplines.discipline_code,
+            tbl_users.id as teacher_user_id,
             tbl_users.first_name as teacher_first_name,
             tbl_users.last_name as teacher_last_name,
-            tbl_semesters.semester_name,
+            tbl_teachers.id as teacher_id,
+            tbl_teachers.qualifications as teacher_qualifications,
+            tbl_teachers.specialization as teacher_specialization,
             tbl_courses.course_name,
-            tbl_courses.course_code
+            tbl_courses.course_code,
+            tbl_class_disciplines.period_type,
+            tbl_class_disciplines.workload_hours
         ')
         ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
         ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
         ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
-        ->join('tbl_semesters', 'tbl_semesters.id = tbl_class_disciplines.semester_id', 'left')
+        ->join('tbl_teachers', 'tbl_teachers.user_id = tbl_users.id', 'left') // JOIN com teachers para obter ID da tabela
         ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left');
     
     // Aplicar filtros
@@ -77,7 +82,7 @@ public function index()
         $builder->where('tbl_class_disciplines.class_id', $classId);
     }
     
-    // NOVO FILTRO: Curso
+    // FILTRO: Curso
     if ($courseId !== null && $courseId !== '') {
         if ($courseId == '0') {
             // Ensino Geral (cursos nulos)
@@ -87,17 +92,17 @@ public function index()
         }
     }
     
-    // NOVO FILTRO: Disciplina
+    // FILTRO: Disciplina
     if ($disciplineId) {
         $builder->where('tbl_class_disciplines.discipline_id', $disciplineId);
     }
     
-    // NOVO FILTRO: Professor
+    // FILTRO: Professor (agora usando teacher_id da tbl_teachers)
     if ($teacherId) {
         if ($teacherId == 'without') {
             $builder->where('tbl_class_disciplines.teacher_id IS NULL');
         } else {
-            $builder->where('tbl_class_disciplines.teacher_id', $teacherId);
+            $builder->where('tbl_teachers.id', $teacherId);
         }
     }
     
@@ -110,14 +115,27 @@ public function index()
     $withTeacherCount = 0;
     $withoutTeacherCount = 0;
     $uniqueClasses = [];
+    $periodStats = [
+        'Anual' => 0,
+        '1º Semestre' => 0,
+        '2º Semestre' => 0
+    ];
     
     foreach ($data['assignments'] as $assignment) {
+        // Estatísticas de professor
         if ($assignment->teacher_id) {
             $withTeacherCount++;
         } else {
             $withoutTeacherCount++;
         }
+        
+        // Turmas únicas
         $uniqueClasses[$assignment->class_id] = true;
+        
+        // Estatísticas por período
+        if (isset($periodStats[$assignment->period_type])) {
+            $periodStats[$assignment->period_type]++;
+        }
     }
     
     $data['totalAssignments'] = $totalAssignments;
@@ -125,6 +143,7 @@ public function index()
     $data['withoutTeacherCount'] = $withoutTeacherCount;
     $data['totalClasses'] = count($uniqueClasses);
     $data['totalFiltered'] = $totalAssignments;
+    $data['periodStats'] = $periodStats;
     
     // Filters data
     $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();
@@ -137,32 +156,41 @@ public function index()
         ->orderBy('tbl_classes.class_name', 'ASC')
         ->findAll();
     
-    // NOVO: Buscar cursos para o filtro
+    // Buscar cursos para o filtro
     $courseModel = new \App\Models\CourseModel();
     $data['courses'] = $courseModel
         ->where('is_active', 1)
         ->orderBy('course_name', 'ASC')
         ->findAll();
     
-    // NOVO: Buscar disciplinas para o filtro
+    // Buscar disciplinas para o filtro
     $data['disciplines'] = $this->disciplineModel
         ->where('is_active', 1)
         ->orderBy('discipline_name', 'ASC')
         ->findAll();
     
-    // NOVO: Buscar professores para o filtro
+    // Buscar professores para o filtro (agora da tabela teachers)
     $data['teachers'] = $this->userModel
-        ->where('user_type', 'teacher')
-        ->where('is_active', 1)
-        ->orderBy('first_name', 'ASC')
+        ->select('
+            tbl_teachers.id as teacher_id,
+            tbl_users.id as user_id,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            tbl_teachers.qualifications,
+            tbl_teachers.specialization
+        ')
+        ->join('tbl_teachers', 'tbl_teachers.user_id = tbl_users.id')
+        ->where('tbl_users.user_type', 'teacher')
+        ->where('tbl_users.is_active', 1)
+        ->orderBy('tbl_users.first_name', 'ASC')
         ->findAll();
     
     // Valores selecionados
     $data['selectedYear'] = $academicYearId;
     $data['selectedClass'] = $classId;
-    $data['selectedCourse'] = $courseId; // NOVO
-    $data['selectedDiscipline'] = $disciplineId; // NOVO
-    $data['selectedTeacher'] = $teacherId; // NOVO
+    $data['selectedCourse'] = $courseId;
+    $data['selectedDiscipline'] = $disciplineId;
+    $data['selectedTeacher'] = $teacherId;
     
     // Pager
     $data['pager'] = $this->classDisciplineModel->pager;
@@ -184,7 +212,8 @@ public function assign()
     $data['selectedDisciplineId'] = null;
     $data['selectedClassId'] = $classId;
     $data['selectedClassInfo'] = null;
-    $data['disciplines'] = []; // Array para armazenar as disciplinas combinadas
+    $data['disciplines'] = [];
+    $data['semesters'] = []; // ✅ ADICIONADO: inicializar array vazio
     
     // Se temos um ID de atribuição (modo edição de uma específica)
     if ($assignmentId) {
@@ -201,13 +230,10 @@ public function assign()
                 tbl_disciplines.id as discipline_id,
                 tbl_disciplines.discipline_name,
                 tbl_disciplines.discipline_code,
-                tbl_semesters.semester_name,
-                tbl_semesters.semester_type,
                 CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as teacher_name
             ')
             ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
-            ->join('tbl_semesters', 'tbl_semesters.id = tbl_class_disciplines.semester_id', 'left')
             ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
             ->where('tbl_class_disciplines.id', $assignmentId)
             ->first();
@@ -231,6 +257,13 @@ public function assign()
             ->first();
         
         if ($data['selectedClassInfo']) {
+            // ✅ ADICIONADO: Buscar semestres do ano letivo da turma
+            $data['semesters'] = $this->semesterModel
+                ->where('academic_year_id', $data['selectedClassInfo']->academic_year_id)
+                ->whereIn('status', ['ativo', 'processado'])
+                ->orderBy('start_date', 'ASC')
+                ->findAll();
+            
             // Buscar TODAS as disciplinas do currículo do curso
             $courseDisciplines = [];
             
@@ -267,107 +300,72 @@ public function assign()
                     ->findAll();
             }
             
-            // Buscar todos os semestres do ano letivo
-            $allSemesters = $this->semesterModel
-                ->where('academic_year_id', $data['selectedClassInfo']->academic_year_id)
-                ->where('status', 'ativo')
-                ->orderBy('start_date', 'ASC')
-                ->findAll();
+            // Mapeamento de semestre do currículo para period_type
+            $periodMap = [
+                'Anual' => 'Anual',
+                '1' => '1º Semestre',
+                '2' => '2º Semestre',
+                '3' => 'Anual',
+                '1º Semestre' => '1º Semestre',
+                '2º Semestre' => '2º Semestre'
+            ];
             
-            // Buscar atribuições existentes desta turma (TODOS os registros)
+            // Buscar atribuições existentes desta turma
             $existingAssignments = $this->classDisciplineModel
                 ->select('
                     tbl_class_disciplines.*,
                     tbl_users.first_name as teacher_first_name,
-                    tbl_users.last_name as teacher_last_name,
-                    tbl_semesters.semester_name,
-                    tbl_semesters.semester_type
+                    tbl_users.last_name as teacher_last_name
                 ')
                 ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
-                ->join('tbl_semesters', 'tbl_semesters.id = tbl_class_disciplines.semester_id', 'left')
                 ->where('tbl_class_disciplines.class_id', $classId)
                 ->where('tbl_class_disciplines.is_active', 1)
                 ->findAll();
             
-            // Mapear atribuições por chave composta: discipline_id + semester_id
+            // Mapear atribuições por chave: discipline_id + period_type
             $assignmentMap = [];
             foreach ($existingAssignments as $ass) {
-                $key = $ass->discipline_id . '_' . ($ass->semester_id ?? 'null');
+                $key = $ass->discipline_id . '_' . ($ass->period_type ?? 'Anual');
                 $assignmentMap[$key] = $ass;
             }
             
             // Combinar disciplinas do currículo com as atribuições existentes
-            // Para disciplinas anuais, criar registros separados por semestre
             $data['disciplines'] = [];
             
             foreach ($courseDisciplines as $disc) {
-                if ($disc->suggested_semester == 'Anual') {
-                    // Disciplina anual - criar um registro para cada semestre
-                    foreach ($allSemesters as $semester) {
-                        $key = $disc->id . '_' . $semester->id;
-                        $assignment = $assignmentMap[$key] ?? null;
-                        $assigned = $assignment !== null;
-                        
-                        $data['disciplines'][] = [
-                            'id' => $disc->id,
-                            'name' => $disc->discipline_name,
-                            'code' => $disc->discipline_code,
-                            'assigned' => $assigned,
-                            'assignment_id' => $assignment ? $assignment->id : null,
-                            'teacher_id' => $assignment ? $assignment->teacher_id : null,
-                            'teacher_name' => $assignment ? ($assignment->teacher_first_name . ' ' . $assignment->teacher_last_name) : null,
-                            'workload' => $assignment ? $assignment->workload_hours : null,
-                            'suggested_workload' => $disc->suggested_workload ?? null,
-                            'suggested_semester' => $disc->suggested_semester ?? 'Anual',
-                            'semester_id' => $assignment ? $assignment->semester_id : null,
-                            'semester_name' => $assignment ? $assignment->semester_name : $semester->semester_name,
-                            'semester_type' => $assignment ? $assignment->semester_type : $semester->semester_type,
-                            'is_mandatory' => $disc->is_mandatory ?? false,
-                            'is_active' => $assignment ? $assignment->is_active : false,
-                            'display_semester' => $semester->semester_name // Para exibição
-                        ];
-                    }
-                } else {
-                    // Disciplina semestral - apenas um registro
-                    $key = $disc->id . '_null';
-                    $assignment = $assignmentMap[$key] ?? null;
-                    $assigned = $assignment !== null;
-                    
-                    $data['disciplines'][] = [
-                        'id' => $disc->id,
-                        'name' => $disc->discipline_name,
-                        'code' => $disc->discipline_code,
-                        'assigned' => $assigned,
-                        'assignment_id' => $assignment ? $assignment->id : null,
-                        'teacher_id' => $assignment ? $assignment->teacher_id : null,
-                        'teacher_name' => $assignment ? ($assignment->teacher_first_name . ' ' . $assignment->teacher_last_name) : null,
-                        'workload' => $assignment ? $assignment->workload_hours : null,
-                        'suggested_workload' => $disc->suggested_workload ?? null,
-                        'suggested_semester' => $disc->suggested_semester ?? 'Anual',
-                        'semester_id' => $assignment ? $assignment->semester_id : null,
-                        'semester_name' => $assignment ? $assignment->semester_name : null,
-                        'semester_type' => $assignment ? $assignment->semester_type : null,
-                        'is_mandatory' => $disc->is_mandatory ?? false,
-                        'is_active' => $assignment ? $assignment->is_active : false,
-                        'display_semester' => $disc->suggested_semester // Para exibição
-                    ];
-                }
+                $suggestedPeriod = $disc->suggested_semester ?? 'Anual';
+                $periodType = $periodMap[$suggestedPeriod] ?? 'Anual';
+                
+                $key = $disc->id . '_' . $periodType;
+                $assignment = $assignmentMap[$key] ?? null;
+                $assigned = $assignment !== null;
+                
+                $data['disciplines'][] = [
+                    'id' => $disc->id,
+                    'name' => $disc->discipline_name,
+                    'code' => $disc->discipline_code,
+                    'assigned' => $assigned,
+                    'assignment_id' => $assignment ? $assignment->id : null,
+                    'teacher_id' => $assignment ? $assignment->teacher_id : null,
+                    'teacher_name' => $assignment ? ($assignment->teacher_first_name . ' ' . $assignment->teacher_last_name) : null,
+                    'workload' => $assignment ? $assignment->workload_hours : null,
+                    'suggested_workload' => $disc->suggested_workload ?? null,
+                    'period_type' => $periodType,
+                    'is_mandatory' => $disc->is_mandatory ?? false,
+                    'is_active' => $assignment ? $assignment->is_active : false,
+                    'display_info' => $this->getPeriodDisplayInfo($periodType)
+                ];
             }
-            
-            // Buscar semestres do ano letivo da turma para o filtro
-            $data['semesters'] = $allSemesters;
         }
     } else {
-        // Se não tem turma selecionada, buscar semestres do ano atual como fallback
+        // ✅ ADICIONADO: Se não tem turma selecionada, buscar semestres do ano atual como fallback
         $currentYear = $this->academicYearModel->getCurrent();
         if ($currentYear) {
             $data['semesters'] = $this->semesterModel
                 ->where('academic_year_id', $currentYear->id)
-                ->where('is_active', 1)
+                ->whereIn('status', ['ativo', 'processado'])
                 ->orderBy('start_date', 'ASC')
                 ->findAll();
-        } else {
-            $data['semesters'] = [];
         }
     }
     
@@ -390,6 +388,35 @@ public function assign()
         ->findAll();
     
     return view('admin/classes/class-subjects/assign', $data);
+}
+
+/**
+ * Helper para obter informações de exibição do período
+ */
+private function getPeriodDisplayInfo($periodType)
+{
+    $info = [
+        'Anual' => [
+            'badge' => 'success',
+            'icon' => 'fa-calendar-alt',
+            'text' => 'Anual (todos trimestres)',
+            'trimesters' => [1, 2, 3]
+        ],
+        '1º Semestre' => [
+            'badge' => 'primary',
+            'icon' => 'fa-sun',
+            'text' => '1º Semestre (apenas 1º trimestre)',
+            'trimesters' => [1]
+        ],
+        '2º Semestre' => [
+            'badge' => 'warning',
+            'icon' => 'fa-cloud-sun',
+            'text' => '2º Semestre (apenas 2º trimestre)',
+            'trimesters' => [2]
+        ]
+    ];
+    
+    return $info[$periodType] ?? $info['Anual'];
 }
 /**
  * Save assignment (individual)
@@ -547,9 +574,8 @@ public function assignTeachers($classId)
 {
     $data['title'] = 'Atribuir Professores à Turma';
     
-    // Buscar informações da turma (com ano letivo)
-    $classModel = new \App\Models\ClassModel();
-    $data['class'] = $classModel
+    // Buscar informações da turma
+    $data['class'] = $this->classModel
         ->select('
             tbl_classes.*, 
             tbl_courses.course_name, 
@@ -567,42 +593,27 @@ public function assignTeachers($classId)
             ->with('error', 'Turma não encontrada');
     }
     
-    // Buscar disciplinas já atribuídas a esta turma COM INFORMAÇÕES DO SEMESTRE
-    // NOTA: is_mandatory não está na tabela tbl_disciplines, então foi removido
+    // ✅ CORRIGIDO: Buscar disciplinas atribuídas a esta turma usando period_type
     $data['disciplines'] = $this->classDisciplineModel
         ->select('
             tbl_class_disciplines.*,
             tbl_disciplines.discipline_name,
-            tbl_disciplines.discipline_code,
-            tbl_semesters.semester_name,
-            tbl_semesters.semester_type,
-            tbl_semesters.start_date as semester_start,
-            tbl_semesters.end_date as semester_end
+            tbl_disciplines.discipline_code
         ')
         ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
-        ->join('tbl_semesters', 'tbl_semesters.id = tbl_class_disciplines.semester_id', 'left')
         ->where('tbl_class_disciplines.class_id', $classId)
         ->where('tbl_class_disciplines.is_active', 1)
-        ->orderBy('tbl_semesters.start_date', 'ASC')
+        ->orderBy('tbl_class_disciplines.period_type', 'ASC')
         ->orderBy('tbl_disciplines.discipline_name', 'ASC')
         ->findAll();
     
-    // DEBUG: Log para verificar se os dados do semestre estão vindo
-    log_message('debug', 'Disciplinas encontradas: ' . count($data['disciplines']));
-    foreach ($data['disciplines'] as $d) {
-        log_message('debug', "Disciplina: {$d->discipline_name}, Semester ID: {$d->semester_id}, Semester Name: {$d->semester_name}");
+    // ✅ NOVO: Adicionar informações de período formatadas
+    foreach ($data['disciplines'] as $disc) {
+        $disc->period_info = $this->getPeriodInfo($disc->period_type);
     }
     
-    // Buscar todos os semestres do ano letivo para referência
-    $data['all_semesters'] = $this->semesterModel
-        ->where('academic_year_id', $data['class']->academic_year_id)
-        ->where('status', 'ativo')
-        ->orderBy('start_date', 'ASC')
-        ->findAll();
-    
     // Buscar professores disponíveis
-    $userModel = new \App\Models\UserModel();
-    $data['teachers'] = $userModel
+    $data['teachers'] = $this->userModel
         ->where('user_type', 'teacher')
         ->where('is_active', 1)
         ->orderBy('first_name', 'ASC')
@@ -610,35 +621,44 @@ public function assignTeachers($classId)
     
     return view('admin/classes/class-subjects/assign_teachers', $data);
 }
-    /**
-     * Salvar atribuições de professores
-     */
-   /*  public function saveTeachers()
-    {
-        $classId = $this->request->getPost('class_id');
-        $assignments = $this->request->getPost('assignments'); // Array [discipline_id => teacher_id]
-        
-        if (!$classId || !$assignments) {
-            return redirect()->back()->with('error', 'Dados inválidos');
-        }
-        
-        $updated = 0;
-        
-        foreach ($assignments as $disciplineId => $teacherId) {
-            // Atualizar apenas se teacher_id foi selecionado
-            if (!empty($teacherId)) {
-                $this->classDisciplineModel
-                    ->where('class_id', $classId)
-                    ->where('discipline_id', $disciplineId)
-                    ->set(['teacher_id' => $teacherId])
-                    ->update();
-                $updated++;
-            }
-        }
-        
-        return redirect()->to('/admin/classes/class-subjects?class=' . $classId)
-            ->with('success', "{$updated} professores atribuídos com sucesso!");
-    } */
+
+/**
+ * Helper para obter informações do período
+ */
+private function getPeriodInfo($periodType)
+{
+    $periods = [
+        'Anual' => [
+            'label' => 'Anual',
+            'badge' => 'success',
+            'icon' => 'fa-calendar-alt',
+            'description' => 'Disciplina anual (todos os trimestres)',
+            'color' => 'success'
+        ],
+        '1º Semestre' => [
+            'label' => '1º Semestre',
+            'badge' => 'primary',
+            'icon' => 'fa-sun',
+            'description' => 'Apenas 1º Trimestre',
+            'color' => 'primary'
+        ],
+        '2º Semestre' => [
+            'label' => '2º Semestre',
+            'badge' => 'warning',
+            'icon' => 'fa-cloud-sun',
+            'description' => 'Apenas 2º Trimestre',
+            'color' => 'warning'
+        ]
+    ];
+    
+    return $periods[$periodType] ?? [
+        'label' => 'Não definido',
+        'badge' => 'secondary',
+        'icon' => 'fa-question-circle',
+        'description' => 'Período não definido',
+        'color' => 'secondary'
+    ];
+}
 /**
  * Salvar atribuições de professores
  */
@@ -854,6 +874,9 @@ public function saveTeachers()
         
         return $this->response->setJSON($result);
     }
+/**
+ * Salvar múltiplas atribuições em lote
+ */
 public function saveBulkAssignments()
 {
     // Validação do request
@@ -870,36 +893,15 @@ public function saveBulkAssignments()
         return redirect()->back()->with('warning', 'Nenhuma disciplina selecionada.');
     }
     
-    // Buscar todas as disciplinas de uma vez
-    $disciplineIds = [];
-    foreach ($assignments as $data) {
-        if (isset($data['selected']) && $data['selected'] == 1 && !empty($data['discipline_id'])) {
-            $disciplineIds[] = $data['discipline_id'];
-        }
-    }
-    
-    $disciplines = [];
-    if (!empty($disciplineIds)) {
-        $disciplinesData = $this->disciplineModel
-            ->whereIn('id', array_unique($disciplineIds))
-            ->findAll();
-        
-        foreach ($disciplinesData as $disc) {
-            $disciplines[$disc->id] = $disc;
-        }
-    }
-    
     // Iniciar transação
     $this->classDisciplineModel->db->transStart();
     
     try {
         $saved = 0;
         $errors = 0;
-        $missingSemester = [];
-        $keptAssignmentIds = [];
-        $processedKeys = []; // Para evitar duplicatas
+        $keptIds = [];
         
-        foreach ($assignments as $key => $data) {
+        foreach ($assignments as $data) {
             // Verificar se a disciplina foi selecionada
             if (!isset($data['selected']) || $data['selected'] != 1) {
                 continue;
@@ -909,77 +911,40 @@ public function saveBulkAssignments()
             $assignmentId = $data['assignment_id'] ?? null;
             $teacherId = !empty($data['teacher_id']) ? $data['teacher_id'] : null;
             $workload = !empty($data['workload']) ? $data['workload'] : null;
-            $semesterId = !empty($data['semester_id']) ? $data['semester_id'] : null;
+            $periodType = $data['period_type'] ?? 'Anual';
             
             if (!$disciplineId) {
                 $errors++;
                 continue;
             }
             
-            // Criar chave única para evitar processar mesma disciplina múltiplas vezes
-            $uniqueKey = $disciplineId . '_' . ($semesterId ?? 'null');
-            if (in_array($uniqueKey, $processedKeys)) {
-                continue;
-            }
-            $processedKeys[] = $uniqueKey;
-            
-            // Verificar se a disciplina é anual e requer semestre
-            $discipline = $disciplines[$disciplineId] ?? null;
-            
-            if ($discipline) {
-                $isAnnual = false;
-                if (property_exists($discipline, 'suggested_semester')) {
-                    $isAnnual = ($discipline->suggested_semester ?? '') == 'Anual';
-                }
-                
-                // Se for anual e não tem semestre definido, registrar erro
-                if ($isAnnual && empty($semesterId)) {
-                    $missingSemester[] = $discipline->discipline_name ?? "Disciplina ID: $disciplineId";
-                    $errors++;
-                    continue;
-                }
-            }
-            
-            // Verificar se já existe
-            $existingQuery = $this->classDisciplineModel
+            // Verificar se já existe uma atribuição ativa
+            $existing = $this->classDisciplineModel
                 ->where('class_id', $classId)
                 ->where('discipline_id', $disciplineId)
-                ->where('is_active', 1);
-            
-            if ($semesterId) {
-                $existingQuery->where('semester_id', $semesterId);
-            } else {
-                $existingQuery->where('semester_id', null);
-            }
-            
-            $existingAssignment = $existingQuery->first();
-            
-            if ($existingAssignment && !$assignmentId) {
-                // Já existe, manter
-                $keptAssignmentIds[] = $existingAssignment->id;
-                $saved++;
-                continue;
-            }
+                ->where('period_type', $periodType)
+                ->where('is_active', 1)
+                ->first();
             
             $assignmentData = [
                 'class_id' => $classId,
                 'discipline_id' => $disciplineId,
                 'teacher_id' => $teacherId,
                 'workload_hours' => $workload,
-                'semester_id' => $semesterId,
+                'period_type' => $periodType,
                 'is_active' => 1
             ];
             
-            if ($assignmentId) {
+            if ($existing) {
                 // Atualizar existente
-                $this->classDisciplineModel->update($assignmentId, $assignmentData);
-                $keptAssignmentIds[] = $assignmentId;
+                $this->classDisciplineModel->update($existing->id, $assignmentData);
+                $keptIds[] = $existing->id;
                 $saved++;
             } else {
                 // Inserir novo
                 $newId = $this->classDisciplineModel->insert($assignmentData);
                 if ($newId) {
-                    $keptAssignmentIds[] = $newId;
+                    $keptIds[] = $newId;
                     $saved++;
                 } else {
                     $errors++;
@@ -987,15 +952,15 @@ public function saveBulkAssignments()
             }
         }
         
-        // Desativar assignments que não foram mantidos
-        if (!empty($keptAssignmentIds)) {
+        // Desativar atribuições que não foram mantidas
+        if (!empty($keptIds)) {
             $this->classDisciplineModel
                 ->where('class_id', $classId)
-                ->whereNotIn('id', $keptAssignmentIds)
+                ->whereNotIn('id', $keptIds)
                 ->set(['is_active' => 0])
                 ->update();
         } else {
-            // Se não manteve nenhum, desativa todos
+            // Se não manteve nenhuma, desativa todas
             $this->classDisciplineModel
                 ->where('class_id', $classId)
                 ->set(['is_active' => 0])
@@ -1008,37 +973,9 @@ public function saveBulkAssignments()
             throw new \Exception('Erro na transação');
         }
         
-        // Verificar se realmente salvou alguma coisa
         if ($saved === 0) {
-            if (!empty($missingSemester)) {
-                $message = "Nenhuma disciplina foi atribuída. ";
-                $message .= "As seguintes disciplinas anuais precisam de período: <br>";
-                $message .= "<ul class='mb-0 mt-1'>";
-                foreach ($missingSemester as $disc) {
-                    $message .= "<li><strong>$disc</strong></li>";
-                }
-                $message .= "</ul>";
-                
-                return redirect()->to('admin/classes/class-subjects/assign?class=' . $classId)
-                    ->with('error', $message);
-            }
-            
             return redirect()->to('admin/classes/class-subjects/assign?class=' . $classId)
                 ->with('warning', 'Nenhuma disciplina foi salva. Verifique os dados.');
-        }
-        
-        // Se houver disciplinas anuais sem semestre, mostrar aviso parcial
-        if (!empty($missingSemester)) {
-            $message = "$saved disciplinas atribuídas com sucesso. ";
-            $message .= "As seguintes disciplinas anuais NÃO foram atribuídas (período não definido): <br>";
-            $message .= "<ul class='mb-0 mt-1'>";
-            foreach ($missingSemester as $disc) {
-                $message .= "<li><strong>$disc</strong></li>";
-            }
-            $message .= "</ul>";
-            
-            return redirect()->to('admin/classes/class-subjects/assign?class=' . $classId)
-                ->with('warning', $message);
         }
         
         return redirect()->to('admin/classes/class-subjects/assign?class=' . $classId)

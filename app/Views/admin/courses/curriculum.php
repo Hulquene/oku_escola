@@ -218,11 +218,11 @@
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <label for="semester" class="form-label fw-semibold">Semestre</label>
+                            <label for="semester" class="form-label fw-semibold">Semestre/Trimestre</label>
                             <select class="form-select" id="semester" name="semester">
                                 <option value="Anual">Anual</option>
-                                <option value="1º">1º Semestre</option>
-                                <option value="2º">2º Semestre</option>
+                                <option value="1">1º Trimestre</option>
+                                <option value="2">2º Trimestre</option>
                             </select>
                         </div>
                         

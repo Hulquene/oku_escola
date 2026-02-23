@@ -215,8 +215,32 @@
             </div>
             
             <!-- Visualização em Calendário -->
+            <!-- Visualização em Calendário -->
             <div class="tab-pane" id="calendar-view">
-                <div id="examCalendar" style="height: 600px; padding: 15px;"></div>
+                <div class="p-3">
+                    <!-- Legenda de cores -->
+                    <div class="mb-3 d-flex gap-3 align-items-center flex-wrap">
+                        <div class="d-flex align-items-center">
+                            <span class="badge me-1" style="background-color: #0d6efd; width: 20px; height: 20px;"></span>
+                            <small>Agendado</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge me-1" style="background-color: #198754; width: 20px; height: 20px;"></span>
+                            <small>Realizado</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge me-1" style="background-color: #dc3545; width: 20px; height: 20px;"></span>
+                            <small>Cancelado</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge me-1" style="background-color: #ffc107; width: 20px; height: 20px;"></span>
+                            <small>Adiado</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Container do Calendário -->
+                    <div id="examCalendar"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -250,9 +274,11 @@
     </div>
 </div>
 
+<!-- Scripts do Calendário -->
 <!-- FullCalendar CSS e JS -->
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
 
 <style>
 .card {
@@ -319,50 +345,6 @@ function confirmDelete(id) {
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 
-// Inicializar calendário
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('examCalendar');
-    
-    if (calendarEl) {
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            locale: 'pt',
-            buttonText: {
-                today: 'Hoje',
-                month: 'Mês',
-                week: 'Semana',
-                day: 'Dia'
-            },
-            events: function(fetchInfo, successCallback, failureCallback) {
-                // Fetch events from server
-                fetch('<?= site_url('admin/exams/schedules/get-calendar-events') ?>')
-                    .then(response => response.json())
-                    .then(data => successCallback(data))
-                    .catch(error => failureCallback(error));
-            },
-            eventClick: function(info) {
-                window.location.href = '<?= site_url('admin/exams/schedules/view') ?>/' + info.event.id;
-            },
-            eventDidMount: function(info) {
-                // Add tooltip
-                $(info.el).tooltip({
-                    title: info.event.title,
-                    placement: 'top',
-                    trigger: 'hover',
-                    container: 'body'
-                });
-            }
-        });
-        
-        calendar.render();
-    }
-});
-
 // Auto-submit filters on change
 document.querySelectorAll('.filter-select').forEach(select => {
     select.addEventListener('change', function() {
@@ -370,5 +352,77 @@ document.querySelectorAll('.filter-select').forEach(select => {
     });
 });
 </script>
+<!-- Script do Calendário - VERSÃO CORRIGIDA -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips do Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 
+    var calendarEl = document.getElementById('examCalendar');
+    
+    if (calendarEl) {
+        // Buscar eventos via AJAX
+        fetch('<?= site_url('admin/exams/schedules/calendar-events') ?>')
+            .then(response => response.json())
+            .then(events => {
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    locale: 'pt-br',
+                    buttonText: {
+                        today: 'Hoje',
+                        month: 'Mês',
+                        week: 'Semana',
+                        day: 'Dia'
+                    },
+                    events: events,
+                    eventClick: function(info) {
+                        // Redirecionar para a página de detalhes
+                        window.location.href = '<?= site_url('admin/exams/schedules/view/') ?>/' + info.event.id;
+                    },
+                    eventDidMount: function(info) {
+                        // Adicionar tooltip
+                        info.el.setAttribute('data-bs-toggle', 'tooltip');
+                        info.el.setAttribute('data-bs-placement', 'top');
+                        info.el.setAttribute('title', info.event.title + ' - ' + (info.event.extendedProps?.room || 'Sala não definida'));
+                        
+                        // Inicializar tooltip
+                        if (typeof bootstrap !== 'undefined') {
+                            new bootstrap.Tooltip(info.el);
+                        }
+                    },
+                    eventTimeFormat: {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    },
+                    displayEventTime: true
+                });
+                
+                calendar.render();
+                
+                // Salvar referência para redimensionamento
+                window.examCalendar = calendar;
+            })
+            .catch(error => {
+                console.error('Erro ao carregar eventos:', error);
+                calendarEl.innerHTML = '<div class="alert alert-danger">Erro ao carregar calendário. Tente novamente mais tarde.</div>';
+            });
+    }
+});
+
+// Atualizar calendário quando a tab for clicada
+document.querySelector('a[href="#calendar-view"]')?.addEventListener('shown.bs.tab', function(e) {
+    if (window.examCalendar) {
+        window.examCalendar.updateSize();
+    }
+});
+</script>
 <?= $this->endSection() ?>

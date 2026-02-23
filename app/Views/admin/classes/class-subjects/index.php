@@ -47,7 +47,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="text-white-50 mb-1">Total Atribuições</h6>
-                        <h2 class="mb-0"><?= $totalAssignments ?? count($assignments) ?></h2>
+                        <h2 class="mb-0"><?= $totalAssignments ?></h2>
                         <small>Disciplinas atribuídas</small>
                     </div>
                     <i class="fas fa-link fa-3x text-white-50"></i>
@@ -62,8 +62,8 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="text-white-50 mb-1">Com Professor</h6>
-                        <h2 class="mb-0"><?= $withTeacherCount ?? 0 ?></h2>
-                        <small>Disciplinas com professor</small>
+                        <h2 class="mb-0"><?= $withTeacherCount ?></h2>
+                        <small>ID da tabela teachers</small>
                     </div>
                     <i class="fas fa-chalkboard-teacher fa-3x text-white-50"></i>
                 </div>
@@ -77,8 +77,8 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="text-white-50 mb-1">Sem Professor</h6>
-                        <h2 class="mb-0"><?= $withoutTeacherCount ?? 0 ?></h2>
-                        <small>Pendentes de atribuição</small>
+                        <h2 class="mb-0"><?= $withoutTeacherCount ?></h2>
+                        <small>Pendentes</small>
                     </div>
                     <i class="fas fa-user-slash fa-3x text-white-50"></i>
                 </div>
@@ -91,11 +91,14 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="text-white-50 mb-1">Turmas</h6>
-                        <h2 class="mb-0"><?= $totalClasses ?? 0 ?></h2>
-                        <small>Com disciplinas</small>
+                        <h6 class="text-white-50 mb-1">Por Período</h6>
+                        <div class="small">
+                            <span class="badge bg-success me-1">A: <?= $periodStats['Anual'] ?></span>
+                            <span class="badge bg-primary me-1">1º: <?= $periodStats['1º Semestre'] ?></span>
+                            <span class="badge bg-warning">2º: <?= $periodStats['2º Semestre'] ?></span>
+                        </div>
                     </div>
-                    <i class="fas fa-school fa-3x text-white-50"></i>
+                    <i class="fas fa-calendar-alt fa-3x text-white-50"></i>
                 </div>
             </div>
         </div>
@@ -119,7 +122,6 @@
                     <?php if (!empty($academicYears)): ?>
                         <?php foreach ($academicYears as $year): ?>
                             <?php 
-                            // Verificar se é o ano atual OU se está selecionado
                             $isSelected = ($selectedYear == $year->id) || 
                                          (empty($selectedYear) && !empty($year->is_current) && $year->is_current == 1);
                             ?>
@@ -145,8 +147,7 @@
                 </select>
             </div>
             
-            <!-- FILTRO: Curso -->
-           <div class="col-md-2">
+            <div class="col-md-2">
                 <label for="course" class="form-label fw-semibold">Curso</label>
                 <select class="form-select" id="course" name="course">
                     <option value="">Todos</option>
@@ -161,7 +162,6 @@
                 </select>
             </div>
             
-            <!-- FILTRO: Disciplina -->
             <div class="col-md-2">
                 <label for="discipline" class="form-label fw-semibold">Disciplina</label>
                 <select class="form-select" id="discipline" name="discipline">
@@ -176,7 +176,6 @@
                 </select>
             </div>
             
-            <!-- FILTRO: Professor -->
             <div class="col-md-2">
                 <label for="teacher" class="form-label fw-semibold">Professor</label>
                 <select class="form-select" id="teacher" name="teacher">
@@ -184,7 +183,7 @@
                     <option value="without" <?= $selectedTeacher == 'without' ? 'selected' : '' ?>>Sem professor</option>
                     <?php if (!empty($teachers)): ?>
                         <?php foreach ($teachers as $teacher): ?>
-                            <option value="<?= $teacher->id ?>" <?= $selectedTeacher == $teacher->id ? 'selected' : '' ?>>
+                            <option value="<?= $teacher->teacher_id ?>" <?= $selectedTeacher == $teacher->teacher_id ? 'selected' : '' ?>>
                                 <?= $teacher->first_name ?> <?= $teacher->last_name ?>
                             </option>
                         <?php endforeach; ?>
@@ -276,7 +275,7 @@
                             </span>
                         <?php else: ?>
                             <?php foreach ($teachers as $teacher): ?>
-                                <?php if ($teacher->id == $selectedTeacher): ?>
+                                <?php if ($teacher->teacher_id == $selectedTeacher): ?>
                                     <span class="badge bg-secondary p-2">
                                         <i class="fas fa-chalkboard-teacher me-1"></i>Professor: <?= $teacher->first_name ?>
                                         <a href="<?= site_url('admin/classes/class-subjects?remove=teacher') ?>" class="text-white ms-1">
@@ -311,7 +310,6 @@
                     <i class="fas fa-file-excel me-1"></i>Exportar
                 </a>
                 
-                <!-- Botão de atribuição em massa dentro do card também -->
                 <?php if (isset($selectedClass) && $selectedClass): ?>
                     <a href="<?= site_url('admin/classes/class-subjects/assign-teachers/' . $selectedClass) ?>" 
                        class="btn btn-sm btn-success">
@@ -333,23 +331,26 @@
                     $classTotals[$assignment->class_id] = [
                         'total' => 0,
                         'with_teacher' => 0,
-                        'without_semester' => 0
+                        'without_period' => 0
                     ];
                 }
                 $classTotals[$assignment->class_id]['total']++;
                 if ($assignment->teacher_id) {
                     $classTotals[$assignment->class_id]['with_teacher']++;
                 }
-                if (empty($assignment->semester_id)) {
-                    $classTotals[$assignment->class_id]['without_semester']++;
+                if (empty($assignment->period_type) || !in_array($assignment->period_type, ['Anual', '1º Semestre', '2º Semestre'])) {
+                    $classTotals[$assignment->class_id]['without_period']++;
                 }
             endforeach;
             
+            // Loop principal usando sintaxe padrão
             foreach ($assignments as $assignment): 
                 if ($currentClass != $assignment->class_name):
-                    if ($currentClass !== null) echo '</tbody></table>';
+                    if ($currentClass !== null) {
+                        echo '</tbody></table>';
+                    }
                     $currentClass = $assignment->class_name;
-                    $classTotal = $classTotals[$assignment->class_id] ?? ['total' => 0, 'with_teacher' => 0, 'without_semester' => 0];
+                    $classTotal = $classTotals[$assignment->class_id] ?? ['total' => 0, 'with_teacher' => 0, 'without_period' => 0];
             ?>
                 <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
                     <div>
@@ -362,8 +363,9 @@
                         <small class="text-muted">
                             <i class="fas fa-check-circle text-success me-1"></i><?= $classTotal['with_teacher'] ?> com professor |
                             <i class="fas fa-clock text-warning me-1"></i><?= $classTotal['total'] - $classTotal['with_teacher'] ?> pendentes |
-                            <?php if ($classTotal['without_semester'] > 0): ?>
-                                <i class="fas fa-exclamation-triangle text-danger me-1"></i><span class="text-danger"><?= $classTotal['without_semester'] ?> sem período</span>
+                            <?php if ($classTotal['without_period'] > 0): ?>
+                                <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                <span class="text-danger"><?= $classTotal['without_period'] ?> sem período</span>
                             <?php endif; ?>
                         </small>
                     </div>
@@ -381,107 +383,98 @@
                 <table class="table table-striped table-hover mb-4">
                     <thead class="table-light">
                         <tr>
-                            <th>Disciplina</th>
-                            <th>Código</th>
-                            <th>Professor</th>
-                            <th>Carga Horária</th>
-                            <th>Semestre/Período</th>
-                            <th>Status</th>
-                            <th width="120">Ações</th>
+                            <th class="border-0 py-3 ps-3">Data/Hora</th>
+                            <th class="border-0 py-3">Turma</th>
+                            <th class="border-0 py-3">Disciplina</th>
+                            <th class="border-0 py-3">Código</th>
+                            <th class="border-0 py-3">Período</th>
+                            <th class="border-0 py-3">Carga Horária</th>
+                            <th class="border-0 py-3">Professor</th>
+                            <th class="border-0 py-3 text-center">Status</th>
+                            <th class="border-0 py-3 text-center pe-3">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-            <?php endif; ?>
-                        <?php
-                        // Determinar classe CSS baseada no semestre
-                        $rowClass = '';
-                        $semesterDisplay = '';
-                        
-                        if (empty($assignment->semester_id)) {
-                            $rowClass = 'table-warning'; // Amarelo claro para destacar
-                            $semesterDisplay = '<span class="badge bg-warning text-dark" title="Período não definido">
-                                <i class="fas fa-exclamation-triangle me-1"></i>Não definido
-                            </span>';
-                        } elseif (!empty($assignment->semester_name)) {
-                            if (strpos($assignment->semester_name, '1º') !== false) {
-                                $semesterDisplay = '<span class="badge bg-primary"><i class="fas fa-sun me-1"></i>' . $assignment->semester_name . '</span>';
-                            } elseif (strpos($assignment->semester_name, '2º') !== false) {
-                                $semesterDisplay = '<span class="badge bg-warning text-dark"><i class="fas fa-cloud-sun me-1"></i>' . $assignment->semester_name . '</span>';
-                            } elseif (strpos($assignment->semester_name, '3º') !== false) {
-                                $semesterDisplay = '<span class="badge bg-info"><i class="fas fa-cloud-rain me-1"></i>' . $assignment->semester_name . '</span>';
-                            } else {
-                                $semesterDisplay = '<span class="badge bg-secondary">' . $assignment->semester_name . '</span>';
-                            }
-                        } else {
-                            $semesterDisplay = '<span class="badge bg-success"><i class="fas fa-calendar-alt me-1"></i>Anual</span>';
-                        }
-                        ?>
-                        <tr class="<?= $rowClass ?>" data-semester-id="<?= $assignment->semester_id ?? '' ?>">
-                            <td><strong><?= $assignment->discipline_name ?></strong></td>
-                            <td><span class="badge bg-info"><?= $assignment->discipline_code ?></span></td>
-                            <td>
-                                <?php if ($assignment->teacher_id): ?>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-success rounded-circle text-white d-flex align-items-center justify-content-center me-2"
-                                             style="width: 30px; height: 30px; font-size: 0.8rem;">
-                                            <?= strtoupper(substr($assignment->teacher_first_name ?? '', 0, 1) . substr($assignment->teacher_last_name ?? '', 0, 1)) ?>
-                                        </div>
-                                        <div>
-                                            <strong><?= $assignment->teacher_first_name ?? '' ?> <?= $assignment->teacher_last_name ?? '' ?></strong>
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="badge bg-warning text-dark">Não atribuído</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($assignment->workload_hours): ?>
-                                    <span class="badge bg-secondary"><?= $assignment->workload_hours ?>h</span>
-                                <?php else: ?>
-                                    <span class="text-muted">-</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?= $semesterDisplay ?>
-                                <?php if (empty($assignment->semester_id)): ?>
-                                    <br><small class="text-warning">
-                                        <i class="fas fa-info-circle me-1"></i>Configure o período
-                                    </small>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($assignment->is_active): ?>
-                                    <span class="badge bg-success">Ativa</span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">Inativa</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a href="<?= site_url('admin/classes/class-subjects/assign?class=' . $assignment->class_id . '&edit=' . $assignment->id) ?>" 
-                                       class="btn btn-sm btn-outline-info" 
-                                       title="Editar"
-                                       data-bs-toggle="tooltip">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <?php if ($assignment->teacher_id): ?>
-                                        <a href="<?= site_url('admin/teachers/view/' . $assignment->teacher_id) ?>" 
-                                           class="btn btn-sm btn-outline-success" 
-                                           title="Ver Professor"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fas fa-user"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                    <button type="button" 
-                                            class="btn btn-sm btn-outline-danger" 
-                                            onclick="showDeleteModal(<?= $assignment->id ?>, '<?= $assignment->discipline_name ?>', '<?= $assignment->class_name ?>')"
-                                            title="Remover"
-                                            data-bs-toggle="tooltip">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+            <?php 
+                endif; 
+                
+                // Para cada disciplina da turma atual
+                $periodColors = [
+                    'Anual' => 'success',
+                    '1º Semestre' => 'primary',
+                    '2º Semestre' => 'warning'
+                ];
+                $periodColor = $periodColors[$assignment->period_type] ?? 'secondary';
+                
+                $teacherStatus = $assignment->teacher_id ? 'Atribuído' : 'Pendente';
+                $teacherStatusClass = $assignment->teacher_id ? 'success' : 'warning';
+            ?>
+                <tr>
+                    <td class="ps-3"><?= $assignment->created_at ? date('d/m/Y', strtotime($assignment->created_at)) : '-' ?></td>
+                    <td>
+                        <span class="fw-semibold"><?= $assignment->class_name ?></span>
+                        <br>
+                        <small class="text-muted"><?= $assignment->class_code ?> - <?= $assignment->class_shift ?></small>
+                    </td>
+                    <td>
+                        <strong><?= $assignment->discipline_name ?></strong>
+                        <?php if ($assignment->course_name): ?>
+                            <br><small class="text-muted"><?= $assignment->course_name ?></small>
+                        <?php endif; ?>
+                    </td>
+                    <td><span class="badge bg-info"><?= $assignment->discipline_code ?></span></td>
+                    <td>
+                        <span class="badge bg-<?= $periodColor ?>">
+                            <?= $assignment->period_type ?? 'Não definido' ?>
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <?php if ($assignment->workload_hours): ?>
+                            <span class="badge bg-secondary"><?= $assignment->workload_hours ?>h</span>
+                        <?php else: ?>
+                            <span class="text-muted">-</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($assignment->teacher_id): ?>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success rounded-circle text-white d-flex align-items-center justify-content-center me-2"
+                                     style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                    <?= strtoupper(substr($assignment->teacher_first_name ?? '', 0, 1) . substr($assignment->teacher_last_name ?? '', 0, 1)) ?>
                                 </div>
-                            </td>
-                        </tr>
+                                <div>
+                                    <strong><?= $assignment->teacher_first_name ?> <?= $assignment->teacher_last_name ?></strong>
+                                    <br>
+                                    <small class="text-muted">ID: <?= $assignment->teacher_id ?></small>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <span class="badge bg-warning">Não atribuído</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-<?= $teacherStatusClass ?>"><?= $teacherStatus ?></span>
+                    </td>
+                    <td class="text-center pe-3">
+                        <div class="btn-group btn-group-sm">
+                            <a href="<?= site_url('admin/classes/class-subjects/assign?edit=' . $assignment->id) ?>" 
+                               class="btn btn-outline-primary" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <?php if ($assignment->teacher_id): ?>
+                                <a href="<?= site_url('admin/teachers/view/' . $assignment->teacher_id) ?>" 
+                                   class="btn btn-outline-success" title="Ver Professor">
+                                    <i class="fas fa-user"></i>
+                                </a>
+                            <?php endif; ?>
+                            <button type="button" class="btn btn-outline-danger" 
+                                    onclick="confirmDelete(<?= $assignment->id ?>, '<?= $assignment->discipline_name ?>', '<?= $assignment->class_name ?>')"
+                                    title="Remover">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
             <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -505,7 +498,6 @@
         <?php endif; ?>
     </div>
     
-    <!-- Paginação -->
     <?php if (!empty($assignments) && isset($pager)): ?>
         <div class="card-footer bg-white">
             <div class="d-flex justify-content-between align-items-center">
@@ -549,33 +541,23 @@
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex align-items-center">
                                 <span class="badge bg-danger me-3">1</span>
-                                <div>
-                                    <strong>Notas e Avaliações:</strong> Todas as notas associadas a esta disciplina para os alunos da turma serão perdidas.
-                                </div>
+                                <div><strong>Notas e Avaliações:</strong> Todas as notas associadas a esta disciplina para os alunos da turma serão perdidas.</div>
                             </li>
                             <li class="list-group-item d-flex align-items-center">
                                 <span class="badge bg-danger me-3">2</span>
-                                <div>
-                                    <strong>Presenças:</strong> O registo de presenças desta disciplina será eliminado.
-                                </div>
+                                <div><strong>Presenças:</strong> O registo de presenças desta disciplina será eliminado.</div>
                             </li>
                             <li class="list-group-item d-flex align-items-center">
                                 <span class="badge bg-danger me-3">3</span>
-                                <div>
-                                    <strong>Exames:</strong> Qualquer exame ou avaliação agendada para esta disciplina será cancelado.
-                                </div>
+                                <div><strong>Exames:</strong> Qualquer exame ou avaliação agendada para esta disciplina será cancelado.</div>
                             </li>
                             <li class="list-group-item d-flex align-items-center">
                                 <span class="badge bg-danger me-3">4</span>
-                                <div>
-                                    <strong>Histórico Académico:</strong> O histórico dos alunos pode ficar inconsistente.
-                                </div>
+                                <div><strong>Histórico Académico:</strong> O histórico dos alunos pode ficar inconsistente.</div>
                             </li>
                             <li class="list-group-item d-flex align-items-center">
                                 <span class="badge bg-danger me-3">5</span>
-                                <div>
-                                    <strong>Alocação de Professor:</strong> O professor associado a esta disciplina deixará de estar alocado a esta turma.
-                                </div>
+                                <div><strong>Alocação de Professor:</strong> O professor associado a esta disciplina deixará de estar alocado a esta turma.</div>
                             </li>
                         </ul>
                     </div>
@@ -622,13 +604,11 @@
 
 <script>
 $(document).ready(function() {
-    // Inicializar tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
     
-    // Auto-submit dos filtros
     let filterTimeout;
     $('#academic_year, #class_id, #course, #discipline, #teacher').on('change', function() {
         clearTimeout(filterTimeout);
@@ -637,43 +617,32 @@ $(document).ready(function() {
         }, 500);
     });
     
-    // Destacar linhas com semestre não definido
-    highlightMissingSemester();
+    highlightMissingPeriod();
 });
 
-// Função para destacar linhas com semestre não definido
-function highlightMissingSemester() {
-    $('tr[data-semester-id=""]').each(function() {
-        // Adicionar tooltip à célula do período
+function highlightMissingPeriod() {
+    $('tr[data-period-type=""]').each(function() {
         const periodCell = $(this).find('td:nth-child(5)');
         periodCell.find('small.text-warning').css('font-weight', 'bold');
-        
-        // Adicionar borda esquerda colorida para destacar
         $(this).css('border-left', '3px solid #ffc107');
     });
 }
 
-// Variável para armazenar o ID da disciplina a ser removida
 let deleteId = null;
 
-// Função para mostrar o modal de confirmação
 function showDeleteModal(id, disciplineName, className) {
     deleteId = id;
     
-    // Preencher os dados no modal
     document.getElementById('disciplineName').textContent = disciplineName;
     document.getElementById('className').textContent = className;
     
-    // Resetar o checkbox e o botão
     document.getElementById('confirmCheck').checked = false;
     document.getElementById('confirmDeleteBtn').classList.add('disabled');
     
-    // Mostrar o modal
     var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     deleteModal.show();
 }
 
-// Função para habilitar/desabilitar o botão de confirmação
 function toggleDeleteButton() {
     const isChecked = document.getElementById('confirmCheck').checked;
     const deleteBtn = document.getElementById('confirmDeleteBtn');
@@ -685,28 +654,21 @@ function toggleDeleteButton() {
     }
 }
 
-// Configurar o botão de confirmação quando o modal for aberto
 document.getElementById('confirmDeleteBtn').addEventListener('click', function(e) {
     e.preventDefault();
     
     if (!this.classList.contains('disabled') && deleteId) {
-        // Adicionar efeito de loading
         this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Removendo...';
-        
-        // Redirecionar para a URL de exclusão
         window.location.href = '<?= site_url('admin/classes/class-subjects/delete/') ?>' + deleteId;
     }
 });
 
-// Adicionar atalhos de teclado
 document.addEventListener('keydown', function(e) {
-    // Ctrl + F para focar no filtro de busca
     if (e.ctrlKey && e.key === 'f') {
         e.preventDefault();
         document.getElementById('class_id').focus();
     }
     
-    // Esc para limpar filtros
     if (e.key === 'Escape') {
         window.location.href = '<?= site_url('admin/classes/class-subjects') ?>';
     }
@@ -714,7 +676,6 @@ document.addEventListener('keydown', function(e) {
 </script>
 
 <style>
-/* Estilos adicionais para o modal */
 .modal-lg {
     max-width: 700px;
 }
@@ -751,18 +712,15 @@ document.addEventListener('keydown', function(e) {
     background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%);
 }
 
-/* Estilo para as badges de status */
 .badge {
     font-weight: 500;
     padding: 0.5em 0.8em;
 }
 
-/* Avatar do professor */
 .bg-success.rounded-circle {
     background: linear-gradient(135deg, #28a745, #20c997) !important;
 }
 
-/* Animações */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -772,16 +730,16 @@ document.addEventListener('keydown', function(e) {
     animation: fadeIn 0.3s ease-out;
 }
 
-/* Estilo para linhas com semestre não definido */
-tr[data-semester-id=""] {
+/* CORRIGIDO: Usar data-period-type em vez de data-semester-id */
+tr[data-period-type=""] {
     border-left: 3px solid #ffc107 !important;
 }
 
-tr[data-semester-id=""] td:first-child {
+tr[data-period-type=""] td:first-child {
     position: relative;
 }
 
-tr[data-semester-id=""] td:first-child::before {
+tr[data-period-type=""] td:first-child::before {
     content: "⚠️";
     position: absolute;
     left: -8px;
@@ -791,8 +749,7 @@ tr[data-semester-id=""] td:first-child::before {
     opacity: 0.8;
 }
 
-/* Hover effect para linhas com problema */
-tr[data-semester-id=""]:hover {
+tr[data-period-type=""]:hover {
     background-color: #fff3cd !important;
     transition: background-color 0.2s;
 }

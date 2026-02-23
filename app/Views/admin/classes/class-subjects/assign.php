@@ -70,20 +70,6 @@
                 </select>
                 <small class="text-muted">Selecione a turma para ver as disciplinas disponíveis</small>
             </div>
-            
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Semestre/Período</label>
-                <select class="form-select" id="semester_filter">
-                    <option value="">Todos os períodos</option>
-                    <?php foreach ($semesters as $sem): ?>
-                        <option value="<?= $sem->id ?>">
-                            <?= $sem->semester_name ?> 
-                            (<?= date('d/m', strtotime($sem->start_date)) ?> - <?= date('d/m', strtotime($sem->end_date)) ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <small class="text-muted">Filtrar disciplinas por período (opcional)</small>
-            </div>
         </div>
     </div>
 </div>
@@ -123,10 +109,9 @@
                 <div class="col-md-4">
                     <select class="form-select form-select-sm" id="period_filter" onchange="filterTableByPeriod(this.value)">
                         <option value="">Todos os períodos</option>
-                        <option value="1º">1º Semestre/Trimestre</option>
-                        <option value="2º">2º Semestre/Trimestre</option>
-                        <option value="3º">3º Trimestre</option>
                         <option value="Anual">Anual</option>
+                        <option value="1º Semestre">1º Semestre</option>
+                        <option value="2º Semestre">2º Semestre</option>
                         <option value="null">Sem período definido</option>
                     </select>
                 </div>
@@ -152,7 +137,6 @@
             <form id="bulkAssignForm" method="post" action="<?= site_url('admin/classes/class-subjects/save-bulk') ?>">
                 <?= csrf_field() ?>
                 <input type="hidden" name="class_id" id="form_class_id" value="<?= $selectedClassId ?? '' ?>">
-                <input type="hidden" name="semester_id" id="form_semester_id" value="">
                 
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover" id="disciplinesTable">
@@ -163,7 +147,7 @@
                                 </th>
                                 <th>Disciplina</th>
                                 <th width="80">Código</th>
-                                <th width="100">Período (Currículo)</th>
+                                <th width="120">Tipo de Período</th>
                                 <th>Professor</th>
                                 <th width="120">Carga Horária</th>
                                 <th width="100">Status</th>
@@ -175,29 +159,22 @@
                                 // Determinar classe CSS baseada no status
                                 $rowClass = isset($disc['assigned']) && $disc['assigned'] ? 'table-success' : '';
                                 
-                                // Verificar se tem semester_id (está atribuída a um semestre específico)
-                                $hasSemesterId = isset($disc['semester_id']) && !empty($disc['semester_id']);
-                                $periodClass = $hasSemesterId ? '' : 'table-warning';
-                                
-                                // Badge do período (baseado no suggested_semester do currículo)
+                                // Badge do período
                                 $periodBadge = '';
-                                $suggestedSemester = $disc['suggested_semester'] ?? 'Anual';
+                                $periodType = $disc['period_type'] ?? 'Anual';
                                 
-                                if ($suggestedSemester == 'Anual') {
-                                    $periodBadge = '<span class="badge bg-success">Anual</span>';
-                                } elseif ($suggestedSemester == '1º') {
-                                    $periodBadge = '<span class="badge bg-primary">1º Semestre</span>';
-                                } elseif ($suggestedSemester == '2º') {
-                                    $periodBadge = '<span class="badge bg-warning text-dark">2º Semestre</span>';
-                                } elseif ($suggestedSemester == '3º') {
-                                    $periodBadge = '<span class="badge bg-info">3º Trimestre</span>';
-                                } else {
-                                    $periodBadge = '<span class="badge bg-secondary">' . $suggestedSemester . '</span>';
-                                }
+                                $periodInfo = [
+                                    'Anual' => ['badge' => 'success', 'icon' => 'fa-calendar-alt', 'text' => 'Anual'],
+                                    '1º Semestre' => ['badge' => 'primary', 'icon' => 'fa-sun', 'text' => '1º Semestre'],
+                                    '2º Semestre' => ['badge' => 'warning', 'icon' => 'fa-cloud-sun', 'text' => '2º Semestre']
+                                ];
+                                
+                                $info = $periodInfo[$periodType] ?? ['badge' => 'secondary', 'icon' => 'fa-question-circle', 'text' => $periodType];
+                                $periodBadge = '<span class="badge bg-' . $info['badge'] . '"><i class="fas ' . $info['icon'] . ' me-1"></i>' . $info['text'] . '</span>';
                             ?>
-                                <tr class="<?= $rowClass ?> <?= $periodClass ?>" 
+                                <tr class="<?= $rowClass ?>" 
                                     data-discipline-id="<?= $disc['id'] ?>" 
-                                    data-period="<?= $suggestedSemester ?>" 
+                                    data-period="<?= $periodType ?>" 
                                     data-name="<?= strtolower($disc['name'] ?? '') ?>"
                                     data-assigned="<?= isset($disc['assigned']) && $disc['assigned'] ? '1' : '0' ?>">
                                     
@@ -207,28 +184,26 @@
                                             class="form-check-input discipline-checkbox">
                                         <input type="hidden" name="assignments[<?= $disc['id'] ?>_<?= $index ?>][discipline_id]" value="<?= $disc['id'] ?>">
                                         <input type="hidden" name="assignments[<?= $disc['id'] ?>_<?= $index ?>][assignment_id]" value="<?= $disc['assignment_id'] ?? '' ?>">
+                                        <input type="hidden" name="assignments[<?= $disc['id'] ?>_<?= $index ?>][period_type]" value="<?= $periodType ?>">
                                     </td>
                                     <td>
                                         <strong><?= $disc['name'] ?? '' ?></strong>
                                         <?php if (isset($disc['is_mandatory']) && $disc['is_mandatory']): ?>
                                             <span class="badge bg-warning">Obrigatória</span>
                                         <?php endif; ?>
-                                        <?php if ($suggestedSemester == 'Anual'): ?>
+                                        <?php if ($periodType == 'Anual'): ?>
                                             <br><small class="text-muted">Disciplina Anual</small>
                                         <?php endif; ?>
                                     </td>
                                     <td><span class="badge bg-info"><?= $disc['code'] ?? '' ?></span></td>
                                    <td>
                                         <?= $periodBadge ?>
-                                        <br>
-                                        <?php if ($hasSemesterId): ?>
-                                            <small class="text-muted"><?= $disc['display_semester'] ?? 'Período definido' ?></small>
-                                        <?php else: ?>
-                                            <small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Período não definido</small>
-                                        <?php endif; ?>
-                                        
-                                        <?php if (!$hasSemesterId && $disc['assigned']): ?>
-                                            <br><small class="text-warning"><i class="fas fa-clock"></i> Selecione um semestre</small>
+                                        <?php if ($periodType == 'Anual'): ?>
+                                            <br><small class="text-muted">Disponível em todos os trimestres</small>
+                                        <?php elseif ($periodType == '1º Semestre'): ?>
+                                            <br><small class="text-muted">Apenas no 1º Trimestre</small>
+                                        <?php elseif ($periodType == '2º Semestre'): ?>
+                                            <br><small class="text-muted">Apenas no 2º Trimestre</small>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -247,33 +222,12 @@
                                             value="<?= $disc['workload'] ?? '' ?>" class="form-control form-control-sm workload-input" 
                                             placeholder="<?= isset($disc['suggested_workload']) && $disc['suggested_workload'] ? 'Sugerida: ' . $disc['suggested_workload'] . 'h' : 'Carga horária' ?>" 
                                             min="0" max="999" step="1">
-                                        
-                                      <?php if ($suggestedSemester == 'Anual' && !$hasSemesterId): ?>
-                                        <select name="assignments[<?= $disc['id'] ?>_<?= $index ?>][semester_id]" class="form-select form-select-sm mt-1" >
-                                            <option value="">-- Selecione o período --</option>
-                                            <?php foreach ($semesters as $semester): ?>
-                                                <option value="<?= $semester->id ?>" 
-                                                    <?= (isset($disc['semester_id']) && $disc['semester_id'] == $semester->id) ? 'selected' : '' ?>>
-                                                    <?= $semester->semester_name ?> 
-                                                    (<?= date('d/m', strtotime($semester->start_date)) ?> - <?= date('d/m', strtotime($semester->end_date)) ?>)
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Período obrigatório</small>
-                                    <?php elseif ($hasSemesterId): ?>
-                                        <input type="hidden" name="assignments[<?= $disc['id'] ?>_<?= $index ?>][semester_id]" value="<?= $disc['semester_id'] ?>">
-                                        <span class="badge bg-info mt-1 d-block">
-                                            <i class="fas fa-calendar-check"></i> Período: <?= $disc['semester_name'] ?? '' ?>
-                                        </span>
-                                    <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if (isset($disc['assigned']) && $disc['assigned']): ?>
                                             <span class="badge bg-success">Atribuída</span>
-                                            <?php if ($hasSemesterId): ?>
-                                                <br><small class="text-success"><i class="fas fa-check-circle"></i> Período definido</small>
-                                            <?php else: ?>
-                                                <br><small class="text-warning"><i class="fas fa-exclamation-triangle"></i> Período pendente</small>
+                                            <?php if ($periodType != 'Anual'): ?>
+                                                <br><small class="text-info"><i class="fas fa-calendar-alt"></i> <?= $periodType ?></small>
                                             <?php endif; ?>
                                         <?php else: ?>
                                             <span class="badge bg-secondary">Não atribuída</span>
@@ -341,12 +295,6 @@ $(document).ready(function() {
     // Inicializar contadores
     updateSelectedCount();
     
-    // Quando semestre muda
-    $('#semester_filter').change(function() {
-        let semesterId = $(this).val();
-        $('#form_semester_id').val(semesterId);
-    });
-    
     // Checkbox "Selecionar Todos"
     $('#selectAllCheckbox').change(function() {
         let isChecked = $(this).prop('checked');
@@ -378,6 +326,7 @@ function updateSelectedCount() {
     let count = $('.discipline-checkbox:visible:checked').length;
     $('#selectedCount').text(count);
 }
+
 // Validação antes de enviar o formulário
 $('#bulkAssignForm').on('submit', function(e) {
     let selectedCount = $('.discipline-checkbox:checked').length;
@@ -388,43 +337,6 @@ $('#bulkAssignForm').on('submit', function(e) {
             icon: 'warning',
             title: 'Nenhuma disciplina selecionada',
             text: 'Selecione pelo menos uma disciplina para atribuir à turma.',
-            confirmButtonColor: '#3085d6'
-        });
-        return false;
-    }
-    
-    // Validar apenas disciplinas selecionadas
-    let missingSemester = [];
-    
-    $('.discipline-checkbox:checked').each(function() {
-        let row = $(this).closest('tr');
-        // CORREÇÃO: Usar seletor correto para os selects de semestre
-        let semesterSelect = row.find('select[name*="[semester_id]"]');
-        let isAnnual = row.find('.badge.bg-success:contains("Anual")').length > 0;
-        let disciplineName = row.find('td:eq(1)').text().trim();
-        
-        // Se for anual e tem select de semestre (só aparece quando não tem semester_id)
-        if (semesterSelect.length > 0 && isAnnual && !semesterSelect.val()) {
-            missingSemester.push(disciplineName);
-            row.addClass('table-danger');
-        } else {
-            row.removeClass('table-danger');
-        }
-    });
-    
-    if (missingSemester.length > 0) {
-        e.preventDefault();
-        
-        let message = 'As seguintes disciplinas anuais precisam ter o período definido:<br><br>';
-        missingSemester.forEach(function(discipline) {
-            message += '• ' + discipline + '<br>';
-        });
-        message += '<br>Selecione um período para cada disciplina antes de salvar.';
-        
-        Swal.fire({
-            icon: 'error',
-            title: 'Período obrigatório não definido',
-            html: message,
             confirmButtonColor: '#3085d6'
         });
         return false;
@@ -450,6 +362,7 @@ $('#bulkAssignForm').on('submit', function(e) {
         }
     });
 });
+
 // Filtrar tabela por período
 function filterTableByPeriod(period) {
     let rows = $('#disciplinesList tr');
@@ -510,8 +423,6 @@ function selectMandatory() {
 function refreshData() {
     location.reload();
 }
-
-
 
 // Atalhos de teclado
 document.addEventListener('keydown', function(e) {

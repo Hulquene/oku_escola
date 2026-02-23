@@ -5,7 +5,7 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1><?= $title ?>: <?= $role->role_name ?></h1>
+        <h1><?= $title ?>: <?= $role->role_name ?? 'N/A' ?></h1>
         <a href="<?= site_url('admin/roles') ?>" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
@@ -25,7 +25,7 @@
 <!-- Info Card -->
 <div class="alert alert-info mb-4">
     <i class="fas fa-info-circle"></i>
-    <strong>Perfil:</strong> <?= $role->role_name ?> - 
+    <strong>Perfil:</strong> <?= $role->role_name ?? 'N/A' ?> - 
     <strong>Descrição:</strong> <?= $role->role_description ?: 'Sem descrição' ?>
 </div>
 
@@ -35,77 +35,91 @@
         <i class="fas fa-key"></i> Gerenciar Permissões
     </div>
     <div class="card-body">
-        <form action="<?= site_url('admin/roles/update-permissions') ?>" method="post">
-            <?= csrf_field() ?>
-            <input type="hidden" name="role_id" value="<?= $role->id ?>">
-            
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <button type="button" class="btn btn-sm btn-outline-success me-2" onclick="selectAll()">
-                        <i class="fas fa-check-double"></i> Selecionar Todos
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="deselectAll()">
-                        <i class="fas fa-times"></i> Desmarcar Todos
-                    </button>
-                </div>
+        <?php if (empty($permissions)): ?>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Nenhuma permissão encontrada no sistema.
             </div>
-            
-            <?php
-            $currentModule = '';
-            $permissionsByModule = [];
-            foreach ($permissions as $perm) {
-                $permissionsByModule[$perm->module][] = $perm;
-            }
-            ?>
-            
-            <div class="row">
-                <?php foreach ($permissionsByModule as $module => $perms): ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-cog"></i> 
-                                    <?= ucfirst($module) ?>
-                                    <small>
-                                        <a href="#" class="float-end" onclick="toggleModule('<?= $module ?>'); return false;">
-                                            (selecionar)
-                                        </a>
-                                    </small>
-                                </h6>
-                            </div>
-                            <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-                                <?php foreach ($perms as $perm): ?>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input module-<?= $module ?>" 
-                                               type="checkbox" 
-                                               name="permissions[]" 
-                                               value="<?= $perm->id ?>"
-                                               id="perm_<?= $perm->id ?>"
-                                               <?= in_array($perm->id, $rolePermissions) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="perm_<?= $perm->id ?>">
-                                            <?= $perm->permission_name ?>
-                                            <br>
-                                            <small class="text-muted"><?= $perm->permission_key ?></small>
-                                        </label>
+        <?php else: ?>
+            <form action="<?= site_url('admin/roles/update-permissions') ?>" method="post" id="permissionsForm">
+                <?= csrf_field() ?>
+                <input type="hidden" name="role_id" value="<?= $role->id ?>">
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-sm btn-outline-success me-2" onclick="selectAll()">
+                            <i class="fas fa-check-double"></i> Selecionar Todos
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-warning" onclick="deselectAll()">
+                            <i class="fas fa-times"></i> Desmarcar Todos
+                        </button>
+                    </div>
+                </div>
+                
+                <?php
+                $permissionsByModule = [];
+                foreach ($permissions as $perm) {
+                    $permissionsByModule[$perm->module][] = $perm;
+                }
+                ?>
+                
+                <div class="row">
+                    <?php if (!empty($permissionsByModule)): ?>
+                        <?php foreach ($permissionsByModule as $module => $perms): ?>
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-cog"></i> 
+                                            <?= ucfirst($module) ?>
+                                            <small>
+                                                <a href="#" class="float-end toggle-module" data-module="<?= $module ?>">
+                                                    (selecionar)
+                                                </a>
+                                            </small>
+                                        </h6>
                                     </div>
-                                <?php endforeach; ?>
+                                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                                        <?php foreach ($perms as $perm): ?>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input module-<?= $module ?>" 
+                                                       type="checkbox" 
+                                                       name="permissions[]" 
+                                                       value="<?= $perm->id ?>"
+                                                       id="perm_<?= $perm->id ?>"
+                                                       <?= in_array($perm->id, $rolePermissions ?? []) ? 'checked' : '' ?>>
+                                                <label class="form-check-label" for="perm_<?= $perm->id ?>">
+                                                    <?= $perm->permission_name ?>
+                                                    <br>
+                                                    <small class="text-muted"><?= $perm->permission_key ?></small>
+                                                </label>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Nenhuma permissão encontrada para exibir.
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            
-            <hr>
-            
-            <div class="d-flex justify-content-between">
-                <a href="<?= site_url('admin/roles') ?>" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Voltar
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Salvar Permissões
-                </button>
-            </div>
-        </form>
+                    <?php endif; ?>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="<?= site_url('admin/roles') ?>" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Permissões
+                    </button>
+                </div>
+            </form>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -113,6 +127,7 @@
 
 <?= $this->section('scripts') ?>
 <script>
+// Funções básicas
 function selectAll() {
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
         checkbox.checked = true;
@@ -125,14 +140,21 @@ function deselectAll() {
     });
 }
 
-function toggleModule(module) {
-    const checkboxes = document.querySelectorAll('.module-' + module);
-    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = !allChecked;
+// Event listeners para os links de toggle por módulo
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-module').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const module = this.dataset.module;
+            const checkboxes = document.querySelectorAll('.module-' + module);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+        });
     });
-}
+});
 
 // Keyboard shortcut: Ctrl+A to select all
 document.addEventListener('keydown', function(e) {

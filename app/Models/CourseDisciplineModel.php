@@ -24,7 +24,7 @@ class CourseDisciplineModel extends BaseModel
         'grade_level_id' => 'required|numeric',
         'workload_hours' => 'permit_empty|numeric|greater_than[0]|less_than[1000]',
         'is_mandatory' => 'permit_empty|in_list[0,1]',
-        'semester' => 'permit_empty|in_list[1º,2º,Anual]'
+        'semester' => 'permit_empty|in_list[1,2,Anual]'
     ];
     
     protected $validationMessages = [

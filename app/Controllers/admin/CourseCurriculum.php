@@ -173,7 +173,7 @@ public function editDiscipline($id)
     {
         $rules = [
             'workload_hours' => 'permit_empty|numeric|greater_than[0]|less_than[1000]',
-            'semester' => 'permit_empty|in_list[1º,2º,Anual]'
+            'semester' => 'permit_empty|in_list[1,2,Anual]'
         ];
         
         if (!$this->validate($rules)) {

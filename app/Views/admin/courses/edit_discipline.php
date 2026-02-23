@@ -71,8 +71,8 @@
                                     id="semester" 
                                     name="semester">
                                 <option value="Anual" <?= old('semester', $item->semester) == 'Anual' ? 'selected' : '' ?>>Anual</option>
-                                <option value="1º" <?= old('semester', $item->semester) == '1º' ? 'selected' : '' ?>>1º Semestre</option>
-                                <option value="2º" <?= old('semester', $item->semester) == '2º' ? 'selected' : '' ?>>2º Semestre</option>
+                                <option value="1" <?= old('semester', $item->semester) == '1' ? 'selected' : '' ?>>1º Semestre</option>
+                                <option value="2" <?= old('semester', $item->semester) == '2' ? 'selected' : '' ?>>2º Semestre</option>
                             </select>
                             <?php if (session('errors.semester')): ?>
                                 <div class="invalid-feedback"><?= session('errors.semester') ?></div>

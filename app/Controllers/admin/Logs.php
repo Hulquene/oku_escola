@@ -23,6 +23,11 @@ class Logs extends BaseController
      */
     public function index()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('logs.view')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder aos logs');
+        }
+        
         $data['title'] = 'Logs do Sistema';
         
         // Get filters
@@ -84,7 +89,7 @@ class Logs extends BaseController
         $data['selectedStartDate'] = $startDate;
         $data['selectedEndDate'] = $endDate;
         
-        // Log this view (opcional - pode gerar muitos logs)
+        // Log this view (apenas para ações importantes, não para cada visualização de lista)
         // log_view('logs', null, 'Visualizou lista de logs');
         
         return view('admin/tools/logs/index', $data);
@@ -95,6 +100,11 @@ class Logs extends BaseController
      */
     public function view($id)
     {
+        // Verificar permissão
+        if (!$this->hasPermission('logs.view')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder aos logs');
+        }
+        
         $data['title'] = 'Detalhes do Log';
         
         $data['log'] = $this->userLogModel
@@ -112,6 +122,9 @@ class Logs extends BaseController
             $data['log']->details_array = json_decode($data['log']->details, true);
         }
         
+        // Log da visualização do log (meta, né?)
+        log_view('log', $id, "Visualizou detalhes do log #{$id}");
+        
         return view('admin/tools/logs/view', $data);
     }
     
@@ -120,23 +133,73 @@ class Logs extends BaseController
      */
     public function clear()
     {
-        // Check if user has permission (only root/admin)
-        if (!$this->isRoot() && !$this->hasPermission('delete_logs')) {
+        // Verificar permissão - apenas root ou admin com permissão específica
+        if (!$this->isRoot() && !$this->hasPermission('logs.delete')) {
             return redirect()->back()->with('error', 'Não tem permissão para limpar os logs');
         }
         
+        $count = $this->userLogModel->countAll();
+        
         // Ask for confirmation
         if (!$this->request->getGet('confirm')) {
-            return redirect()->back()->with('warning', 'Tem certeza que deseja limpar todos os logs? Esta ação não pode ser desfeita. <a href="' . site_url('admin/tools/logs/clear?confirm=1') . '" class="alert-link">Clique aqui para confirmar</a>');
+            return redirect()->back()->with('warning', 
+                "Tem certeza que deseja limpar todos os {$count} logs? Esta ação não pode ser desfeita. " . 
+                '<a href="' . site_url('admin/tools/logs/clear?confirm=1') . '" class="alert-link">Clique aqui para confirmar</a>'
+            );
         }
         
-        // Log antes de limpar
-        $count = $this->userLogModel->countAll();
-        log_action('delete', "Limpou todos os logs do sistema ({$count} registos)", null, 'logs', ['count' => $count]);
+        // Log ANTES de limpar (para registar quem limpou)
+        log_action('delete', "Limpou TODOS os logs do sistema", null, 'logs', [
+            'total_logs_removed' => $count,
+            'action' => 'clear_all'
+        ]);
         
+        // Limpar os logs
         $this->userLogModel->truncate();
         
-        return redirect()->to('/admin/tools/logs')->with('success', 'Todos os logs foram limpos com sucesso');
+        return redirect()->to('/admin/tools/logs')->with('success', "Todos os {$count} logs foram limpos com sucesso");
+    }
+    
+    /**
+     * Delete multiple logs
+     */
+    public function delete()
+    {
+        // Verificar permissão
+        if (!$this->hasPermission('logs.delete')) {
+            return $this->respondWithError('Sem permissão para eliminar logs');
+        }
+        
+        if (!$this->request->isAJAX()) {
+            return $this->respondWithError('Requisição inválida');
+        }
+        
+        $ids = $this->request->getPost('ids');
+        
+        if (empty($ids)) {
+            return $this->respondWithError('Nenhum log selecionado');
+        }
+        
+        // Buscar informações dos logs antes de eliminar (para o detalhe)
+        $logsToDelete = $this->userLogModel
+            ->select('id, action, description, target_type, target_id')
+            ->whereIn('id', $ids)
+            ->findAll();
+        
+        $count = count($ids);
+        $details = [
+            'logs_deleted' => $ids,
+            'count' => $count,
+            'actions' => array_column($logsToDelete, 'action')
+        ];
+        
+        // Eliminar os logs
+        $this->userLogModel->whereIn('id', $ids)->delete();
+        
+        // Log desta eliminação (num log novo, já que os antigos foram eliminados)
+        log_action('delete', "Eliminou {$count} logs selecionados", null, 'logs', $details);
+        
+        return $this->respondWithSuccess("{$count} logs eliminados com sucesso");
     }
     
     /**
@@ -144,6 +207,11 @@ class Logs extends BaseController
      */
     public function export()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('logs.export')) {
+            return redirect()->back()->with('error', 'Não tem permissão para exportar logs');
+        }
+        
         $userId = $this->request->getGet('user_id');
         $action = $this->request->getGet('action');
         $startDate = $this->request->getGet('start_date');
@@ -172,13 +240,16 @@ class Logs extends BaseController
         
         $logs = $builder->findAll();
         
-        // Log export
+        // Log export com detalhes
         log_export('logs', 'Exportou logs para CSV', [
-            'user_id' => $userId,
-            'action' => $action,
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'count' => count($logs)
+            'filters' => [
+                'user_id' => $userId,
+                'action' => $action,
+                'start_date' => $startDate,
+                'end_date' => $endDate
+            ],
+            'total_exported' => count($logs),
+            'filename' => 'logs_' . date('Y-m-d_His') . '.csv'
         ]);
         
         // Generate CSV
@@ -190,22 +261,28 @@ class Logs extends BaseController
         $output = fopen('php://output', 'w');
         
         // Headers
-        fputcsv($output, ['ID', 'Data/Hora', 'Usuário', 'Email', 'Ação', 'Descrição', 'IP Address', 'User Agent', 'Target Type', 'Target ID', 'Detalhes'], ';');
+        fputcsv($output, ['ID', 'Data/Hora', 'Usuário', 'Email', 'Ação', 'Descrição', 'IP Address', 'Target Type', 'Target ID', 'Detalhes'], ';');
         
         // Data
         foreach ($logs as $log) {
+            // Formatar detalhes se existirem
+            $details = '';
+            if ($log->details) {
+                $detailsArray = json_decode($log->details, true);
+                $details = is_array($detailsArray) ? json_encode($detailsArray, JSON_UNESCAPED_UNICODE) : $log->details;
+            }
+            
             fputcsv($output, [
                 $log->id,
                 date('d/m/Y H:i:s', strtotime($log->created_at)),
-                $log->first_name . ' ' . $log->last_name . ' (' . $log->username . ')',
-                $log->email,
+                $log->first_name ? $log->first_name . ' ' . $log->last_name . ' (' . $log->username . ')' : 'Sistema',
+                $log->email ?: '-',
                 $log->action,
-                $log->description,
+                $log->description ?: '-',
                 $log->ip_address ?: '-',
-                $log->user_agent ?: '-',
                 $log->target_type ?: '-',
                 $log->target_id ?: '-',
-                $log->details ?: '-'
+                $details ?: '-'
             ], ';');
         }
         
@@ -214,34 +291,15 @@ class Logs extends BaseController
     }
     
     /**
-     * Delete multiple logs
-     */
-    public function delete()
-    {
-        if (!$this->request->isAJAX()) {
-            return $this->respondWithError('Requisição inválida');
-        }
-        
-        $ids = $this->request->getPost('ids');
-        
-        if (empty($ids)) {
-            return $this->respondWithError('Nenhum log selecionado');
-        }
-        
-        $count = count($ids);
-        $this->userLogModel->whereIn('id', $ids)->delete();
-        
-        // Log this deletion
-        log_action('delete', "Eliminou {$count} logs selecionados", null, 'logs', ['ids' => $ids, 'count' => $count]);
-        
-        return $this->respondWithSuccess("{$count} logs eliminados com sucesso");
-    }
-    
-    /**
      * Get logs chart data
      */
     public function chartData()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('logs.view')) {
+            return $this->respondWithError('Sem permissão');
+        }
+        
         if (!$this->request->isAJAX()) {
             return $this->respondWithError('Requisição inválida');
         }
@@ -252,6 +310,7 @@ class Logs extends BaseController
         
         $data = [];
         $labels = [];
+        $detailedData = [];
         
         for ($i = $days - 1; $i >= 0; $i--) {
             $date = date('Y-m-d', strtotime("-$i days"));
@@ -269,12 +328,22 @@ class Logs extends BaseController
             
             $count = $builder->countAllResults();
             $data[] = $count;
+            
+            // Detalhamento por ação (opcional)
+            $actionsDetail = $this->userLogModel
+                ->select('action, COUNT(*) as count')
+                ->where('DATE(created_at)', $date)
+                ->groupBy('action')
+                ->findAll();
+            
+            $detailedData[$date] = $actionsDetail;
         }
         
         return $this->respondWithJson([
             'success' => true,
             'labels' => $labels,
-            'data' => $data
+            'data' => $data,
+            'detailed' => $detailedData
         ]);
     }
     
@@ -283,6 +352,11 @@ class Logs extends BaseController
      */
     public function statistics()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('logs.view')) {
+            return $this->respondWithError('Sem permissão');
+        }
+        
         if (!$this->request->isAJAX()) {
             return $this->respondWithError('Requisição inválida');
         }
@@ -292,6 +366,29 @@ class Logs extends BaseController
         return $this->respondWithJson([
             'success' => true,
             'data' => $stats
+        ]);
+    }
+    
+    /**
+     * Get logs by target (para visualizar histórico de um registo específico)
+     */
+    public function byTarget($targetType, $targetId)
+    {
+        // Verificar permissão
+        if (!$this->hasPermission('logs.view')) {
+            return $this->respondWithError('Sem permissão');
+        }
+        
+        if (!$this->request->isAJAX()) {
+            return $this->respondWithError('Requisição inválida');
+        }
+        
+        $logs = $this->userLogModel->getByTarget($targetType, $targetId);
+        
+        return $this->respondWithJson([
+            'success' => true,
+            'data' => $logs,
+            'total' => count($logs)
         ]);
     }
 }

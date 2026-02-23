@@ -35,8 +35,9 @@ class Auth extends BaseController
         return view('auth/login');
     }
     
+
     /**
-     * Process login - VERSÃO CORRIGIDA
+     * Process login 
      */
     public function signin()
     {
@@ -65,8 +66,16 @@ class Auth extends BaseController
                 ->with('error', 'Usuário ou senha inválidos.');
         }
         
-        // Get role
+        // Get role and ensure user_type is consistent with role_type
         $role = $this->roleModel->find($user->role_id);
+        
+        // IMPORTANTE: Garantir que user_type está consistente com role_type
+        // Se role_type for 'admin', user_type deve ser 'admin'
+        if ($role && $role->role_type == 'admin' && $user->user_type != 'admin') {
+            // Atualizar user_type para admin
+            $this->userModel->update($user->id, ['user_type' => 'admin']);
+            $user->user_type = 'admin';
+        }
         
         // Get permissions for this role
         $permissions = $this->permissionModel
@@ -170,6 +179,7 @@ class Auth extends BaseController
             'email' => $user->email,
             'role' => $role->role_name ?? 'Sem Perfil',
             'role_id' => $user->role_id,
+            'role_type' => $role->role_type ?? 'staff', // IMPORTANTE: Adicionar role_type
             'user_type' => $user->user_type,
             'permissions' => $permissionKeys,
             'logged_in' => true,
@@ -181,8 +191,12 @@ class Auth extends BaseController
         // Update last login
         $this->userModel->update($user->id, ['last_login' => date('Y-m-d H:i:s')]);
         
-        // Registrar log de login
-        log_login($user->id, $user->username);
+        // Registrar log de login (se a função existir)
+        if (function_exists('log_login')) {
+            log_login($user->id, $user->username);
+        } else {
+            log_message('info', "Login: {$user->username} ({$user->user_type})");
+        }
         
         return $this->redirectToDashboard();
     }

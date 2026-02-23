@@ -155,9 +155,15 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->group('years', function ($routes) {
         $routes->get('', [AcademicYears::class, 'index'], ["as" => 'academic.years']);
         $routes->get('form-add', [AcademicYears::class, 'form'], ["as" => 'academic.years.form']);
+
+    // Visualizar detalhes (NOVO)
+        $routes->get('view/(:num)', [AcademicYears::class, 'view'], ["as" => 'academic.years.view']);
+    
         $routes->get('form-edit/(:num)', [AcademicYears::class, 'form'], ["as" => 'academic.years.form/$1']);
         $routes->post('save', [AcademicYears::class, 'save'], ["as" => 'academic.years.save']);
-        $routes->get('set-current/(:num)', [AcademicYears::class, 'setCurrent'], ["as" => 'academic.years.setCurrent']); // <-- ADICIONE ESTA LINHA
+        $routes->get('set-current/(:num)', [AcademicYears::class, 'setCurrent'], ["as" => 'academic.years.setCurrent']); 
+         // Ativar/Desativar
+        $routes->post('toggle-active/(:num)', [AcademicYears::class, 'toggleActive'], ["as" => 'academic.years.toggleActive']);
         $routes->get('delete/(:num)', [AcademicYears::class, 'delete'], ["as" => 'academic.years.delete/$1']);
         $routes->get('check-dates/(:num)', [AcademicYears::class, 'checkDates'], ["as" => 'academic.years.check-dates']);
     });
@@ -328,7 +334,10 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->post('save', [\App\Controllers\admin\ExamSchedules::class, 'save'], ['as' => 'exams.schedules.save']);
         $routes->post('update/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'update/$1'], ['as' => 'exams.schedules.update']);
         $routes->get('delete/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'delete/$1'], ['as' => 'exams.schedules.delete']);
-        
+
+         // Rotas para calendário
+        $routes->get('calendar-events', [\App\Controllers\admin\ExamSchedules::class, 'getCalendarEvents'], ['as' => 'admin.exams.schedules.calendar']);
+        $routes->get('filtered-calendar-events', [\App\Controllers\admin\ExamSchedules::class, 'getFilteredCalendarEvents'], ['as' => 'admin.exams.schedules.filteredCalendar']);
         // Gestão de presenças e notas
         $routes->get('attendance/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'attendance/$1'], ['as' => 'exams.schedules.attendance']);
         $routes->post('attendance/save/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'saveAttendance/$1'], ['as' => 'exams.schedules.saveAttendance']);
@@ -645,10 +654,24 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->group('roles', function ($routes) {
         // Lista de perfis
         $routes->get('', [Roles::class, 'index'], ["as" => 'roles']);
+           // Formulário de edição (GET)
+        // Formulário para criar/editar perfil (GET)
+     // OU duas rotas separadas:
+        $routes->get('form', [Roles::class, 'form'], ["as" => 'roles.form']);      // criação
+        $routes->get('form/(:num)', [Roles::class, 'form'], ["as" => 'roles.form.edit']); // edição
         
+        // Salvar perfil (criar ou atualizar) (POST)
+        // SALVAR - separados
+        $routes->post('save', [Roles::class, 'save'], ["as" => 'roles.save']);           // criação
+        $routes->post('save/(:num)', [Roles::class, 'save'], ["as" => 'roles.save.update']); // atualização
+        
+        // Eliminar perfil (GET ou POST - recomendo POST para segurança)
+        $routes->post('delete/(:num)', [Roles::class, 'delete'], ["as" => 'roles.delete']);
+        $routes->get('permissions', [Roles::class, 'grouppermissions'], ["as" => 'roles.permissions']);
         // Página de permissões de um perfil específico (com ID)
         $routes->get('permission/(:num)', [Roles::class, 'role'], ["as" => 'roles.permission']);
-        
+         // ✅ NOVA ROTA: Buscar permissões de um perfil via AJAX
+        $routes->get('get-role-permissions', [Roles::class, 'getRolePermissions'], ["as" => 'roles.get.permissions']);
         // Atualizar permissões (POST)
         $routes->post('update-permissions', [Roles::class, 'update_permissions'], ["as" => 'roles.permissions.update']);
     });
@@ -663,7 +686,6 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->post('save-company', [Settings::class, 'saveDatacompany'], ["as" => 'settings.save_company']);
     $routes->get('email', [Settings::class, 'emailsettings'], ["as" => 'settings.email']);
     $routes->get('payment', [Settings::class, 'paymentsettings'], ["as" => 'settings.payment']);
-    $routes->get('permissions', [Settings::class, 'grouppermissions'], ["as" => 'settings.permissions']);
   });
 
     /**
@@ -719,6 +741,8 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('download/(:num)', [DocumentGenerator::class, 'download/$1'], ['as' => 'admin.document-generator.download']);
         $routes->post('template/save', [DocumentGenerator::class, 'saveTemplate'], ['as' => 'admin.document-generator.template.save']);
         $routes->get('template/edit/(:num)', [DocumentGenerator::class, 'editTemplate/$1'], ['as' => 'admin.document-generator.template.edit']);
+        // ✅ NOVA ROTA: Pré-visualizar modelo por código
+        $routes->get('preview-template/(:any)', [DocumentGenerator::class, 'previewTemplate/$1'], ['as' => 'admin.document-generator.preview-template']);
     });
 
     // Rotas de notificações para admin

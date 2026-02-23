@@ -245,57 +245,35 @@ class Classes extends BaseController
         $insertData = [];
         
         foreach ($curriculumDisciplines as $cd) {
-            $semesterType = $cd->semester ?? 'Anual'; // Pega do currículo
+            $semesterType = $cd->semester ?? 'Anual'; // Pega do currículo (Anual, 1, 2)
             
-            if ($semesterType === 'Anual') {
-                // Disciplina Anual: criar para TODOS os semestres
-                foreach ($semesters as $semester) {
-                    // Verificar se já não existe para este semestre
-                    $exists = $classDisciplineModel
-                        ->where('class_id', $classId)
-                        ->where('discipline_id', $cd->discipline_id)
-                        ->where('semester_id', $semester->id)
-                        ->first();
-                    
-                    if (!$exists) {
-                        $insertData[] = [
-                            'class_id' => $classId,
-                            'discipline_id' => $cd->discipline_id,
-                            'workload_hours' => $cd->workload_hours,
-                            'semester_id' => $semester->id,
-                            'teacher_id' => null,
-                            'is_active' => 1,
-                            'created_at' => date('Y-m-d H:i:s')
-                        ];
-                        $suggestedCount++;
-                    }
-                }
-            } else {
-                // Disciplina de semestre específico (1º ou 2º)
-                foreach ($semesters as $semester) {
-                    // Verificar se o tipo do semestre corresponde
-                    if (strpos($semester->semester_type, $semesterType) !== false) {
-                        $exists = $classDisciplineModel
-                            ->where('class_id', $classId)
-                            ->where('discipline_id', $cd->discipline_id)
-                            ->where('semester_id', $semester->id)
-                            ->first();
-                        
-                        if (!$exists) {
-                            $insertData[] = [
-                                'class_id' => $classId,
-                                'discipline_id' => $cd->discipline_id,
-                                'workload_hours' => $cd->workload_hours,
-                                'semester_id' => $semester->id,
-                                'teacher_id' => null,
-                                'is_active' => 1,
-                                'created_at' => date('Y-m-d H:i:s')
-                            ];
-                            $suggestedCount++;
-                        }
-                        break; // Encontrou o semestre, pode parar
-                    }
-                }
+            // Converter valores do formulário para o ENUM correto
+            $periodMap = [
+                'Anual' => 'Anual',
+                '1' => '1º Semestre',  // 1º Trimestre vira 1º Semestre
+                '2' => '2º Semestre',  // 2º Trimestre vira 2º Semestre
+                '3' => 'Anual'         // 3º Trimestre geralmente é Anual
+            ];
+
+            $periodType = $periodMap[$semesterType] ?? 'Anual';
+             // Verificar se já existe para esta turma, disciplina e período
+            $exists = $classDisciplineModel
+                ->where('class_id', $classId)
+                ->where('discipline_id', $cd->discipline_id)
+                ->where('period_type', $periodType)
+                ->first();
+            
+            if (!$exists) {
+                $insertData[] = [
+                    'class_id' => $classId,
+                    'discipline_id' => $cd->discipline_id,
+                    'workload_hours' => $cd->workload_hours,
+                    'period_type' => $periodType,
+                    'teacher_id' => null,
+                    'is_active' => 1,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                $suggestedCount++;
             }
         }
         

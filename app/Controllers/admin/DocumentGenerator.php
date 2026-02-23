@@ -10,8 +10,9 @@ use App\Models\RequestableDocumentModel;
 use App\Models\StudentModel;
 use App\Models\TeacherModel;
 use App\Models\EnrollmentModel;
-use App\Models\FinalGradeModel;
+use App\Models\SemesterResultModel;  // ✅ CORRIGIDO: usar SemesterResultModel
 use App\Models\UserModel;
+use App\Models\DisciplineAverageModel; // Adicionar para buscar médias por disciplina
 
 class DocumentGenerator extends BaseController
 {
@@ -21,8 +22,9 @@ class DocumentGenerator extends BaseController
     protected $studentModel;
     protected $teacherModel;
     protected $enrollmentModel;
-    protected $finalGradeModel;
+    protected $semesterResultModel;  // ✅ CORRIGIDO
     protected $userModel;
+    protected $disciplineAvgModel;
     
     public function __construct()
     {
@@ -32,8 +34,9 @@ class DocumentGenerator extends BaseController
         $this->studentModel = new StudentModel();
         $this->teacherModel = new TeacherModel();
         $this->enrollmentModel = new EnrollmentModel();
-        $this->finalGradeModel = new FinalGradeModel();
+        $this->semesterResultModel = new SemesterResultModel();  // ✅ CORRIGIDO
         $this->userModel = new UserModel();
+        $this->disciplineAvgModel = new DisciplineAverageModel();
         
         helper(['auth', 'form', 'filesystem']);
     }
@@ -43,6 +46,11 @@ class DocumentGenerator extends BaseController
      */
     public function index()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('document_requests.list')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+        }
+        
         $data['title'] = 'Gerador de Documentos';
         
         // Estatísticas
@@ -75,6 +83,11 @@ class DocumentGenerator extends BaseController
      */
     public function pending()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('document_requests.list')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+        }
+        
         $data['title'] = 'Solicitações Pendentes';
         
         $data['requests'] = $this->requestModel
@@ -96,6 +109,11 @@ class DocumentGenerator extends BaseController
      */
     public function generated()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('document_requests.view')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+        }
+        
         $data['title'] = 'Documentos Gerados';
         
         $data['documents'] = $this->generatedModel
@@ -122,6 +140,11 @@ class DocumentGenerator extends BaseController
      */
     public function templates()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('documents.verify')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+        }
+        
         $data['title'] = 'Modelos de Documentos';
         
         $data['templates'] = $this->requestableModel
@@ -140,6 +163,11 @@ class DocumentGenerator extends BaseController
      */
     public function generate($requestId)
     {
+        // Verificar permissão
+        if (!$this->hasPermission('document_requests.process')) {
+            return redirect()->back()->with('error', 'Não tem permissão para processar solicitações');
+        }
+        
         $request = $this->requestModel->getWithUser($requestId);
         
         if (!$request) {
@@ -192,7 +220,7 @@ class DocumentGenerator extends BaseController
             'document_name' => $this->generateFileName($request),
             'document_size' => filesize($pdfPath),
             'document_mime' => 'application/pdf',
-            'generated_by' => currentUserId(),
+            'generated_by' => session()->get('user_id'),
             'download_count' => 0
         ];
         
@@ -215,6 +243,11 @@ class DocumentGenerator extends BaseController
      */
     public function generateBulk()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('document_requests.process')) {
+            return redirect()->back()->with('error', 'Não tem permissão para processar solicitações');
+        }
+        
         $ids = $this->request->getPost('ids');
         
         if (empty($ids)) {
@@ -226,8 +259,8 @@ class DocumentGenerator extends BaseController
         
         foreach ($ids as $id) {
             try {
-                $result = $this->generate($id);
-                if ($result) $success++;
+                $this->generate($id);
+                $success++;
             } catch (\Exception $e) {
                 $errors++;
                 log_message('error', 'Erro ao gerar documento em lote: ' . $e->getMessage());
@@ -243,6 +276,11 @@ class DocumentGenerator extends BaseController
      */
     public function preview($requestId)
     {
+        // Verificar permissão
+        if (!$this->hasPermission('document_requests.view')) {
+            return redirect()->back()->with('error', 'Não tem permissão para aceder a esta página');
+        }
+        
         $request = $this->requestModel->getWithUser($requestId);
         
         if (!$request) {
@@ -269,6 +307,12 @@ class DocumentGenerator extends BaseController
             return redirect()->back()->with('error', 'Documento não encontrado');
         }
         
+        // Verificar permissão (dono do documento ou admin)
+        $userId = session()->get('user_id');
+        if ($doc->user_id != $userId && !$this->hasPermission('document_requests.view')) {
+            return redirect()->back()->with('error', 'Não tem permissão para baixar este documento');
+        }
+        
         // Incrementar contador de downloads
         $this->generatedModel->incrementDownloadCount($id);
         
@@ -280,6 +324,11 @@ class DocumentGenerator extends BaseController
      */
     public function saveTemplate()
     {
+        // Verificar permissão
+        if (!$this->hasPermission('documents.verify')) {
+            return redirect()->back()->with('error', 'Não tem permissão para editar modelos');
+        }
+        
         $rules = [
             'template_id' => 'required|numeric',
             'template_content' => 'required'
@@ -316,9 +365,16 @@ class DocumentGenerator extends BaseController
     private function generateCertificadoMatricula($request)
     {
         $student = $this->studentModel->getWithUser($request->user_id);
+        
+        if (!$student) {
+            log_message('error', 'Aluno não encontrado para o user_id: ' . $request->user_id);
+            return false;
+        }
+        
         $enrollment = $this->enrollmentModel->getCurrentForStudent($student->id);
         
         if (!$enrollment) {
+            log_message('error', 'Matrícula atual não encontrada para o student_id: ' . $student->id);
             return false;
         }
         
@@ -354,9 +410,16 @@ class DocumentGenerator extends BaseController
     private function generateDeclaracaoFrequencia($request)
     {
         $student = $this->studentModel->getWithUser($request->user_id);
+        
+        if (!$student) {
+            log_message('error', 'Aluno não encontrado para o user_id: ' . $request->user_id);
+            return false;
+        }
+        
         $enrollment = $this->enrollmentModel->getCurrentForStudent($student->id);
         
         if (!$enrollment) {
+            log_message('error', 'Matrícula atual não encontrada para o student_id: ' . $student->id);
             return false;
         }
         
@@ -379,33 +442,34 @@ class DocumentGenerator extends BaseController
     }
     
     /**
-     * Gerar Histórico de Notas
+     * Gerar Histórico de Notas - VERSÃO CORRIGIDA usando SemesterResultModel
      */
     private function generateHistoricoNotas($request)
     {
         $student = $this->studentModel->getWithUser($request->user_id);
         
-        // Buscar todas as matrículas do aluno
-        $enrollments = $this->enrollmentModel->getStudentHistory($student->id);
+        if (!$student) {
+            log_message('error', 'Aluno não encontrado para o user_id: ' . $request->user_id);
+            return false;
+        }
         
-        $historico = [];
-        foreach ($enrollments as $enrollment) {
-            $grades = $this->finalGradeModel
+        // Buscar histórico acadêmico completo usando SemesterResultModel
+        $historico = $this->semesterResultModel->getStudentHistory($student->id);
+        
+        // Para cada período, buscar também as médias por disciplina
+        foreach ($historico as $periodo) {
+            $disciplinas = $this->disciplineAvgModel
                 ->select('
-                    tbl_final_grades.*,
+                    tbl_discipline_averages.*,
                     tbl_disciplines.discipline_name,
-                    tbl_semesters.semester_name
+                    tbl_disciplines.discipline_code
                 ')
-                ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_final_grades.discipline_id')
-                ->join('tbl_semesters', 'tbl_semesters.id = tbl_final_grades.semester_id')
-                ->where('tbl_final_grades.enrollment_id', $enrollment->id)
+                ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
+                ->where('tbl_discipline_averages.enrollment_id', $periodo->enrollment_id)
+                ->where('tbl_discipline_averages.semester_id', $periodo->semester_id)
                 ->findAll();
             
-            $historico[] = [
-                'ano_letivo' => $enrollment->year_name,
-                'classe' => $enrollment->class_name,
-                'disciplinas' => $grades
-            ];
+            $periodo->disciplinas = $disciplinas;
         }
         
         $data = [
@@ -424,10 +488,169 @@ class DocumentGenerator extends BaseController
     }
     
     /**
+     * Gerar Certificado de Conclusão
+     */
+    private function generateCertificadoConclusao($request)
+    {
+        $student = $this->studentModel->getWithUser($request->user_id);
+        
+        if (!$student) {
+            return false;
+        }
+        
+        // Buscar histórico para verificar conclusão
+        $historico = $this->semesterResultModel->getStudentHistory($student->id);
+        
+        // Verificar se tem resultados concluídos
+        $concluded = false;
+        $lastYear = null;
+        
+        foreach ($historico as $periodo) {
+            if ($periodo->status != 'Em Andamento') {
+                $concluded = true;
+                $lastYear = $periodo->year_name;
+            }
+        }
+        
+        $data = [
+            'titulo' => 'CERTIFICADO DE CONCLUSÃO',
+            'subtitulo' => 'CERTIFICADO DE CONCLUSÃO',
+            'numero' => $request->request_number,
+            'data' => date('d/m/Y'),
+            'aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
+            'nome_aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
+            'bi' => $student->identity_document ?? 'N/A',
+            'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A',
+            'ano_conclusao' => $lastYear ?? 'N/A',
+            'concluido' => $concluded
+        ];
+        
+        return $this->generatePDF('certificado_conclusao', $data, $this->generateFileName($request));
+    }
+    
+    /**
+     * Gerar Declaração de Aproveitamento
+     */
+    private function generateDeclaracaoAproveitamento($request)
+    {
+        $student = $this->studentModel->getWithUser($request->user_id);
+        
+        if (!$student) {
+            return false;
+        }
+        
+        $enrollment = $this->enrollmentModel->getCurrentForStudent($student->id);
+        
+        if (!$enrollment) {
+            return false;
+        }
+        
+        // Buscar resultados do semestre atual
+        $currentSemester = $this->semesterResultModel
+            ->select('tbl_semester_results.*, tbl_semesters.semester_name')
+            ->join('tbl_semesters', 'tbl_semesters.id = tbl_semester_results.semester_id')
+            ->where('tbl_semester_results.enrollment_id', $enrollment->id)
+            ->where('tbl_semesters.is_current', 1)
+            ->first();
+        
+        $data = [
+            'titulo' => 'DECLARAÇÃO DE APROVEITAMENTO',
+            'subtitulo' => 'DECLARAÇÃO DE APROVEITAMENTO',
+            'numero' => $request->request_number,
+            'data' => date('d/m/Y'),
+            'aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
+            'classe' => $enrollment->class_name,
+            'ano_letivo' => $enrollment->year_name,
+            'periodo' => $currentSemester->semester_name ?? 'Período Atual',
+            'media' => $currentSemester->overall_average ?? 'N/A',
+            'total_disciplinas' => $currentSemester->total_disciplines ?? 'N/A',
+            'aprovadas' => $currentSemester->approved_disciplines ?? 'N/A',
+            'reprovadas' => $currentSemester->failed_disciplines ?? 'N/A',
+            'status' => $currentSemester->status ?? 'Em Andamento'
+        ];
+        
+        return $this->generatePDF('declaracao_aproveitamento', $data, $this->generateFileName($request));
+    }
+    
+    /**
+     * Gerar Atestado de Matrícula
+     */
+    private function generateAtestadoMatricula($request)
+    {
+        // Similar ao certificado, mas mais simples
+        return $this->generateCertificadoMatricula($request);
+    }
+    
+    /**
+     * Gerar Declaração de Serviço (para professores)
+     */
+    private function generateDeclaracaoServico($request)
+    {
+        $teacher = $this->teacherModel->getWithUser($request->user_id);
+        
+        if (!$teacher) {
+            return false;
+        }
+        
+        $data = [
+            'titulo' => 'DECLARAÇÃO DE SERVIÇO',
+            'subtitulo' => 'DECLARAÇÃO DE SERVIÇO',
+            'numero' => $request->request_number,
+            'data' => date('d/m/Y'),
+            'professor' => $teacher->full_name ?? $teacher->first_name . ' ' . $teacher->last_name,
+            'bi' => $teacher->identity_document ?? 'N/A',
+            'data_admissao' => date('d/m/Y', strtotime($teacher->admission_date)),
+            'qualificacoes' => $teacher->qualifications ?? 'N/A',
+            'finalidade' => $request->purpose
+        ];
+        
+        return $this->generatePDF('declaracao_servico', $data, $this->generateFileName($request));
+    }
+    
+    /**
+     * Gerar Certificado de Trabalho (para professores)
+     */
+    private function generateCertificadoTrabalho($request)
+    {
+        return $this->generateDeclaracaoServico($request);
+    }
+    
+    /**
+     * Gerar Declaração de Vencimento (para professores)
+     */
+    private function generateDeclaracaoVencimento($request)
+    {
+        $teacher = $this->teacherModel->getWithUser($request->user_id);
+        
+        if (!$teacher) {
+            return false;
+        }
+        
+        $data = [
+            'titulo' => 'DECLARAÇÃO DE VENCIMENTO',
+            'subtitulo' => 'DECLARAÇÃO DE VENCIMENTO',
+            'numero' => $request->request_number,
+            'data' => date('d/m/Y'),
+            'professor' => $teacher->full_name ?? $teacher->first_name . ' ' . $teacher->last_name,
+            'bi' => $teacher->identity_document ?? 'N/A',
+            'cargo' => 'Professor',
+            'finalidade' => $request->purpose
+        ];
+        
+        return $this->generatePDF('declaracao_vencimento', $data, $this->generateFileName($request));
+    }
+    
+    /**
      * Gerar PDF usando biblioteca DOMPDF
      */
     private function generatePDF($view, $data, $filename)
     {
+        // Verificar se a pasta existe
+        $pdfDir = FCPATH . 'uploads/generated_documents/';
+        if (!is_dir($pdfDir)) {
+            mkdir($pdfDir, 0777, true);
+        }
+        
         // Carregar a view do documento
         $html = view('admin/document-generator/templates/' . $view, $data);
         
@@ -438,16 +661,69 @@ class DocumentGenerator extends BaseController
         $dompdf->render();
         
         // Salvar PDF
-        $pdfPath = FCPATH . 'uploads/generated_documents/' . $filename;
-        
-        // Criar diretório se não existir
-        $dir = dirname($pdfPath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        
+        $pdfPath = $pdfDir . $filename;
         file_put_contents($pdfPath, $dompdf->output());
         
         return $pdfPath;
     }
+    /**
+ * Preview template by code
+ */
+public function previewTemplate($code)
+{
+    // Verificar permissão
+    if (!$this->hasPermission('documents.verify')) {
+        return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+    }
+    
+    $template = $this->requestableModel->where('document_code', $code)->first();
+    
+    if (!$template) {
+        return redirect()->back()->with('error', 'Modelo não encontrado');
+    }
+    
+    // Dados de exemplo para pré-visualização
+    $data = [
+        'titulo' => 'PRÉ-VISUALIZAÇÃO',
+        'subtitulo' => 'PRÉ-VISUALIZAÇÃO DO MODELO',
+        'numero' => 'REQ' . date('Ymd') . '0001',
+        'data' => date('d/m/Y'),
+        'aluno' => 'João Manuel Silva',
+        'nome_aluno' => 'João Manuel Silva',
+        'bi' => '006789234LA045',
+        'nif' => '541728394',
+        'classe' => '10ª Classe',
+        'ano_letivo' => '2025',
+        'turno' => 'Manhã',
+        'data_matricula' => '10/02/2025',
+        'numero_matricula' => 'MAT20250001',
+        'data_nascimento' => '15/05/2010',
+        'naturalidade' => 'Luanda',
+        'morada' => 'Rua da Paz, 123 - Luanda',
+        'professor' => 'António Ferreira',
+        'data_admissao' => '05/03/2020',
+        'qualificacoes' => 'Licenciatura em Matemática',
+        'finalidade' => 'Comprovativo de residência',
+        'escola' => session()->get('school_name') ?? 'Escola Nacional',
+        'logotipo' => base_url('assets/img/logo.png')
+    ];
+    
+    // Mapear código do template para a view
+    $viewMap = [
+        'CERT_MATRICULA' => 'certificado_matricula',
+        'DECL_FREQUENCIA' => 'declaracao_frequencia',
+        'HISTORICO_NOTAS' => 'historico_notas',
+        'CERT_CONCLUSAO' => 'certificado_conclusao',
+        'DECL_APROVEITAMENTO' => 'declaracao_aproveitamento',
+        'ATESTADO_MATRICULA' => 'atestado_matricula',
+        'DECL_SERVICO' => 'declaracao_servico',
+        'CERT_TRABALHO' => 'certificado_trabalho',
+        'DECL_VENCIMENTO' => 'declaracao_vencimento'
+    ];
+    
+    $viewName = $viewMap[$code] ?? 'certificado_matricula';
+    
+    // Para pré-visualização, podemos mostrar HTML em vez de PDF
+    return view('admin/document-generator/templates/' . $viewName, $data);
+}
 }

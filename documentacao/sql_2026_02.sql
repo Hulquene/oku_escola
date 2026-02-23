@@ -39,7 +39,9 @@ CREATE TABLE `tbl_roles` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `role_name` VARCHAR(100) NOT NULL,
     `role_description` TEXT,
+    `role_type` ENUM('admin','teacher','student','staff') NOT NULL DEFAULT 'staff',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `role_name` (`role_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -59,6 +61,7 @@ CREATE TABLE `tbl_role_permissions` (
     `role_id` INT(11) NOT NULL,
     `permission_id` INT(11) NOT NULL,
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `role_id` (`role_id`),
     KEY `permission_id` (`permission_id`),
@@ -96,12 +99,20 @@ CREATE TABLE `tbl_user_logs` (
     `action` VARCHAR(255) NOT NULL,
     `ip_address` VARCHAR(45),
     `user_agent` TEXT,
+    `description` TEXT NULL AFTER `action`,
+    `target_id` INT(11) NULL AFTER `description`,
+    `target_type` VARCHAR(50) NULL AFTER `target_id`,
+    `request_method` VARCHAR(10) NULL AFTER `user_agent`,
+    `request_url` VARCHAR(500) NULL AFTER `request_method`,
+    `details` TEXT NULL AFTER `request_url`,
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `user_id` (`user_id`),
     KEY `created_at` (`created_at`),
     CONSTRAINT `fk_user_logs_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 -- Tabelas de Configuração Académica
@@ -197,20 +208,20 @@ CREATE TABLE `tbl_class_disciplines` (
     `class_id` INT(11) NOT NULL,
     `discipline_id` INT(11) NOT NULL,
     `teacher_id` INT(11),
+    `period_type` ENUM('Anual','1º Semestre','2º Semestre') DEFAULT 'Anual',
     `workload_hours` INT(4),
-    `semester_id` INT(11),
     `is_active` TINYINT(1) DEFAULT '1',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `class_discipline` (`class_id`, `discipline_id`, `semester_id`),
+    UNIQUE KEY `class_discipline` (`class_id`, `discipline_id`),
     KEY `discipline_id` (`discipline_id`),
     KEY `teacher_id` (`teacher_id`),
-    KEY `semester_id` (`semester_id`),
     CONSTRAINT `fk_class_disciplines_class` FOREIGN KEY (`class_id`) REFERENCES `tbl_classes` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_class_disciplines_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
-    CONSTRAINT `fk_class_disciplines_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL,
-    CONSTRAINT `fk_class_disciplines_semester` FOREIGN KEY (`semester_id`) REFERENCES `tbl_semesters` (`id`) ON DELETE SET NULL
+    CONSTRAINT `fk_class_disciplines_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 -- Tabelas de Alunos e Encarregados
@@ -1093,8 +1104,9 @@ CREATE TABLE IF NOT EXISTS `tbl_course_disciplines` (
     `grade_level_id` INT(11) NOT NULL COMMENT 'Classe específica onde a disciplina é lecionada',
     `workload_hours` INT(4),
     `is_mandatory` TINYINT(1) DEFAULT '1',
-    `semester` ENUM('1º', '2º', 'Anual') DEFAULT 'Anual',
+    `semester` ENUM('1', '2', '3', 'Anual') DEFAULT 'Anual',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NULL DEFAULT NULL AFTER `created_at`,
     PRIMARY KEY (`id`),
     UNIQUE KEY `course_discipline_grade` (`course_id`, `discipline_id`, `grade_level_id`),
     KEY `discipline_id` (`discipline_id`),
@@ -1104,8 +1116,6 @@ CREATE TABLE IF NOT EXISTS `tbl_course_disciplines` (
     CONSTRAINT `fk_course_disciplines_grade` FOREIGN KEY (`grade_level_id`) REFERENCES `tbl_grade_levels` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
-
 -- --------------------------------------------------------
 -- Adicionar campo course_id à tabela tbl_classes
 -- --------------------------------------------------------
@@ -1113,10 +1123,6 @@ ALTER TABLE `tbl_classes`
 ADD COLUMN `course_id` INT(11) NULL AFTER `grade_level_id`,
 ADD KEY `course_id` (`course_id`),
 ADD CONSTRAINT `fk_classes_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE SET NULL;
-
-ALTER TABLE `tbl_course_disciplines` 
-ADD COLUMN `updated_at` timestamp NULL DEFAULT NULL AFTER `created_at`;
-
 
 
 -- --------------------------------------------------------
@@ -1135,9 +1141,6 @@ ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRE
 ALTER TABLE `tbl_disciplines` 
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
--- 6. Tabela: tbl_class_disciplines
-ALTER TABLE `tbl_class_disciplines` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 -- 7. Tabela: tbl_guardians
 ALTER TABLE `tbl_guardians` 
@@ -1179,18 +1182,6 @@ ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRE
 -- 22. Tabela: tbl_academic_history
 ALTER TABLE `tbl_academic_history` 
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
-
-
-
-ALTER TABLE `tbl_user_logs` 
-ADD COLUMN `description` TEXT NULL AFTER `action`,
-ADD COLUMN `target_id` INT(11) NULL AFTER `description`,
-ADD COLUMN `target_type` VARCHAR(50) NULL AFTER `target_id`,
-ADD COLUMN `request_method` VARCHAR(10) NULL AFTER `user_agent`,
-ADD COLUMN `request_url` VARCHAR(500) NULL AFTER `request_method`,
-ADD COLUMN `details` TEXT NULL AFTER `request_url`;
-
 
 
 ALTER TABLE `tbl_documents` 
@@ -1445,16 +1436,16 @@ INSERT INTO `tbl_currencies` (`currency_name`, `currency_code`, `currency_symbol
 ('Dólar Americano', 'USD', '$', 0),
 ('Euro', 'EUR', '€', 0);
 
--- Inserir roles/perfis
-INSERT INTO `tbl_roles` (`role_name`, `role_description`) VALUES
-('Administrador', 'Acesso total ao sistema'),
-('Diretor', 'Gestão administrativa e pedagógica'),
-('Secretário', 'Gestão de matrículas e documentação'),
-('Professor', 'Gestão de turmas, notas e presenças'),
-('Aluno', 'Acesso ao portal do aluno'),
-('Encarregado', 'Acompanhamento do aluno'),
-('Tesoureiro', 'Gestão financeira'),
-('Bibliotecário', 'Gestão da biblioteca');
+-- Inserir com IDs específicos
+INSERT INTO `tbl_roles` (`id`, `role_name`, `role_description`, `role_type`) VALUES
+(1, 'Administrador', 'Acesso total ao sistema', 'admin'),
+(2, 'Diretor', 'Gestão administrativa e pedagógica', 'staff'),
+(3, 'Secretário', 'Gestão de matrículas e documentação', 'staff'),
+(4, 'Professor', 'Gestão de turmas, notas e presenças', 'teacher'),
+(5, 'Aluno', 'Acesso ao portal do aluno', 'student'),
+(6, 'Encarregado', 'Acompanhamento do aluno', 'staff'),
+(7, 'Tesoureiro', 'Gestão financeira', 'staff'),
+(8, 'Bibliotecário', 'Gestão da biblioteca', 'staff');
 
 -- Inserir níveis de ensino (sistema angolano)
 INSERT INTO `tbl_grade_levels` (`level_name`, `level_code`, `education_level`, `grade_number`, `sort_order`) VALUES

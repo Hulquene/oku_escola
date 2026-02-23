@@ -11,7 +11,7 @@
                 <i class="fas fa-download"></i> Exportar
             </a>
             <a href="<?= site_url('admin/tools/logs/clear') ?>" class="btn btn-danger" 
-               onclick="return confirm('Tem certeza que deseja limpar todos os logs?')">
+               onclick="return confirm('Tem certeza que deseja limpar todos os logs? Esta ação não pode ser desfeita.')">
                 <i class="fas fa-trash"></i> Limpar Logs
             </a>
         </div>
@@ -33,27 +33,42 @@
     <div class="col-md-4">
         <div class="card bg-primary text-white">
             <div class="card-body">
-                <h6 class="card-title">Hoje</h6>
-                <h3><?= $totalToday ?></h3>
-                <small>Registos de hoje</small>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-1">Hoje</h6>
+                        <h2 class="mb-0"><?= $totalToday ?></h2>
+                    </div>
+                    <i class="fas fa-calendar-day fa-3x text-white-50"></i>
+                </div>
+                <small class="text-white-50">Registos de hoje</small>
             </div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card bg-success text-white">
             <div class="card-body">
-                <h6 class="card-title">Últimos 7 dias</h6>
-                <h3><?= $totalWeek ?></h3>
-                <small>Registos da semana</small>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-1">Últimos 7 dias</h6>
+                        <h2 class="mb-0"><?= $totalWeek ?></h2>
+                    </div>
+                    <i class="fas fa-calendar-week fa-3x text-white-50"></i>
+                </div>
+                <small class="text-white-50">Registos da semana</small>
             </div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card bg-info text-white">
             <div class="card-body">
-                <h6 class="card-title">Este mês</h6>
-                <h3><?= $totalMonth ?></h3>
-                <small>Registos do mês</small>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 mb-1">Este mês</h6>
+                        <h2 class="mb-0"><?= $totalMonth ?></h2>
+                    </div>
+                    <i class="fas fa-calendar-alt fa-3x text-white-50"></i>
+                </div>
+                <small class="text-white-50">Registos do mês</small>
             </div>
         </div>
     </div>
@@ -61,22 +76,31 @@
 
 <!-- Chart -->
 <div class="card mb-4">
-    <div class="card-header">
-        <i class="fas fa-chart-line"></i> Atividade dos Últimos 7 Dias
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-line me-2 text-primary"></i>
+            Atividade dos Últimos 7 Dias
+        </h5>
     </div>
     <div class="card-body">
-        <canvas id="logsChart" style="height: 300px;"></canvas>
+        <canvas id="logsChart" style="height: 300px; width: 100%;"></canvas>
     </div>
 </div>
 
 <!-- Filters -->
 <div class="card mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="fas fa-filter me-2 text-secondary"></i>
+            Filtros
+        </h5>
+    </div>
     <div class="card-body">
         <form method="get" class="row g-3">
             <div class="col-md-3">
                 <label for="user_id" class="form-label">Usuário</label>
                 <select class="form-select" id="user_id" name="user_id">
-                    <option value="">Todos</option>
+                    <option value="">Todos os usuários</option>
                     <?php if (!empty($users)): ?>
                         <?php foreach ($users as $user): ?>
                             <option value="<?= $user->id ?>" <?= $selectedUser == $user->id ? 'selected' : '' ?>>
@@ -90,11 +114,11 @@
             <div class="col-md-2">
                 <label for="action" class="form-label">Ação</label>
                 <select class="form-select" id="action" name="action">
-                    <option value="">Todas</option>
+                    <option value="">Todas as ações</option>
                     <?php if (!empty($actions)): ?>
-                        <?php foreach ($actions as $act): ?>
-                            <option value="<?= $act ?>" <?= $selectedAction == $act ? 'selected' : '' ?>>
-                                <?= ucfirst($act) ?>
+                        <?php foreach ($actions as $key => $label): ?>
+                            <option value="<?= $key ?>" <?= $selectedAction == $key ? 'selected' : '' ?>>
+                                <?= $label ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -113,12 +137,12 @@
             
             <div class="col-md-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary me-2">
-                    <i class="fas fa-filter"></i> Filtrar
+                    <i class="fas fa-search"></i> Filtrar
                 </button>
-                <a href="<?= site_url('admin/tools/logs') ?>" class="btn btn-secondary me-2">
+                <a href="<?= site_url('admin/tools/logs') ?>" class="btn btn-secondary me-2" title="Limpar filtros">
                     <i class="fas fa-undo"></i>
                 </a>
-                <button type="button" class="btn btn-danger" onclick="deleteSelected()">
+                <button type="button" class="btn btn-danger" onclick="deleteSelected()" title="Eliminar selecionados">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -128,15 +152,18 @@
 
 <!-- Logs Table -->
 <div class="card">
-    <div class="card-header">
+    <div class="card-header bg-white">
         <div class="d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-history"></i> Registos de Atividades</span>
+            <h5 class="mb-0">
+                <i class="fas fa-history me-2 text-info"></i>
+                Registos de Atividades
+            </h5>
             <div>
-                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">
-                    Selecionar Todos
+                <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="selectAll()">
+                    <i class="fas fa-check-double me-1"></i> Selecionar Todos
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">
-                    Limpar Seleção
+                    <i class="fas fa-times me-1"></i> Limpar Seleção
                 </button>
             </div>
         </div>
@@ -144,17 +171,18 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-striped table-hover" id="logsTable">
-                <thead>
+                <thead class="table-light">
                     <tr>
-                        <th width="30">
-                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()">
+                        <th width="40">
+                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll()" class="form-check-input">
                         </th>
                         <th>Data/Hora</th>
                         <th>Usuário</th>
                         <th>Ação</th>
+                        <th>Descrição</th>
                         <th>IP Address</th>
-                        <th>User Agent</th>
-                        <th width="100">Ações</th>
+                        <th>Target</th>
+                        <th width="80">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -162,41 +190,57 @@
                         <?php foreach ($logs as $log): ?>
                             <tr>
                                 <td>
-                                    <input type="checkbox" class="log-checkbox" value="<?= $log->id ?>">
+                                    <input type="checkbox" class="log-checkbox form-check-input" value="<?= $log->id ?>">
                                 </td>
-                                <td><?= date('d/m/Y H:i:s', strtotime($log->created_at)) ?></td>
+                                <td>
+                                    <i class="far fa-clock me-1 text-muted"></i>
+                                    <?= date('d/m/Y H:i:s', strtotime($log->created_at)) ?>
+                                </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <?php if ($log->photo): ?>
+                                        <?php if (!empty($log->photo)): ?>
                                             <img src="<?= base_url('uploads/users/' . $log->photo) ?>" 
-                                                 class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                                 class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
                                         <?php else: ?>
                                             <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-white me-2"
-                                                 style="width: 30px; height: 30px;">
-                                                <?= strtoupper(substr($log->first_name, 0, 1)) ?>
+                                                 style="width: 35px; height: 35px; font-size: 14px;">
+                                                <?= strtoupper(substr($log->first_name ?? 'S', 0, 1)) ?>
                                             </div>
                                         <?php endif; ?>
                                         <div>
-                                            <strong><?= $log->first_name ?> <?= $log->last_name ?></strong>
-                                            <br><small><?= $log->username ?></small>
+                                            <strong><?= $log->first_name ?? 'Sistema' ?> <?= $log->last_name ?? '' ?></strong>
+                                            <br><small class="text-muted"><?= $log->username ?? 'sistema' ?></small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?= getActionColor($log->action) ?>">
-                                        <?= ucfirst($log->action) ?>
-                                    </span>
+                                    <?= get_action_badge($log->action) ?>
                                 </td>
-                                <td><?= $log->ip_address ?: '-' ?></td>
                                 <td>
                                     <?php 
-                                    $ua = $log->user_agent ?: '-';
-                                    echo strlen($ua) > 50 ? substr($ua, 0, 50) . '...' : $ua;
+                                    $description = $log->description ?? '-';
+                                    echo strlen($description) > 60 ? substr($description, 0, 60) . '...' : $description;
                                     ?>
                                 </td>
                                 <td>
+                                    <span class="badge bg-light text-dark">
+                                        <?= $log->ip_address ?: '-' ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($log->target_type): ?>
+                                        <span class="badge bg-secondary">
+                                            <?= $log->target_type ?><?= $log->target_id ? '#' . $log->target_id : '' ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
                                     <a href="<?= site_url('admin/tools/logs/view/' . $log->id) ?>" 
-                                       class="btn btn-sm btn-info" title="Ver Detalhes">
+                                       class="btn btn-sm btn-outline-info" 
+                                       title="Ver Detalhes"
+                                       data-bs-toggle="tooltip">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 </td>
@@ -204,37 +248,36 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center">Nenhum registo encontrado</td>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-clipboard-list fa-4x text-muted mb-3"></i>
+                                <h5 class="text-muted">Nenhum registo encontrado</h5>
+                                <p class="text-muted mb-0">Tente ajustar os filtros ou limpar a busca.</p>
+                            </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
         
-        <?= $pager->links() ?>
+        <?php if (!empty($logs) && isset($pager)): ?>
+            <div class="mt-4">
+                <?= $pager->links() ?>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
 <?= $this->endSection() ?>
 
-<?= $this->section('functions') ?>
-<?php
-function getActionColor($action) {
-    $colors = [
-        'insert' => 'success',
-        'update' => 'info',
-        'delete' => 'danger',
-        'login' => 'primary',
-        'logout' => 'secondary',
-        'view' => 'light'
-    ];
-    return $colors[$action] ?? 'secondary';
-}
-?>
-<?= $this->endSection() ?>
-
 <?= $this->section('scripts') ?>
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- DataTables (opcional, pode remover se preferir usar a paginação normal) -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
 <script>
 // Load chart data
 fetch('<?= site_url('admin/tools/logs/chart-data') ?>')
@@ -247,10 +290,15 @@ fetch('<?= site_url('admin/tools/logs/chart-data') ?>')
                 data: {
                     labels: data.labels,
                     datasets: [{
-                        label: 'Atividades',
+                        label: 'Número de Atividades',
                         data: data.data,
                         borderColor: '#4e73df',
                         backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4e73df',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#4e73df',
                         tension: 0.3,
                         fill: true
                     }]
@@ -258,20 +306,46 @@ fetch('<?= site_url('admin/tools/logs/chart-data') ?>')
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Atividades: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                stepSize: 1
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return value;
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
                             }
                         }
                     }
                 }
             });
         }
+    })
+    .catch(error => {
+        console.error('Erro ao carregar gráfico:', error);
     });
 
-// Select/Deselect all
+// Select/Deselect all functions
 function toggleSelectAll() {
     const selectAll = document.getElementById('selectAll');
     document.querySelectorAll('.log-checkbox').forEach(checkbox => {
@@ -301,50 +375,165 @@ function deleteSelected() {
     });
     
     if (selected.length === 0) {
-        alert('Selecione pelo menos um registo');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Atenção',
+            text: 'Selecione pelo menos um registo para eliminar.',
+            confirmButtonColor: '#3085d6'
+        });
         return;
     }
     
-    if (!confirm('Tem certeza que deseja eliminar os registos selecionados?')) {
-        return;
-    }
-    
-    fetch('<?= site_url('admin/tools/logs/delete') ?>', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: new URLSearchParams({
-            ids: selected
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Erro ao eliminar registos: ' + data.message);
+    Swal.fire({
+        title: 'Confirmar eliminação',
+        html: `Tem certeza que deseja eliminar <strong>${selected.length}</strong> registo(s)?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('<?= site_url('admin/tools/logs/delete') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({
+                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+                    ids: selected
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sucesso!',
+                        text: data.message || 'Registos eliminados com sucesso.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: data.message || 'Erro ao eliminar registos.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Erro ao comunicar com o servidor.',
+                    confirmButtonColor: '#3085d6'
+                });
+            });
         }
-    })
-    .catch(error => {
-        alert('Erro ao eliminar registos');
     });
 }
 
-// Initialize DataTable
-$(document).ready(function() {
-    $('#logsTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
-        order: [[1, 'desc']],
-        pageLength: 50,
-        searching: false,
-        columnDefs: [
-            { orderable: false, targets: [0, 6] }
-        ]
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
+
+// Inicializar DataTable (opcional - pode comentar se não quiser usar)
+$(document).ready(function() {
+    if ($('#logsTable tbody tr').length > 1) { // Só inicializa se houver mais de uma linha
+        $('#logsTable').DataTable({
+            language: {
+                "sEmptyTable": "Nenhum dado disponível na tabela",
+                "sInfo": "Mostrando _START_ até _END_ de _TOTAL_ registos",
+                "sInfoEmpty": "Mostrando 0 até 0 de 0 registos",
+                "sInfoFiltered": "(filtrado de _MAX_ registos no total)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ",",
+                "sLengthMenu": "Mostrar _MENU_ registos por página",
+                "sLoadingRecords": "Carregando...",
+                "sProcessing": "Processando...",
+                "sSearch": "Pesquisar:",
+                "sZeroRecords": "Nenhum registo encontrado",
+                "oPaginate": {
+                    "sFirst": "Primeiro",
+                    "sLast": "Último",
+                    "sNext": "Seguinte",
+                    "sPrevious": "Anterior"
+                },
+                "oAria": {
+                    "sSortAscending": ": ativar para ordenar a coluna de forma ascendente",
+                    "sSortDescending": ": ativar para ordenar a coluna de forma descendente"
+                }
+            },
+            order: [[1, 'desc']],
+            pageLength: 25,
+            searching: true,
+            ordering: true,
+            columnDefs: [
+                { orderable: false, targets: [0, 7] } // Colunas do checkbox e ações não ordenáveis
+            ],
+            initComplete: function() {
+                // Desabilitar a pesquisa se não quiser
+                // $('.dataTables_filter').hide();
+            }
+        });
+    }
+});
 </script>
+
+<style>
+/* Estilos adicionais */
+.table-hover tbody tr:hover {
+    background-color: rgba(0,123,255,0.05);
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Estilo para o scroll horizontal da tabela */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Ajuste para telas pequenas */
+@media (max-width: 768px) {
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .col-md-3.d-flex {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    
+    .col-md-3.d-flex .btn {
+        margin: 2px 0 !important;
+        width: 100%;
+    }
+}
+</style>
 <?= $this->endSection() ?>

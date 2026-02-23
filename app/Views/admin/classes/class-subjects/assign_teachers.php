@@ -37,7 +37,7 @@
     </div>
 </div>
 
-<!-- Filtro por Semestre -->
+<!-- Filtro por Período -->
 <div class="card mb-4">
     <div class="card-header bg-light">
         <h5 class="mb-0">
@@ -48,34 +48,11 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-4">
-                <select class="form-select" id="semesterFilter" onchange="filterBySemester(this.value)">
+                <select class="form-select" id="periodFilter" onchange="filterByPeriod(this.value)">
                     <option value="">Todos os Períodos</option>
-                    <?php
-                    // Verificar se há disciplinas sem semestre atribuído
-                    $hasUnassigned = false;
-                    foreach ($disciplines as $disc) {
-                        if (empty($disc->semester_id)) {
-                            $hasUnassigned = true;
-                            break;
-                        }
-                    }
-                    if ($hasUnassigned):
-                    ?>
-                        <option value="unassigned">⚠️ Sem Período Definido</option>
-                    <?php endif; ?>
-                    
-                    <?php
-                    // Agrupar disciplinas por semestre para criar opções de filtro
-                    $semesters = [];
-                    foreach ($disciplines as $disc) {
-                        if (!empty($disc->semester_id) && !isset($semesters[$disc->semester_id])) {
-                            $semesters[$disc->semester_id] = $disc->semester_name ?? 'Período ' . $disc->semester_id;
-                        }
-                    }
-                    foreach ($semesters as $id => $name):
-                    ?>
-                        <option value="<?= $id ?>"><?= $name ?></option>
-                    <?php endforeach; ?>
+                    <option value="Anual">Anual</option>
+                    <option value="1º Semestre">1º Semestre</option>
+                    <option value="2º Semestre">2º Semestre</option>
                 </select>
             </div>
             <div class="col-md-8 text-end">
@@ -95,7 +72,7 @@
             <i class="fas fa-chalkboard-teacher me-2"></i>Atribuir Professores às Disciplinas
         </div>
         <div>
-            <span class="badge bg-light text-dark me-2" id="selectedSemesterBadge">Todos os períodos</span>
+            <span class="badge bg-light text-dark me-2" id="selectedPeriodBadge">Todos os períodos</span>
         </div>
     </div>
     <div class="card-body">
@@ -105,8 +82,8 @@
             
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                <strong>Nota:</strong> Disciplinas anuais aparecem para cada semestre separadamente, 
-                podendo ter professores diferentes em cada período.
+                <strong>Nota:</strong> Disciplinas anuais são válidas para todos os trimestres. 
+                Disciplinas semestrais são válidas apenas no período correspondente.
             </div>
             
             <div class="table-responsive">
@@ -125,49 +102,19 @@
                     <tbody id="disciplinesTableBody">
                         <?php if (!empty($disciplines)): ?>
                             <?php foreach ($disciplines as $index => $disc): 
-                                // Determinar classe CSS e badge baseada no período
-                                $periodClass = '';
-                                $periodLabel = '';
-                                $periodStatus = '';
-                                $dataSemester = '';
-                                
-                                if (empty($disc->semester_id)) {
-                                    // Sem semestre atribuído
-                                    $periodClass = 'table-secondary';
-                                    $periodLabel = '<span class="badge bg-secondary" style="background-color: #6c757d !important;"><i class="fas fa-question-circle me-1"></i>Sem Período</span>';
-                                    $periodStatus = 'warning';
-                                    $dataSemester = 'unassigned';
-                                } elseif (!empty($disc->semester_name)) {
-                                    $dataSemester = $disc->semester_id;
-                                    
-                                    if (strpos($disc->semester_name, '1º') !== false) {
-                                        $periodClass = 'table-primary';
-                                        $periodLabel = '<span class="badge bg-primary"><i class="fas fa-sun me-1"></i>' . $disc->semester_name . '</span>';
-                                    } elseif (strpos($disc->semester_name, '2º') !== false) {
-                                        $periodClass = 'table-warning';
-                                        $periodLabel = '<span class="badge bg-warning text-dark"><i class="fas fa-cloud-sun me-1"></i>' . $disc->semester_name . '</span>';
-                                    } elseif (strpos($disc->semester_name, '3º') !== false) {
-                                        $periodClass = 'table-info';
-                                        $periodLabel = '<span class="badge bg-info"><i class="fas fa-cloud-rain me-1"></i>' . $disc->semester_name . '</span>';
-                                    } else {
-                                        $periodClass = 'table-light';
-                                        $periodLabel = '<span class="badge bg-secondary">' . $disc->semester_name . '</span>';
-                                    }
-                                } else {
-                                    // Tem semester_id mas não tem nome (inconsistência)
-                                    $periodClass = 'table-danger';
-                                    $periodLabel = '<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>Período Inválido (ID: ' . $disc->semester_id . ')</span>';
-                                    $periodStatus = 'danger';
-                                    $dataSemester = $disc->semester_id;
-                                }
+                                $periodInfo = $disc->period_info ?? [
+                                    'badge' => 'secondary',
+                                    'icon' => 'fa-question-circle',
+                                    'label' => $disc->period_type ?? 'Não definido',
+                                    'color' => 'secondary'
+                                ];
                             ?>
-                                <tr class="<?= $periodClass ?>" data-semester="<?= $dataSemester ?>">
+                                <tr class="period-<?= strtolower(str_replace(' ', '-', $disc->period_type ?? 'undefined')) ?>" 
+                                    data-period="<?= $disc->period_type ?? '' ?>">
+                                    
                                     <td class="text-center"><?= $index + 1 ?></td>
                                     <td>
                                         <strong><?= $disc->discipline_name ?></strong>
-                                        <?php if (isset($disc->is_mandatory) && $disc->is_mandatory): ?>
-                                            <span class="badge bg-warning ms-2" title="Obrigatória">Obrig.</span>
-                                        <?php endif; ?>
                                     </td>
                                     <td><span class="badge bg-info"><?= $disc->discipline_code ?></span></td>
                                     <td class="text-center">
@@ -178,18 +125,12 @@
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?= $periodLabel ?>
-                                        <?php if (!empty($disc->semester_id) && !empty($disc->semester_name)): ?>
-                                            <br><small class="text-muted"><i class="far fa-calendar-alt me-1"></i>ID: <?= $disc->semester_id ?></small>
-                                            <?php if (!empty($disc->semester_start) && !empty($disc->semester_end)): ?>
-                                                <br><small class="text-muted"><i class="far fa-clock me-1"></i>
-                                                    <?= date('d/m', strtotime($disc->semester_start)) ?> - <?= date('d/m', strtotime($disc->semester_end)) ?>
-                                                </small>
-                                            <?php endif; ?>
-                                        <?php elseif (empty($disc->semester_id)): ?>
-                                            <br><small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Período não definido</small>
-                                            <br><small class="text-muted">Configure o período da disciplina</small>
-                                        <?php endif; ?>
+                                        <span class="badge bg-<?= $periodInfo['color'] ?>">
+                                            <i class="fas <?= $periodInfo['icon'] ?> me-1"></i>
+                                            <?= $periodInfo['label'] ?>
+                                        </span>
+                                        <br>
+                                        <small class="text-muted"><?= $periodInfo['description'] ?? '' ?></small>
                                     </td>
                                     <td>
                                         <select name="assignments[<?= $disc->id ?>]" class="form-select form-select-sm">
@@ -240,24 +181,14 @@
                             <h6 class="card-title"><i class="fas fa-chart-pie me-2"></i>Resumo por Período</h6>
                             <?php
                             $stats = [];
-                            $unassignedCount = 0;
-                            $unassignedAssigned = 0;
-                            
                             foreach ($disciplines as $disc) {
-                                if (empty($disc->semester_id)) {
-                                    $unassignedCount++;
-                                    if ($disc->teacher_id) {
-                                        $unassignedAssigned++;
-                                    }
-                                } else {
-                                    $key = $disc->semester_name ?? 'Período ' . $disc->semester_id;
-                                    if (!isset($stats[$key])) {
-                                        $stats[$key] = ['total' => 0, 'assigned' => 0, 'id' => $disc->semester_id];
-                                    }
-                                    $stats[$key]['total']++;
-                                    if ($disc->teacher_id) {
-                                        $stats[$key]['assigned']++;
-                                    }
+                                $period = $disc->period_type ?? 'Não definido';
+                                if (!isset($stats[$period])) {
+                                    $stats[$period] = ['total' => 0, 'assigned' => 0];
+                                }
+                                $stats[$period]['total']++;
+                                if ($disc->teacher_id) {
+                                    $stats[$period]['assigned']++;
                                 }
                             }
                             ?>
@@ -276,21 +207,6 @@
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
-                                
-                                <?php if ($unassignedCount > 0): ?>
-                                    <div class="col-12 mb-2 mt-2">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Sem Período:</small>
-                                            <span class="badge bg-<?= $unassignedAssigned == $unassignedCount ? 'success' : ($unassignedAssigned > 0 ? 'warning' : 'danger') ?>">
-                                                <?= $unassignedAssigned ?>/<?= $unassignedCount ?>
-                                            </span>
-                                        </div>
-                                        <div class="progress mt-1" style="height: 5px;">
-                                            <div class="progress-bar bg-<?= $unassignedAssigned == $unassignedCount ? 'success' : ($unassignedAssigned > 0 ? 'warning' : 'danger') ?>" 
-                                                 style="width: <?= ($unassignedAssigned / $unassignedCount) * 100 ?>%"></div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -314,22 +230,15 @@
 </div>
 
 <script>
-// Função para filtrar por semestre
-function filterBySemester(semesterId) {
+// Função para filtrar por período
+function filterByPeriod(period) {
     const rows = document.querySelectorAll('#disciplinesTableBody tr');
     let visibleCount = 0;
     let assignedCount = 0;
     
     rows.forEach(row => {
-        let shouldShow = false;
-        
-        if (semesterId === '') {
-            shouldShow = true;
-        } else if (semesterId === 'unassigned' && row.dataset.semester === '') {
-            shouldShow = true;
-        } else if (row.dataset.semester === semesterId) {
-            shouldShow = true;
-        }
+        const rowPeriod = row.dataset.period;
+        const shouldShow = period === '' || rowPeriod === period;
         
         if (shouldShow) {
             row.style.display = '';
@@ -346,15 +255,12 @@ function filterBySemester(semesterId) {
     });
     
     // Atualizar badges e contadores
-    const badge = document.getElementById('selectedSemesterBadge');
+    const badge = document.getElementById('selectedPeriodBadge');
     if (badge) {
-        if (semesterId === '') {
+        if (period === '') {
             badge.textContent = 'Todos os períodos';
-        } else if (semesterId === 'unassigned') {
-            badge.textContent = 'Disciplinas sem período';
         } else {
-            const option = document.querySelector(`#semesterFilter option[value="${semesterId}"]`);
-            badge.textContent = option ? option.textContent : 'Período selecionado';
+            badge.textContent = period;
         }
     }
     
@@ -371,25 +277,27 @@ function filterBySemester(semesterId) {
 
 // Inicializar contadores
 document.addEventListener('DOMContentLoaded', function() {
-    filterBySemester('');
+    filterByPeriod('');
 });
 
 // Atualizar contador quando seleção de professor muda
 document.querySelectorAll('select[name^="assignments"]').forEach(select => {
     select.addEventListener('change', function() {
-        const semesterId = document.getElementById('semesterFilter')?.value || '';
-        filterBySemester(semesterId);
+        const period = document.getElementById('periodFilter')?.value || '';
+        filterByPeriod(period);
     });
 });
 
-// Destacar linhas com problemas
+// Estilo para linhas por período
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('tr[data-semester="unassigned"]').forEach(row => {
-        // Pode adicionar um tooltip ou destaque adicional
-        const periodCell = row.querySelector('td:nth-child(5)');
-        if (periodCell) {
-            periodCell.style.backgroundColor = '#fff3cd';
-        }
+    document.querySelectorAll('tr.period-anual').forEach(row => {
+        row.style.borderLeft = '3px solid #28a745';
+    });
+    document.querySelectorAll('tr.period-1º-semestre').forEach(row => {
+        row.style.borderLeft = '3px solid #007bff';
+    });
+    document.querySelectorAll('tr.period-2º-semestre').forEach(row => {
+        row.style.borderLeft = '3px solid #ffc107';
     });
 });
 </script>
@@ -407,17 +315,15 @@ document.addEventListener('DOMContentLoaded', function() {
 .badge {
     font-size: 0.85rem;
 }
-/* Estilo para disciplinas sem período */
-tr[data-semester="unassigned"] {
-    opacity: 0.9;
+/* Estilo para linhas por período */
+tr.period-anual:hover {
+    background-color: rgba(40, 167, 69, 0.1) !important;
 }
-tr[data-semester="unassigned"]:hover {
-    background-color: #fff3cd !important;
+tr.period-1º-semestre:hover {
+    background-color: rgba(0, 123, 255, 0.1) !important;
 }
-/* Tooltip personalizado */
-.period-warning {
-    cursor: help;
-    border-bottom: 1px dashed #ffc107;
+tr.period-2º-semestre:hover {
+    background-color: rgba(255, 193, 7, 0.1) !important;
 }
 </style>
 
