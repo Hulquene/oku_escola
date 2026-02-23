@@ -1,0 +1,126 @@
+# CodeIgniter 4
+/vendor/
+.env
+.env.example
+
+# Composer
+composer.phar
+composer.lock
+
+# PHPUnit
+phpunit.xml
+.phpunit.result.cache
+/.phpunit.cache/
+
+# Logs
+/writable/logs/*
+/writable/cache/*
+/writable/session/*
+/writable/uploads/*
+/writable/debugbar/*
+!.gitkeep
+
+# Tests
+/tests/_output/
+/tests/_support/_generated/
+
+# IDE
+/.idea/
+/.vscode/
+*.sublime-*
+*.swp
+*.swo
+*~
+.DS_Store
+/.project
+/.settings/
+/.buildpath
+/.cache
+/.phpstorm.meta.php
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Public assets
+/public/uploads/*
+/public/assets/uploads/*
+!/public/uploads/.gitkeep
+!/public/assets/uploads/.gitkeep
+
+# Coverage reports
+/coverage/
+/coverage-html/
+
+# Temp files
+/tmp/
+/temp/
+
+# Debug
+*.log
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Node modules (if using npm for frontend)
+/node_modules/
+/package-lock.json
+/yarn.lock
+
+# Docker
+/docker-compose.override.yml
+/Dockerfile
+/.docker/
+
+# CodeIgniter specific
+/writable/*.php
+/writable/*.log
+
+# Ignore all .php files in writable except index.html
+/writable/**/*.php
+!/writable/**/index.html
+!/writable/**/.gitkeep
+
+# Project specific (adjust as needed)
+/public/install/
+/public/updates/
+
+# Backups
+*.backup
+*.bak
+*.old
+
+# Encryption keys (if stored locally)
+*.key
+*.pem
+*.crt
+*.csr
+
+# Database migrations (if using version control for migrations)
+/app/Database/Migrations/*.php
+!/app/Database/Migrations/2025*.php
+
+# Seeds
+/app/Database/Seeds/*.php
+!/app/Database/Seeds/DatabaseSeeder.php
+
+# Third-party libraries (if any)
+/spark
+!.gitkeep
+!.htaccess
