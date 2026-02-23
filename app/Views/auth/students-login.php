@@ -204,8 +204,8 @@
 </head>
 <body>
     <div class="login-container">
-        <a href="<?= site_url('auth/login') ?>" class="back-link">
-            <i class="fas fa-arrow-left"></i> Voltar
+        <a href="<?= site_url() ?>" class="back-link">
+            <i class="fas fa-arrow-left"></i> Website
         </a>
         
         <div class="login-card">
