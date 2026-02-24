@@ -199,9 +199,11 @@ CREATE TABLE `tbl_disciplines` (
     `description` TEXT,
     `is_active` TINYINT(1) DEFAULT '1',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `discipline_code` (`discipline_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE `tbl_class_disciplines` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -1140,9 +1142,7 @@ ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRE
 ALTER TABLE `tbl_classes` 
 ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
--- 5. Tabela: tbl_disciplines
-ALTER TABLE `tbl_disciplines` 
-ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
 
 
 -- 7. Tabela: tbl_guardians
@@ -1470,12 +1470,66 @@ INSERT INTO `tbl_grade_levels` (`level_name`, `level_code`, `education_level`, `
 ('13ª Classe', 'MED-13', 'Ensino Médio', 13, 16);
 
 -- Inserir cursos padrão do sistema angolano
+-- INSERT INTO `tbl_courses` (`course_name`, `course_code`, `course_type`, `start_grade_id`, `end_grade_id`, `duration_years`) VALUES
+-- ('Ciências Físicas e Biológicas', 'CFB', 'Ciências', 13, 15, 3),
+-- ('Ciências Económicas e Jurídicas', 'CEJ', 'Económico-Jurídico', 13, 15, 3),
+-- ('Ciências Humanas', 'CH', 'Humanidades', 13, 15, 3),
+-- ('Ensino Técnico-Profissional', 'ETP', 'Técnico', 13, 15, 3),
+-- ('Formação de Professores', 'FP', 'Profissional', 13, 16, 4); -- Alguns cursos vão até 13ª
+-- Inserir cursos do ensino médio angolano (II ciclo)
 INSERT INTO `tbl_courses` (`course_name`, `course_code`, `course_type`, `start_grade_id`, `end_grade_id`, `duration_years`) VALUES
+-- Ciências Físicas e Biológicas
 ('Ciências Físicas e Biológicas', 'CFB', 'Ciências', 13, 15, 3),
+('Ciências Físicas e Biológicas - Variante Física', 'CFB-FIS', 'Ciências', 13, 15, 3),
+('Ciências Físicas e Biológicas - Variante Química', 'CFB-QUI', 'Ciências', 13, 15, 3),
+('Ciências Físicas e Biológicas - Variante Biologia', 'CFB-BIO', 'Ciências', 13, 15, 3),
+
+-- Ciências Económicas e Jurídicas
 ('Ciências Económicas e Jurídicas', 'CEJ', 'Económico-Jurídico', 13, 15, 3),
+('Ciências Económicas - Variante Economia', 'CEJ-ECO', 'Económico-Jurídico', 13, 15, 3),
+('Ciências Jurídicas - Variante Direito', 'CEJ-DIR', 'Económico-Jurídico', 13, 15, 3),
+
+-- Ciências Humanas
 ('Ciências Humanas', 'CH', 'Humanidades', 13, 15, 3),
-('Ensino Técnico-Profissional', 'ETP', 'Técnico', 13, 15, 3),
-('Formação de Professores', 'FP', 'Profissional', 13, 16, 4); -- Alguns cursos vão até 13ª
+('Ciências Humanas - Variante História', 'CH-HIS', 'Humanidades', 13, 15, 3),
+('Ciências Humanas - Variante Geografia', 'CH-GEO', 'Humanidades', 13, 15, 3),
+('Ciências Humanas - Variante Filosofia', 'CH-FIL', 'Humanidades', 13, 15, 3),
+
+-- Ensino Técnico-Profissional
+('Ensino Técnico-Profissional - Eletricidade', 'ETP-ELE', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Eletrónica', 'ETP-ELT', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Informática', 'ETP-INF', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Mecânica', 'ETP-MEC', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Construção Civil', 'ETP-CC', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Eletrónica e Telecomunicações', 'ETP-ET', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Análises Clínicas', 'ETP-AC', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Enfermagem', 'ETP-ENF', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Farmácia', 'ETP-FAR', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Contabilidade', 'ETP-CONT', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Administração', 'ETP-ADM', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Secretariado', 'ETP-SEC', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Turismo', 'ETP-TUR', 'Técnico', 13, 15, 3),
+('Ensino Técnico-Profissional - Hotelaria', 'ETP-HOT', 'Técnico', 13, 15, 3),
+
+-- Formação de Professores (Magistério)
+('Formação de Professores - Ensino Primário', 'FP-EP', 'Profissional', 13, 16, 4),
+('Formação de Professores - Educação de Infância', 'FP-EI', 'Profissional', 13, 16, 4),
+('Formação de Professores - Português', 'FP-PT', 'Profissional', 13, 16, 4),
+('Formação de Professores - Matemática', 'FP-MAT', 'Profissional', 13, 16, 4),
+('Formação de Professores - História', 'FP-HIS', 'Profissional', 13, 16, 4),
+('Formação de Professores - Geografia', 'FP-GEO', 'Profissional', 13, 16, 4),
+('Formação de Professores - Biologia', 'FP-BIO', 'Profissional', 13, 16, 4),
+('Formação de Professores - Física', 'FP-FIS', 'Profissional', 13, 16, 4),
+('Formação de Professores - Química', 'FP-QUI', 'Profissional', 13, 16, 4),
+('Formação de Professores - Língua Portuguesa', 'FP-LP', 'Profissional', 13, 16, 4),
+('Formação de Professores - Educação Física', 'FP-EF', 'Profissional', 13, 16, 4),
+
+-- Cursos Técnicos Profissionais (Curta Duração)
+('Técnico de Informática', 'TI', 'Técnico', 13, 13, 1),
+('Técnico de Contabilidade', 'TC', 'Técnico', 13, 13, 1),
+('Técnico de Eletricidade', 'TE', 'Técnico', 13, 13, 1),
+('Técnico de Refrigeração', 'TR', 'Técnico', 13, 13, 1),
+('Técnico de Mecânica', 'TM', 'Técnico', 13, 13, 1);
 
 -- Inserir tipos de taxas/propinas
 INSERT INTO `tbl_fee_types` (`type_name`, `type_code`, `type_category`, `is_recurring`, `recurrence_period`) VALUES
@@ -1530,19 +1584,168 @@ INSERT INTO `tbl_users` (`username`, `email`, `password`, `first_name`, `last_na
 ('admin', 'admin@escola.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrador', 'Sistema', 1, 'admin', 1);
 
 -- Inserir algumas disciplinas básicas
-INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_hours`, `min_grade`, `max_grade`, `approval_grade`) VALUES
-('Língua Portuguesa', 'LP', 120, 0, 20, 10),
-('Matemática', 'MAT', 120, 0, 20, 10),
-('Ciências da Natureza', 'CN', 90, 0, 20, 10),
-('História', 'HIS', 90, 0, 20, 10),
-('Geografia', 'GEO', 90, 0, 20, 10),
-('Educação Física', 'EDF', 60, 0, 20, 10),
-('Educação Moral e Cívica', 'EMC', 60, 0, 20, 10),
-('Inglês', 'ING', 90, 0, 20, 10),
-('Francês', 'FRA', 90, 0, 20, 10),
-('Física', 'FIS', 90, 0, 20, 10),
-('Química', 'QUI', 90, 0, 20, 10),
-('Biologia', 'BIO', 90, 0, 20, 10);
+-- INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_hours`, `min_grade`, `max_grade`, `approval_grade`) VALUES
+-- ('Língua Portuguesa', 'LP', 120, 0, 20, 10),
+-- ('Matemática', 'MAT', 120, 0, 20, 10),
+-- ('Ciências da Natureza', 'CN', 90, 0, 20, 10),
+-- ('História', 'HIS', 90, 0, 20, 10),
+-- ('Geografia', 'GEO', 90, 0, 20, 10),
+-- ('Educação Física', 'EDF', 60, 0, 20, 10),
+-- ('Educação Moral e Cívica', 'EMC', 60, 0, 20, 10),
+-- ('Inglês', 'ING', 90, 0, 20, 10),
+-- ('Francês', 'FRA', 90, 0, 20, 10),
+-- ('Física', 'FIS', 90, 0, 20, 10),
+-- ('Química', 'QUI', 90, 0, 20, 10),
+-- ('Biologia', 'BIO', 90, 0, 20, 10);
+
+-- Inserir todas as disciplinas do sistema de ensino angolano com descrição
+-- Ensino Primário (1ª a 6ª Classe), I Ciclo (7ª a 9ª Classe) e II Ciclo (10ª a 13ª Classe)
+
+INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_hours`, `min_grade`, `max_grade`, `approval_grade`, `description`) VALUES
+-- ============ ENSINO PRIMÁRIO (1ª a 6ª CLASSE) ============
+('Língua Portuguesa - Ensino Primário', 'LP-PRI', 180, 0, 20, 10, 'Desenvolvimento da comunicação oral e escrita, leitura, escrita, gramática básica e produção textual para o ensino primário'),
+('Matemática - Ensino Primário', 'MAT-PRI', 180, 0, 20, 10, 'Operações fundamentais, raciocínio lógico, resolução de problemas, geometria básica e noções de medidas'),
+('Estudo do Meio', 'EM-PRI', 120, 0, 20, 10, 'Conhecimento do ambiente natural e social, identidade local, comunidade e meio ambiente'),
+('Ciências da Natureza - Ensino Primário', 'CN-PRI', 90, 0, 20, 10, 'Noções básicas sobre seres vivos, corpo humano, saúde e elementos da natureza'),
+('História - Ensino Primário', 'HIS-PRI', 60, 0, 20, 10, 'Introdução à história local, figuras históricas angolanas e noções temporais'),
+('Geografia - Ensino Primário', 'GEO-PRI', 60, 0, 20, 10, 'Conhecimento do espaço geográfico local, províncias de Angola e noções de orientação'),
+('Educação Física - Ensino Primário', 'EDF-PRI', 60, 0, 20, 10, 'Desenvolvimento motor, jogos lúdicos, coordenação motora e hábitos saudáveis'),
+('Educação Moral e Cívica - Ensino Primário', 'EMC-PRI', 60, 0, 20, 10, 'Formação de valores éticos, cívicos, patriotismo e convivência social'),
+('Educação Manual e Plástica', 'EMP-PRI', 60, 0, 20, 10, 'Expressão artística, trabalhos manuais, desenvolvimento da criatividade e coordenação motora fina'),
+('Educação Musical - Ensino Primário', 'EMU-PRI', 60, 0, 20, 10, 'Iniciação musical, ritmos, canto, instrumentos musicais básicos e cultura musical angolana'),
+('Formação Pessoal e Social', 'FPS-PRI', 45, 0, 20, 10, 'Desenvolvimento da identidade, autonomia, relações interpessoais e cidadania'),
+('Iniciação à Língua Estrangeira', 'ILE-PRI', 45, 0, 20, 10, 'Primeiro contato com línguas estrangeiras, vocabulário básico e expressões simples'),
+
+-- ============ I CICLO DO ENSINO SECUNDÁRIO (7ª a 9ª CLASSE) ============
+('Língua Portuguesa - I Ciclo', 'LP-IC', 160, 0, 20, 10, 'Aprofundamento da gramática, literatura infanto-juvenil, produção textual e compreensão leitora'),
+('Matemática - I Ciclo', 'MAT-IC', 160, 0, 20, 10, 'Álgebra, geometria plana, funções, equações e raciocínio lógico-matemático'),
+('Línguas Nacionais (Umbundo/Kimbundo/Kikongo)', 'LN-IC', 120, 0, 20, 10, 'Estudo das línguas nacionais angolanas, valorização cultural e comunicação em línguas locais'),
+('Língua Estrangeira - Inglês', 'ING-IC', 120, 0, 20, 10, 'Desenvolvimento das quatro competências: compreensão oral e escrita, expressão oral e escrita em inglês'),
+('Língua Estrangeira - Francês', 'FRA-IC', 120, 0, 20, 10, 'Aprendizagem da língua francesa, comunicação básica e elementos culturais da francofonia'),
+('Ciências da Vida (Biologia + Química)', 'CV-IC', 140, 0, 20, 10, 'Estudo integrado dos seres vivos e processos químicos fundamentais para a vida'),
+('Física - I Ciclo', 'FIS-IC', 120, 0, 20, 10, 'Introdução aos conceitos físicos: movimento, energia, calor e fenômenos naturais'),
+('Ciências Sociais (História + Geografia)', 'CS-IC', 140, 0, 20, 10, 'Estudo integrado da história de Angola e geografia nacional e mundial'),
+('Desenho - I Ciclo', 'DES-IC', 90, 0, 20, 10, 'Técnicas de desenho, perspectiva, composição e expressão gráfica'),
+('Educação Física - I Ciclo', 'EDF-IC', 90, 0, 20, 10, 'Desenvolvimento desportivo, jogos coletivos, condicionamento físico e saúde'),
+('Educação Moral e Cívica - I Ciclo', 'EMC-IC', 60, 0, 20, 10, 'Ética, cidadania, direitos humanos, constituição angolana e valores sociais'),
+('Educação Musical - I Ciclo', 'EMU-IC', 60, 0, 20, 10, 'Teoria musical, ritmos angolanos, prática instrumental e coral'),
+('Tecnologias de Informação e Comunicação', 'TIC-IC', 60, 0, 20, 10, 'Introdução à informática, ferramentas digitais, internet e segurança online'),
+('Formação Pessoal e Social - I Ciclo', 'FPS-IC', 45, 0, 20, 10, 'Orientação vocacional, projeto de vida, ética e responsabilidade social'),
+
+-- ============ II CICLO DO ENSINO SECUNDÁRIO (10ª a 13ª CLASSE) ============
+-- === Disciplinas Comuns a todos os Cursos ===
+('Língua Portuguesa - II Ciclo', 'LP-IIC', 120, 0, 20, 10, 'Literatura angolana e portuguesa, análise textual, redação avançada e comunicação formal'),
+('Matemática - II Ciclo', 'MAT-IIC', 120, 0, 20, 10, 'Funções avançadas, trigonometria, geometria analítica, probabilidades e estatística'),
+('Inglês - II Ciclo', 'ING-IIC', 90, 0, 20, 10, 'Inglês técnico-científico, compreensão de textos acadêmicos e comunicação profissional'),
+('Francês - II Ciclo', 'FRA-IIC', 90, 0, 20, 10, 'Francês avançado, literatura francófona e preparação para exames internacionais'),
+('Espanhol', 'ESP-IIC', 90, 0, 20, 10, 'Língua espanhola, cultura hispânica e comunicação em contextos diversos'),
+('Educação Física - II Ciclo', 'EDF-IIC', 60, 0, 20, 10, 'Desporto, treinamento físico, nutrição esportiva e saúde preventiva'),
+('Filosofia', 'FIL-IIC', 90, 0, 20, 10, 'Introdução ao pensamento filosófico, ética, epistemologia e filosofia africana'),
+('Metodologia do Trabalho Científico', 'MTC-IIC', 45, 0, 20, 10, 'Técnicas de pesquisa, normas acadêmicas, elaboração de relatórios e trabalhos científicos'),
+('Empreendedorismo', 'EMP-IIC', 60, 0, 20, 10, 'Criação de negócios, plano de negócios, inovação e gestão empreendedora'),
+
+-- === Área de Ciências Físicas e Biológicas ===
+('Física - CFB', 'FIS-CFB', 140, 0, 20, 10, 'Mecânica, termodinâmica, eletromagnetismo, óptica e física moderna'),
+('Química - CFB', 'QUI-CFB', 140, 0, 20, 10, 'Química inorgânica, orgânica, físico-química, análises químicas e laboratório'),
+('Biologia - CFB', 'BIO-CFB', 140, 0, 20, 10, 'Biologia celular, genética, evolução, ecologia, zoologia e botânica'),
+('Geologia', 'GEO-CFB', 90, 0, 20, 10, 'Geologia geral, mineralogia, petrologia, recursos minerais de Angola e geologia histórica'),
+('Astronomia', 'AST-CFB', 60, 0, 20, 10, 'Noções de astronomia, sistema solar, cosmos e observação astronômica'),
+('Ciências da Terra e da Vida', 'CTV-CFB', 90, 0, 20, 10, 'Estudo integrado dos sistemas terrestres e da biodiversidade'),
+
+-- === Área de Ciências Económicas e Jurídicas ===
+('Introdução à Economia', 'ECO-CEJ', 120, 0, 20, 10, 'Conceitos econômicos fundamentais, microeconomia, macroeconomia e economia angolana'),
+('Noções de Direito', 'NDI-CEJ', 90, 0, 20, 10, 'Introdução ao direito, direito constitucional, civil e legislação angolana'),
+('Contabilidade Geral', 'CONT-CEJ', 120, 0, 20, 10, 'Princípios contábeis, escrituração, demonstrações financeiras e normas contábeis'),
+('Estatística', 'EST-CEJ', 90, 0, 20, 10, 'Estatística descritiva, probabilidades, amostragem e análise de dados'),
+('Gestão de Empresas', 'GE-CEJ', 90, 0, 20, 10, 'Princípios de gestão, administração, organização empresarial e liderança'),
+('Matemática Financeira', 'MF-CEJ', 90, 0, 20, 10, 'Juros, descontos, séries de pagamentos, análise de investimentos e sistemas de amortização'),
+('Sociologia - CEJ', 'SOC-CEJ', 90, 0, 20, 10, 'Sociologia geral, estruturas sociais, estratificação e mudança social'),
+
+-- === Área de Ciências Humanas ===
+('História - CH', 'HIS-CH', 120, 0, 20, 10, 'História geral de Angola, África e mundo, períodos históricos e análise historiográfica'),
+('Geografia - CH', 'GEO-CH', 120, 0, 20, 10, 'Geografia física, humana, econômica de Angola e geopolítica mundial'),
+('Sociologia - CH', 'SOC-CH', 90, 0, 20, 10, 'Teorias sociológicas, instituições sociais, cultura e sociedade angolana'),
+('Antropologia Cultural', 'ANT-CH', 90, 0, 20, 10, 'Antropologia, diversidade cultural, etnias angolanas e patrimônio cultural'),
+('Psicologia Geral', 'PSI-CH', 90, 0, 20, 10, 'Processos psicológicos, desenvolvimento humano, personalidade e psicologia social'),
+('Filosofia - CH', 'FIL-CH', 90, 0, 20, 10, 'História da filosofia, correntes filosóficas, filosofia africana e pensamento contemporâneo'),
+('História das Artes', 'HA-CH', 60, 0, 20, 10, 'Arte angolana, africana e ocidental, movimentos artísticos e crítica de arte'),
+('Património Cultural Angolano', 'PCA-CH', 60, 0, 20, 10, 'Preservação do patrimônio, sítios históricos, tradições e identidade cultural'),
+
+-- === Área Técnico-Profissional - Informática ===
+('Programação', 'PROG-TI', 120, 0, 20, 10, 'Lógica de programação, algoritmos, estruturas de dados e linguagens de programação'),
+('Redes de Computadores', 'REDES-TI', 90, 0, 20, 10, 'Arquitetura de redes, protocolos, topologias, segurança e administração de redes'),
+('Sistemas Operativos', 'SO-TI', 90, 0, 20, 10, 'Funcionamento de sistemas operativos, gestão de processos, memória e arquivos'),
+('Base de Dados', 'BD-TI', 90, 0, 20, 10, 'Modelagem de dados, SQL, administração de bancos de dados e sistemas de gestão'),
+('Arquitetura de Computadores', 'ARC-TI', 60, 0, 20, 10, 'Organização de computadores, componentes hardware, processadores e memória'),
+('Desenvolvimento Web', 'WEB-TI', 90, 0, 20, 10, 'Criação de sites, HTML, CSS, JavaScript, frameworks e desenvolvimento front-end/back-end'),
+('Manutenção de Computadores', 'MAN-TI', 60, 0, 20, 10, 'Diagnóstico, reparação, montagem e manutenção preventiva de computadores'),
+
+-- === Área Técnico-Profissional - Eletricidade/Eletrónica ===
+('Eletricidade Geral', 'ELETR-ETP', 120, 0, 20, 10, 'Circuitos elétricos, leis fundamentais, corrente contínua e alternada'),
+('Eletrónica Analógica', 'ELAN-ETP', 120, 0, 20, 10, 'Componentes eletrônicos, amplificadores, fontes de alimentação e circuitos analógicos'),
+('Eletrónica Digital', 'ELDI-ETP', 120, 0, 20, 10, 'Sistemas digitais, portas lógicas, circuitos combinacionais e sequenciais'),
+('Instalações Elétricas', 'IE-ETP', 90, 0, 20, 10, 'Projeto e execução de instalações elétricas prediais e industriais, normas técnicas'),
+('Máquinas Elétricas', 'ME-ETP', 90, 0, 20, 10, 'Motores, geradores, transformadores e equipamentos eletromecânicos'),
+('Telecomunicações', 'TEL-ETP', 90, 0, 20, 10, 'Sistemas de comunicação, transmissão de dados, redes de telecomunicações'),
+('Instrumentação', 'INST-ETP', 60, 0, 20, 10, 'Instrumentos de medição, sensores, controladores e automação'),
+
+-- === Área Técnico-Profissional - Mecânica ===
+('Mecânica Geral', 'MEC-ETP', 120, 0, 20, 10, 'Princípios da mecânica, estática, dinâmica, cinemática e aplicações'),
+('Desenho Técnico Mecânico', 'DTM-ETP', 90, 0, 20, 10, 'Desenho de peças mecânicas, cotagem, tolerâncias e representações técnicas'),
+('Termodinâmica', 'TERM-ETP', 90, 0, 20, 10, 'Leis da termodinâmica, ciclos, transferência de calor e aplicações industriais'),
+('Mecânica dos Fluidos', 'MF-ETP', 90, 0, 20, 10, 'Propriedades dos fluidos, hidrostática, hidrodinâmica e aplicações'),
+('Resistência dos Materiais', 'RM-ETP', 90, 0, 20, 10, 'Esforços, tensões, deformações e dimensionamento de elementos estruturais'),
+('Processos de Fabrico', 'PF-ETP', 90, 0, 20, 10, 'Processos de usinagem, soldagem, fundição e conformação mecânica'),
+('Soldadura', 'SOLD-ETP', 60, 0, 20, 10, 'Técnicas de soldadura, tipos de solda, segurança e controle de qualidade'),
+
+-- === Área Técnico-Profissional - Construção Civil ===
+('Desenho de Construção Civil', 'DCC-ETP', 90, 0, 20, 10, 'Desenho arquitetônico, plantas, cortes, fachadas e detalhamento'),
+('Topografia', 'TOP-ETP', 90, 0, 20, 10, 'Levantamentos topográficos, curvas de nível, orientação e instrumentos'),
+('Materiais de Construção', 'MC-ETP', 90, 0, 20, 10, 'Propriedades e aplicações dos materiais de construção, ensaios tecnológicos'),
+('Estruturas', 'ESTR-ETP', 120, 0, 20, 10, 'Cálculo estrutural, concreto armado, estruturas metálicas e fundações'),
+('Hidráulica', 'HIDR-ETP', 90, 0, 20, 10, 'Instalações hidráulicas prediais, sistemas de abastecimento e drenagem'),
+('Orçamento e Planeamento', 'OP-ETP', 60, 0, 20, 10, 'Orçamentação de obras, cronogramas, gestão de projetos e custos'),
+
+-- === Área Técnico-Profissional - Saúde ===
+('Anatomia Humana', 'ANAT-SA', 120, 0, 20, 10, 'Estudo da estrutura do corpo humano, sistemas orgânicos e suas relações'),
+('Fisiologia Humana', 'FISIO-SA', 120, 0, 20, 10, 'Funcionamento dos sistemas orgânicos, homeostase e mecanismos fisiológicos'),
+('Bioquímica', 'BIOQ-SA', 90, 0, 20, 10, 'Processos bioquímicos, metabolismo, enzimas e biomoléculas'),
+('Microbiologia', 'MICRO-SA', 90, 0, 20, 10, 'Estudo dos microrganismos, patogenicidade, controle e técnicas laboratoriais'),
+('Enfermagem Geral', 'ENF-SA', 120, 0, 20, 10, 'Fundamentos de enfermagem, cuidados básicos, procedimentos e ética profissional'),
+('Farmácia', 'FARM-SA', 120, 0, 20, 10, 'Farmacologia, medicamentos, manipulação farmacêutica e legislação'),
+('Primeiros Socorros', 'PS-SA', 60, 0, 20, 10, 'Técnicas de urgência, emergência, suporte básico de vida e prevenção'),
+('Higiene e Segurança no Trabalho', 'HST-SA', 60, 0, 20, 10, 'Normas de segurança, prevenção de acidentes, EPIs e saúde ocupacional'),
+
+-- === Área Técnico-Profissional - Gestão e Contabilidade ===
+('Contabilidade Geral', 'CONT-GC', 120, 0, 20, 10, 'Princípios contábeis, escrituração, balanços e demonstrações financeiras'),
+('Contabilidade Analítica', 'CA-GC', 90, 0, 20, 10, 'Custos, centros de responsabilidade, análise de resultados e tomada de decisão'),
+('Gestão Financeira', 'GF-GC', 90, 0, 20, 10, 'Administração financeira, fluxo de caixa, orçamentos e investimentos'),
+('Direito Fiscal', 'DF-GC', 60, 0, 20, 10, 'Legislação tributária, impostos, taxas e obrigações fiscais em Angola'),
+('Marketing', 'MARK-GC', 90, 0, 20, 10, 'Estratégias de marketing, pesquisa de mercado, comportamento do consumidor e branding'),
+('Secretariado', 'SEC-GC', 90, 0, 20, 10, 'Técnicas de secretariado, organização administrativa, comunicação e arquivo'),
+('Gestão de Recursos Humanos', 'GRH-GC', 90, 0, 20, 10, 'Recrutamento, seleção, treinamento, avaliação de desempenho e legislação trabalhista'),
+
+-- === Área Técnico-Profissional - Turismo e Hotelaria ===
+('Turismo Geral', 'TUR-TH', 90, 0, 20, 10, 'Fundamentos do turismo, tipologias, impacto econômico e cultural'),
+('Hotelaria', 'HOT-TH', 90, 0, 20, 10, 'Gestão hoteleira, operações de hospedagem, recepção e governança'),
+('Restauração', 'REST-TH', 90, 0, 20, 10, 'Serviços de alimentação, gastronomia, gestão de restaurantes e eventos'),
+('Gestão Hoteleira', 'GH-TH', 90, 0, 20, 10, 'Administração de hotéis, reservas, marketing hoteleiro e qualidade'),
+('Ecoturismo', 'ECO-TH', 60, 0, 20, 10, 'Turismo sustentável, áreas naturais, conservação e desenvolvimento local'),
+('Animação Turística', 'AT-TH', 60, 0, 20, 10, 'Atividades de lazer, recreação, animação cultural e entretenimento'),
+
+-- === Formação de Professores (Magistério) ===
+('Didática Geral', 'DID-MAG', 90, 0, 20, 10, 'Princípios e métodos de ensino, planejamento didático e estratégias pedagógicas'),
+('Psicologia da Educação', 'PSIED-MAG', 90, 0, 20, 10, 'Processos de aprendizagem, desenvolvimento cognitivo e afetivo do aluno'),
+('Sociologia da Educação', 'SOCED-MAG', 60, 0, 20, 10, 'Educação e sociedade, desigualdades educacionais e papel social da escola'),
+('Filosofia da Educação', 'FILED-MAG', 60, 0, 20, 10, 'Fundamentos filosóficos da educação, correntes pedagógicas e pensamento educacional'),
+('História da Educação', 'HED-MAG', 60, 0, 20, 10, 'Evolução histórica da educação em Angola e no mundo, reformas educacionais'),
+('Metodologias de Ensino', 'MET-MAG', 120, 0, 20, 10, 'Métodos e técnicas de ensino por área do conhecimento, recursos didáticos'),
+('Prática Pedagógica', 'PP-MAG', 180, 0, 20, 10, 'Estágio supervisionado, regência de classe e reflexão sobre a prática docente'),
+('Legislação Educacional', 'LEG-MAG', 45, 0, 20, 10, 'Lei de Bases do Sistema de Educação, normas e diretrizes educacionais'),
+('Gestão Escolar', 'GE-MAG', 60, 0, 20, 10, 'Administração escolar, liderança pedagógica, organização e gestão de escolas'),
+('Educação Inclusiva', 'EI-MAG', 60, 0, 20, 10, 'Atendimento a alunos com necessidades especiais, inclusão e diversidade'),
+('Línguas Nacionais - Didática', 'LND-MAG', 60, 0, 20, 10, 'Metodologias para ensino das línguas nacionais, valorização linguística'),
+('Avaliação Educacional', 'AE-MAG', 45, 0, 20, 10, 'Tipos e instrumentos de avaliação, elaboração de provas e análise de resultados');
 
 -- --------------------------------------------------------
 -- Comentários Finais
