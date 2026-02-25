@@ -110,116 +110,331 @@ class ExamScheduleModel extends BaseModel
         
         return $builder->orderBy('tbl_exam_schedules.exam_date', 'ASC')->findAll();
     }
-/**
- * Generate schedule for a period automatically
- */
-public function generateForPeriod($periodId, $classIds = [], $examBoardId = null)
-{
-    log_message('debug', '--- INÍCIO generateForPeriod (Model) ---');
-    log_message('debug', 'Period ID: ' . $periodId);
-    log_message('debug', 'Class IDs: ' . json_encode($classIds));
-    log_message('debug', 'Exam Board ID: ' . ($examBoardId ?? 'null'));
-    
-    $periodModel = new ExamPeriodModel();
-    $period = $periodModel->find($periodId);
-    
-    if (!$period) {
-        log_message('error', 'Período não encontrado no model: ' . $periodId);
-        return false;
-    }
-    
-    log_message('debug', 'Período - start_date: ' . $period->start_date . ', end_date: ' . $period->end_date . ', semester_id: ' . $period->semester_id);
-    
-    $classModel = new ClassModel();
-    $classDisciplineModel = new ClassDisciplineModel();
-    
-    // Get classes
-    if (empty($classIds)) {
-        log_message('debug', 'Buscando todas as turmas do ano letivo: ' . $period->academic_year_id);
-        $classes = $classModel->where('academic_year_id', $period->academic_year_id)
-            ->where('is_active', 1)
-            ->findAll();
-        $classIds = array_column($classes, 'id');
-        log_message('debug', 'Turmas encontradas: ' . json_encode($classIds));
-    }
-    
-    // Default exam board based on period type
-    if (!$examBoardId) {
-        $boardModel = new ExamBoardModel();
-        $boardType = $period->period_type == 'Recurso' ? 'Recurso' : 
-                    ($period->period_type == 'Final' ? 'Final' : 'Normal');
-        log_message('debug', 'Buscando exam board do tipo: ' . $boardType);
-        $board = $boardModel->where('board_type', $boardType)->first();
-        $examBoardId = $board->id ?? 6;
-        log_message('debug', 'Exam Board ID selecionado: ' . $examBoardId);
-    }
-    
-    $schedules = [];
-    $daysBetween = (strtotime($period->end_date) - strtotime($period->start_date)) / (60 * 60 * 24);
-    log_message('debug', 'Dias entre start e end: ' . $daysBetween);
-    
-    $totalSchedules = 0;
-    
-    foreach ($classIds as $classId) {
-        log_message('debug', 'Processando turma ID: ' . $classId);
+    /**
+     * Generate schedule for a period automatically
+     */
+    public function generateForPeriod($periodId, $classIds = [], $examBoardId = null)
+    {
+        log_message('debug', '--- INÍCIO generateForPeriod (Model) ---');
+        log_message('debug', 'Period ID: ' . $periodId);
+        log_message('debug', 'Class IDs: ' . json_encode($classIds));
+        log_message('debug', 'Exam Board ID: ' . ($examBoardId ?? 'null'));
         
-        // Get disciplines for this class
-        $disciplines = $classDisciplineModel
-            ->where('class_id', $classId)
-            ->where('semester_id', $period->semester_id)
-            ->where('is_active', 1)
-            ->findAll();
+        $periodModel = new ExamPeriodModel();
+        $period = $periodModel->find($periodId);
         
-        $disciplineCount = count($disciplines);
-        log_message('debug', 'Disciplinas encontradas para turma ' . $classId . ': ' . $disciplineCount);
-        
-        if ($disciplineCount == 0) {
-            log_message('warning', 'Turma ' . $classId . ' não tem disciplinas - ignorando');
-            continue;
+        if (!$period) {
+            log_message('error', 'Período não encontrado no model: ' . $periodId);
+            return false;
         }
         
-        $interval = $disciplineCount > 0 ? floor($daysBetween / $disciplineCount) : 1;
-        log_message('debug', 'Intervalo entre exames: ' . $interval . ' dias');
+        log_message('debug', 'Período - start_date: ' . $period->start_date . ', end_date: ' . $period->end_date . ', semester_id: ' . $period->semester_id);
         
-        foreach ($disciplines as $index => $cd) {
-            $examDate = date('Y-m-d', strtotime($period->start_date . ' + ' . ($index * $interval) . ' days'));
+        $classModel = new ClassModel();
+        $classDisciplineModel = new ClassDisciplineModel();
+        
+        // Mapear semester_id para period_type
+        $periodType = $this->mapSemesterToPeriodType($period->semester_id);
+        log_message('debug', 'Period type mapeado: ' . $periodType);
+        
+        // Get classes
+        if (empty($classIds)) {
+            log_message('debug', 'Buscando todas as turmas do ano letivo: ' . $period->academic_year_id);
+            $classes = $classModel->where('academic_year_id', $period->academic_year_id)
+                ->where('is_active', 1)
+                ->findAll();
+            $classIds = array_column($classes, 'id');
+            log_message('debug', 'Turmas encontradas: ' . json_encode($classIds));
+        }
+        
+        // Default exam board based on period type
+        if (!$examBoardId) {
+            $boardModel = new ExamBoardModel();
+            $boardType = $period->period_type == 'Recurso' ? 'Recurso' : 
+                        ($period->period_type == 'Final' ? 'Final' : 'Normal');
+            log_message('debug', 'Buscando exam board do tipo: ' . $boardType);
+            $board = $boardModel->where('board_type', $boardType)->first();
+            $examBoardId = $board->id ?? 6;
+            log_message('debug', 'Exam Board ID selecionado: ' . $examBoardId);
+        }
+        
+        $schedules = [];
+        $existingSchedules = [];
+        $duplicates = [];
+        $daysBetween = (strtotime($period->end_date) - strtotime($period->start_date)) / (60 * 60 * 24);
+        log_message('debug', 'Dias entre start e end: ' . $daysBetween);
+        
+        $totalSchedules = 0;
+        
+        // Buscar schedules existentes para evitar duplicatas
+        $existingSchedules = $this->where('exam_period_id', $periodId)
+            ->select('class_id, discipline_id')
+            ->findAll();
+        
+        $existingKeys = [];
+        foreach ($existingSchedules as $existing) {
+            $existingKeys[$existing->class_id . '-' . $existing->discipline_id] = true;
+        }
+        
+        foreach ($classIds as $classId) {
+            log_message('debug', 'Processando turma ID: ' . $classId);
             
-            // Verificar se a data não ultrapassa o fim do período
-            if (strtotime($examDate) > strtotime($period->end_date)) {
-                log_message('warning', 'Data do exame ' . $examDate . ' ultrapassa o fim do período - ajustando');
-                $examDate = $period->end_date;
+            // Get disciplines for this class based on period_type
+            // Primeiro tenta buscar pelo período específico
+            $disciplines = $classDisciplineModel
+                ->where('class_id', $classId)
+                ->where('period_type', $periodType)
+                ->where('is_active', 1)
+                ->findAll();
+            
+            // Se não encontrar e não for anual, tenta buscar disciplinas anuais também
+            if (empty($disciplines) && $periodType !== 'Anual') {
+                log_message('debug', "Nenhuma disciplina encontrada para {$periodType}, buscando disciplinas anuais");
+                $disciplines = $classDisciplineModel
+                    ->where('class_id', $classId)
+                    ->where('period_type', 'Anual')
+                    ->where('is_active', 1)
+                    ->findAll();
             }
             
-            log_message('debug', 'Agendando exame: disciplina_id=' . $cd->discipline_id . ', data=' . $examDate);
+            // Se ainda não encontrou, busca todas as disciplinas ativas da turma
+            if (empty($disciplines)) {
+                log_message('debug', "Buscando todas as disciplinas ativas da turma {$classId}");
+                $disciplines = $classDisciplineModel
+                    ->where('class_id', $classId)
+                    ->where('is_active', 1)
+                    ->findAll();
+            }
             
-            $schedules[] = [
-                'exam_period_id' => $periodId,
-                'class_id' => $classId,
-                'discipline_id' => $cd->discipline_id,
-                'exam_board_id' => $examBoardId,
-                'exam_date' => $examDate,
-                'exam_time' => '08:00:00',
-                'duration_minutes' => 120,
-                'status' => 'Agendado'
-            ];
-            $totalSchedules++;
+            $disciplineCount = count($disciplines);
+            log_message('debug', 'Disciplinas encontradas para turma ' . $classId . ': ' . $disciplineCount);
+            
+            if ($disciplineCount == 0) {
+                log_message('warning', 'Turma ' . $classId . ' não tem disciplinas - ignorando');
+                continue;
+            }
+            
+            $interval = $disciplineCount > 0 ? floor($daysBetween / $disciplineCount) : 1;
+            if ($interval < 1) $interval = 1;
+            log_message('debug', 'Intervalo entre exames: ' . $interval . ' dias');
+            
+            foreach ($disciplines as $index => $cd) {
+                $key = $classId . '-' . $cd->discipline_id;
+                
+                // Verificar se já existe um schedule para esta combinação
+                if (isset($existingKeys[$key])) {
+                    log_message('warning', "Schedule já existe para turma {$classId} e disciplina {$cd->discipline_id} - ignorando");
+                    $duplicates[] = [
+                        'class_id' => $classId,
+                        'discipline_id' => $cd->discipline_id,
+                        'discipline_name' => $cd->discipline_name ?? 'Desconhecida'
+                    ];
+                    continue;
+                }
+                
+                $examDate = date('Y-m-d', strtotime($period->start_date . ' + ' . ($index * $interval) . ' days'));
+                
+                // Verificar se a data não ultrapassa o fim do período
+                if (strtotime($examDate) > strtotime($period->end_date)) {
+                    log_message('warning', 'Data do exame ' . $examDate . ' ultrapassa o fim do período - ajustando');
+                    $examDate = $period->end_date;
+                }
+                
+                log_message('debug', 'Agendando exame: disciplina_id=' . $cd->discipline_id . ', data=' . $examDate);
+                
+                $schedules[] = [
+                    'exam_period_id' => $periodId,
+                    'class_id' => $classId,
+                    'discipline_id' => $cd->discipline_id,
+                    'exam_board_id' => $examBoardId,
+                    'exam_date' => $examDate,
+                    'exam_time' => '08:00:00',
+                    'duration_minutes' => 120,
+                    'status' => 'Agendado'
+                ];
+                $totalSchedules++;
+            }
         }
-    }
-    
-    log_message('debug', 'Total de schedules a inserir: ' . $totalSchedules);
-    
-    if (!empty($schedules)) {
-        log_message('debug', 'Inserindo ' . count($schedules) . ' registros no banco');
-        $result = $this->insertBatch($schedules);
-        log_message('debug', 'Resultado da inserção: ' . ($result ? 'true' : 'false'));
+        
+        log_message('debug', 'Total de novos schedules a inserir: ' . $totalSchedules);
+        log_message('debug', 'Total de duplicatas ignoradas: ' . count($duplicates));
+        
+        if (!empty($schedules)) {
+            log_message('debug', 'Inserindo ' . count($schedules) . ' registros no banco');
+            
+            try {
+                // Usar transação para garantir consistência
+                $this->db->transStart();
+                
+                $result = $this->insertBatch($schedules);
+                
+                $this->db->transComplete();
+                
+                if ($this->db->transStatus() === false) {
+                    log_message('error', 'Falha na transação ao inserir schedules');
+                    return false;
+                }
+                
+                log_message('debug', 'Resultado da inserção: ' . ($result ? 'true' : 'false'));
+                log_message('debug', '--- FIM generateForPeriod (Model) ---');
+                
+                // Se houver duplicatas, registrar mas não como erro
+                if (!empty($duplicates)) {
+                    log_message('info', count($duplicates) . ' schedules duplicados foram ignorados');
+                }
+                
+                return [
+                    'success' => true,
+                    'inserted' => count($schedules),
+                    'duplicates' => count($duplicates),
+                    'duplicate_details' => $duplicates
+                ];
+                
+            } catch (\Exception $e) {
+                log_message('error', 'Erro ao inserir schedules: ' . $e->getMessage());
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'inserted' => 0,
+                    'duplicates' => count($duplicates)
+                ];
+            }
+        }
+        
+        log_message('warning', 'Nenhum novo schedule gerado');
         log_message('debug', '--- FIM generateForPeriod (Model) ---');
-        return $result;
+        
+        return [
+            'success' => true,
+            'inserted' => 0,
+            'duplicates' => count($duplicates),
+            'message' => 'Nenhum novo exame para adicionar. ' . 
+                        (count($duplicates) > 0 ? count($duplicates) . ' registros já existem.' : '')
+        ];
     }
+
+    /**
+     * Mapeia semester_id para period_type
+     */
+    private function mapSemesterToPeriodType($semesterId)
+    {
+        // Mapeamento baseado no seu sistema
+        // Ajuste conforme seus IDs de semestre
+        $semesterMap = [
+            1 => '1º Semestre', // Assumindo que ID 1 é primeiro semestre
+            2 => '2º Semestre', // Assumindo que ID 2 é segundo semestre
+            3 => 'Anual'        // Assumindo que ID 3 é anual
+        ];
+        
+        return $semesterMap[$semesterId] ?? 'Anual';
+    }
+// public function generateForPeriod($periodId, $classIds = [], $examBoardId = null)
+// {
+//     log_message('debug', '--- INÍCIO generateForPeriod (Model) ---');
+//     log_message('debug', 'Period ID: ' . $periodId);
+//     log_message('debug', 'Class IDs: ' . json_encode($classIds));
+//     log_message('debug', 'Exam Board ID: ' . ($examBoardId ?? 'null'));
     
-    log_message('warning', 'Nenhum schedule gerado (schedules vazio)');
-    log_message('debug', '--- FIM generateForPeriod (Model) ---');
-    return false;
-}
+//     $periodModel = new ExamPeriodModel();
+//     $period = $periodModel->find($periodId);
+    
+//     if (!$period) {
+//         log_message('error', 'Período não encontrado no model: ' . $periodId);
+//         return false;
+//     }
+    
+//     log_message('debug', 'Período - start_date: ' . $period->start_date . ', end_date: ' . $period->end_date . ', semester_id: ' . $period->semester_id);
+    
+//     $classModel = new ClassModel();
+//     $classDisciplineModel = new ClassDisciplineModel();
+    
+//     // Get classes
+//     if (empty($classIds)) {
+//         log_message('debug', 'Buscando todas as turmas do ano letivo: ' . $period->academic_year_id);
+//         $classes = $classModel->where('academic_year_id', $period->academic_year_id)
+//             ->where('is_active', 1)
+//             ->findAll();
+//         $classIds = array_column($classes, 'id');
+//         log_message('debug', 'Turmas encontradas: ' . json_encode($classIds));
+//     }
+    
+//     // Default exam board based on period type
+//     if (!$examBoardId) {
+//         $boardModel = new ExamBoardModel();
+//         $boardType = $period->period_type == 'Recurso' ? 'Recurso' : 
+//                     ($period->period_type == 'Final' ? 'Final' : 'Normal');
+//         log_message('debug', 'Buscando exam board do tipo: ' . $boardType);
+//         $board = $boardModel->where('board_type', $boardType)->first();
+//         $examBoardId = $board->id ?? 6;
+//         log_message('debug', 'Exam Board ID selecionado: ' . $examBoardId);
+//     }
+    
+//     $schedules = [];
+//     $daysBetween = (strtotime($period->end_date) - strtotime($period->start_date)) / (60 * 60 * 24);
+//     log_message('debug', 'Dias entre start e end: ' . $daysBetween);
+    
+//     $totalSchedules = 0;
+    
+//     foreach ($classIds as $classId) {
+//         log_message('debug', 'Processando turma ID: ' . $classId);
+        
+//         // Get disciplines for this class
+//         $disciplines = $classDisciplineModel
+//             ->where('class_id', $classId)
+//             ->where('semester_id', $period->semester_id)
+//             ->where('is_active', 1)
+//             ->findAll();
+        
+//         $disciplineCount = count($disciplines);
+//         log_message('debug', 'Disciplinas encontradas para turma ' . $classId . ': ' . $disciplineCount);
+        
+//         if ($disciplineCount == 0) {
+//             log_message('warning', 'Turma ' . $classId . ' não tem disciplinas - ignorando');
+//             continue;
+//         }
+        
+//         $interval = $disciplineCount > 0 ? floor($daysBetween / $disciplineCount) : 1;
+//         log_message('debug', 'Intervalo entre exames: ' . $interval . ' dias');
+        
+//         foreach ($disciplines as $index => $cd) {
+//             $examDate = date('Y-m-d', strtotime($period->start_date . ' + ' . ($index * $interval) . ' days'));
+            
+//             // Verificar se a data não ultrapassa o fim do período
+//             if (strtotime($examDate) > strtotime($period->end_date)) {
+//                 log_message('warning', 'Data do exame ' . $examDate . ' ultrapassa o fim do período - ajustando');
+//                 $examDate = $period->end_date;
+//             }
+            
+//             log_message('debug', 'Agendando exame: disciplina_id=' . $cd->discipline_id . ', data=' . $examDate);
+            
+//             $schedules[] = [
+//                 'exam_period_id' => $periodId,
+//                 'class_id' => $classId,
+//                 'discipline_id' => $cd->discipline_id,
+//                 'exam_board_id' => $examBoardId,
+//                 'exam_date' => $examDate,
+//                 'exam_time' => '08:00:00',
+//                 'duration_minutes' => 120,
+//                 'status' => 'Agendado'
+//             ];
+//             $totalSchedules++;
+//         }
+//     }
+    
+//     log_message('debug', 'Total de schedules a inserir: ' . $totalSchedules);
+    
+//     if (!empty($schedules)) {
+//         log_message('debug', 'Inserindo ' . count($schedules) . ' registros no banco');
+//         $result = $this->insertBatch($schedules);
+//         log_message('debug', 'Resultado da inserção: ' . ($result ? 'true' : 'false'));
+//         log_message('debug', '--- FIM generateForPeriod (Model) ---');
+//         return $result;
+//     }
+    
+//     log_message('warning', 'Nenhum schedule gerado (schedules vazio)');
+//     log_message('debug', '--- FIM generateForPeriod (Model) ---');
+//     return false;
+// }
     
     /**
      * Check for scheduling conflicts

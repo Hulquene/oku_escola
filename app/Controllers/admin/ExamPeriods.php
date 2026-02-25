@@ -208,120 +208,165 @@ public function generateSchedule($periodId)
     return view('admin/exams/periods/generate_schedule', $data);
 }
 
-/**
- * Process the generation of exam schedule (POST)
- */
-public function saveSchedule($periodId)
-{
-    // Log início do processo
-    log_message('debug', '========== INÍCIO saveSchedule ==========');
-    log_message('debug', 'Period ID: ' . $periodId);
-    log_message('debug', 'Request Method: ' . $this->request->getMethod());
-    log_message('debug', 'POST data: ' . json_encode($this->request->getPost()));
-    
-    // Verificar se é POST
-    if (!$this->request->is('post')) {
-        log_message('error', 'Método não é POST: ' . $this->request->getMethod());
-        return redirect()->to('/admin/exams/periods/generate-schedule/' . $periodId)
-            ->with('error', 'Método não permitido.');
-    }
-    
-    $period = $this->examPeriodModel->find($periodId);
-    
-    if (!$period) {
-        log_message('error', 'Período não encontrado: ' . $periodId);
-        return redirect()->to('/admin/exams/periods')
-            ->with('error', 'Período de exame não encontrado.');
-    }
-    
-    log_message('debug', 'Período encontrado: ' . json_encode($period));
-    
-    // Validar dados do formulário
-    $rules = [
-        'exam_board_id' => 'required|numeric'
-    ];
-    
-    if (!$this->validate($rules)) {
-        $errors = $this->validator->getErrors();
-        log_message('error', 'Erros de validação: ' . json_encode($errors));
-        return redirect()->back()
-            ->with('errors', $errors)
-            ->withInput();
-    }
-    
-    $classIds = $this->request->getPost('class_ids') ?: [];
-    $examBoardId = $this->request->getPost('exam_board_id');
-    
-    log_message('debug', 'Class IDs recebidos: ' . json_encode($classIds));
-    log_message('debug', 'Exam Board ID: ' . $examBoardId);
-    
-    // Validar se pelo menos uma turma foi selecionada
-    if (empty($classIds)) {
-        log_message('error', 'Nenhuma turma selecionada');
-        return redirect()->back()
-            ->with('error', 'Selecione pelo menos uma turma para gerar o calendário.')
-            ->withInput();
-    }
-    
-    // Verificar se as turmas têm disciplinas antes de gerar
-    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
-    $turmasSemDisciplinas = [];
-    $turmasComDisciplinas = [];
-    
-    foreach ($classIds as $classId) {
-        $disciplinas = $classDisciplineModel
-            ->where('class_id', $classId)
-            ->where('semester_id', $period->semester_id)
-            ->where('is_active', 1)
-            ->countAllResults();
+    /**
+     * Process the generation of exam schedule (POST)
+     */
+    public function saveSchedule($periodId)
+    {
+        // Log início do processo
+        log_message('debug', '========== INÍCIO saveSchedule ==========');
+        log_message('debug', 'Period ID: ' . $periodId);
+        log_message('debug', 'Request Method: ' . $this->request->getMethod());
+        log_message('debug', 'POST data: ' . json_encode($this->request->getPost()));
         
-        if ($disciplinas == 0) {
-            // Buscar nome da turma
-            $classModel = new \App\Models\ClassModel();
-            $turma = $classModel->find($classId);
-            $turmasSemDisciplinas[] = $turma->class_name . ' (ID: ' . $classId . ')';
-        } else {
-            $turmasComDisciplinas[] = $classId;
+        // Verificar se é POST
+        if (!$this->request->is('post')) {
+            log_message('error', 'Método não é POST: ' . $this->request->getMethod());
+            return redirect()->to('/admin/exams/periods/generate-schedule/' . $periodId)
+                ->with('error', 'Método não permitido.');
         }
-    }
-    
-    // Se todas as turmas não têm disciplinas
-    if (empty($turmasComDisciplinas)) {
-        $mensagem = 'Nenhuma das turmas selecionadas possui disciplinas associadas para este semestre.';
+        
+        $period = $this->examPeriodModel->find($periodId);
+        
+        if (!$period) {
+            log_message('error', 'Período não encontrado: ' . $periodId);
+            return redirect()->to('/admin/exams/periods')
+                ->with('error', 'Período de exame não encontrado.');
+        }
+        
+        log_message('debug', 'Período encontrado: ' . json_encode($period));
+        
+        // Validar dados do formulário
+        $rules = [
+            'exam_board_id' => 'required|numeric'
+        ];
+        
+        if (!$this->validate($rules)) {
+            $errors = $this->validator->getErrors();
+            log_message('error', 'Erros de validação: ' . json_encode($errors));
+            return redirect()->back()
+                ->with('errors', $errors)
+                ->withInput();
+        }
+        
+        $classIds = $this->request->getPost('class_ids') ?: [];
+        $examBoardId = $this->request->getPost('exam_board_id');
+        
+        log_message('debug', 'Class IDs recebidos: ' . json_encode($classIds));
+        log_message('debug', 'Exam Board ID: ' . $examBoardId);
+        
+        // Validar se pelo menos uma turma foi selecionada
+        if (empty($classIds)) {
+            log_message('error', 'Nenhuma turma selecionada');
+            return redirect()->back()
+                ->with('error', 'Selecione pelo menos uma turma para gerar o calendário.')
+                ->withInput();
+        }
+        
+        // Verificar se as turmas têm disciplinas antes de gerar
+        $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+        $turmasSemDisciplinas = [];
+        $turmasComDisciplinas = [];
+        
+        foreach ($classIds as $classId) {
+            $periodType = $this->mapSemesterToPeriodType($period->semester_id);
+            
+            $disciplinas = $classDisciplineModel
+                ->where('class_id', $classId)
+                ->where('period_type', $periodType)
+                ->where('is_active', 1)
+                ->countAllResults();
+            
+            if ($disciplinas == 0 && $periodType !== 'Anual') {
+                $disciplinas = $classDisciplineModel
+                    ->where('class_id', $classId)
+                    ->where('period_type', 'Anual')
+                    ->where('is_active', 1)
+                    ->countAllResults();
+            }
+            
+            if ($disciplinas == 0) {
+                $classModel = new \App\Models\ClassModel();
+                $turma = $classModel->find($classId);
+                $turmasSemDisciplinas[] = $turma->class_name . ' (ID: ' . $classId . ')';
+            } else {
+                $turmasComDisciplinas[] = $classId;
+            }
+        }
+        
+        if (empty($turmasComDisciplinas)) {
+            $mensagem = 'Nenhuma das turmas selecionadas possui disciplinas associadas para este período.';
+            if (!empty($turmasSemDisciplinas)) {
+                $mensagem .= ' Turmas sem disciplinas: ' . implode(', ', $turmasSemDisciplinas);
+            }
+            log_message('error', $mensagem);
+            return redirect()->back()
+                ->with('error', $mensagem)
+                ->withInput();
+        }
+        
         if (!empty($turmasSemDisciplinas)) {
-            $mensagem .= ' Turmas sem disciplinas: ' . implode(', ', $turmasSemDisciplinas);
+            $mensagem = 'Aviso: Algumas turmas não têm disciplinas e serão ignoradas: ' . implode(', ', $turmasSemDisciplinas);
+            log_message('warning', $mensagem);
+            session()->setFlashdata('warning', $mensagem);
         }
-        log_message('error', $mensagem);
-        return redirect()->back()
-            ->with('error', $mensagem)
-            ->withInput();
-    }
-    
-    // Se algumas turmas não têm disciplinas, avisar mas continuar com as que têm
-    if (!empty($turmasSemDisciplinas)) {
-        $mensagem = 'Aviso: Algumas turmas não têm disciplinas e serão ignoradas: ' . implode(', ', $turmasSemDisciplinas);
-        log_message('warning', $mensagem);
-        session()->setFlashdata('warning', $mensagem);
-    }
-    
-    // Gerar calendário apenas para as turmas que têm disciplinas
-    log_message('debug', 'Chamando generateForPeriod com turmas: ' . json_encode($turmasComDisciplinas));
-    
-    $result = $this->examScheduleModel->generateForPeriod($periodId, $turmasComDisciplinas, $examBoardId);
-    
-    log_message('debug', 'Resultado do generateForPeriod: ' . ($result ? 'true' : 'false'));
-    
-    if ($result) {
-        log_message('debug', 'SUCESSO: Calendário gerado');
-        return redirect()->to('/admin/exams/periods/view/' . $periodId)
-            ->with('success', 'Calendário de exames gerado com sucesso para ' . count($turmasComDisciplinas) . ' turmas!');
-    } else {
-        log_message('error', 'ERRO: Falha ao gerar calendário');
+        
+        log_message('debug', 'Chamando generateForPeriod com turmas: ' . json_encode($turmasComDisciplinas));
+        
+        $result = $this->examScheduleModel->generateForPeriod($periodId, $turmasComDisciplinas, $examBoardId);
+        
+        log_message('debug', 'Resultado do generateForPeriod: ' . json_encode($result));
+        
+        if (is_array($result) && isset($result['success'])) {
+            if ($result['success']) {
+                if ($result['inserted'] > 0) {
+                    $mensagem = 'Calendário de exames gerado com sucesso para ' . $result['inserted'] . ' exames';
+                    if ($result['duplicates'] > 0) {
+                        $mensagem .= '. ' . $result['duplicates'] . ' exames já existiam e foram ignorados.';
+                    }
+                    log_message('debug', 'SUCESSO: ' . $mensagem);
+                    return redirect()->to('/admin/exams/periods/view/' . $periodId)
+                        ->with('success', $mensagem);
+                } else {
+                    $mensagem = 'Nenhum novo exame foi gerado. ';
+                    if ($result['duplicates'] > 0) {
+                        $mensagem .= $result['duplicates'] . ' exames já existem para as turmas selecionadas.';
+                    } else {
+                        $mensagem .= 'Verifique se as turmas têm disciplinas associadas.';
+                    }
+                    log_message('warning', $mensagem);
+                    return redirect()->back()
+                        ->with('warning', $mensagem)
+                        ->withInput();
+                }
+            } else {
+                $mensagem = 'Erro ao gerar calendário de exames: ' . ($result['error'] ?? 'Erro desconhecido');
+                log_message('error', $mensagem);
+                return redirect()->back()
+                    ->with('error', $mensagem)
+                    ->withInput();
+            }
+        }
+        
+        log_message('error', 'ERRO: Falha ao gerar calendário - retorno inesperado');
         return redirect()->back()
             ->with('error', 'Erro ao gerar calendário de exames. Verifique se as turmas têm disciplinas associadas.')
             ->withInput();
     }
-}
+
+    /**
+     * Mapeia semester_id para period_type
+     */
+    private function mapSemesterToPeriodType($semesterId)
+    {
+        $semesterMap = [
+            1 => '1º Semestre',
+            2 => '2º Semestre',
+            3 => 'Anual'
+        ];
+        
+        return $semesterMap[$semesterId] ?? 'Anual';
+    }
     /**
  * Start an exam period (change status to 'Em Andamento')
  */
