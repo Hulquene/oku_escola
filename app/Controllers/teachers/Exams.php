@@ -40,274 +40,272 @@ class Exams extends BaseController
     
     /**
      * List exams for the teacher (via exam_schedules)
-     *//**
- * List exams for the teacher (via exam_schedules)
- */
-public function index()
-{
-    $data['title'] = 'Meus Exames';
-    
-    $teacherId = $this->session->get('user_id');
-    
-    $filters = [
-        'class' => $this->request->getGet('class'),
-        'status' => $this->request->getGet('status'),
-        'type' => $this->request->getGet('type'),
-        'board' => $this->request->getGet('board'),
-        'period' => $this->request->getGet('period'),
-        'start_date' => $this->request->getGet('start_date'),
-        'end_date' => $this->request->getGet('end_date'),
-        'has_results' => $this->request->getGet('has_results')
-    ];
-    
-    $builder = $this->examScheduleModel
-        ->select('
-            tbl_exam_schedules.*,
-            tbl_classes.class_name,
-            tbl_disciplines.discipline_name,
-            tbl_exam_boards.board_name,
-            tbl_exam_boards.board_type,
-            tbl_exam_boards.board_code,
-            tbl_exam_periods.period_name,
-            tbl_exam_periods.period_type,
-            (SELECT COUNT(*) FROM tbl_exam_results WHERE exam_schedule_id = tbl_exam_schedules.id) as results_count
-        ')
-        ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
-        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
-        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
-        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-        ->join('tbl_class_disciplines', 'tbl_class_disciplines.class_id = tbl_exam_schedules.class_id AND tbl_class_disciplines.discipline_id = tbl_exam_schedules.discipline_id')
-        ->where('tbl_class_disciplines.teacher_id', $teacherId);
-    
-    if (!empty($filters['class'])) {
-        $builder->where('tbl_exam_schedules.class_id', $filters['class']);
-    }
-    
-    if (!empty($filters['board'])) {
-        $builder->where('tbl_exam_schedules.exam_board_id', $filters['board']);
-    }
-    
-    if (!empty($filters['period'])) {
-        $builder->where('tbl_exam_schedules.exam_period_id', $filters['period']);
-    }
-    
-    if (!empty($filters['type'])) {
-        $builder->where('tbl_exam_boards.board_code', $filters['type']);
-    }
-    
-    if (!empty($filters['start_date'])) {
-        $builder->where('tbl_exam_schedules.exam_date >=', $filters['start_date']);
-    }
-    
-    if (!empty($filters['end_date'])) {
-        $builder->where('tbl_exam_schedules.exam_date <=', $filters['end_date']);
-    }
-    
-    if ($filters['status'] == 'pending') {
-        $builder->where('tbl_exam_schedules.exam_date >=', date('Y-m-d'));
-    } elseif ($filters['status'] == 'completed') {
-        $builder->where('tbl_exam_schedules.exam_date <', date('Y-m-d'));
-    } elseif ($filters['status'] == 'today') {
-        $builder->where('tbl_exam_schedules.exam_date', date('Y-m-d'));
-    }
-    
-    if ($filters['has_results'] == 'yes') {
-        $builder->having('results_count >', 0);
-    } elseif ($filters['has_results'] == 'no') {
-        $builder->having('results_count =', 0);
-    }
-    
-    $data['exams'] = $builder->orderBy('tbl_exam_schedules.exam_date', 'DESC')->findAll();
-    
-    // Classes para filtro
-    $data['classes'] = $this->classDisciplineModel
-        ->select('tbl_classes.id, tbl_classes.class_name')
-        ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
-        ->where('tbl_class_disciplines.teacher_id', $teacherId)
-        ->where('tbl_classes.is_active', 1)
-        ->distinct()
-        ->findAll();
-    
-    // ✅ ADICIONAR: Boards para filtro
-    $data['boards'] = $this->examBoardModel
-        ->where('is_active', 1)
-        ->findAll();
-    
-    // ✅ ADICIONAR: Períodos para filtro
-    $currentYear = model('App\Models\AcademicYearModel')->getCurrent();
-    if ($currentYear) {
-        $data['periods'] = $this->examPeriodModel
-            ->where('academic_year_id', $currentYear->id)
-            ->orderBy('start_date', 'DESC')
-            ->findAll();
-    } else {
-        $data['periods'] = [];
-    }
-    
-    // ✅ ADICIONAR: Estatísticas para os cards
-    $data['totalExams'] = count($data['exams']);
-    
-    $data['pendingCount'] = 0;
-    $data['todayCount'] = 0;
-    $data['withResultsCount'] = 0;
-    
-    foreach ($data['exams'] as $exam) {
-        if ($exam->exam_date >= date('Y-m-d')) {
-            $data['pendingCount']++;
-        }
-        if ($exam->exam_date == date('Y-m-d')) {
-            $data['todayCount']++;
-        }
-        if (($exam->results_count ?? 0) > 0) {
-            $data['withResultsCount']++;
-        }
-    }
-    
-    // Tipos de exame para filtro
-    $data['examTypes'] = [
-        'AC' => 'Avaliação Contínua (MAC)',
-        'NPP' => 'Prova do Professor (NPP)',
-        'NPT' => 'Prova Trimestral (NPT)',
-        'E' => 'Exame Final (E)'
-    ];
-    
-    $data['filters'] = $filters;
-    $data['selectedClass'] = $filters['class'];
-    $data['selectedStatus'] = $filters['status'];
-    $data['selectedType'] = $filters['type'];
-    
-    return view('teachers/exams/index', $data);
-}
-    /**
- * Form to create/edit exam
- */
-public function form($id = null)
-{
-    $data['title'] = $id ? 'Editar Exame' : 'Novo Exame';
-    
-    // Buscar exame se for edição
-    if ($id) {
-        $data['exam'] = $this->examScheduleModel
+     */
+    public function index()
+    {
+        $data['title'] = 'Meus Exames';
+        
+        $teacherId = $this->session->get('user_id');
+        
+        $filters = [
+            'class' => $this->request->getGet('class'),
+            'status' => $this->request->getGet('status'),
+            'type' => $this->request->getGet('type'),
+            'board' => $this->request->getGet('board'),
+            'period' => $this->request->getGet('period'),
+            'start_date' => $this->request->getGet('start_date'),
+            'end_date' => $this->request->getGet('end_date'),
+            'has_results' => $this->request->getGet('has_results')
+        ];
+        
+        $builder = $this->examScheduleModel
             ->select('
                 tbl_exam_schedules.*,
                 tbl_classes.class_name,
-                tbl_disciplines.discipline_name
+                tbl_disciplines.discipline_name,
+                tbl_exam_boards.board_name,
+                tbl_exam_boards.board_type,
+                tbl_exam_boards.board_code,
+                tbl_exam_periods.period_name,
+                tbl_exam_periods.period_type,
+                (SELECT COUNT(*) FROM tbl_exam_results WHERE exam_schedule_id = tbl_exam_schedules.id) as results_count
             ')
             ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
-            ->where('tbl_exam_schedules.id', $id)
-            ->first();
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+            ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+            ->join('tbl_class_disciplines', 'tbl_class_disciplines.class_id = tbl_exam_schedules.class_id AND tbl_class_disciplines.discipline_id = tbl_exam_schedules.discipline_id')
+            ->where('tbl_class_disciplines.teacher_id', $teacherId);
         
-        if (!$data['exam']) {
-            return redirect()->to('/teachers/exams')->with('error', 'Exame não encontrado');
+        if (!empty($filters['class'])) {
+            $builder->where('tbl_exam_schedules.class_id', $filters['class']);
         }
-    } else {
-        $data['exam'] = null;
-    }
-    
-    $teacherId = $this->session->get('user_id');
-    
-    // Get teacher's classes (ativas)
-    $data['classes'] = $this->classDisciplineModel
-        ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
-        ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
-        ->where('tbl_class_disciplines.teacher_id', $teacherId)
-        ->where('tbl_classes.is_active', 1)
-        ->distinct()
-        ->findAll();
-    
-    // Get exam boards
-    $data['boards'] = $this->examBoardModel
-        ->where('is_active', 1)
-        ->findAll();
-    
-    // Get exam periods (ativos)
-    $currentYear = model('App\Models\AcademicYearModel')->getCurrent();
-    if ($currentYear) {
-        $data['periods'] = $this->examPeriodModel
-            ->where('academic_year_id', $currentYear->id)
-            ->where('status', 'Planejado')
-            ->orderBy('start_date', 'ASC')
-            ->findAll();
-    } else {
-        $data['periods'] = [];
-    }
-    
-    return view('teachers/exams/form', $data);
-}
-/**
- * Save exam
- */
-public function save()
-{
-    $id = $this->request->getPost('id');
-    
-    // Regras de validação
-    $rules = [
-        'exam_name' => 'required|min_length[3]|max_length[255]',
-        'class_id' => 'required|numeric',
-        'discipline_id' => 'required|numeric',
-        'exam_board_id' => 'required|numeric',
-        'exam_period_id' => 'required|numeric',
-        'exam_date' => 'required|valid_date'
-    ];
-    
-    if (!$this->validate($rules)) {
-        return redirect()->back()->withInput()
-            ->with('errors', $this->validator->getErrors());
-    }
-    
-    $data = [
-        'exam_period_id' => $this->request->getPost('exam_period_id'),
-        'class_id' => $this->request->getPost('class_id'),
-        'discipline_id' => $this->request->getPost('discipline_id'),
-        'exam_board_id' => $this->request->getPost('exam_board_id'),
-        'exam_date' => $this->request->getPost('exam_date'),
-        'exam_time' => $this->request->getPost('exam_time') ?: null,
-        'exam_room' => $this->request->getPost('exam_room') ?: null,
-        'duration_minutes' => $this->request->getPost('duration_minutes') ?: 120,
-        'max_score' => $this->request->getPost('max_score') ?: 20,
-        'approval_score' => 10,
-        'observations' => $this->request->getPost('observations'),
-        'status' => 'Agendado'
-    ];
-    
-    // Adicionar nome do exame se não for gerado automaticamente
-    if (empty($data['exam_name'])) {
-        // Buscar nome da disciplina e turma
-        $class = $this->classModel->find($data['class_id']);
-        $discipline = $this->disciplineModel->find($data['discipline_id']);
-        $board = $this->examBoardModel->find($data['exam_board_id']);
         
-        $data['exam_name'] = $board->board_name . ' - ' . 
-                            ($discipline->discipline_name ?? '') . ' - ' . 
-                            ($class->class_name ?? '');
-    } else {
-        $data['exam_name'] = $this->request->getPost('exam_name');
+        if (!empty($filters['board'])) {
+            $builder->where('tbl_exam_schedules.exam_board_id', $filters['board']);
+        }
+        
+        if (!empty($filters['period'])) {
+            $builder->where('tbl_exam_schedules.exam_period_id', $filters['period']);
+        }
+        
+        if (!empty($filters['type'])) {
+            $builder->where('tbl_exam_boards.board_code', $filters['type']);
+        }
+        
+        if (!empty($filters['start_date'])) {
+            $builder->where('tbl_exam_schedules.exam_date >=', $filters['start_date']);
+        }
+        
+        if (!empty($filters['end_date'])) {
+            $builder->where('tbl_exam_schedules.exam_date <=', $filters['end_date']);
+        }
+        
+        if ($filters['status'] == 'pending') {
+            $builder->where('tbl_exam_schedules.exam_date >=', date('Y-m-d'));
+        } elseif ($filters['status'] == 'completed') {
+            $builder->where('tbl_exam_schedules.exam_date <', date('Y-m-d'));
+        } elseif ($filters['status'] == 'today') {
+            $builder->where('tbl_exam_schedules.exam_date', date('Y-m-d'));
+        }
+        
+        if ($filters['has_results'] == 'yes') {
+            $builder->having('results_count >', 0);
+        } elseif ($filters['has_results'] == 'no') {
+            $builder->having('results_count =', 0);
+        }
+        
+        $data['exams'] = $builder->orderBy('tbl_exam_schedules.exam_date', 'DESC')->findAll();
+        
+        // Classes para filtro
+        $data['classes'] = $this->classDisciplineModel
+            ->select('tbl_classes.id, tbl_classes.class_name')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
+            ->where('tbl_class_disciplines.teacher_id', $teacherId)
+            ->where('tbl_classes.is_active', 1)
+            ->distinct()
+            ->findAll();
+        
+        // ✅ ADICIONAR: Boards para filtro
+        $data['boards'] = $this->examBoardModel
+            ->where('is_active', 1)
+            ->findAll();
+        
+        // ✅ ADICIONAR: Períodos para filtro
+        $currentYear = model('App\Models\AcademicYearModel')->getCurrent();
+        if ($currentYear) {
+            $data['periods'] = $this->examPeriodModel
+                ->where('academic_year_id', $currentYear->id)
+                ->orderBy('start_date', 'DESC')
+                ->findAll();
+        } else {
+            $data['periods'] = [];
+        }
+        
+        // ✅ ADICIONAR: Estatísticas para os cards
+        $data['totalExams'] = count($data['exams']);
+        
+        $data['pendingCount'] = 0;
+        $data['todayCount'] = 0;
+        $data['withResultsCount'] = 0;
+        
+        foreach ($data['exams'] as $exam) {
+            if ($exam->exam_date >= date('Y-m-d')) {
+                $data['pendingCount']++;
+            }
+            if ($exam->exam_date == date('Y-m-d')) {
+                $data['todayCount']++;
+            }
+            if (($exam->results_count ?? 0) > 0) {
+                $data['withResultsCount']++;
+            }
+        }
+        
+        // Tipos de exame para filtro
+        $data['examTypes'] = [
+            'AC' => 'Avaliação Contínua (MAC)',
+            'NPP' => 'Prova do Professor (NPP)',
+            'NPT' => 'Prova Trimestral (NPT)',
+            'E' => 'Exame Final (E)'
+        ];
+        
+        $data['filters'] = $filters;
+        $data['selectedClass'] = $filters['class'];
+        $data['selectedStatus'] = $filters['status'];
+        $data['selectedType'] = $filters['type'];
+        
+        return view('teachers/exams/index', $data);
     }
-    
-    $db = db_connect();
-    $db->transStart();
-    
-    if ($id) {
-        // Atualizar
-        $this->examScheduleModel->update($id, $data);
-        $message = 'Exame atualizado com sucesso';
-    } else {
-        // Inserir
-        $this->examScheduleModel->insert($data);
-        $message = 'Exame criado com sucesso';
+        /**
+     * Form to create/edit exam
+     */
+    public function form($id = null)
+    {
+        $data['title'] = $id ? 'Editar Exame' : 'Novo Exame';
+        
+        // Buscar exame se for edição
+        if ($id) {
+            $data['exam'] = $this->examScheduleModel
+                ->select('
+                    tbl_exam_schedules.*,
+                    tbl_classes.class_name,
+                    tbl_disciplines.discipline_name
+                ')
+                ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+                ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+                ->where('tbl_exam_schedules.id', $id)
+                ->first();
+            
+            if (!$data['exam']) {
+                return redirect()->to('/teachers/exams')->with('error', 'Exame não encontrado');
+            }
+        } else {
+            $data['exam'] = null;
+        }
+        
+        $teacherId = $this->session->get('user_id');
+        
+        // Get teacher's classes (ativas)
+        $data['classes'] = $this->classDisciplineModel
+            ->select('tbl_classes.id, tbl_classes.class_name, tbl_classes.class_code')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_class_disciplines.class_id')
+            ->where('tbl_class_disciplines.teacher_id', $teacherId)
+            ->where('tbl_classes.is_active', 1)
+            ->distinct()
+            ->findAll();
+        
+        // Get exam boards
+        $data['boards'] = $this->examBoardModel
+            ->where('is_active', 1)
+            ->findAll();
+        
+        // Get exam periods (ativos)
+        $currentYear = model('App\Models\AcademicYearModel')->getCurrent();
+        if ($currentYear) {
+            $data['periods'] = $this->examPeriodModel
+                ->where('academic_year_id', $currentYear->id)
+                ->where('status', 'Planejado')
+                ->orderBy('start_date', 'ASC')
+                ->findAll();
+        } else {
+            $data['periods'] = [];
+        }
+        
+        return view('teachers/exams/form', $data);
     }
-    
-    $db->transComplete();
-    
-    if ($db->transStatus()) {
-        return redirect()->to('/teachers/exams')->with('success', $message);
-    } else {
-        return redirect()->back()->withInput()
-            ->with('error', 'Erro ao salvar exame');
+    /**
+     * Save exam
+     */
+    public function save()
+    {
+        $id = $this->request->getPost('id');
+        
+        // Regras de validação
+        $rules = [
+            'exam_name' => 'required|min_length[3]|max_length[255]',
+            'class_id' => 'required|numeric',
+            'discipline_id' => 'required|numeric',
+            'exam_board_id' => 'required|numeric',
+            'exam_period_id' => 'required|numeric',
+            'exam_date' => 'required|valid_date'
+        ];
+        
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()
+                ->with('errors', $this->validator->getErrors());
+        }
+        
+        $data = [
+            'exam_period_id' => $this->request->getPost('exam_period_id'),
+            'class_id' => $this->request->getPost('class_id'),
+            'discipline_id' => $this->request->getPost('discipline_id'),
+            'exam_board_id' => $this->request->getPost('exam_board_id'),
+            'exam_date' => $this->request->getPost('exam_date'),
+            'exam_time' => $this->request->getPost('exam_time') ?: null,
+            'exam_room' => $this->request->getPost('exam_room') ?: null,
+            'duration_minutes' => $this->request->getPost('duration_minutes') ?: 120,
+            'max_score' => $this->request->getPost('max_score') ?: 20,
+            'approval_score' => 10,
+            'observations' => $this->request->getPost('observations'),
+            'status' => 'Agendado'
+        ];
+        
+        // Adicionar nome do exame se não for gerado automaticamente
+        if (empty($data['exam_name'])) {
+            // Buscar nome da disciplina e turma
+            $class = $this->classModel->find($data['class_id']);
+            $discipline = $this->disciplineModel->find($data['discipline_id']);
+            $board = $this->examBoardModel->find($data['exam_board_id']);
+            
+            $data['exam_name'] = $board->board_name . ' - ' . 
+                                ($discipline->discipline_name ?? '') . ' - ' . 
+                                ($class->class_name ?? '');
+        } else {
+            $data['exam_name'] = $this->request->getPost('exam_name');
+        }
+        
+        $db = db_connect();
+        $db->transStart();
+        
+        if ($id) {
+            // Atualizar
+            $this->examScheduleModel->update($id, $data);
+            $message = 'Exame atualizado com sucesso';
+        } else {
+            // Inserir
+            $this->examScheduleModel->insert($data);
+            $message = 'Exame criado com sucesso';
+        }
+        
+        $db->transComplete();
+        
+        if ($db->transStatus()) {
+            return redirect()->to('/teachers/exams')->with('success', $message);
+        } else {
+            return redirect()->back()->withInput()
+                ->with('error', 'Erro ao salvar exame');
+        }
     }
-}
     
     /**
      * View exam results
