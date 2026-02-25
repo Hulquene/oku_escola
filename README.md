@@ -173,6 +173,9 @@ cd oku_escola
 
 
 
+sudo apt install php-intl php-mbstring
+sudo apt install php8.3-mysql
+
 
 Instale as dependências via Composer
 
