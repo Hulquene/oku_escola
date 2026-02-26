@@ -243,4 +243,31 @@ class NotificationModel extends BaseModel
         
         return $notification;
     }
+    /**
+ * Create notifications for specific users
+ */
+public function createForSpecificUsers($userType, $data, $userIds)
+{
+    if (empty($userIds)) return false;
+    
+    $notifications = [];
+    $now = date('Y-m-d H:i:s');
+    
+    foreach ($userIds as $userId) {
+        $notifications[] = [
+            'user_id' => $userId,
+            'user_type' => $userType,
+            'title' => $data['title'],
+            'message' => $data['message'],
+            'type' => $data['type'] ?? 'info',
+            'icon' => $data['icon'] ?? 'fa-bell',
+            'color' => $data['color'] ?? 'primary',
+            'link' => $data['link'] ?? null,
+            'is_read' => 0,
+            'created_at' => $now
+        ];
+    }
+    
+    return $this->insertBatch($notifications);
+}
 }

@@ -14,6 +14,8 @@ use App\Models\GradeLevelModel;
 use App\Models\DisciplineAverageModel;
 use App\Models\SemesterResultModel;
 use App\Models\AcademicHistoryModel;
+use App\Models\ExamResultModel; 
+use App\Models\ClassDisciplineModel;
 
 class AcademicRecords extends BaseController
 {
@@ -28,6 +30,8 @@ class AcademicRecords extends BaseController
     protected $disciplineAverageModel;
     protected $semesterResultModel;
     protected $academicHistoryModel;
+    protected $examResultModel;
+    protected $classDisciplineModel; 
     
     public function __construct()
     {
@@ -42,6 +46,8 @@ class AcademicRecords extends BaseController
         $this->disciplineAverageModel = new DisciplineAverageModel();
         $this->semesterResultModel = new SemesterResultModel();
         $this->academicHistoryModel = new AcademicHistoryModel();
+        $this->examResultModel = new ExamResultModel(); 
+        $this->classDisciplineModel = new ClassDisciplineModel(); 
         
         helper('auth');
         helper('number');
@@ -252,158 +258,592 @@ class AcademicRecords extends BaseController
         return view('admin/academic-records/index', $data);
     }
     
-    /**
-     * Visualizar pauta de uma turma específica
-     */
-    public function class($classId)
-    {
-        $data['title'] = 'Pauta da Turma';
+/**
+ * Visualizar pauta de uma turma específica
+ */
+/* public function class($classId)
+{
+    $data['title'] = 'Pauta da Turma';
+    
+    // Buscar informações da turma
+    $data['class'] = $this->classModel
+        ->select('
+            tbl_classes.*,
+            tbl_grade_levels.level_name,
+            tbl_courses.course_name,
+            tbl_courses.course_code,
+            tbl_academic_years.year_name,
+            tbl_users.first_name as teacher_first_name,
+            tbl_users.last_name as teacher_last_name
+        ')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
+        ->where('tbl_classes.id', $classId)
+        ->first();
+    
+    if (!$data['class']) {
+        return redirect()->to('/admin/academic-records')
+            ->with('error', 'Turma não encontrada');
+    }
+    
+    // Buscar semestre atual ou o selecionado
+    $semesterId = $this->request->getGet('semester');
+    if (!$semesterId) {
+        $currentSemester = $this->semesterModel->getCurrent();
+        $semesterId = $currentSemester ? $currentSemester->id : null;
+    }
+    
+    $data['selectedSemester'] = $semesterId;
+    
+    // Buscar semestres do ano letivo
+    $data['semesters'] = $this->semesterModel
+        ->where('academic_year_id', $data['class']->academic_year_id)
+        ->whereIn('status', ['ativo', 'processado'])
+        ->orderBy('start_date', 'ASC')
+        ->findAll();
+    
+    // Buscar informações do semestre selecionado - CORREÇÃO AQUI
+    $selectedSemester = $this->semesterModel->find($semesterId);
+    
+    // Determinar o period_type baseado no semestre selecionado
+    $periodType = 'Anual'; // valor padrão
+    
+    if ($selectedSemester) {
+        // Converter para objeto se for array
+        $semesterObj = is_array($selectedSemester) ? (object)$selectedSemester : $selectedSemester;
         
-        // Buscar informações da turma
-        $data['class'] = $this->classModel
-            ->select('
-                tbl_classes.*,
-                tbl_grade_levels.level_name,
-                tbl_courses.course_name,
-                tbl_courses.course_code,
-                tbl_academic_years.year_name,
-                tbl_users.first_name as teacher_first_name,
-                tbl_users.last_name as teacher_last_name
-            ')
-            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
-            ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
-            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-            ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
-            ->where('tbl_classes.id', $classId)
-            ->first();
+        $semesterType = $semesterObj->semester_type ?? '';
         
-        if (!$data['class']) {
-            return redirect()->to('/admin/academic-records')
-                ->with('error', 'Turma não encontrada');
-        }
+        $periodTypeMap = [
+            '1º Trimestre' => '1º Semestre',
+            '2º Trimestre' => '2º Semestre',
+            '3º Trimestre' => 'Anual',
+            '1º Semestre' => '1º Semestre',
+            '2º Semestre' => '2º Semestre'
+        ];
         
-        // Buscar semestre atual ou o selecionado
-        $semesterId = $this->request->getGet('semester');
-        if (!$semesterId) {
-            $currentSemester = $this->semesterModel->getCurrent();
-            $semesterId = $currentSemester ? $currentSemester->id : null;
-        }
+        $periodType = $periodTypeMap[$semesterType] ?? 'Anual';
+    }
+    
+    // Buscar disciplinas da turma para este período
+    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+    $data['disciplines'] = $classDisciplineModel
+        ->select('
+            tbl_disciplines.id,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.discipline_code
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.is_active', 1)
+        ->groupStart()
+            ->where('tbl_class_disciplines.period_type', $periodType)
+            ->orWhere('tbl_class_disciplines.period_type', 'Anual')
+        ->groupEnd()
+        ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+        ->findAll();
+    
+    // Buscar alunos da turma
+    $enrollments = $this->enrollmentModel
+        ->select('
+            tbl_enrollments.id as enrollment_id,
+            tbl_students.id as student_id,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            tbl_users.email,
+            tbl_students.student_number,
+            tbl_enrollments.final_result,
+            tbl_enrollments.final_average
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_enrollments.class_id', $classId)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    // Para cada aluno, buscar médias disciplinares
+    foreach ($enrollments as $student) {
+        $student->grades = [];
+        $totalMedia = 0;
+        $disciplinasCount = 0;
         
-        $data['selectedSemester'] = $semesterId;
-        
-        // Buscar semestres do ano letivo
-        $data['semesters'] = $this->semesterModel
-            ->where('academic_year_id', $data['class']->academic_year_id)
-            ->where('is_active', 1)
-            ->orderBy('start_date', 'ASC')
-            ->findAll();
-        
-        // Buscar disciplinas da turma para este semestre
-        $classDisciplineModel = new \App\Models\ClassDisciplineModel();
-        $data['disciplines'] = $classDisciplineModel
-            ->select('
-                tbl_disciplines.id,
-                tbl_disciplines.discipline_name,
-                tbl_disciplines.discipline_code
-            ')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
-            ->where('tbl_class_disciplines.class_id', $classId)
-            ->where('tbl_class_disciplines.semester_id', $semesterId)
-            ->where('tbl_class_disciplines.is_active', 1)
-            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
-            ->findAll();
-        
-        // Buscar alunos da turma
-        $enrollments = $this->enrollmentModel
-            ->select('
-                tbl_enrollments.id as enrollment_id,
-                tbl_students.id as student_id,
-                tbl_users.first_name,
-                tbl_users.last_name,
-                tbl_users.email,
-                tbl_students.student_number,
-                tbl_enrollments.final_result,
-                tbl_enrollments.final_average
-            ')
-            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-            ->where('tbl_enrollments.class_id', $classId)
-            ->where('tbl_enrollments.status', 'Ativo')
-            ->orderBy('tbl_users.first_name', 'ASC')
-            ->findAll();
-        
-        // Para cada aluno, buscar médias disciplinares
-        foreach ($enrollments as $student) {
-            $student->grades = [];
-            $totalMedia = 0;
-            $disciplinasCount = 0;
-            
-            foreach ($data['disciplines'] as $discipline) {
-                // Buscar média da disciplina usando o novo model
-                $avg = $this->disciplineAverageModel
-                    ->where('enrollment_id', $student->enrollment_id)
-                    ->where('discipline_id', $discipline->id)
-                    ->where('semester_id', $semesterId)
-                    ->first();
-                
-                if ($avg) {
-                    $student->grades[$discipline->id] = [
-                        'ac_score' => $avg->ac_score,
-                        'exam_score' => $avg->exam_score,
-                        'final_score' => $avg->final_score,
-                        'status' => $avg->status
-                    ];
-                    
-                    $totalMedia += $avg->final_score;
-                    $disciplinasCount++;
-                } else {
-                    $student->grades[$discipline->id] = null;
-                }
-            }
-            
-            $student->overall_average = $disciplinasCount > 0 ? 
-                round($totalMedia / $disciplinasCount, 2) : 0;
-            
-            // Buscar resultado semestral
-            $semesterResult = $this->semesterResultModel
+        foreach ($data['disciplines'] as $discipline) {
+            // Buscar média da disciplina usando o novo model
+            $avg = $this->disciplineAverageModel
                 ->where('enrollment_id', $student->enrollment_id)
+                ->where('discipline_id', $discipline->id)
                 ->where('semester_id', $semesterId)
                 ->first();
             
-            if ($semesterResult) {
-                $student->final_result = $semesterResult->status;
-                $student->overall_average = $semesterResult->overall_average;
+            if ($avg) {
+                $student->grades[$discipline->id] = [
+                    'ac_score' => $avg->ac_score,
+                    'exam_score' => $avg->exam_score,
+                    'final_score' => $avg->final_score,
+                    'status' => $avg->status
+                ];
+                
+                $totalMedia += $avg->final_score;
+                $disciplinasCount++;
             } else {
-                $student->final_result = 'Em Andamento';
+                $student->grades[$discipline->id] = null;
             }
         }
         
-        $data['students'] = $enrollments;
+        $student->overall_average = $disciplinasCount > 0 ? 
+            round($totalMedia / $disciplinasCount, 2) : 0;
         
-        // Calcular estatísticas da turma
-        $totalAprovados = 0;
-        $totalRecurso = 0;
-        $totalReprovados = 0;
-        $totalAlunos = count($enrollments);
+        // Buscar resultado semestral
+        $semesterResult = $this->semesterResultModel
+            ->where('enrollment_id', $student->enrollment_id)
+            ->where('semester_id', $semesterId)
+            ->first();
         
-        foreach ($enrollments as $student) {
-            if ($student->final_result == 'Aprovado') $totalAprovados++;
-            elseif ($student->final_result == 'Recurso') $totalRecurso++;
-            elseif ($student->final_result == 'Reprovado') $totalReprovados++;
+        if ($semesterResult) {
+            $student->final_result = $semesterResult->status;
+            $student->overall_average = $semesterResult->overall_average;
+        } else {
+            $student->final_result = 'Em Andamento';
         }
-        
-        $data['stats'] = [
-            'total' => $totalAlunos,
-            'aprovados' => $totalAprovados,
-            'recurso' => $totalRecurso,
-            'reprovados' => $totalReprovados,
-            'aprovacao' => $totalAlunos > 0 ? 
-                round(($totalAprovados / $totalAlunos) * 100, 1) : 0
-        ];
-        
-        return view('admin/academic-records/class', $data);
     }
     
+    $data['students'] = $enrollments;
+    
+    // Calcular estatísticas da turma
+    $totalAprovados = 0;
+    $totalRecurso = 0;
+    $totalReprovados = 0;
+    $totalAlunos = count($enrollments);
+    
+    foreach ($enrollments as $student) {
+        if ($student->final_result == 'Aprovado') $totalAprovados++;
+        elseif ($student->final_result == 'Recurso') $totalRecurso++;
+        elseif ($student->final_result == 'Reprovado') $totalReprovados++;
+    }
+    
+    $data['stats'] = [
+        'total' => $totalAlunos,
+        'aprovados' => $totalAprovados,
+        'recurso' => $totalRecurso,
+        'reprovados' => $totalReprovados,
+        'aprovacao' => $totalAlunos > 0 ? 
+            round(($totalAprovados / $totalAlunos) * 100, 1) : 0
+    ];
+    
+    return view('admin/academic-records/class', $data);
+} */
+
+    /**
+ * Visualizar pauta de uma turma específica (modelo pauta final)
+ */
+public function class($classId)
+{
+    $data['title'] = 'Pauta da Turma';
+    
+    // Buscar informações da turma
+    $data['class'] = $this->classModel
+        ->select('
+            tbl_classes.*,
+            tbl_grade_levels.level_name,
+            tbl_courses.course_name,
+            tbl_courses.course_code,
+            tbl_academic_years.year_name,
+            tbl_users.first_name as teacher_first_name,
+            tbl_users.last_name as teacher_last_name
+        ')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
+        ->where('tbl_classes.id', $classId)
+        ->first();
+    
+    if (!$data['class']) {
+        return redirect()->to('/admin/academic-records')
+            ->with('error', 'Turma não encontrada');
+    }
+    
+    // Buscar todas as disciplinas da turma (para exibir no cabeçalho)
+    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+    $data['disciplines'] = $classDisciplineModel
+        ->select('
+            tbl_class_disciplines.*,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.discipline_code
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.is_active', 1)
+        ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+        ->findAll();
+    
+    // Buscar alunos da turma
+    $enrollments = $this->enrollmentModel
+        ->select('
+            tbl_enrollments.id as enrollment_id,
+            tbl_enrollments.final_result,
+            tbl_enrollments.final_average,
+            tbl_students.id as student_id,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_enrollments.class_id', $classId)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    // Para cada aluno, buscar médias por disciplina e trimestre
+    foreach ($enrollments as $student) {
+        $student->disciplinas = [];
+        $totalFinalScore = 0;
+        $disciplinasCount = 0;
+        
+        foreach ($data['disciplines'] as $discipline) {
+            // Buscar notas da disciplina por trimestre
+            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline->id);
+            
+            $student->disciplinas[$discipline->id] = $notas;
+            
+            // Somar para média geral
+            if ($notas['mfd'] !== null && $notas['mfd'] > 0) {
+                $totalFinalScore += $notas['mfd'];
+                $disciplinasCount++;
+            }
+        }
+        
+        // Calcular média final do aluno (MFD geral)
+        $student->media_final_geral = $disciplinasCount > 0 ? 
+            round($totalFinalScore / $disciplinasCount, 2) : 0;
+        
+        // Determinar resultado final (Transita ou Não Transita)
+        // No sistema angolano, normalmente precisa ter média >= 10 em todas as disciplinas
+        // ou critérios específicos definidos pela escola
+        $student->resultado_final = $this->determinarResultadoFinal($student->disciplinas);
+    }
+    
+    $data['students'] = $enrollments;
+    
+    return view('admin/academic-records/class', $data);
+}
+
+/**
+ * Buscar notas de uma disciplina por trimestre
+ */
+private function getDisciplineTrimestralScores($enrollmentId, $disciplineId)
+{
+    // Buscar resultados da disciplina para todos os trimestres
+    $results = $this->examResultModel
+        ->select('
+            tbl_exam_results.*,
+            tbl_exam_schedules.exam_date,
+            tbl_exam_periods.semester_id,
+            tbl_semesters.semester_type,
+            tbl_semesters.semester_name,
+            tbl_exam_boards.board_code
+        ')
+        ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+        ->join('tbl_semesters', 'tbl_semesters.id = tbl_exam_periods.semester_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+        ->where('tbl_exam_results.enrollment_id', $enrollmentId)
+        ->where('tbl_exam_schedules.discipline_id', $disciplineId)
+        ->orderBy('tbl_semesters.start_date', 'ASC')
+        ->findAll();
+    
+    // Mapear trimestres
+    $trimestres = [
+        1 => ['notas' => [], 'mt' => null],
+        2 => ['notas' => [], 'mt' => null],
+        3 => ['notas' => [], 'mt' => null]
+    ];
+    
+    $semesterMap = [
+        '1º Trimestre' => 1,
+        '2º Trimestre' => 2,
+        '3º Trimestre' => 3,
+        '1º Semestre' => 1,
+        '2º Semestre' => 2
+    ];
+    
+    // Agrupar notas por trimestre
+    foreach ($results as $result) {
+        $trimestre = $semesterMap[$result->semester_type] ?? 1;
+        
+        if (!isset($trimestres[$trimestre]['notas'][$result->board_code])) {
+            $trimestres[$trimestre]['notas'][$result->board_code] = [];
+        }
+        
+        $trimestres[$trimestre]['notas'][$result->board_code][] = $result->score;
+    }
+    
+    // Calcular médias por trimestre
+    $somaMFD = 0;
+    $trimestresComMateria = 0;
+    
+    for ($t = 1; $t <= 3; $t++) {
+        $notas = $trimestres[$t]['notas'];
+        
+        // Calcular média do trimestre (MT)
+        $notasTrimestre = [];
+        
+        if (isset($notas['AC']) && !empty($notas['AC'])) {
+            $trimestres[$t]['ac'] = round(array_sum($notas['AC']) / count($notas['AC']), 1);
+            $notasTrimestre[] = $trimestres[$t]['ac'];
+        } else {
+            $trimestres[$t]['ac'] = null;
+        }
+        
+        if (isset($notas['NPP']) && !empty($notas['NPP'])) {
+            $trimestres[$t]['npp'] = round(array_sum($notas['NPP']) / count($notas['NPP']), 1);
+            $notasTrimestre[] = $trimestres[$t]['npp'];
+        } else {
+            $trimestres[$t]['npp'] = null;
+        }
+        
+        if (isset($notas['NPT']) && !empty($notas['NPT'])) {
+            $trimestres[$t]['npt'] = round(array_sum($notas['NPT']) / count($notas['NPT']), 1);
+            $notasTrimestre[] = $trimestres[$t]['npt'];
+        } else {
+            $trimestres[$t]['npt'] = null;
+        }
+        
+        // Calcular MT (média do trimestre) - só considera se tiver as 3 notas
+        if (count($notasTrimestre) == 3) {
+            $trimestres[$t]['mt'] = round(array_sum($notasTrimestre) / 3, 1);
+            $somaMFD += $trimestres[$t]['mt'];
+            $trimestresComMateria++;
+        } else {
+            $trimestres[$t]['mt'] = null;
+        }
+    }
+    
+    // Calcular MFD (Média Final da Disciplina)
+    $mfd = $trimestresComMateria == 3 ? round($somaMFD / 3, 1) : null;
+    
+    return [
+        'trimestre1' => [
+            'ac' => $trimestres[1]['ac'],
+            'npp' => $trimestres[1]['npp'],
+            'npt' => $trimestres[1]['npt'],
+            'mt' => $trimestres[1]['mt']
+        ],
+        'trimestre2' => [
+            'ac' => $trimestres[2]['ac'],
+            'npp' => $trimestres[2]['npp'],
+            'npt' => $trimestres[2]['npt'],
+            'mt' => $trimestres[2]['mt']
+        ],
+        'trimestre3' => [
+            'ac' => $trimestres[3]['ac'],
+            'npp' => $trimestres[3]['npp'],
+            'npt' => $trimestres[3]['npt'],
+            'mt' => $trimestres[3]['mt']
+        ],
+        'mfd' => $mfd
+    ];
+}
+
+/**
+ * Determinar resultado final do aluno (Transita/Não Transita)
+ */
+private function determinarResultadoFinal($disciplinas)
+{
+    if (empty($disciplinas)) {
+        return 'Sem dados';
+    }
+    
+    $disciplinasAprovadas = 0;
+    $totalDisciplinas = count($disciplinas);
+    
+    foreach ($disciplinas as $discId => $notas) {
+        // Considera aprovado se MFD >= 10
+        if (isset($notas['mfd']) && $notas['mfd'] >= 10) {
+            $disciplinasAprovadas++;
+        }
+    }
+    
+    // Critério: precisa ter MFD >= 10 em todas as disciplinas
+    if ($disciplinasAprovadas == $totalDisciplinas) {
+        return 'Transita';
+    } else {
+        return 'Não Transita';
+    }
+}
+/**
+ * Exportar pauta final para Excel
+ */
+public function exportFinal($classId)
+{
+    // Buscar dados da turma
+    $class = $this->classModel
+        ->select('
+            tbl_classes.*,
+            tbl_grade_levels.level_name,
+            tbl_courses.course_name,
+            tbl_academic_years.year_name
+        ')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->find($classId);
+    
+    if (!$class) {
+        return redirect()->back()->with('error', 'Turma não encontrada');
+    }
+    
+    // Buscar disciplinas
+    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+    $disciplines = $classDisciplineModel
+        ->select('
+            tbl_disciplines.id,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.discipline_code
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.is_active', 1)
+        ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+        ->findAll();
+    
+    // Buscar alunos e notas
+    $enrollments = $this->enrollmentModel
+        ->select('
+            tbl_enrollments.id as enrollment_id,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_enrollments.class_id', $classId)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    // Preparar dados para Excel
+    $dados = [];
+    foreach ($enrollments as $student) {
+        $row = [
+            'nome' => $student->first_name . ' ' . $student->last_name,
+            'numero' => $student->student_number
+        ];
+        
+        foreach ($disciplines as $disc) {
+            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $disc->id);
+            
+            $row['disc_' . $disc->id . '_m1'] = $notas['trimestre1']['mt'] ?? '';
+            $row['disc_' . $disc->id . '_mt2'] = $notas['trimestre2']['mt'] ?? '';
+            $row['disc_' . $disc->id . '_mt3'] = $notas['trimestre3']['mt'] ?? '';
+            $row['disc_' . $disc->id . '_mfd'] = $notas['mfd'] ?? '';
+        }
+        
+        $row['resultado'] = $this->determinarResultadoFinal([$student->enrollment_id => []]); // Simplificado
+        
+        $dados[] = $row;
+    }
+    
+    // Gerar Excel
+    return $this->gerarExcelFinal($class, $disciplines, $dados);
+}
+
+/**
+ * Gerar arquivo Excel da pauta final
+ */
+private function gerarExcelFinal($class, $disciplines, $dados)
+{
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+    
+    // Título
+    $sheet->setCellValue('A1', 'MAPA DE AVALIAÇÃO FINAL - ' . strtoupper($class->year_name));
+    $sheet->mergeCells('A1:' . $this->getColumnLetter(2 + (count($disciplines) * 4)) . '1');
+    $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+    
+    // Informações
+    $sheet->setCellValue('A2', 'Curso: ' . ($class->course_name ?? 'Ensino Geral'));
+    $sheet->setCellValue('A3', 'Classe: ' . $class->level_name . ' - Turma: ' . $class->class_name);
+    
+    // Cabeçalho
+    $sheet->setCellValue('A5', 'Nº');
+    $sheet->setCellValue('B5', 'NOME COMPLETO');
+    
+    $col = 'C';
+    foreach ($disciplines as $disc) {
+        $sheet->setCellValue($col . '5', $disc->discipline_name);
+        $sheet->mergeCells($col . '5:' . $this->getColumnLetter($this->getColumnNumber($col) + 3) . '5');
+        
+        $sheet->setCellValue($col . '6', 'M1');
+        $col = $this->getNextColumn($col);
+        $sheet->setCellValue($col . '6', 'MT2');
+        $col = $this->getNextColumn($col);
+        $sheet->setCellValue($col . '6', 'MT3');
+        $col = $this->getNextColumn($col);
+        $sheet->setCellValue($col . '6', 'MFD');
+        $col = $this->getNextColumn($col);
+    }
+    
+    $sheet->setCellValue($col . '5', 'RESULTADO');
+    $sheet->mergeCells($col . '5:' . $col . '6');
+    
+    // Dados
+    $row = 7;
+    $counter = 1;
+    foreach ($dados as $item) {
+        $sheet->setCellValue('A' . $row, $counter++);
+        $sheet->setCellValue('B' . $row, $item['nome']);
+        
+        $col = 'C';
+        foreach ($disciplines as $disc) {
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_m1']);
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_mt2']);
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_mt3']);
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_mfd']);
+        }
+        
+        $sheet->setCellValue($col++ . $row, $item['resultado']);
+        $row++;
+    }
+    
+    // Estilo
+    $sheet->getStyle('A5:' . $col . '6')->getFont()->setBold(true);
+    $sheet->getStyle('A5:' . $col . ($row - 1))->getBorders()->getAllBorders()
+        ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+    
+    // Ajustar largura
+    foreach (range('A', $col) as $columnID) {
+        $sheet->getColumnDimension($columnID)->setAutoSize(true);
+    }
+    
+    // Download
+    $filename = 'pauta_final_' . $class->class_code . '_' . date('Ymd') . '.xlsx';
+    
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="' . $filename . '"');
+    
+    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
+
+// Funções auxiliares para Excel
+private function getColumnNumber($col)
+{
+    return \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($col);
+}
+
+private function getNextColumn($col)
+{
+    return \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(
+        \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($col) + 1
+    );
+}
     /**
      * Visualizar histórico de um aluno
      */
@@ -661,92 +1101,117 @@ class AcademicRecords extends BaseController
         return view('admin/academic-records/certificate', $data);
     }
     
-    /**
-     * Exportar pauta para Excel
-     */
-    public function export()
-    {
-        $classId = $this->request->getGet('class');
-        $semesterId = $this->request->getGet('semester');
+/**
+ * Exportar pauta para Excel
+ */
+public function export()
+{
+    $classId = $this->request->getGet('class');
+    $semesterId = $this->request->getGet('semester');
+    
+    if (!$classId || !$semesterId) {
+        return redirect()->back()
+            ->with('error', 'Turma e semestre são obrigatórios para exportação');
+    }
+    
+    // Buscar informações da turma
+    $class = $this->classModel
+        ->select('
+            tbl_classes.*,
+            tbl_grade_levels.level_name,
+            tbl_academic_years.year_name
+        ')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->where('tbl_classes.id', $classId)
+        ->first();
+    
+    if (!$class) {
+        return redirect()->back()->with('error', 'Turma não encontrada');
+    }
+    
+    $semester = $this->semesterModel->find($semesterId);
+    if (!$semester) {
+        return redirect()->back()->with('error', 'Semestre não encontrado');
+    }
+    
+    // CORREÇÃO: Converter para objeto se for array
+    $semesterObj = is_array($semester) ? (object)$semester : $semester;
+    
+    // Mapear semester_type para period_type
+    $periodTypeMap = [
+        '1º Trimestre' => '1º Semestre',
+        '2º Trimestre' => '2º Semestre',
+        '3º Trimestre' => 'Anual',
+        '1º Semestre' => '1º Semestre',
+        '2º Semestre' => '2º Semestre'
+    ];
+    
+    $periodType = $periodTypeMap[$semesterObj->semester_type] ?? 'Anual';
+    
+    // Buscar disciplinas da turma para este período
+    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+    $disciplines = $classDisciplineModel
+        ->select('
+            tbl_disciplines.id,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.discipline_code
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.is_active', 1)
+        ->groupStart()
+            ->where('tbl_class_disciplines.period_type', $periodType)
+            ->orWhere('tbl_class_disciplines.period_type', 'Anual')
+        ->groupEnd()
+        ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+        ->findAll();
+    
+    // Buscar alunos e suas médias
+    $students = $this->enrollmentModel
+        ->select('
+            tbl_enrollments.id as enrollment_id,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_enrollments.class_id', $classId)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    $data = [];
+    foreach ($students as $student) {
+        $row = [
+            'student_number' => $student->student_number,
+            'student_name' => $student->first_name . ' ' . $student->last_name
+        ];
         
-        if (!$classId || !$semesterId) {
-            return redirect()->back()
-                ->with('error', 'Turma e semestre são obrigatórios para exportação');
-        }
-        
-        // Buscar informações da turma
-        $class = $this->classModel
-            ->select('
-                tbl_classes.*,
-                tbl_grade_levels.level_name,
-                tbl_academic_years.year_name
-            ')
-            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
-            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-            ->find($classId);
-        
-        $semester = $this->semesterModel->find($semesterId);
-        
-        // Buscar disciplinas
-        $classDisciplineModel = new \App\Models\ClassDisciplineModel();
-        $disciplines = $classDisciplineModel
-            ->select('
-                tbl_disciplines.id,
-                tbl_disciplines.discipline_name,
-                tbl_disciplines.discipline_code
-            ')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
-            ->where('tbl_class_disciplines.class_id', $classId)
-            ->where('tbl_class_disciplines.semester_id', $semesterId)
-            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
-            ->findAll();
-        
-        // Buscar alunos e suas médias
-        $students = $this->enrollmentModel
-            ->select('
-                tbl_enrollments.id as enrollment_id,
-                tbl_students.student_number,
-                tbl_users.first_name,
-                tbl_users.last_name
-            ')
-            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-            ->where('tbl_enrollments.class_id', $classId)
-            ->where('tbl_enrollments.status', 'Ativo')
-            ->orderBy('tbl_users.first_name', 'ASC')
-            ->findAll();
-        
-        $data = [];
-        foreach ($students as $student) {
-            $row = [
-                'student_number' => $student->student_number,
-                'student_name' => $student->first_name . ' ' . $student->last_name
-            ];
-            
-            foreach ($disciplines as $disc) {
-                $avg = $this->disciplineAverageModel
-                    ->where('enrollment_id', $student->enrollment_id)
-                    ->where('discipline_id', $disc->id)
-                    ->where('semester_id', $semesterId)
-                    ->first();
-                
-                $row['disc_' . $disc->id] = $avg ? $avg->final_score : '';
-            }
-            
-            $result = $this->semesterResultModel
+        foreach ($disciplines as $disc) {
+            $avg = $this->disciplineAverageModel
                 ->where('enrollment_id', $student->enrollment_id)
+                ->where('discipline_id', $disc->id)
                 ->where('semester_id', $semesterId)
                 ->first();
             
-            $row['average'] = $result ? $result->overall_average : 0;
-            $row['status'] = $result ? $result->status : 'Em Andamento';
-            
-            $data[] = $row;
+            $row['disc_' . $disc->id] = $avg ? $avg->final_score : '';
         }
         
-        return $this->exportToExcel($class, $semester, $disciplines, $data);
+        $result = $this->semesterResultModel
+            ->where('enrollment_id', $student->enrollment_id)
+            ->where('semester_id', $semesterId)
+            ->first();
+        
+        $row['average'] = $result ? $result->overall_average : 0;
+        $row['status'] = $result ? $result->status : 'Em Andamento';
+        
+        $data[] = $row;
     }
     
+    return $this->exportToExcel($class, $semesterObj, $disciplines, $data);
+}
     /**
      * Exportar para Excel
      */

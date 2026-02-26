@@ -397,13 +397,6 @@ CREATE TABLE `tbl_enrollments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Adicionar campos para controle de resultado final
-/* 
-ADD COLUMN 
-ADD INDEX `idx_final_result` (`final_result`); 
-
-/* 
-ADD CONSTRAINT `fk_enrollments_course` FOREIGN KEY (`course_id`) REFERENCES `tbl_courses` (`id`) ON DELETE SET NULL; */
-
 
 
 CREATE TABLE `tbl_enrollment_documents` (
@@ -1241,6 +1234,7 @@ CREATE TABLE IF NOT EXISTS `tbl_exam_schedules` (
     `approval_score` DECIMAL(5,2) DEFAULT '10.00',
     `observations` TEXT,
     `status` ENUM('Agendado','Realizado','Cancelado','Adiado') DEFAULT 'Agendado',
+    `completed_at` DATETIME NULL DEFAULT NULL,
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -1254,7 +1248,6 @@ CREATE TABLE IF NOT EXISTS `tbl_exam_schedules` (
     CONSTRAINT `fk_exam_schedules_discipline` FOREIGN KEY (`discipline_id`) REFERENCES `tbl_disciplines` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_exam_schedules_board` FOREIGN KEY (`exam_board_id`) REFERENCES `tbl_exam_boards` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 -- 2.4. Histórico de presenças em exames

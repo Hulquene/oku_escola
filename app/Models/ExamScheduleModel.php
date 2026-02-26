@@ -502,5 +502,15 @@ public function updateStatus($id, $status, $userId = null)
     
     return $result;
 }
+/**
+ * Mark exam as completed
+ */
+public function markAsCompleted($examScheduleId)
+{
+    return $this->update($examScheduleId, [
+        'status' => 'Realizado',
+        'completed_at' => date('Y-m-d H:i:s')
+    ]);
+}
 
 }

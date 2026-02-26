@@ -364,14 +364,22 @@ class Exams extends BaseController
         return view('teachers/exams/results', $data);
     }
     
-    /**
-     * Grade exam - show form to enter grades
-     */
-   /**
+/**
  * Grade exam - show form to enter grades
  */
 public function grade($examScheduleId)
 {
+    $exam = $this->examScheduleModel->find($examScheduleId);
+    if (!$exam) {
+        return redirect()->back()->with('error', 'Exame não encontrado');
+    }
+    
+    // ✅ VERIFICAR SE O EXAME JÁ FOI REALIZADO
+    if ($exam->status === 'Realizado') {
+        return redirect()->to('/teachers/exams/results/' . $examScheduleId)
+            ->with('info', 'Este exame já foi realizado. Visualize os resultados abaixo.');
+    }
+
     $data['exam'] = $this->examScheduleModel
         ->select('
             tbl_exam_schedules.*,
@@ -390,7 +398,7 @@ public function grade($examScheduleId)
         return redirect()->to('/teachers/exams')->with('error', 'Exame não encontrado');
     }
     
-    // ✅ ADICIONAR: Definir approval_score se não existir
+    // Definir approval_score se não existir
     if (!isset($data['exam']->approval_score) || $data['exam']->approval_score === null) {
         $data['exam']->approval_score = 10; // Valor padrão
     }
@@ -415,7 +423,7 @@ public function grade($examScheduleId)
         $data['results'][$result->enrollment_id] = $result;
     }
     
-    // ✅ NOVO: Buscar presenças do exame
+    // Buscar presenças do exame
     $attendanceModel = new \App\Models\ExamAttendanceModel();
     $attendances = $attendanceModel->getByExam($examScheduleId);
     
@@ -424,24 +432,23 @@ public function grade($examScheduleId)
         $data['attendances'][$attendance->enrollment_id] = $attendance;
     }
     
-    // ✅ NOVO: Estatísticas
+    // Estatísticas
     $data['totalStudents'] = count($data['students']);
     $data['totalWithScores'] = count($results);
     $data['attendanceStats'] = $attendanceModel->getStats($examScheduleId);
     
     return view('teachers/exams/grade', $data);
 }
-    
     /**
-     * Save grades
+     * Save grades and attendance
      */
     public function saveGrades()
     {
         $examScheduleId = $this->request->getPost('exam_schedule_id');
         $scores = $this->request->getPost('scores') ?? [];
-        $absences = $this->request->getPost('absences') ?? [];
+        $attendance = $this->request->getPost('attendance') ?? [];
         
-        if (!$examScheduleId || empty($scores)) {
+        if (!$examScheduleId) {
             return redirect()->back()->with('error', 'Dados incompletos');
         }
         
@@ -450,41 +457,79 @@ public function grade($examScheduleId)
             return redirect()->back()->with('error', 'Exame não encontrado');
         }
         
+        // ✅ BUSCAR O ASSESSMENT_TYPE DA TABELA exam_boards
+        $boardModel = new \App\Models\ExamBoardModel();
+        $board = $boardModel->find($exam->exam_board_id);
+        $assessmentType = $board ? $board->board_code : 'AC'; // Fallback para 'AC' se não encontrar
+        
         $db = db_connect();
         $db->transStart();
         
+        $attendanceModel = new \App\Models\ExamAttendanceModel();
+        $recordedBy = $this->session->get('user_id');
+        
         foreach ($scores as $enrollmentId => $score) {
-            $data = [
+            // Determinar se o aluno está presente (checkbox marcado = ausente)
+            $isAbsent = isset($attendance[$enrollmentId]) ? 1 : 0;
+            
+            // Se ausente, nota deve ser 0
+            $finalScore = $isAbsent ? 0 : ($score !== '' ? $score : null);
+            
+            // ✅ Salvar/Atualizar nota COM assessment_type
+            $resultData = [
                 'exam_schedule_id' => $examScheduleId,
                 'enrollment_id' => $enrollmentId,
-                'score' => $score !== '' ? $score : null,
-                'is_absent' => isset($absences[$enrollmentId]) ? 1 : 0,
-                'recorded_by' => $this->session->get('user_id')
+                'assessment_type' => $assessmentType, // ✅ NOVO: tipo de avaliação do board
+                'score' => $finalScore,
+                'is_absent' => $isAbsent,
+                'recorded_by' => $recordedBy
             ];
             
-            // Verificar se já existe
             $existing = $this->examResultModel
                 ->where('exam_schedule_id', $examScheduleId)
                 ->where('enrollment_id', $enrollmentId)
                 ->first();
             
             if ($existing) {
-                $this->examResultModel->update($existing->id, $data);
+                $this->examResultModel->update($existing->id, $resultData);
             } else {
-                $this->examResultModel->insert($data);
+                $this->examResultModel->insert($resultData);
+            }
+            
+            // Salvar/Atualizar presença
+            $attendanceData = [
+                'exam_schedule_id' => $examScheduleId,
+                'enrollment_id' => $enrollmentId,
+                'attended' => $isAbsent ? 0 : 1,
+                'check_in_time' => $isAbsent ? null : date('Y-m-d H:i:s'),
+                'check_in_method' => 'Manual',
+                'recorded_by' => $recordedBy
+            ];
+            
+            $existingAttendance = $attendanceModel
+                ->where('exam_schedule_id', $examScheduleId)
+                ->where('enrollment_id', $enrollmentId)
+                ->first();
+            
+            if ($existingAttendance) {
+                $attendanceModel->update($existingAttendance->id, $attendanceData);
+            } else {
+                $attendanceModel->insert($attendanceData);
             }
         }
+
+        // Após salvar as notas e presenças, atualizar status do exame para "Realizado"
+        $this->examScheduleModel->markAsCompleted($examScheduleId);
         
         $db->transComplete();
         
         if ($db->transStatus()) {
             return redirect()->to('/teachers/exams/grade/' . $examScheduleId)
-                ->with('success', 'Notas salvas com sucesso');
+                ->with('success', 'Notas e presenças salvas com sucesso');
         } else {
-            return redirect()->back()->with('error', 'Erro ao salvar notas');
+            return redirect()->back()->with('error', 'Erro ao salvar notas e presenças');
         }
     }
-    
     /**
      * Get disciplines for a class (AJAX)
      */

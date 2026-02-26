@@ -1,5 +1,5 @@
 <?php
-// app/Controllers/teachers/Notifications.php
+// app/Controllers/students/Notifications.php
 
 namespace App\Controllers\students;
 
@@ -9,29 +9,68 @@ use App\Models\NotificationModel;
 class Notifications extends BaseController
 {
     protected $notificationModel;
+    protected $currentUser;
     
     public function __construct()
     {
         $this->notificationModel = new NotificationModel();
+        
+        // Verificar se é aluno
+        if (session()->get('user_type') != 'student') {
+            return redirect()->to('/login')->with('error', 'Acesso não autorizado');
+        }
+        
+        // Carregar dados do usuário atual
+        $this->currentUser = (object)[
+            'id' => session()->get('user_id'),
+            'name' => session()->get('name'),
+            'email' => session()->get('email'),
+            'user_type' => session()->get('user_type')
+        ];
     }
     
     public function index()
     {
-        $data['title'] = 'Notificações';
+        $data['title'] = 'Minhas Notificações';
+        
         $data['notifications'] = $this->notificationModel
             ->where('user_id', $this->currentUser->id)
             ->orderBy('created_at', 'DESC')
+            ->orderBy('is_read', 'ASC')
             ->paginate(20);
         
         $data['pager'] = $this->notificationModel->pager;
         
-        return view('teachers/notifications/index', $data);
+        // Contar não lidas
+        $data['unreadCount'] = $this->notificationModel
+            ->where('user_id', $this->currentUser->id)
+            ->where('is_read', 0)
+            ->countAllResults();
+        
+        return view('students/notifications/index', $data);
     }
     
     public function read($id)
     {
+        // Verificar se a notificação pertence ao usuário
+        $notification = $this->notificationModel
+            ->where('id', $id)
+            ->where('user_id', $this->currentUser->id)
+            ->first();
+        
+        if (!$notification) {
+            return redirect()->to('/students/notifications')
+                ->with('error', 'Notificação não encontrada.');
+        }
+        
         $this->notificationModel->markAsRead($id, $this->currentUser->id);
-        return redirect()->to('/teachers/notifications');
+        
+        // Redirecionar para o link da notificação se existir
+        if (!empty($notification->link)) {
+            return redirect()->to($notification->link);
+        }
+        
+        return redirect()->to('/students/notifications');
     }
     
     public function markAllRead()

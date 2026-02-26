@@ -11,6 +11,7 @@ use App\Models\ExamBoardModel;
 use App\Models\ExamAttendanceModel;
 use App\Models\ExamResultModel;
 use App\Models\EnrollmentModel;
+use App\Models\NotificationModel;
 
 class ExamSchedules extends BaseController
 {
@@ -22,6 +23,7 @@ class ExamSchedules extends BaseController
     protected $examAttendanceModel;
     protected $examResultModel;
     protected $enrollmentModel;
+    protected $notificationModel;
     
     public function __construct()
     {
@@ -33,6 +35,7 @@ class ExamSchedules extends BaseController
         $this->examAttendanceModel = new ExamAttendanceModel();
         $this->examResultModel = new ExamResultModel();
         $this->enrollmentModel = new EnrollmentModel();
+        $this->notificationModel = new NotificationModel();
     }
     
     /**
@@ -40,6 +43,12 @@ class ExamSchedules extends BaseController
      */
     public function index()
     {
+        // Verificar permissão
+        if (!can('exam_schedules.list')) {
+            return redirect()->to('/admin/dashboard')
+                ->with('error', 'Não tem permissão para ver a lista de calendários de exames.');
+        }
+        
         $data['title'] = 'Calendário de Exames';
         
         $periodId = $this->request->getGet('period_id');
@@ -53,7 +62,8 @@ class ExamSchedules extends BaseController
                 tbl_classes.class_name,
                 tbl_disciplines.discipline_name,
                 tbl_exam_boards.board_name,
-                tbl_exam_boards.board_type
+                tbl_exam_boards.board_type,
+                tbl_exam_boards.board_code
             ')
             ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
             ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
@@ -80,6 +90,9 @@ class ExamSchedules extends BaseController
         $data['periods'] = $this->examPeriodModel->findAll();
         $data['classes'] = $this->classModel->where('is_active', 1)->findAll();
         
+        // Log de visualização
+        log_view('exam_schedules', null, 'Visualizou lista de calendários de exames');
+        
         return view('admin/exams/schedules/index', $data);
     }
     
@@ -88,6 +101,12 @@ class ExamSchedules extends BaseController
      */
     public function create()
     {
+        // Verificar permissão
+        if (!can('exam_schedules.create')) {
+            return redirect()->to('/admin/exams/schedules')
+                ->with('error', 'Não tem permissão para criar calendários de exames.');
+        }
+        
         $data['title'] = 'Agendar Exame';
         
         if ($this->request->getMethod() === 'post') {
@@ -126,6 +145,14 @@ class ExamSchedules extends BaseController
                 ];
                 
                 if ($this->examScheduleModel->insert($data)) {
+                    $scheduleId = $this->examScheduleModel->getInsertID();
+                    
+                    // Log de inserção
+                    log_insert('exam_schedule', $scheduleId, 'Criou novo agendamento de exame');
+                    
+                    // Notificar professores
+                    $this->notifyTeachers($scheduleId, 'Novo exame agendado');
+                    
                     return redirect()->to('/admin/exams/schedules')
                         ->with('success', 'Exame agendado com sucesso!');
                 } else {
@@ -146,11 +173,18 @@ class ExamSchedules extends BaseController
         
         return view('admin/exams/schedules/form', $data);
     }
+    
    /**
  * Edit exam schedule
  */
 public function edit($id)
 {
+    // Verificar permissão
+    if (!can('exam_schedules.edit')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para editar calendários de exames.');
+    }
+    
     $data['schedule'] = $this->examScheduleModel
         ->select('
             tbl_exam_schedules.*,
@@ -203,6 +237,9 @@ public function edit($id)
             ];
             
             if ($this->examScheduleModel->update($id, $updateData)) {
+                // Log de atualização
+                log_update('exam_schedule', $id, 'Atualizou agendamento de exame');
+                
                 return redirect()->to('/admin/exams/schedules')
                     ->with('success', 'Agendamento atualizado com sucesso!');
             } else {
@@ -223,11 +260,18 @@ public function edit($id)
     
     return view('admin/exams/schedules/form', $data);
 }
+
 /**
  * Display attendance form
  */
 public function attendance($id)
 {
+    // Verificar permissão
+    if (!can('exams.attendance')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para registar presenças em exames.');
+    }
+    
     $data['schedule'] = $this->examScheduleModel
         ->select('
             tbl_exam_schedules.*,
@@ -307,11 +351,18 @@ public function attendance($id)
     
     return view('admin/exams/schedules/attendance', $data);
 }
+
 /**
  * Save exam attendance
  */
 public function saveAttendance($id)
 {
+    // Verificar permissão
+    if (!can('exams.attendance')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para registar presenças em exames.');
+    }
+    
     $schedule = $this->examScheduleModel->find($id);
     
     if (!$schedule) {
@@ -375,6 +426,9 @@ public function saveAttendance($id)
             $totalStudents = count($attendanceData);
             $message = "Presenças registadas com sucesso! {$presentCount} de {$totalStudents} alunos presentes.";
             
+            // Log de ação
+            log_action('attendance', "Registou presenças para exame ID {$id}: {$presentCount} presentes de {$totalStudents} alunos", $id, 'exam_schedule');
+            
             if ($action === 'save_and_return') {
                 return redirect()->to('/admin/exams/schedules/view/' . $id)
                     ->with('success', $message);
@@ -388,11 +442,18 @@ public function saveAttendance($id)
     return redirect()->back()->withInput()
         ->with('error', 'Nenhum dado de presença foi processado.');
 }
+ 
  /**
  * Display exam results form
  */
 public function results($id)
 {
+    // Verificar permissão
+    if (!can('exams.enter_grades')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para registar notas de exames.');
+    }
+    
     $data['schedule'] = $this->examScheduleModel
         ->select('
             tbl_exam_schedules.*,
@@ -400,6 +461,7 @@ public function results($id)
             tbl_disciplines.discipline_name,
             tbl_exam_boards.board_name,
             tbl_exam_boards.board_type,
+            tbl_exam_boards.board_code,
             tbl_exam_boards.weight,
             tbl_exam_periods.period_name
         ')
@@ -451,14 +513,18 @@ public function results($id)
     
     return view('admin/exams/schedules/results', $data);
 }
-/**
- * Save exam results
- */
+
 /**
  * Save exam results
  */
 public function saveResults($id)
 {
+    // Verificar permissão
+    if (!can('exams.enter_grades')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para registar notas de exames.');
+    }
+    
     log_message('debug', '=== INÍCIO saveResults ===');
     log_message('debug', 'ID recebido: ' . $id);
     
@@ -470,12 +536,16 @@ public function saveResults($id)
             ->with('error', 'Agendamento não encontrado.');
     }
     
+    // ✅ Buscar o board para obter o assessment_type
+    $board = $this->examBoardModel->find($schedule->exam_board_id);
+    $assessmentType = $board ? $board->board_code : 'AC';
+    
     $scores = $this->request->getPost('scores') ?? [];
     $action = $this->request->getPost('action');
     
     log_message('debug', 'Dados recebidos - scores: ' . json_encode($scores));
     log_message('debug', 'Action: ' . ($action ?? 'null'));
-    log_message('debug', 'POST completo: ' . json_encode($_POST));
+    log_message('debug', 'Assessment Type: ' . $assessmentType);
     
     if (empty($scores)) {
         log_message('error', 'Nenhuma nota recebida');
@@ -515,6 +585,7 @@ public function saveResults($id)
             $resultsData[] = [
                 'exam_schedule_id' => $id,
                 'enrollment_id' => $enrollmentId,
+                'assessment_type' => $assessmentType, // ✅ NOVO: tipo de avaliação do board
                 'score' => $scoreValue,
                 'is_absent' => 0,
                 'recorded_by' => session()->get('user_id')
@@ -561,6 +632,12 @@ public function saveResults($id)
             
             log_message('debug', 'Transação completada com sucesso');
             
+            // Log de ação
+            log_action('grades', "Registou notas para exame ID {$id}: {$totalStudents} alunos, média {$average}", $id, 'exam_schedule');
+            
+            // Notificar alunos
+            $this->notifyStudents($id, 'Notas do exame publicadas');
+            
             if ($action === 'save_and_return') {
                 return redirect()->to('/admin/exam-schedules/view/' . $id)
                     ->with('success', $message);
@@ -580,11 +657,18 @@ public function saveResults($id)
     return redirect()->back()->withInput()
         ->with('error', 'Nenhuma nota válida foi processada.');
 } 
+ 
     /**
      * View exam schedule details
      */
     public function view($id)
     {
+        // Verificar permissão
+        if (!can('exam_schedules.view')) {
+            return redirect()->to('/admin/exams/schedules')
+                ->with('error', 'Não tem permissão para ver detalhes de calendários de exames.');
+        }
+        
         $data['schedule'] = $this->examScheduleModel
             ->select('
                 tbl_exam_schedules.*,
@@ -594,6 +678,7 @@ public function saveResults($id)
                 tbl_disciplines.discipline_code,
                 tbl_exam_boards.board_name,
                 tbl_exam_boards.board_type,
+                tbl_exam_boards.board_code,
                 tbl_exam_boards.weight,
                 tbl_exam_periods.period_name,
                 tbl_exam_periods.period_type,
@@ -634,6 +719,9 @@ public function saveResults($id)
             ->where('tbl_exam_results.exam_schedule_id', $id)
             ->findAll();
         
+        // Log de visualização
+        log_view('exam_schedule', $id, 'Visualizou detalhes do exame');
+        
         return view('admin/exams/schedules/view', $data);
     }
     
@@ -642,6 +730,12 @@ public function saveResults($id)
      */
     public function delete($id)
     {
+        // Verificar permissão
+        if (!can('exam_schedules.delete')) {
+            return redirect()->to('/admin/exams/schedules')
+                ->with('error', 'Não tem permissão para eliminar calendários de exames.');
+        }
+        
         // Check if there are results or attendance
         $hasResults = $this->examResultModel->where('exam_schedule_id', $id)->countAllResults() > 0;
         $hasAttendance = $this->examAttendanceModel->where('exam_schedule_id', $id)->countAllResults() > 0;
@@ -652,6 +746,9 @@ public function saveResults($id)
         }
         
         if ($this->examScheduleModel->delete($id)) {
+            // Log de eliminação
+            log_delete('exam_schedule', $id, 'Eliminou agendamento de exame');
+            
             return redirect()->to('/admin/exams/schedules')
                 ->with('success', 'Exame removido com sucesso!');
         } else {
@@ -686,6 +783,12 @@ public function saveResults($id)
  */
 public function save()
 {
+    // Verificar permissão
+    if (!can('exam_schedules.create')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para criar calendários de exames.');
+    }
+    
     $rules = [
         'exam_period_id' => 'required|numeric',
         'class_id' => 'required|numeric',
@@ -721,6 +824,14 @@ public function save()
         ];
         
         if ($this->examScheduleModel->insert($data)) {
+            $scheduleId = $this->examScheduleModel->getInsertID();
+            
+            // Log de inserção
+            log_insert('exam_schedule', $scheduleId, 'Criou novo agendamento de exame');
+            
+            // Notificar professores
+            $this->notifyTeachers($scheduleId, 'Novo exame agendado');
+            
             return redirect()->to('/admin/exams/schedules')
                 ->with('success', 'Exame agendado com sucesso!');
         } else {
@@ -740,6 +851,12 @@ public function save()
  */
 public function update($id)
 {
+    // Verificar permissão
+    if (!can('exam_schedules.edit')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para editar calendários de exames.');
+    }
+    
     $schedule = $this->examScheduleModel->find($id);
     
     if (!$schedule) {
@@ -782,6 +899,9 @@ public function update($id)
         ];
         
         if ($this->examScheduleModel->update($id, $updateData)) {
+            // Log de atualização
+            log_update('exam_schedule', $id, 'Atualizou agendamento de exame');
+            
             return redirect()->to('/admin/exams/schedules')
                 ->with('success', 'Agendamento atualizado com sucesso!');
         } else {
@@ -795,6 +915,7 @@ public function update($id)
             ->withInput();
     }
 }
+
 /**
  * Get calendar events for FullCalendar
  * 
@@ -802,6 +923,11 @@ public function update($id)
  */
 public function getCalendarEvents()
 {
+    // Verificar permissão (qualquer utilizador com acesso ao calendário)
+    if (!can('exams.calendar') && !can('calendar.view')) {
+        return $this->response->setJSON([]);
+    }
+    
     // Buscar todos os agendamentos
     $schedules = $this->examScheduleModel
         ->select('
@@ -814,6 +940,7 @@ public function getCalendarEvents()
             CONCAT(tbl_disciplines.discipline_name, " - ", tbl_classes.class_name) as title,
             tbl_exam_boards.board_name,
             tbl_exam_boards.board_type,
+            tbl_exam_boards.board_code,
             tbl_classes.class_name,
             tbl_disciplines.discipline_name
         ')
@@ -858,6 +985,7 @@ public function getCalendarEvents()
                 'status' => $schedule->status,
                 'board' => $schedule->board_name,
                 'board_type' => $schedule->board_type,
+                'board_code' => $schedule->board_code,
                 'room' => $schedule->exam_room ?? 'Não definida',
                 'class' => $schedule->class_name,
                 'discipline' => $schedule->discipline_name
@@ -869,12 +997,17 @@ public function getCalendarEvents()
 }
 
 /**
- * Get calendar events filtered by parameters
+ * Get filtered calendar events
  * 
  * @return JSON
  */
 public function getFilteredCalendarEvents()
 {
+    // Verificar permissão (qualquer utilizador com acesso ao calendário)
+    if (!can('exams.calendar') && !can('calendar.view')) {
+        return $this->response->setJSON([]);
+    }
+    
     $periodId = $this->request->getGet('period_id');
     $classId = $this->request->getGet('class_id');
     $startDate = $this->request->getGet('start');
@@ -939,11 +1072,122 @@ public function getFilteredCalendarEvents()
             'extendedProps' => [
                 'status' => $schedule->status,
                 'board' => $schedule->board_name,
+                'board_code' => $schedule->board_code,
                 'room' => $schedule->exam_room
             ]
         ];
     }
     
     return $this->response->setJSON($events);
+}
+
+/**
+ * Notify teachers about exam
+ */
+private function notifyTeachers($scheduleId, $message)
+{
+    // Buscar detalhes do exame
+    $schedule = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.*,
+            tbl_classes.class_name,
+            tbl_disciplines.discipline_name,
+            tbl_exam_boards.board_name
+        ')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+        ->find($scheduleId);
+    
+    if (!$schedule) return false;
+    
+    // Buscar professores da disciplina na turma
+    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+    $teachers = $classDisciplineModel
+        ->select('teacher_id')
+        ->where('class_id', $schedule->class_id)
+        ->where('discipline_id', $schedule->discipline_id)
+        ->findAll();
+    
+    $teacherIds = array_column($teachers, 'teacher_id');
+    
+    if (empty($teacherIds)) return false;
+    
+    // Criar notificação
+    $notificationData = [
+        'title' => 'Novo Exame Agendado',
+        'message' => "Foi agendado um exame de {$schedule->discipline_name} para a turma {$schedule->class_name} no dia " . date('d/m/Y', strtotime($schedule->exam_date)),
+        'type' => 'exam_schedule',
+        'icon' => 'fa-calendar-check',
+        'color' => 'primary',
+        'link' => site_url('teachers/exams')
+    ];
+    
+    return notify_user_type('teacher', $notificationData, $teacherIds);
+}
+
+/**
+ * Notify students about exam results
+ */
+private function notifyStudents($scheduleId, $message)
+{
+    // Buscar detalhes do exame
+    $schedule = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.*,
+            tbl_classes.class_name,
+            tbl_disciplines.discipline_name,
+            tbl_exam_boards.board_name
+        ')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+        ->find($scheduleId);
+    
+    if (!$schedule) return false;
+    
+    // Buscar alunos da turma com presença
+    $students = $this->examAttendanceModel
+        ->select('enrollment_id')
+        ->where('exam_schedule_id', $scheduleId)
+        ->where('attended', 1)
+        ->findAll();
+    
+    $enrollmentIds = array_column($students, 'enrollment_id');
+    
+    if (empty($enrollmentIds)) return false;
+    
+    // Buscar IDs dos alunos (users)
+    $enrollments = $this->enrollmentModel
+        ->select('student_id')
+        ->whereIn('id', $enrollmentIds)
+        ->findAll();
+    
+    $studentIds = array_column($enrollments, 'student_id');
+    
+    if (empty($studentIds)) return false;
+    
+    // Buscar user_ids dos alunos
+    $studentModel = new \App\Models\StudentModel();
+    $users = $studentModel
+        ->select('user_id')
+        ->whereIn('id', $studentIds)
+        ->findAll();
+    
+    $userIds = array_column($users, 'user_id');
+    
+    if (empty($userIds)) return false;
+    
+    // Criar notificação
+    $notificationData = [
+        'title' => 'Notas Publicadas',
+        'message' => "As notas do exame de {$schedule->discipline_name} foram publicadas. Consulte o seu boletim.",
+        'type' => 'exam_result',
+        'icon' => 'fa-star',
+        'color' => 'success',
+        'link' => site_url('student/grades')
+    ];
+    
+    return notify_user_type('student', $notificationData, $userIds);
 }
 }

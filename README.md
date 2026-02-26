@@ -181,6 +181,8 @@ Instale as dependências via Composer
 
 composer install
 
+composer require phpoffice/phpspreadsheet
+
 Configure o ambiente
 cp env .env
 # Edite o arquivo .env com suas configurações

@@ -63,7 +63,7 @@
         <li>
             <a href="#examsSubmenu" data-bs-toggle="collapse" 
                class="dropdown-toggle <?= in_array(uri_string(), ['teachers/exams', 'teachers/exams/form-add', 'teachers/exams/grade']) ? 'active' : '' ?>">
-                <i class="fas fa-pencil-alt"></i> Avaliações
+                <i class="fas fa-pencil-alt"></i> Avaliações e Notas
             </a>
             <ul class="collapse list-unstyled <?= in_array(uri_string(), ['teachers/exams', 'teachers/exams/form-add', 'teachers/exams/grade']) ? 'show' : '' ?>" id="examsSubmenu">
                 <li>
@@ -74,13 +74,6 @@
                 <li>
                     <a href="<?= site_url('teachers/exams/form-add') ?>" class="<?= uri_string() == 'teachers/exams/form-add' ? 'active' : '' ?>">
                         <i class="fas fa-plus-circle"></i> Novo Exame
-                    </a>
-                </li>
-                <li class="sidebar-divider"></li>
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Ações Rápidas</li>
-                <li>
-                    <a href="<?= site_url('teachers/exams?status=pending') ?>">
-                        <i class="fas fa-clock"></i> Exames Pendentes
                     </a>
                 </li>
                 <li>
@@ -130,7 +123,13 @@
                 </li>
             </ul>
         </li>
-        
+        <!-- Mini Pauta -->
+        <li class="nav-item <?= uri_string() == 'teachers/mini-grade-sheet' || strpos(uri_string(), 'teachers/mini-grade-sheet') === 0 ? 'active' : '' ?>">
+            <a class="nav-link" href="<?= site_url('teachers/mini-grade-sheet') ?>">
+                <i class="fas fa-file-alt"></i>
+                <span>Mini Pautas</span>
+            </a>
+        </li>
         <!-- Documentos -->
         <li>
             <a href="#documentsSubmenu" data-bs-toggle="collapse" 

@@ -7,9 +7,6 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1>Lançar Notas - <?= $exam->exam_name ?? $exam->board_name ?></h1>
         <div>
-            <a href="<?= site_url('teachers/exams/attendance/' . $exam->id) ?>" class="btn btn-info me-2">
-                <i class="fas fa-user-check"></i> Presenças
-            </a>
             <a href="<?= site_url('teachers/exams') ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
@@ -64,7 +61,7 @@
 <!-- Grades Form -->
 <div class="card">
     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Notas dos Alunos</h5>
+        <h5 class="mb-0"><i class="fas fa-star me-2"></i>Notas e Presenças dos Alunos</h5>
         <div>
             <span class="badge bg-light text-dark me-2">
                 <i class="fas fa-check-circle text-success"></i> Aprovado: ≥ <?= $exam->approval_score ?? 10 ?>
@@ -84,11 +81,11 @@
                     <table class="table table-striped table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>Nº Matrícula</th>
+                                <th width="100">Nº Matrícula</th>
                                 <th>Aluno</th>
-                                <th>Presença</th>
-                                <th>Nota (0-<?= $exam->max_score ?>)</th>
-                                <th>Status</th>
+                                <th width="120" class="text-center">Presença</th>
+                                <th width="150">Nota (0-<?= $exam->max_score ?>)</th>
+                                <th width="120">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -97,35 +94,47 @@
                                 $result = $results[$student->enrollment_id] ?? null;
                                 $attendance = $attendances[$student->enrollment_id] ?? null;
                                 $score = $result ? $result->score : '';
-                                $isAbsent = $attendance && !$attendance->attended;
+                                $isAbsent = ($attendance && !$attendance->attended) || ($result && $result->is_absent);
                                 $absentChecked = $isAbsent ? 'checked' : '';
-                                $scoreDisabled = $isAbsent ? 'disabled' : '';
+                                $scoreValue = $isAbsent ? 0 : $score;
                                 ?>
-                                <tr>
+                                <tr class="<?= $isAbsent ? 'table-danger' : '' ?>" id="row-<?= $student->enrollment_id ?>">
                                     <td><span class="badge bg-secondary"><?= $student->student_number ?></span></td>
                                     <td><?= $student->first_name ?> <?= $student->last_name ?></td>
                                     <td class="text-center">
-                                        <?php if ($isAbsent): ?>
-                                            <span class="badge bg-danger">Faltou</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-success">Presente</span>
-                                        <?php endif; ?>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input attendance-checkbox" 
+                                                   type="checkbox" 
+                                                   name="attendance[<?= $student->enrollment_id ?>]" 
+                                                   id="attendance_<?= $student->enrollment_id ?>"
+                                                   value="1"
+                                                   <?= $absentChecked ?>
+                                                   onchange="toggleAbsent(<?= $student->enrollment_id ?>, this.checked)">
+                                            <label class="form-check-label" for="attendance_<?= $student->enrollment_id ?>">
+                                                <?= $isAbsent ? '<span class="badge bg-danger">Ausente</span>' : '<span class="badge bg-success">Presente</span>' ?>
+                                            </label>
+                                        </div>
                                     </td>
-                                    <td style="width: 150px;">
+                                    <td>
                                         <input type="number" 
                                                class="form-control form-control-sm score-input" 
                                                name="scores[<?= $student->enrollment_id ?>]" 
-                                               value="<?= $score ?>"
+                                               id="score_<?= $student->enrollment_id ?>"
+                                               value="<?= $scoreValue ?>"
                                                step="0.1"
                                                min="0"
                                                max="<?= $exam->max_score ?>"
-                                               <?= $scoreDisabled ?>>
+                                               <?= $isAbsent ? 'readonly' : '' ?>
+                                               onchange="updateStatus(<?= $student->enrollment_id ?>, this.value)">
+                                        <?php if ($isAbsent): ?>
+                                            <small class="text-muted">(Ausente = 0)</small>
+                                        <?php endif; ?>
                                     </td>
-                                    <td class="status-cell">
+                                    <td class="status-cell" id="status_<?= $student->enrollment_id ?>">
                                         <?php if ($isAbsent): ?>
                                             <span class="badge bg-danger">Falta</span>
-                                        <?php elseif ($score !== ''): ?>
-                                            <?php if ($score >= $exam->approval_score): ?>
+                                        <?php elseif ($scoreValue !== '' && $scoreValue !== null): ?>
+                                            <?php if ($scoreValue >= ($exam->approval_score ?? 10)): ?>
                                                 <span class="badge bg-success">Aprovado</span>
                                             <?php else: ?>
                                                 <span class="badge bg-danger">Reprovado</span>
@@ -153,13 +162,20 @@
                             <i class="fas fa-times-circle text-danger"></i> 
                             <span id="failedCount">0</span> reprovados
                         </span>
+                        <span class="ms-3">
+                            <i class="fas fa-user-times text-warning"></i> 
+                            <span id="absentCount">0</span> ausentes
+                        </span>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-info me-2" onclick="fillAllScores()">
-                            <i class="fas fa-magic"></i> Preencher Todos
+                        <button type="button" class="btn btn-info me-2" onclick="markAllPresent()">
+                            <i class="fas fa-user-check"></i> Marcar Todos Presentes
+                        </button>
+                        <button type="button" class="btn btn-warning me-2" onclick="fillAllScores()">
+                            <i class="fas fa-magic"></i> Preencher Notas (Média)
                         </button>
                         <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Salvar Notas
+                            <i class="fas fa-save"></i> Salvar Notas e Presenças
                         </button>
                     </div>
                 </div>
@@ -177,53 +193,127 @@
 const maxScore = <?= $exam->max_score ?>;
 const approvalScore = <?= $exam->approval_score ?? 10 ?>;
 
-function fillAllScores() {
-    const inputs = document.querySelectorAll('.score-input:not(:disabled)');
-    inputs.forEach(input => {
-        if (!input.value) {
-            input.value = (maxScore / 2).toFixed(1);
-            input.dispatchEvent(new Event('change'));
+// Função para quando o checkbox de ausente é alterado
+function toggleAbsent(enrollmentId, isAbsent) {
+    const scoreInput = document.getElementById('score_' + enrollmentId);
+    const row = document.getElementById('row-' + enrollmentId);
+    const label = document.querySelector('label[for="attendance_' + enrollmentId + '"]');
+    
+    if (isAbsent) {
+        // Aluno ausente: nota = 0, readonly, row fica vermelha
+        scoreInput.value = 0;
+        scoreInput.readOnly = true;
+        row.classList.add('table-danger');
+        label.innerHTML = '<span class="badge bg-danger">Ausente</span>';
+        updateStatus(enrollmentId, 0);
+    } else {
+        // Aluno presente: nota editável, row normal
+        scoreInput.value = '';
+        scoreInput.readOnly = false;
+        row.classList.remove('table-danger');
+        label.innerHTML = '<span class="badge bg-success">Presente</span>';
+        updateStatus(enrollmentId, '');
+    }
+    
+    updateStats();
+}
+
+// Função para atualizar status (aprovado/reprovado)
+function updateStatus(enrollmentId, score) {
+    const statusCell = document.getElementById('status_' + enrollmentId);
+    const attendanceCheckbox = document.getElementById('attendance_' + enrollmentId);
+    
+    if (attendanceCheckbox.checked) {
+        statusCell.innerHTML = '<span class="badge bg-danger">Falta</span>';
+        return;
+    }
+    
+    const scoreValue = parseFloat(score);
+    
+    if (!isNaN(scoreValue) && scoreValue !== '') {
+        if (scoreValue >= approvalScore) {
+            statusCell.innerHTML = '<span class="badge bg-success">Aprovado</span>';
+        } else {
+            statusCell.innerHTML = '<span class="badge bg-danger">Reprovado</span>';
+        }
+    } else {
+        statusCell.innerHTML = '<span class="badge bg-secondary">Pendente</span>';
+    }
+    
+    updateStats();
+}
+
+// Função para marcar todos como presentes
+function markAllPresent() {
+    document.querySelectorAll('.attendance-checkbox').forEach(checkbox => {
+        if (checkbox.checked) {
+            const enrollmentId = checkbox.name.match(/\[(\d+)\]/)[1];
+            checkbox.checked = false;
+            toggleAbsent(enrollmentId, false);
         }
     });
 }
 
-// Update status when score changes
-document.querySelectorAll('.score-input').forEach(input => {
-    input.addEventListener('change', function() {
-        const row = this.closest('tr');
-        const statusCell = row.querySelector('.status-cell');
-        const score = parseFloat(this.value);
-        
-        if (!isNaN(score)) {
-            if (score >= approvalScore) {
-                statusCell.innerHTML = '<span class="badge bg-success">Aprovado</span>';
-            } else {
-                statusCell.innerHTML = '<span class="badge bg-danger">Reprovado</span>';
-            }
-        } else {
-            statusCell.innerHTML = '<span class="badge bg-secondary">Pendente</span>';
+// Função para preencher todas as notas com a média
+function fillAllScores() {
+    document.querySelectorAll('.score-input').forEach(input => {
+        if (!input.readOnly && !input.value) {
+            input.value = (maxScore / 2).toFixed(1);
+            const enrollmentId = input.id.replace('score_', '');
+            updateStatus(enrollmentId, input.value);
         }
-        updateStats();
     });
-});
+}
 
-// Atualizar estatísticas
+// Função para atualizar estatísticas
 function updateStats() {
-    let approved = 0, failed = 0;
+    let approved = 0, failed = 0, absent = 0;
     
     document.querySelectorAll('.status-cell').forEach(cell => {
         const text = cell.textContent.trim();
         if (text === 'Aprovado') approved++;
         else if (text === 'Reprovado') failed++;
+        else if (text === 'Falta') absent++;
     });
     
     document.getElementById('approvedCount').textContent = approved;
     document.getElementById('failedCount').textContent = failed;
+    document.getElementById('absentCount').textContent = absent;
 }
 
-// Atualizar na carga inicial
+// Inicializar event listeners para inputs de nota
+document.querySelectorAll('.score-input').forEach(input => {
+    input.addEventListener('change', function() {
+        const enrollmentId = this.id.replace('score_', '');
+        updateStatus(enrollmentId, this.value);
+    });
+    
+    input.addEventListener('keyup', function() {
+        const enrollmentId = this.id.replace('score_', '');
+        updateStatus(enrollmentId, this.value);
+    });
+});
+
+// Atualizar estatísticas na carga inicial
 document.addEventListener('DOMContentLoaded', function() {
     updateStats();
+});
+
+// Confirmar antes de sair se houver alterações não salvas
+let formChanged = false;
+document.getElementById('gradeForm').addEventListener('change', function() {
+    formChanged = true;
+});
+
+document.getElementById('gradeForm').addEventListener('submit', function() {
+    formChanged = false;
+});
+
+window.addEventListener('beforeunload', function(e) {
+    if (formChanged) {
+        e.preventDefault();
+        e.returnValue = 'Existem alterações não salvas. Deseja realmente sair?';
+    }
 });
 </script>
 <?= $this->endSection() ?>

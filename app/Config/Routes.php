@@ -555,7 +555,41 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->post('finalize-year', [AcademicRecords::class, 'finalizeYear'], ['as' => 'academic.records.finalize']);
       $routes->get('transcript/(:num)', [AcademicRecords::class, 'transcript/$1'], ['as' => 'academic.records.transcript']);
       $routes->get('certificate/(:num)', [AcademicRecords::class, 'certificate/$1'], ['as' => 'academic.records.certificate']);
+
+/* 
+    
+        // Pauta Trimestral
+      $routes->get('trimestral', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestral']);
+      $routes->post('trimestral', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestral']);
+      $routes->get('trimestral/class/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestralClass/$1'], ['as' => 'academic.records.trimestral.class']);
+      $routes->get('trimestral/export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportTrimestral/$1'], ['as' => 'academic.records.trimestral.export']);
+
+      
+      // Pauta por Disciplina
+      $routes->get('disciplina', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplina'], ['as' => 'academic.records.disciplina']);
+      $routes->post('disciplina', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplina'], ['as' => 'academic.records.disciplina']);
+      $routes->get('disciplina/view/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplinaView/$1//$2'], ['as' => 'academic.records.disciplina.view']);
+      $routes->get('disciplina/export/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportDisciplina/$1/$1'], ['as' => 'academic.records.disciplina.expor']); */
+
   });
+
+  // Mini Grade Sheet Admin
+$routes->group('mini-grade-sheet', ['filter' => 'auth:admin'], function($routes) {
+    $routes->get('/', [\App\Controllers\admin\MiniGradeSheet::class, 'index']);
+    $routes->get('view/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'view/$1']);
+    $routes->get('print/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'print/$1']);
+    $routes->get('export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'export/$1']);
+    
+    // Pautas Trimestrais
+    $routes->get('trimestral', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestral']);
+    $routes->get('trimestral/class/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestralClass/$1']);
+    $routes->get('trimestral/export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportTrimestral/$1']);
+    
+    // Pautas por Disciplina
+    $routes->get('disciplina', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplina']);
+    $routes->get('disciplina/view/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplinaView/$1/$2']);
+    $routes->get('disciplina/export/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportDisciplina/$1/$2']);
+});
   /**
    * Gestão Financeira (mantendo módulos existentes)
    */
@@ -777,6 +811,16 @@ $routes->group('teachers', function ($routes) {
         $routes->post('profile/update', [\App\Controllers\teachers\Profile::class, 'update'], ['as' => 'teachers.profile.update']);
         $routes->post('profile/update-photo', [\App\Controllers\teachers\Profile::class, 'updatePhoto'], ['as' => 'teachers.profile.update-photo']);
 
+         // Rotas de notificações
+        $routes->group('notifications', function ($routes) {
+          $routes->get('', [\App\Controllers\students\Notifications::class, 'index']);
+          $routes->get('read/(:num)', [\App\Controllers\students\Notifications::class, 'read/$1']);
+          $routes->get('markAllRead', [\App\Controllers\students\Notifications::class, 'markAllRead']);
+          $routes->get('delete/(:num)', [\App\Controllers\students\Notifications::class, 'delete/$1']);
+          $routes->get('getUnreadCount', [\App\Controllers\students\Notifications::class, 'getUnreadCount']);
+        });
+
+
         // Minhas Turmas
         $routes->group('classes', function ($routes) {
             $routes->get('', [\App\Controllers\teachers\Classes::class, 'index'], ["as" => 'teachers.classes']);
@@ -852,7 +896,15 @@ $routes->group('teachers', function ($routes) {
             $routes->get('delete/(:num)', [\App\Controllers\teachers\Notifications::class, 'delete/$1'], ['as' => 'teachers.notifications.delete']);
             $routes->get('unread-count', [\App\Controllers\teachers\Notifications::class, 'getUnreadCount'], ['as' => 'teachers.notifications.unreadCount']);
         });
-    });
+        
+       $routes->group('mini-grade-sheet', function ($routes) {
+          $routes->get('', [\App\Controllers\teachers\MiniGradeSheet::class, 'index']);
+          $routes->get('filter', [\App\Controllers\teachers\MiniGradeSheet::class, 'filter']);
+          $routes->get('print/(:num)',[\App\Controllers\teachers\MiniGradeSheet::class, 'print/$1']); // schedule_id
+          $routes->get('export/(:num)',[\App\Controllers\teachers\MiniGradeSheet::class, 'export/$1']); // schedule_id
+          $routes->get('get-disciplinas/(:num)',[\App\Controllers\teachers\MiniGradeSheet::class, 'getDisciplinas/$1']); // class_id
+          });
+        });
 
 });
 /**
@@ -878,6 +930,15 @@ $routes->group('students', function ($routes) {
           $routes->post('profile/update-photo', [StudentsProfile::class, 'updatePhoto'], ['as' => 'students.profile.update-photo']);
           $routes->get('profile/guardians', [StudentsProfile::class, 'guardians'], ['as' => 'students.profile.guardians']);
           $routes->get('profile/academic-history', [StudentsProfile::class, 'academicHistory'], ['as' => 'students.profile.academic-history']);
+
+            // Rotas de notificações
+      $routes->group('notifications', function ($routes) {
+        $routes->get('', [\App\Controllers\students\Notifications::class, 'index']);
+        $routes->get('read/(:num)', [\App\Controllers\students\Notifications::class, 'read/$1']);
+        $routes->get('markAllRead', [\App\Controllers\students\Notifications::class, 'markAllRead']);
+        $routes->get('delete/(:num)', [\App\Controllers\students\Notifications::class, 'delete/$1']);
+        $routes->get('getUnreadCount', [\App\Controllers\students\Notifications::class, 'getUnreadCount']);
+      });
 
            // Minhas Disciplinas
           $routes->group('subjects', function ($routes) {

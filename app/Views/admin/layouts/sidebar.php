@@ -229,11 +229,15 @@
         </li>
         <?php endif; ?>
 
-        <!-- Pautas Acadêmicas -->
-        <?php if (has_permission('reports.academic')): ?>
+      <!-- PAUTAS ACADÊMICAS - Submenu -->
+        <?php if (has_permission('reports.academic') || has_permission('exams.view_results') || has_permission('grades.view_averages')): ?>
         <li>
-            <a href="<?= site_url('admin/academic-records') ?>" 
-               class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
+            <a href="#pautasSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= 
+                in_array(uri_string(), [
+                    'admin/academic-records', 
+                    'admin/academic-records/trimestral', 
+                    'admin/academic-records/disciplina'
+                ]) ? 'active' : '' ?>">
                 <i class="fas fa-chart-line"></i> Pautas Acadêmicas
                 <?php 
                 if (has_permission('enrollments.list')):
@@ -250,10 +254,91 @@
                 endif; 
                 ?>
             </a>
+            <ul class="collapse list-unstyled <?= 
+                in_array(uri_string(), [
+                    'admin/academic-records', 
+                    'admin/academic-records/trimestral', 
+                    'admin/academic-records/disciplina'
+                ]) ? 'show' : '' ?>" id="pautasSubmenu">
+                
+                <!-- Pauta Acadêmica (Geral por Turma) -->
+                <?php if (has_permission('reports.academic')): ?>
+                <li>
+                    <a href="<?= site_url('admin/academic-records') ?>" 
+                    class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
+                        <i class="fas fa-file-alt"></i> Pauta Académica
+                        <small class="text-muted d-block small">(Geral por Turma)</small>
+                    </a>
+                </li>
+                <?php endif; ?>
+                
+                <!-- Pauta Trimestral -->
+                <?php if (has_permission('exams.view_results') || has_permission('grades.view_averages')): ?>
+                <li>
+                    <a href="<?= site_url('admin/academic-records/trimestral') ?>" 
+                    class="<?= uri_string() == 'admin/academic-records/trimestral' ? 'active' : '' ?>">
+                        <i class="fas fa-calendar-alt"></i> Pauta Trimestral
+                        <small class="text-muted d-block small">(Resultados por Trimestre)</small>
+                    </a>
+                </li>
+                <?php endif; ?>
+                
+                <!-- Pauta por Disciplina -->
+                <?php if (has_permission('grades.view_averages')): ?>
+                <li>
+                    <a href="<?= site_url('admin/academic-records/disciplina') ?>" 
+                    class="<?= uri_string() == 'admin/academic-records/disciplina' ? 'active' : '' ?>">
+                        <i class="fas fa-book-open"></i> Pauta por Disciplina
+                        <small class="text-muted d-block small">(Notas por Disciplina)</small>
+                    </a>
+                </li>
+                <?php endif; ?>
+            </ul>
         </li>
         <?php endif; ?>
+<!-- Mini Pautas -->
+<?php if (has_permission('exams.view') || has_permission('grades.view_averages')): ?>
+<li>
+    <a href="#miniPautasSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), [
+        'admin/mini-grade-sheet',
+        'admin/mini-grade-sheet/trimestral',
+        'admin/mini-grade-sheet/disciplina'
+    ]) ? 'active' : '' ?>">
+        <i class="fas fa-file-alt"></i> Mini Pautas
+    </a>
+    <ul class="collapse list-unstyled <?= in_array(uri_string(), [
+        'admin/mini-grade-sheet',
+        'admin/mini-grade-sheet/trimestral',
+        'admin/mini-grade-sheet/disciplina'
+    ]) ? 'show' : '' ?>" id="miniPautasSubmenu">
         
-        <!-- Propinas e Taxas -->
+        <!-- Todas as Mini Pautas -->
+        <li>
+            <a href="<?= site_url('admin/mini-grade-sheet') ?>" 
+               class="<?= uri_string() == 'admin/mini-grade-sheet' ? 'active' : '' ?>">
+                <i class="fas fa-list"></i> Todas as Mini Pautas
+            </a>
+        </li>
+        
+        <!-- Pautas Trimestrais -->
+        <li>
+            <a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" 
+               class="<?= uri_string() == 'admin/mini-grade-sheet/trimestral' ? 'active' : '' ?>">
+                <i class="fas fa-calendar-alt"></i> Pautas Trimestrais
+            </a>
+        </li>
+        
+        <!-- Pautas por Disciplina -->
+        <li>
+            <a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" 
+               class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
+                <i class="fas fa-book-open"></i> Pautas por Disciplina
+            </a>
+        </li>
+    </ul>
+</li>
+<?php endif; ?>
+        <!-- Propinas e Taxas - Mantido igual -->
         <?php if (has_permission('fees.list') || has_permission('fee_types.list')): ?>
         <li>
             <a href="#feesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'active' : '' ?>">

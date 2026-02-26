@@ -8,8 +8,9 @@ class ExamResultModel extends BaseModel
     protected $primaryKey = 'id';
     
     protected $allowedFields = [
-        'exam_schedule_id',  // ← AGORA é o campo principal
+        'exam_schedule_id',
         'enrollment_id',
+        'assessment_type',
         'score',
         'score_percentage',
         'grade',
@@ -22,8 +23,9 @@ class ExamResultModel extends BaseModel
     ];
     
     protected $validationRules = [
-        'exam_schedule_id' => 'required|numeric',  // ← AGORA é obrigatório
+        'exam_schedule_id' => 'required|numeric',
         'enrollment_id' => 'required|numeric',
+        'assessment_type' => 'required|in_list[AC,NPP,NPT,E,NEE,NEO,NEP,PAP,NEC]',
         'score' => 'required|numeric'
     ];
     
@@ -35,6 +37,10 @@ class ExamResultModel extends BaseModel
         'enrollment_id' => [
             'required' => 'O ID da matrícula é obrigatório',
             'numeric' => 'O ID da matrícula deve ser numérico'
+        ],
+        'assessment_type' => [
+            'required' => 'O tipo de avaliação é obrigatório',
+            'in_list' => 'Tipo de avaliação inválido'
         ],
         'score' => [
             'required' => 'A nota é obrigatória',
@@ -54,7 +60,7 @@ class ExamResultModel extends BaseModel
         $this->transStart();
         
         foreach ($results as $result) {
-            // Verificar se já existe (agora por exam_schedule_id + enrollment_id)
+            // Verificar se já existe
             $existing = $this->where('exam_schedule_id', $result['exam_schedule_id'])
                 ->where('enrollment_id', $result['enrollment_id'])
                 ->first();
@@ -117,11 +123,14 @@ class ExamResultModel extends BaseModel
                 tbl_enrollments.student_id,
                 tbl_users.first_name,
                 tbl_users.last_name,
-                tbl_students.student_number
+                tbl_students.student_number,
+                tbl_exam_boards.board_code as assessment_type
             ')
             ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
             ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
             ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->where('tbl_exam_results.exam_schedule_id', $examScheduleId)
             ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
@@ -137,7 +146,7 @@ class ExamResultModel extends BaseModel
                 tbl_exam_schedules.exam_date,
                 tbl_disciplines.discipline_name,
                 tbl_exam_boards.board_name,
-                tbl_exam_boards.board_type,
+                tbl_exam_boards.board_code as assessment_type,
                 tbl_exam_boards.weight
             ')
             ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
@@ -160,9 +169,12 @@ class ExamResultModel extends BaseModel
      */
     public function getExamStatistics($examScheduleId)
     {
-        // Buscar o agendamento para obter a nota máxima
+        // Buscar o agendamento para obter a nota máxima e de aprovação
         $scheduleModel = new \App\Models\ExamScheduleModel();
-        $schedule = $scheduleModel->find($examScheduleId);
+        $schedule = $scheduleModel->select('tbl_exam_schedules.*, tbl_exam_boards.board_code')
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+            ->where('tbl_exam_schedules.id', $examScheduleId)
+            ->first();
         
         if (!$schedule) {
             return (object)[
@@ -172,12 +184,13 @@ class ExamResultModel extends BaseModel
                 'maximum' => 0,
                 'approved' => 0,
                 'failed' => 0,
-                'approval_rate' => 0
+                'approval_rate' => 0,
+                'assessment_type' => ''
             ];
         }
         
         $maxScore = $schedule->max_score ?? 20;
-        $passingScore = $schedule->approval_score ?? 10; // Nota mínima para aprovação
+        $passingScore = $schedule->approval_score ?? 10;
         
         // Consulta SQL otimizada
         $stats = $this->select("
@@ -185,9 +198,9 @@ class ExamResultModel extends BaseModel
                 AVG(score) as average,
                 MIN(score) as minimum,
                 MAX(score) as maximum,
-                SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) as approved,
-                SUM(CASE WHEN score < {$passingScore} THEN 1 ELSE 0 END) as failed,
-                ROUND((SUM(CASE WHEN score >= {$passingScore} THEN 1 ELSE 0 END) / COUNT(*)) * 100, 1) as approval_rate
+                SUM(CASE WHEN score >= {$passingScore} AND is_absent = 0 THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN score < {$passingScore} AND is_absent = 0 THEN 1 ELSE 0 END) as failed,
+                ROUND((SUM(CASE WHEN score >= {$passingScore} AND is_absent = 0 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 1) as approval_rate
             ")
             ->where('exam_schedule_id', $examScheduleId)
             ->first();
@@ -200,7 +213,8 @@ class ExamResultModel extends BaseModel
                 'maximum' => 0,
                 'approved' => 0,
                 'failed' => 0,
-                'approval_rate' => 0
+                'approval_rate' => 0,
+                'assessment_type' => $schedule->board_code ?? ''
             ];
         }
         
@@ -208,6 +222,7 @@ class ExamResultModel extends BaseModel
         $stats->average = round($stats->average, 1);
         $stats->minimum = round($stats->minimum, 1);
         $stats->maximum = round($stats->maximum, 1);
+        $stats->assessment_type = $schedule->board_code ?? '';
         
         return $stats;
     }

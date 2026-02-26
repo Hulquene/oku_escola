@@ -7,12 +7,11 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-            <a href="<?= site_url('teachers/exams/grade/' . $exam->id) ?>" class="btn btn-success me-2">
-                <i class="fas fa-pencil-alt"></i> Lançar/Editar Notas
-            </a>
-            <a href="<?= site_url('teachers/exams/attendance/' . $exam->id) ?>" class="btn btn-info me-2">
-                <i class="fas fa-user-check"></i> Presenças
-            </a>
+             <?php if ($exam->status !== 'Realizado') {  ?>
+                <a href="<?= site_url('teachers/exams/grade/' . $exam->id) ?>" class="btn btn-success me-2">
+                    <i class="fas fa-pencil-alt"></i> Lançar/Editar Notas
+                </a>
+             <?php } ?>
             <a href="<?= site_url('teachers/exams') ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
