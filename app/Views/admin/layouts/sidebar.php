@@ -1,24 +1,46 @@
 <nav class="sidebar">
+    <!-- Logo e Cabeçalho -->
     <div class="sidebar-header">
-        <h3><?= session()->get('school_acronym') ?? 'Sistema Escolar' ?></h3>
-        <p><?= session()->get('school_name') ?? 'Angola' ?></p>
+        <div class="d-flex align-items-center">
+            <?php 
+            $schoolLogo = session()->get('school_logo');
+            if ($schoolLogo && file_exists('uploads/school/' . $schoolLogo)): 
+            ?>
+                <img src="<?= base_url('uploads/school/' . $schoolLogo) ?>" 
+                     alt="Logo" 
+                     class="sidebar-logo me-2"
+                     style="width: 40px; height: 40px; object-fit: contain;">
+            <?php else: ?>
+                <div class="sidebar-logo-placeholder me-2">
+                    <i class="fas fa-graduation-cap fa-2x"></i>
+                </div>
+            <?php endif; ?>
+            
+            <div class="flex-grow-1">
+                <h4 class="sidebar-title mb-0"><?= session()->get('school_acronym') ?? 'Sistema' ?></h4>
+                <p class="sidebar-subtitle mb-0 small"><?= session()->get('school_name') ?? 'Escolar' ?></p>
+            </div>
+        </div>
     </div>
     
     <ul class="components">
         <!-- Dashboard -->
-        <li>
-            <a href="<?= site_url('admin/dashboard') ?>" class="<?= uri_string() == 'admin/dashboard' ? 'active' : '' ?>">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+        <li class="nav-item">
+            <a href="<?= site_url('admin/dashboard') ?>" class="nav-link <?= uri_string() == 'admin/dashboard' ? 'active' : '' ?>">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
             </a>
         </li>
         
         <!-- Académico -->
         <?php if (has_permission('settings.academic_years') || has_permission('settings.semesters') || has_permission('calendar.view')): ?>
-        <li>
-            <a href="#academicSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/academic/years', 'admin/academic/semesters', 'admin/academic/calendar']) ? 'active' : '' ?>">
-                <i class="fas fa-graduation-cap"></i> Académico
+        <li class="nav-item">
+            <a href="#academicSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/academic/years', 'admin/academic/semesters', 'admin/academic/calendar']) ? 'active' : '' ?>">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Académico</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/academic/years', 'admin/academic/semesters', 'admin/academic/calendar']) ? 'show' : '' ?>" id="academicSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/academic/years', 'admin/academic/semesters', 'admin/academic/calendar']) ? 'show' : '' ?>" id="academicSubmenu">
                 <?php if (has_permission('settings.academic_years')): ?>
                 <li><a href="<?= site_url('admin/academic/years') ?>" class="<?= uri_string() == 'admin/academic/years' ? 'active' : '' ?>"><i class="fas fa-calendar"></i> Anos Letivos</a></li>
                 <?php endif; ?>
@@ -36,18 +58,20 @@
         
         <!-- Cursos (Ensino Médio) -->
         <?php if (has_permission('courses.list') || has_permission('courses.create')): ?>
-        <li>
-            <a href="#coursesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/courses', 'admin/courses/curriculum']) ? 'active' : '' ?>">
-                <i class="fas fa-layer-group"></i> Cursos (Ensino Médio)
+        <li class="nav-item">
+            <a href="#coursesSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/courses', 'admin/courses/curriculum']) ? 'active' : '' ?>">
+                <i class="fas fa-layer-group"></i>
+                <span>Cursos</span>
                 <?php 
                 $courseModel = new \App\Models\CourseModel();
                 $totalCourses = $courseModel->where('is_active', 1)->countAllResults();
                 if ($totalCourses > 0 && has_permission('courses.list')): 
                 ?>
-                    <span class="badge bg-info float-end"><?= $totalCourses ?></span>
+                    <span class="badge bg-info ms-auto"><?= $totalCourses ?></span>
                 <?php endif; ?>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/courses', 'admin/courses/curriculum']) ? 'show' : '' ?>" id="coursesSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/courses', 'admin/courses/curriculum']) ? 'show' : '' ?>" id="coursesSubmenu">
                 <?php if (has_permission('courses.list')): ?>
                 <li><a href="<?= site_url('admin/courses') ?>" class="<?= uri_string() == 'admin/courses' ? 'active' : '' ?>"><i class="fas fa-list"></i> Lista de Cursos</a></li>
                 <?php endif; ?>
@@ -61,11 +85,13 @@
         
         <!-- Classes/Turmas -->
         <?php if (has_permission('classes.list') || has_permission('subjects.list') || has_permission('settings.grade_levels')): ?>
-        <li>
-            <a href="#classesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/classes/levels', 'admin/classes/classes', 'admin/classes/subjects', 'admin/classes/class-subjects']) ? 'active' : '' ?>">
-                <i class="fas fa-school"></i> Classes/Turmas
+        <li class="nav-item">
+            <a href="#classesSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/classes/levels', 'admin/classes/classes', 'admin/classes/subjects', 'admin/classes/class-subjects']) ? 'active' : '' ?>">
+                <i class="fas fa-school"></i>
+                <span>Classes/Turmas</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/classes/levels', 'admin/classes/classes', 'admin/classes/subjects', 'admin/classes/class-subjects']) ? 'show' : '' ?>" id="classesSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/classes/levels', 'admin/classes/classes', 'admin/classes/subjects', 'admin/classes/class-subjects']) ? 'show' : '' ?>" id="classesSubmenu">
                 <?php if (has_permission('settings.grade_levels')): ?>
                 <li><a href="<?= site_url('admin/classes/levels') ?>" class="<?= uri_string() == 'admin/classes/levels' ? 'active' : '' ?>"><i class="fas fa-layer-group"></i> Níveis de Ensino</a></li>
                 <?php endif; ?>
@@ -87,11 +113,13 @@
         
         <!-- Alunos -->
         <?php if (has_permission('students.list') || has_permission('enrollments.list') || has_permission('guardians.list') || has_permission('attendance.list')): ?>
-        <li>
-            <a href="#studentsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/students', 'admin/students/enrollments', 'admin/students/guardians', 'admin/students/attendance']) ? 'active' : '' ?>">
-                <i class="fas fa-user-graduate"></i> Alunos
+        <li class="nav-item">
+            <a href="#studentsSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/students', 'admin/students/enrollments', 'admin/students/guardians', 'admin/students/attendance']) ? 'active' : '' ?>">
+                <i class="fas fa-user-graduate"></i>
+                <span>Alunos</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/students', 'admin/students/enrollments', 'admin/students/guardians', 'admin/students/attendance']) ? 'show' : '' ?>" id="studentsSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/students', 'admin/students/enrollments', 'admin/students/guardians', 'admin/students/attendance']) ? 'show' : '' ?>" id="studentsSubmenu">
                 <?php if (has_permission('students.list')): ?>
                 <li><a href="<?= site_url('admin/students') ?>" class="<?= uri_string() == 'admin/students' ? 'active' : '' ?>"><i class="fas fa-list"></i> Lista de Alunos</a></li>
                 <?php endif; ?>
@@ -117,11 +145,13 @@
         
         <!-- Professores -->
         <?php if (has_permission('teachers.list') || has_permission('teachers.create') || has_permission('teachers.assign_subjects')): ?>
-        <li>
-            <a href="#teachersSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/teachers', 'admin/teachers/assign-class']) ? 'active' : '' ?>">
-                <i class="fas fa-chalkboard-teacher"></i> Professores
+        <li class="nav-item">
+            <a href="#teachersSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/teachers', 'admin/teachers/assign-class']) ? 'active' : '' ?>">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Professores</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/teachers', 'admin/teachers/assign-class']) ? 'show' : '' ?>" id="teachersSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/teachers', 'admin/teachers/assign-class']) ? 'show' : '' ?>" id="teachersSubmenu">
                 <?php if (has_permission('teachers.list')): ?>
                 <li><a href="<?= site_url('admin/teachers') ?>" class="<?= uri_string() == 'admin/teachers' ? 'active' : '' ?>"><i class="fas fa-list"></i> Lista de Professores</a></li>
                 <?php endif; ?>
@@ -139,8 +169,8 @@
         
         <!-- Exames e Avaliações -->
         <?php if (has_permission('exams.list') || has_permission('exams.enter_grades') || has_permission('exam_periods.list') || has_permission('exam_schedules.list') || has_permission('results.view')): ?>
-        <li>
-            <a href="#examsMainSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= 
+        <li class="nav-item">
+            <a href="#examsMainSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= 
                 in_array(uri_string(), [
                     'admin/exams/periods', 
                     'admin/exams/schedules', 
@@ -150,9 +180,9 @@
                     'admin/exams/calculate',
                     'admin/exams/appeals'
                 ]) ? 'active' : '' ?>">
-                <i class="fas fa-pencil-alt"></i> Exames e Avaliações
+                <i class="fas fa-pencil-alt"></i>
+                <span>Exames e Avaliações</span>
                 <?php
-                // Contar exames pendentes (opcional)
                 if (has_permission('exams.list')):
                     $examScheduleModel = new \App\Models\ExamScheduleModel();
                     $pendingExams = $examScheduleModel
@@ -161,13 +191,14 @@
                         ->countAllResults();
                     if ($pendingExams > 0):
                 ?>
-                    <span class="badge bg-warning text-dark float-end"><?= $pendingExams ?></span>
+                    <span class="badge bg-warning text-dark ms-auto"><?= $pendingExams ?></span>
                 <?php 
                     endif;
                 endif; 
                 ?>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= 
+            <ul class="collapse list-unstyled submenu <?= 
                 in_array(uri_string(), [
                     'admin/exams/periods', 
                     'admin/exams/schedules', 
@@ -218,7 +249,7 @@
                             ->countAllResults();
                         if ($appealStudents > 0):
                     ?>
-                        <span class="badge bg-warning text-dark float-end"><?= $appealStudents ?></span>
+                        <span class="badge bg-warning text-dark ms-auto"><?= $appealStudents ?></span>
                     <?php 
                         endif;
                     endif; 
@@ -229,16 +260,17 @@
         </li>
         <?php endif; ?>
 
-      <!-- PAUTAS ACADÊMICAS - Submenu -->
+        <!-- PAUTAS ACADÊMICAS -->
         <?php if (has_permission('reports.academic') || has_permission('exams.view_results') || has_permission('grades.view_averages')): ?>
-        <li>
-            <a href="#pautasSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= 
+        <li class="nav-item">
+            <a href="#pautasSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= 
                 in_array(uri_string(), [
                     'admin/academic-records', 
                     'admin/academic-records/trimestral', 
                     'admin/academic-records/disciplina'
                 ]) ? 'active' : '' ?>">
-                <i class="fas fa-chart-line"></i> Pautas Acadêmicas
+                <i class="fas fa-chart-line"></i>
+                <span>Pautas Acadêmicas</span>
                 <?php 
                 if (has_permission('enrollments.list')):
                     $enrollmentModel = new \App\Models\EnrollmentModel();
@@ -248,103 +280,95 @@
                         ->countAllResults();
                     if ($pendingRecords > 0): 
                 ?>
-                    <span class="badge bg-warning text-dark float-end"><?= $pendingRecords ?></span>
+                    <span class="badge bg-warning text-dark ms-auto"><?= $pendingRecords ?></span>
                 <?php 
                     endif;
                 endif; 
                 ?>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= 
+            <ul class="collapse list-unstyled submenu <?= 
                 in_array(uri_string(), [
                     'admin/academic-records', 
                     'admin/academic-records/trimestral', 
                     'admin/academic-records/disciplina'
                 ]) ? 'show' : '' ?>" id="pautasSubmenu">
                 
-                <!-- Pauta Acadêmica (Geral por Turma) -->
                 <?php if (has_permission('reports.academic')): ?>
                 <li>
-                    <a href="<?= site_url('admin/academic-records') ?>" 
-                    class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic-records') ?>" class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
                         <i class="fas fa-file-alt"></i> Pauta Académica
-                        <small class="text-muted d-block small">(Geral por Turma)</small>
                     </a>
                 </li>
                 <?php endif; ?>
                 
-                <!-- Pauta Trimestral -->
                 <?php if (has_permission('exams.view_results') || has_permission('grades.view_averages')): ?>
                 <li>
-                    <a href="<?= site_url('admin/academic-records/trimestral') ?>" 
-                    class="<?= uri_string() == 'admin/academic-records/trimestral' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic-records/trimestral') ?>" class="<?= uri_string() == 'admin/academic-records/trimestral' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-alt"></i> Pauta Trimestral
-                        <small class="text-muted d-block small">(Resultados por Trimestre)</small>
                     </a>
                 </li>
                 <?php endif; ?>
                 
-                <!-- Pauta por Disciplina -->
                 <?php if (has_permission('grades.view_averages')): ?>
                 <li>
-                    <a href="<?= site_url('admin/academic-records/disciplina') ?>" 
-                    class="<?= uri_string() == 'admin/academic-records/disciplina' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic-records/disciplina') ?>" class="<?= uri_string() == 'admin/academic-records/disciplina' ? 'active' : '' ?>">
                         <i class="fas fa-book-open"></i> Pauta por Disciplina
-                        <small class="text-muted d-block small">(Notas por Disciplina)</small>
                     </a>
                 </li>
                 <?php endif; ?>
             </ul>
         </li>
         <?php endif; ?>
-<!-- Mini Pautas -->
-<?php if (has_permission('exams.view') || has_permission('grades.view_averages')): ?>
-<li>
-    <a href="#miniPautasSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), [
-        'admin/mini-grade-sheet',
-        'admin/mini-grade-sheet/trimestral',
-        'admin/mini-grade-sheet/disciplina'
-    ]) ? 'active' : '' ?>">
-        <i class="fas fa-file-alt"></i> Mini Pautas
-    </a>
-    <ul class="collapse list-unstyled <?= in_array(uri_string(), [
-        'admin/mini-grade-sheet',
-        'admin/mini-grade-sheet/trimestral',
-        'admin/mini-grade-sheet/disciplina'
-    ]) ? 'show' : '' ?>" id="miniPautasSubmenu">
-        
-        <!-- Todas as Mini Pautas -->
-        <li>
-            <a href="<?= site_url('admin/mini-grade-sheet') ?>" 
-               class="<?= uri_string() == 'admin/mini-grade-sheet' ? 'active' : '' ?>">
-                <i class="fas fa-list"></i> Todas as Mini Pautas
+
+        <!-- Mini Pautas -->
+        <?php if (has_permission('exams.view') || has_permission('grades.view_averages')): ?>
+        <li class="nav-item">
+            <a href="#miniPautasSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), [
+                'admin/mini-grade-sheet',
+                'admin/mini-grade-sheet/trimestral',
+                'admin/mini-grade-sheet/disciplina'
+            ]) ? 'active' : '' ?>">
+                <i class="fas fa-file-alt"></i>
+                <span>Mini Pautas</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), [
+                'admin/mini-grade-sheet',
+                'admin/mini-grade-sheet/trimestral',
+                'admin/mini-grade-sheet/disciplina'
+            ]) ? 'show' : '' ?>" id="miniPautasSubmenu">
+                
+                <li>
+                    <a href="<?= site_url('admin/mini-grade-sheet') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet' ? 'active' : '' ?>">
+                        <i class="fas fa-list"></i> Todas as Mini Pautas
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/trimestral' ? 'active' : '' ?>">
+                        <i class="fas fa-calendar-alt"></i> Pautas Trimestrais
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
+                        <i class="fas fa-book-open"></i> Pautas por Disciplina
+                    </a>
+                </li>
+            </ul>
         </li>
-        
-        <!-- Pautas Trimestrais -->
-        <li>
-            <a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" 
-               class="<?= uri_string() == 'admin/mini-grade-sheet/trimestral' ? 'active' : '' ?>">
-                <i class="fas fa-calendar-alt"></i> Pautas Trimestrais
-            </a>
-        </li>
-        
-        <!-- Pautas por Disciplina -->
-        <li>
-            <a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" 
-               class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
-                <i class="fas fa-book-open"></i> Pautas por Disciplina
-            </a>
-        </li>
-    </ul>
-</li>
-<?php endif; ?>
-        <!-- Propinas e Taxas - Mantido igual -->
+        <?php endif; ?>
+
+        <!-- Propinas e Taxas -->
         <?php if (has_permission('fees.list') || has_permission('fee_types.list')): ?>
-        <li>
-            <a href="#feesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'active' : '' ?>">
-                <i class="fas fa-money-bill"></i> Propinas e Taxas
+        <li class="nav-item">
+            <a href="#feesSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'active' : '' ?>">
+                <i class="fas fa-money-bill"></i>
+                <span>Propinas e Taxas</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'show' : '' ?>" id="feesSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/fees/types', 'admin/fees/structure', 'admin/fees/payments']) ? 'show' : '' ?>" id="feesSubmenu">
                 <?php if (has_permission('fee_types.list')): ?>
                 <li><a href="<?= site_url('admin/fees/types') ?>" class="<?= uri_string() == 'admin/fees/types' ? 'active' : '' ?>"><i class="fas fa-tag"></i> Tipos de Taxas</a></li>
                 <?php endif; ?>
@@ -359,11 +383,13 @@
         
         <!-- Financeiro -->
         <?php if (has_permission('financial.dashboard') || has_permission('invoices.list') || has_permission('expenses.list') || has_permission('settings.financial')): ?>
-        <li>
-            <a href="#financialSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/financial/invoices', 'admin/financial/payments', 'admin/financial/expenses', 'admin/financial/currencies', 'admin/financial/taxes']) ? 'active' : '' ?>">
-                <i class="fas fa-chart-line"></i> Financeiro
+        <li class="nav-item">
+            <a href="#financialSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/financial/invoices', 'admin/financial/payments', 'admin/financial/expenses', 'admin/financial/currencies', 'admin/financial/taxes']) ? 'active' : '' ?>">
+                <i class="fas fa-chart-line"></i>
+                <span>Financeiro</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/financial/invoices', 'admin/financial/payments', 'admin/financial/expenses', 'admin/financial/currencies', 'admin/financial/taxes']) ? 'show' : '' ?>" id="financialSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/financial/invoices', 'admin/financial/payments', 'admin/financial/expenses', 'admin/financial/currencies', 'admin/financial/taxes']) ? 'show' : '' ?>" id="financialSubmenu">
                 <?php if (has_permission('invoices.list')): ?>
                 <li><a href="<?= site_url('admin/financial/invoices') ?>" class="<?= uri_string() == 'admin/financial/invoices' ? 'active' : '' ?>"><i class="fas fa-file-invoice"></i> Faturas</a></li>
                 <li><a href="<?= site_url('admin/financial/payments') ?>" class="<?= uri_string() == 'admin/financial/payments' ? 'active' : '' ?>"><i class="fas fa-money-bill-wave"></i> Pagamentos</a></li>
@@ -383,23 +409,24 @@
         
         <!-- Central de Documentos -->
         <?php if (has_permission('documents.list') || has_permission('document_requests.list')): ?>
-        <li>
-            <a href="#adminDocumentsSubmenu" data-bs-toggle="collapse" 
-            class="dropdown-toggle <?= in_array(uri_string(), ['admin/documents', 'admin/documents/pending', 'admin/documents/verified', 'admin/documents/requests', 'admin/documents/reports']) ? 'active' : '' ?>">
-                <i class="fas fa-folder-open"></i> Central de Documentos
+        <li class="nav-item">
+            <a href="#adminDocumentsSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/documents', 'admin/documents/pending', 'admin/documents/verified', 'admin/documents/requests', 'admin/documents/reports']) ? 'active' : '' ?>">
+                <i class="fas fa-folder-open"></i>
+                <span>Central de Documentos</span>
                 <?php 
                 if (has_permission('documents.list')):
                     $documentModel = new \App\Models\DocumentModel();
                     $pendingDocs = $documentModel->where('is_verified', 0)->countAllResults();
                     if ($pendingDocs > 0): 
                 ?>
-                    <span class="badge bg-warning text-dark float-end"><?= $pendingDocs ?></span>
+                    <span class="badge bg-warning text-dark ms-auto"><?= $pendingDocs ?></span>
                 <?php 
                     endif;
                 endif; 
                 ?>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/documents', 'admin/documents/pending', 'admin/documents/verified', 'admin/documents/requests', 'admin/documents/reports']) ? 'show' : '' ?>" id="adminDocumentsSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/documents', 'admin/documents/pending', 'admin/documents/verified', 'admin/documents/requests', 'admin/documents/reports']) ? 'show' : '' ?>" id="adminDocumentsSubmenu">
                 <?php if (has_permission('documents.list')): ?>
                 <li><a href="<?= site_url('admin/documents') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                 <li><a href="<?= site_url('admin/documents/pending') ?>"><i class="fas fa-clock"></i> Pendentes <?php if($pendingDocs>0):?><span class="badge bg-warning float-end"><?=$pendingDocs?></span><?php endif;?></a></li>
@@ -421,23 +448,24 @@
         
         <!-- Gerador de Documentos -->
         <?php if (has_permission('document_requests.list') || has_permission('report_cards.generate')): ?>
-        <li>
-            <a href="#documentGeneratorSubmenu" data-bs-toggle="collapse" 
-            class="dropdown-toggle <?= in_array(uri_string(), ['admin/document-generator', 'admin/document-generator/pending', 'admin/document-generator/generated', 'admin/document-generator/templates']) ? 'active' : '' ?>">
-                <i class="fas fa-file-pdf"></i> Gerador de Documentos
+        <li class="nav-item">
+            <a href="#documentGeneratorSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/document-generator', 'admin/document-generator/pending', 'admin/document-generator/generated', 'admin/document-generator/templates']) ? 'active' : '' ?>">
+                <i class="fas fa-file-pdf"></i>
+                <span>Gerador de Documentos</span>
                 <?php 
                 if (has_permission('document_requests.list')):
                     $requestModel = new \App\Models\DocumentRequestModel();
                     $pendingRequests = $requestModel->where('status', 'pending')->countAllResults();
                     if ($pendingRequests > 0): 
                 ?>
-                    <span class="badge bg-warning text-dark float-end"><?= $pendingRequests ?></span>
+                    <span class="badge bg-warning text-dark ms-auto"><?= $pendingRequests ?></span>
                 <?php 
                     endif;
                 endif; 
                 ?>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/document-generator', 'admin/document-generator/pending', 'admin/document-generator/generated', 'admin/document-generator/templates']) ? 'show' : '' ?>" id="documentGeneratorSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/document-generator', 'admin/document-generator/pending', 'admin/document-generator/generated', 'admin/document-generator/templates']) ? 'show' : '' ?>" id="documentGeneratorSubmenu">
                 <?php if (has_permission('document_requests.list')): ?>
                 <li><a href="<?= site_url('admin/document-generator') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                 <li><a href="<?= site_url('admin/document-generator/pending') ?>"><i class="fas fa-clock"></i> Pendentes <?php if($pendingRequests>0):?><span class="badge bg-warning float-end"><?=$pendingRequests?></span><?php endif;?></a></li>
@@ -453,11 +481,13 @@
         
         <!-- Relatórios -->
         <?php if (has_permission('reports.view')): ?>
-        <li>
-            <a href="#reportsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/reports/academic', 'admin/reports/financial', 'admin/reports/students', 'admin/reports/attendance', 'admin/reports/exams', 'admin/reports/fees']) ? 'active' : '' ?>">
-                <i class="fas fa-chart-bar"></i> Relatórios
+        <li class="nav-item">
+            <a href="#reportsSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/reports/academic', 'admin/reports/financial', 'admin/reports/students', 'admin/reports/attendance', 'admin/reports/exams', 'admin/reports/fees']) ? 'active' : '' ?>">
+                <i class="fas fa-chart-bar"></i>
+                <span>Relatórios</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/reports/academic', 'admin/reports/financial', 'admin/reports/students', 'admin/reports/attendance', 'admin/reports/exams', 'admin/reports/fees']) ? 'show' : '' ?>" id="reportsSubmenu">
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/reports/academic', 'admin/reports/financial', 'admin/reports/students', 'admin/reports/attendance', 'admin/reports/exams', 'admin/reports/fees']) ? 'show' : '' ?>" id="reportsSubmenu">
                 <?php if (has_permission('reports.academic')): ?>
                 <li><a href="<?= site_url('admin/reports/academic') ?>"><i class="fas fa-graduation-cap"></i> Académico</a></li>
                 <?php endif; ?>
@@ -485,15 +515,11 @@
         </li>
         <?php endif; ?>
         
-       <!-- CONFIGURAÇÕES COMPLETAS -->
-        <li class="sidebar-header small text-uppercase px-3 mt-3 mb-1 text-white-50">
-            <i class="fas fa-cog me-1"></i> Sistema
-        </li>
-
+        <!-- CONFIGURAÇÕES -->
         <?php if (has_permission('settings.view') || has_permission('users.list') || has_permission('roles.list') || has_permission('settings.general')): ?>
-        <li>
-            <a href="#settingsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), [
-                'admin/settings/index',
+        <li class="nav-item">
+            <a href="#settingsSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), [
+                'admin/settings',
                 'admin/settings/general',
                 'admin/settings/school',
                 'admin/settings/academic',
@@ -502,10 +528,12 @@
                 'admin/users',
                 'admin/roles'
             ]) ? 'active' : '' ?>">
-                <i class="fas fa-cog"></i> Configurações
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
             </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), [
-                'admin/settings/index',
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), [
+                'admin/settings',
                 'admin/settings/general',
                 'admin/settings/school',
                 'admin/settings/academic',
@@ -515,114 +543,364 @@
                 'admin/roles'
             ]) ? 'show' : '' ?>" id="settingsSubmenu">
                 
-                <!-- Dashboard de Configurações -->
-                <li><a href="<?= site_url('admin/settings') ?>"><i class="fas fa-tachometer-alt"></i>Configurações</a></li>
+                <li><a href="<?= site_url('admin/settings') ?>" class="<?= uri_string() == 'admin/settings' ? 'active' : '' ?>">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a></li>
                 
-                <!-- Configurações Gerais -->
                 <?php if (has_permission('settings.general')): ?>
                 <li><a href="<?= site_url('admin/settings/general') ?>" class="<?= uri_string() == 'admin/settings/general' ? 'active' : '' ?>">
                     <i class="fas fa-sliders-h"></i> Gerais
                 </a></li>
-                <?php endif; ?>
                 
-                <!-- Configurações da Escola -->
-                <?php if (has_permission('settings.general')): ?>
                 <li><a href="<?= site_url('admin/settings/school') ?>" class="<?= uri_string() == 'admin/settings/school' ? 'active' : '' ?>">
-                    <i class="fas fa-school"></i> Configurações da Escola
+                    <i class="fas fa-school"></i> Escola
                 </a></li>
                 <?php endif; ?>
                 
-                <!-- Configurações Académicas -->
-                <?php if (has_permission('settings.academic')): ?>
-                <li><a href="<?= site_url('admin/settings/academic') ?>" class="<?= uri_string() == 'admin/settings/academic' ? 'active' : '' ?>">
-                    <i class="fas fa-graduation-cap"></i> Configurações Académicas
-                </a></li>
-                <?php endif; ?>
-                
-                <!-- Configurações de Pagamento -->
                 <?php if (has_permission('settings.payment')): ?>
                 <li><a href="<?= site_url('admin/settings/payment') ?>" class="<?= uri_string() == 'admin/settings/payment' ? 'active' : '' ?>">
-                    <i class="fas fa-money-bill-wave"></i> Configurações de Pagamento
+                    <i class="fas fa-money-bill-wave"></i> Pagamento
                 </a></li>
                 <?php endif; ?>
                 
-                <!-- Configurações de Email -->
                 <?php if (has_permission('settings.email')): ?>
                 <li><a href="<?= site_url('admin/settings/email') ?>" class="<?= uri_string() == 'admin/settings/email' ? 'active' : '' ?>">
-                    <i class="fas fa-envelope"></i> Configurações de Email
+                    <i class="fas fa-envelope"></i> Email
                 </a></li>
                 <?php endif; ?>
                 
-                <li class="sidebar-divider"></li>
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Gestão de Utilizadores</li>
-                
-                <!-- Utilizadores -->
                 <?php if (has_permission('users.list')): ?>
                 <li><a href="<?= site_url('admin/users') ?>" class="<?= uri_string() == 'admin/users' ? 'active' : '' ?>">
                     <i class="fas fa-users-cog"></i> Utilizadores
                 </a></li>
                 <?php endif; ?>
                 
-                <!-- Perfis de Acesso -->
                 <?php if (has_permission('roles.list')): ?>
                 <li><a href="<?= site_url('admin/roles') ?>" class="<?= uri_string() == 'admin/roles' ? 'active' : '' ?>">
                     <i class="fas fa-shield-alt"></i> Perfis de Acesso
                 </a></li>
                 <?php endif; ?>
-                
-                <!-- Permissões (comentado conforme original) -->
-                <?php if (has_permission('roles.permissions')): ?>
-                <!-- <li><a href="<?= site_url('admin/roles/permissions') ?>"><i class="fas fa-key"></i> Permissões</a></li> -->
+            </ul>
+        </li>
+        <?php endif; ?>
+        
+        <!-- Ferramentas -->
+        <?php if (has_permission('logs.view') || has_permission('settings.backup')): ?>
+        <li class="nav-item">
+            <a href="#toolsSubmenu" data-bs-toggle="collapse" class="nav-link dropdown-toggle <?= in_array(uri_string(), ['admin/tools/logs']) ? 'active' : '' ?>">
+                <i class="fas fa-tools"></i>
+                <span>Ferramentas</span>
+                <i class="fas fa-chevron-right dropdown-icon"></i>
+            </a>
+            <ul class="collapse list-unstyled submenu <?= in_array(uri_string(), ['admin/tools/logs']) ? 'show' : '' ?>" id="toolsSubmenu">
+                <?php if (has_permission('logs.view')): ?>
+                <li><a href="<?= site_url('admin/tools/logs') ?>"><i class="fas fa-history"></i> Logs do Sistema</a></li>
                 <?php endif; ?>
                 
-                <!-- Utilitários -->
-                <li class="sidebar-divider"></li>
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Utilitários</li>
-                
-                <!-- Limpar Cache -->
                 <li><a href="<?= site_url('admin/settings/clear-cache') ?>" onclick="return confirm('Tem certeza que deseja limpar o cache?')">
                     <i class="fas fa-broom"></i> Limpar Cache
                 </a></li>
             </ul>
         </li>
         <?php endif; ?>
-        
-        <!-- Ferramentas -->
-        <?php if (has_permission('logs.view')): ?>
-        <li>
-            <a href="#toolsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), ['admin/tools/logs']) ? 'active' : '' ?>">
-                <i class="fas fa-tools"></i> Ferramentas
-            </a>
-            <ul class="collapse list-unstyled <?= in_array(uri_string(), ['admin/tools/logs']) ? 'show' : '' ?>" id="toolsSubmenu">
-                <?php if (has_permission('logs.view')): ?>
-                <li><a href="<?= site_url('admin/tools/logs') ?>"><i class="fas fa-history"></i> Logs do Sistema</a></li>
-                <?php endif; ?>
-                
-                <?php if (has_permission('settings.backup')): ?>
-                <li><a href="#"><i class="fas fa-database"></i> Backup</a></li>
-                <?php endif; ?>
-                
-                <?php if (has_permission('settings.system')): ?>
-                <li><a href="#" onclick="return confirm('Limpar cache do sistema?')"><i class="fas fa-eraser"></i> Limpar Cache</a></li>
-                <?php endif; ?>
-            </ul>
-        </li>
-        <?php endif; ?>
     </ul>
     
-    <div class="sidebar-footer p-3">
-        <div class="small text-white-50">
-            <i class="fas fa-calendar"></i> <?= date('Y') ?>
-            <?php if (session()->get('academic_year')): ?>
-                <br><i class="fas fa-database"></i> <?= session()->get('academic_year') ?>
-            <?php endif; ?>
+    <div class="sidebar-footer">
+        <div class="footer-info">
+            <i class="fas fa-calendar-alt"></i>
+            <span><?= date('Y') ?></span>
         </div>
+        <?php if (session()->get('academic_year')): ?>
+        <div class="footer-info">
+            <i class="fas fa-database"></i>
+            <span><?= session()->get('academic_year') ?></span>
+        </div>
+        <?php endif; ?>
         
-        <!-- Logout Button (sempre visível) -->
-        <div class="mt-3">
-            <a href="<?= site_url('auth/logout') ?>" class="btn btn-outline-light btn-sm w-100" onclick="return confirm('Tem certeza que deseja sair?')">
-                <i class="fas fa-sign-out-alt"></i> Sair
+        <div class="logout-btn">
+            <a href="<?= site_url('auth/logout') ?>" class="btn-logout" onclick="return confirm('Tem certeza que deseja sair?')">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
             </a>
         </div>
     </div>
 </nav>
+<style>
+    /* Sidebar Moderno */
+.sidebar {
+    background: linear-gradient(180deg, #1e2b4a 0%, #2c3e6e 100%);
+    color: rgba(255, 255, 255, 0.8);
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar personalizada */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Cabeçalho */
+.sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+}
+
+.sidebar-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: contain;
+    background: white;
+    padding: 5px;
+}
+
+.sidebar-logo-placeholder {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    line-height: 1.2;
+}
+
+.sidebar-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 0.3px;
+}
+
+/* Navegação */
+.nav-item {
+    margin: 2px 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+}
+
+.nav-link i:first-child {
+    width: 24px;
+    font-size: 1.1rem;
+    margin-right: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease;
+}
+
+.nav-link span {
+    flex: 1;
+}
+
+.nav-link .dropdown-icon {
+    width: auto;
+    margin-right: 0;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.nav-link[aria-expanded="true"] .dropdown-icon {
+    transform: rotate(90deg);
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-link:hover i:first-child {
+    color: white;
+}
+
+.nav-link.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-weight: 500;
+}
+
+.nav-link.active i:first-child {
+    color: white;
+}
+
+/* Submenu */
+.submenu {
+    margin-left: 32px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.submenu li {
+    list-style: none;
+}
+
+.submenu a {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.submenu a i {
+    width: 20px;
+    font-size: 0.9rem;
+    margin-right: 8px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.submenu a:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.submenu a:hover i {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.submenu a.active {
+    color: white;
+    font-weight: 500;
+}
+
+.submenu a.active i {
+    color: white;
+}
+
+/* Badges */
+.badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    margin-left: 8px;
+}
+
+.badge.bg-warning {
+    background: #ffc107 !important;
+    color: #1e2b4a !important;
+}
+
+.badge.bg-info {
+    background: #17a2b8 !important;
+}
+
+/* Footer */
+.sidebar-footer {
+    padding: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-info {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+}
+
+.footer-info i {
+    width: 24px;
+    font-size: 0.9rem;
+    margin-right: 10px;
+}
+
+.logout-btn {
+    margin-top: 0.5rem;
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    background: rgba(220, 53, 69, 0.15);
+    color: #ff8a92;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.btn-logout i {
+    width: 24px;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
+.btn-logout:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Animações */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.nav-link, .submenu a {
+    animation: slideIn 0.3s ease;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        width: 260px;
+        transform: translateX(0);
+    }
+}
+</style>
