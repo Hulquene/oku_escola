@@ -214,6 +214,9 @@ public function school()
         ];
         
         if ($this->settingsModel->saveSettings($settings)) {
+             // Limpar cache do logo
+            cache()->delete('school_logo');
+        
             return redirect()->to('/admin/settings/general')
                 ->with('success', 'Configurações gerais salvas com sucesso');
         } else {
@@ -267,6 +270,9 @@ public function school()
         }
         
         if ($this->settingsModel->saveSettings($settings)) {
+             // Limpar cache do logo
+            cache()->delete('school_logo');
+        
             return redirect()->to('/admin/settings/school')
                 ->with('success', 'Configurações da escola salvas com sucesso');
         } else {
@@ -303,6 +309,9 @@ public function school()
         ];
         
         if ($this->settingsModel->saveSettings($settings)) {
+             // Limpar cache do logo
+            cache()->delete('school_logo');
+        
             return redirect()->to('/admin/settings/academic')
                 ->with('success', 'Configurações académicas salvas com sucesso');
         } else {
@@ -341,6 +350,9 @@ public function school()
         ];
         
         if ($this->settingsModel->saveSettings($settings)) {
+             // Limpar cache do logo
+            cache()->delete('school_logo');
+        
             return redirect()->to('/admin/settings/payment')
                 ->with('success', 'Configurações de pagamento salvas com sucesso');
         } else {
@@ -377,6 +389,9 @@ public function school()
         ];
         
         if ($this->settingsModel->saveSettings($settings)) {
+             // Limpar cache do logo
+            cache()->delete('school_logo');
+        
             return redirect()->to('/admin/settings/email')
                 ->with('success', 'Configurações de email salvas com sucesso');
         } else {

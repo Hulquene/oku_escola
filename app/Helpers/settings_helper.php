@@ -127,3 +127,54 @@ if (!function_exists('format_money')) {
         return $formatted;
     }
 }
+
+// Adicionar no app/Helpers/settings_helper.php
+
+// if (!function_exists('school_logo_url')) {
+//     /**
+//      * Get school logo URL
+//      */
+//     function school_logo_url()
+//     {
+//         $logo = setting('school_logo');
+//         if ($logo && file_exists('uploads/school/' . $logo)) {
+//             return base_url('uploads/school/' . $logo);
+//         }
+//         return base_url('assets/images/default-logo.png'); // imagem padrão
+//     }
+// }
+
+if (!function_exists('school_logo_html')) {
+    /**
+     * Get school logo HTML with specified dimensions
+     */
+    function school_logo_html($width = 40, $height = 40, $class = '')
+    {
+        $logoUrl = school_logo_url();
+        $acronym = setting('school_acronym') ?: 'Escola';
+        
+        if ($logoUrl) {
+            return '<img src="' . $logoUrl . '" alt="' . $acronym . '" width="' . $width . '" height="' . $height . '" class="' . $class . '" style="object-fit: contain;">';
+        }
+        
+        return '<div class="school-logo-placeholder ' . $class . '" style="width: ' . $width . 'px; height: ' . $height . 'px;"><i class="fas fa-graduation-cap"></i></div>';
+    }
+}
+
+if (!function_exists('school_logo_url')) {
+    function school_logo_url()
+    {
+        $cache = service('cache');
+        $logo = $cache->get('school_logo');
+        
+        if ($logo === null) {
+            $logo = setting('school_logo');
+            $cache->save('school_logo', $logo, 3600); // cache de 1 hora
+        }
+        
+        if ($logo && file_exists('uploads/school/' . $logo)) {
+            return base_url('uploads/school/' . $logo);
+        }
+        return base_url('assets/images/default-logo.png');
+    }
+}

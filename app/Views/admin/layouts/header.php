@@ -1,4 +1,4 @@
-<nav class="navbar navbar-light bg-white">
+<nav class="navbar navbar-light bg-white fixed-top shadow-sm">
     <div class="container-fluid">
         <!-- Sidebar Toggle -->
         <button type="button" id="sidebarCollapse" class="btn btn-link text-dark me-3">
@@ -63,7 +63,7 @@
                     <i class="fas fa-bell"></i>
                     <?php 
                     $notificationModel = new \App\Models\NotificationModel();
-                    $unreadCount = $notificationModel->getUnreadCount(currentUserId());
+                    $unreadCount = $notificationModel->getUnreadCount(session()->get('user_id')); // CORRIGIDO: currentUserId() removido
                     if ($unreadCount > 0): 
                     ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -71,9 +71,9 @@
                         </span>
                     <?php endif; ?>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" style="width: 350px;">
-                    <li class="dropdown-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">Notificações</h6>
+                <ul class="dropdown-menu dropdown-menu-end" style="width: 350px; max-height: 500px; overflow-y: auto;">
+                    <li class="dropdown-header d-flex justify-content-between align-items-center bg-light py-2">
+                        <h6 class="mb-0 fw-bold">Notificações</h6>
                         <?php if ($unreadCount > 0): ?>
                             <a href="<?= site_url('admin/notifications/mark-all-read') ?>" class="small text-decoration-none">
                                 Marcar todas como lidas
@@ -82,7 +82,7 @@
                     </li>
                     
                     <?php 
-                    $recentNotifications = $notificationModel->getRecent(currentUserId(), 5);
+                    $recentNotifications = $notificationModel->getRecent(session()->get('user_id'), 5); // CORRIGIDO
                     if (!empty($recentNotifications)): 
                     ?>
                         <?php foreach ($recentNotifications as $notif): ?>
@@ -95,56 +95,57 @@
                                                   text-<?= $notif->color ?? 'primary' ?>"></i>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <div class="small fw-bold"><?= $notif->title ?></div>
-                                            <div class="small text-muted"><?= $notif->message ?></div>
+                                            <div class="small fw-bold"><?= esc($notif->title) ?></div>
+                                            <div class="small text-muted"><?= esc($notif->message) ?></div>
                                             <small class="text-muted d-block mt-1">
                                                 <?= time_elapsed_string($notif->created_at) ?>
                                             </small>
                                         </div>
+                                        <?php if (!$notif->is_read): ?>
+                                            <span class="badge bg-primary ms-2">Nova</span>
+                                        <?php endif; ?>
                                     </div>
                                 </a>
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li class="text-center py-3">
-                            <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
-                            <p class="small text-muted mb-0">Nenhuma notificação</p>
+                        <li class="text-center py-4">
+                            <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">Nenhuma notificação</p>
                         </li>
                     <?php endif; ?>
                     
-                    <?php if ($unreadCount > 0): ?>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-center" href="<?= site_url('admin/notifications') ?>">
-                                Ver todas as notificações
-                            </a>
-                        </li>
-                    <?php endif; ?>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <a class="dropdown-item text-center py-2" href="<?= site_url('admin/notifications') ?>">
+                            <i class="fas fa-list me-1"></i> Ver todas as notificações
+                        </a>
+                    </li>
                 </ul>
             </div>
             
             <!-- Quick Actions -->
             <div class="dropdown me-3 d-none d-lg-block">
                 <button class="btn btn-success position-relative" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-plus"></i> Rápido
+                    <i class="fas fa-plus me-1"></i> Rápido
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><h6 class="dropdown-header">Ações Rápidas</h6></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/enrollments/form-add') ?>">
-                        <i class="fas fa-user-plus text-success"></i> Nova Matrícula
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><h6 class="dropdown-header fw-bold">Ações Rápidas</h6></li>
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/enrollments/form-add') ?>">
+                        <i class="fas fa-user-plus text-success me-2"></i> Nova Matrícula
                     </a></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/students/form-add') ?>">
-                        <i class="fas fa-graduation-cap text-primary"></i> Novo Aluno
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/students/form-add') ?>">
+                        <i class="fas fa-graduation-cap text-primary me-2"></i> Novo Aluno
                     </a></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/teachers/form-add') ?>">
-                        <i class="fas fa-chalkboard-teacher text-info"></i> Novo Professor
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/teachers/form-add') ?>">
+                        <i class="fas fa-chalkboard-teacher text-info me-2"></i> Novo Professor
                     </a></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/classes/form-add') ?>">
-                        <i class="fas fa-school text-warning"></i> Nova Turma
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/classes/form-add') ?>">
+                        <i class="fas fa-school text-warning me-2"></i> Nova Turma
                     </a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/exams/form-add') ?>">
-                        <i class="fas fa-pencil-alt text-danger"></i> Agendar Exame
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/exams/form-add') ?>">
+                        <i class="fas fa-pencil-alt text-danger me-2"></i> Agendar Exame
                     </a></li>
                 </ul>
             </div>
@@ -152,46 +153,50 @@
             <!-- User Menu -->
             <div class="dropdown">
                 <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown">
-                    <img src="<?= session()->get('photo') 
-                        ? base_url('uploads/users/' . session()->get('photo')) 
-                        : 'https://ui-avatars.com/api/?name='.urlencode(session()->get('name')).'&background=4e73df&color=fff&size=128' ?>" 
+                    <?php 
+                    $userPhoto = session()->get('photo');
+                    $userName = session()->get('name') ?: 'Usuário';
+                    ?>
+                    <img src="<?= $userPhoto 
+                        ? base_url('uploads/users/' . $userPhoto) 
+                        : 'https://ui-avatars.com/api/?name='.urlencode($userName).'&background=4e73df&color=fff&size=128' ?>" 
                          alt="User" 
                          class="rounded-circle me-2"
                          style="width: 40px; height: 40px; object-fit: cover;">
                     <div class="d-none d-md-block text-start">
-                        <div class="fw-bold small"><?= session()->get('name') ?></div>
-                        <div class="text-muted small"><?= session()->get('role') ?></div>
+                        <div class="fw-bold small"><?= esc($userName) ?></div>
+                        <div class="text-muted small"><?= session()->get('role') ?: 'Administrador' ?></div>
                     </div>
                     <i class="fas fa-chevron-down text-muted ms-1 d-none d-md-block"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                     <li>
-                        <div class="dropdown-header d-flex align-items-center">
-                            <img src="<?= session()->get('photo') 
-                                ? base_url('uploads/users/' . session()->get('photo')) 
-                                : 'https://ui-avatars.com/api/?name='.urlencode(session()->get('name')).'&background=4e73df&color=fff&size=128' ?>" 
+                        <div class="dropdown-header d-flex align-items-center py-3">
+                            <img src="<?= $userPhoto 
+                                ? base_url('uploads/users/' . $userPhoto) 
+                                : 'https://ui-avatars.com/api/?name='.urlencode($userName).'&background=4e73df&color=fff&size=64' ?>" 
                                  alt="User" 
                                  class="rounded-circle me-2"
-                                 style="width: 32px; height: 32px; object-fit: cover;">
+                                 style="width: 40px; height: 40px; object-fit: cover;">
                             <div>
-                                <div class="fw-bold"><?= session()->get('name') ?></div>
+                                <div class="fw-bold"><?= esc($userName) ?></div>
                                 <div class="small text-muted"><?= session()->get('email') ?></div>
                             </div>
                         </div>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/users/profile') ?>">
-                        <i class="fas fa-user-circle fa-fw text-primary"></i> Meu Perfil
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/users/profile') ?>">
+                        <i class="fas fa-user-circle fa-fw text-primary me-2"></i> Meu Perfil
                     </a></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/settings') ?>">
-                        <i class="fas fa-cog fa-fw text-secondary"></i> Configurações
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/settings') ?>">
+                        <i class="fas fa-cog fa-fw text-secondary me-2"></i> Configurações
                     </a></li>
-                    <li><a class="dropdown-item" href="<?= site_url('admin/help') ?>">
-                        <i class="fas fa-question-circle fa-fw text-info"></i> Ajuda
+                    <li><a class="dropdown-item py-2" href="<?= site_url('admin/help') ?>">
+                        <i class="fas fa-question-circle fa-fw text-info me-2"></i> Ajuda
                     </a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="<?= site_url('auth/logout') ?>">
-                        <i class="fas fa-sign-out-alt fa-fw"></i> Sair
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item py-2 text-danger" href="<?= site_url('auth/logout') ?>" onclick="return confirm('Tem certeza que deseja sair?')">
+                        <i class="fas fa-sign-out-alt fa-fw me-2"></i> Sair
                     </a></li>
                 </ul>
             </div>
@@ -203,6 +208,8 @@
 <?php
 if (!function_exists('time_elapsed_string')) {
     function time_elapsed_string($datetime, $full = false) {
+        if (empty($datetime)) return '';
+        
         $now = new DateTime;
         $ago = new DateTime($datetime);
         $diff = $now->diff($ago);
@@ -234,88 +241,40 @@ if (!function_exists('time_elapsed_string')) {
 }
 ?>
 
-<style>
-/* Navbar Styles */
-.navbar {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    padding: 0.75rem 1.5rem;
-    z-index: 1030;
-}
+<script>
+// Atualizar contador de notificações via AJAX a cada 60 segundos
+setInterval(function() {
+    fetch('<?= site_url('admin/notifications/getUnreadCount') ?>')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.querySelector('.btn-light.position-relative .badge');
+                if (data.count > 0) {
+                    if (badge) {
+                        badge.textContent = data.count > 9 ? '9+' : data.count;
+                    } else {
+                        const button = document.querySelector('.btn-light.position-relative');
+                        const newBadge = document.createElement('span');
+                        newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+                        newBadge.textContent = data.count > 9 ? '9+' : data.count;
+                        button.appendChild(newBadge);
+                    }
+                } else {
+                    if (badge) badge.remove();
+                }
+            }
+        })
+        .catch(error => console.error('Erro ao atualizar notificações:', error));
+}, 60000);
 
-#sidebarCollapse {
-    transition: transform 0.2s;
-}
-
-#sidebarCollapse:hover {
-    transform: scale(1.1);
-}
-
-/* Dropdown Animations */
-.dropdown-menu {
-    animation: slideIn 0.2s ease-out;
-    border: none;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Notifications */
-.dropdown-item.bg-light {
-    background-color: #f8f9fa !important;
-}
-
-.dropdown-item:active {
-    background-color: #4e73df;
-}
-
-/* Quick Actions */
-.btn-success .fas {
-    transition: transform 0.2s;
-}
-
-.btn-success:hover .fas {
-    transform: rotate(90deg);
-}
-
-/* Breadcrumb */
-.breadcrumb {
-    font-size: 0.9rem;
-}
-
-.breadcrumb-item a {
-    color: #6c757d;
-}
-
-.breadcrumb-item.active {
-    color: #4e73df;
-}
-
-/* User Menu */
-.user-info {
-    transition: opacity 0.2s;
-}
-
-.user-info:hover {
-    opacity: 0.8;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .navbar {
-        padding: 0.5rem 1rem;
-    }
-    
-    #sidebarCollapse {
-        margin-right: 10px;
-    }
-}
-</style>
+// Fechar dropdowns ao clicar fora
+document.addEventListener('click', function(e) {
+    const dropdowns = document.querySelectorAll('.dropdown-menu');
+    dropdowns.forEach(dropdown => {
+        if (!dropdown.parentElement.contains(e.target)) {
+            const bsDropdown = bootstrap.Dropdown.getInstance(dropdown.parentElement.querySelector('[data-bs-toggle="dropdown"]'));
+            if (bsDropdown) bsDropdown.hide();
+        }
+    });
+});
+</script>
