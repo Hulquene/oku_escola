@@ -485,64 +485,104 @@
         </li>
         <?php endif; ?>
         
-        <!-- CONFIGURAÇÕES COMPLETAS -->
+       <!-- CONFIGURAÇÕES COMPLETAS -->
         <li class="sidebar-header small text-uppercase px-3 mt-3 mb-1 text-white-50">
             <i class="fas fa-cog me-1"></i> Sistema
         </li>
-        
+
         <?php if (has_permission('settings.view') || has_permission('users.list') || has_permission('roles.list') || has_permission('settings.general')): ?>
         <li>
             <a href="#settingsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= in_array(uri_string(), [
-                'admin/school-settings', 
-                'admin/users', 
-                'admin/roles', 
+                'admin/settings/index',
                 'admin/settings/general',
-                'admin/settings/email',
+                'admin/settings/school',
+                'admin/settings/academic',
                 'admin/settings/payment',
-                'admin/roles/permissions'
+                'admin/settings/email',
+                'admin/users',
+                'admin/roles'
             ]) ? 'active' : '' ?>">
                 <i class="fas fa-cog"></i> Configurações
             </a>
             <ul class="collapse list-unstyled <?= in_array(uri_string(), [
-                'admin/school-settings', 
-                'admin/users', 
-                'admin/roles', 
+                'admin/settings/index',
                 'admin/settings/general',
-                'admin/settings/email',
+                'admin/settings/school',
+                'admin/settings/academic',
                 'admin/settings/payment',
-                'admin/roles/permissions'
+                'admin/settings/email',
+                'admin/users',
+                'admin/roles'
             ]) ? 'show' : '' ?>" id="settingsSubmenu">
                 
+                <!-- Dashboard de Configurações -->
+                <li><a href="<?= site_url('admin/settings') ?>"><i class="fas fa-tachometer-alt"></i>Configurações</a></li>
+                
+                <!-- Configurações Gerais -->
                 <?php if (has_permission('settings.general')): ?>
-                <li><a href="<?= site_url('admin/school-settings') ?>"><i class="fas fa-school"></i> Configurações da Escola</a></li>
+                <li><a href="<?= site_url('admin/settings/general') ?>" class="<?= uri_string() == 'admin/settings/general' ? 'active' : '' ?>">
+                    <i class="fas fa-sliders-h"></i> Gerais
+                </a></li>
                 <?php endif; ?>
                 
-                <?php if (has_permission('users.list')): ?>
-                <li><a href="<?= site_url('admin/users') ?>"><i class="fas fa-users-cog"></i> Utilizadores</a></li>
+                <!-- Configurações da Escola -->
+                <?php if (has_permission('settings.general')): ?>
+                <li><a href="<?= site_url('admin/settings/school') ?>" class="<?= uri_string() == 'admin/settings/school' ? 'active' : '' ?>">
+                    <i class="fas fa-school"></i> Configurações da Escola
+                </a></li>
                 <?php endif; ?>
                 
-                <?php if (has_permission('roles.list')): ?>
-                <li><a href="<?= site_url('admin/roles') ?>"><i class="fas fa-shield-alt"></i> Perfis de Acesso</a></li>
+                <!-- Configurações Académicas -->
+                <?php if (has_permission('settings.academic')): ?>
+                <li><a href="<?= site_url('admin/settings/academic') ?>" class="<?= uri_string() == 'admin/settings/academic' ? 'active' : '' ?>">
+                    <i class="fas fa-graduation-cap"></i> Configurações Académicas
+                </a></li>
+                <?php endif; ?>
+                
+                <!-- Configurações de Pagamento -->
+                <?php if (has_permission('settings.payment')): ?>
+                <li><a href="<?= site_url('admin/settings/payment') ?>" class="<?= uri_string() == 'admin/settings/payment' ? 'active' : '' ?>">
+                    <i class="fas fa-money-bill-wave"></i> Configurações de Pagamento
+                </a></li>
+                <?php endif; ?>
+                
+                <!-- Configurações de Email -->
+                <?php if (has_permission('settings.email')): ?>
+                <li><a href="<?= site_url('admin/settings/email') ?>" class="<?= uri_string() == 'admin/settings/email' ? 'active' : '' ?>">
+                    <i class="fas fa-envelope"></i> Configurações de Email
+                </a></li>
                 <?php endif; ?>
                 
                 <li class="sidebar-divider"></li>
-                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Configurações do Sistema</li>
+                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Gestão de Utilizadores</li>
                 
-                <?php if (has_permission('settings.general')): ?>
-                <li><a href="<?= site_url('admin/settings/general') ?>"><i class="fas fa-sliders-h"></i> Configurações Gerais</a></li>
+                <!-- Utilizadores -->
+                <?php if (has_permission('users.list')): ?>
+                <li><a href="<?= site_url('admin/users') ?>" class="<?= uri_string() == 'admin/users' ? 'active' : '' ?>">
+                    <i class="fas fa-users-cog"></i> Utilizadores
+                </a></li>
                 <?php endif; ?>
                 
-                <?php if (has_permission('settings.email')): ?>
-                <li><a href="<?= site_url('admin/settings/email') ?>"><i class="fas fa-envelope"></i> Configurações de Email</a></li>
+                <!-- Perfis de Acesso -->
+                <?php if (has_permission('roles.list')): ?>
+                <li><a href="<?= site_url('admin/roles') ?>" class="<?= uri_string() == 'admin/roles' ? 'active' : '' ?>">
+                    <i class="fas fa-shield-alt"></i> Perfis de Acesso
+                </a></li>
                 <?php endif; ?>
                 
-                <?php if (has_permission('settings.payment')): ?>
-                <li><a href="<?= site_url('admin/settings/payment') ?>"><i class="fas fa-money-bill-wave"></i> Configurações de Pagamento</a></li>
-                <?php endif; ?>
-                
+                <!-- Permissões (comentado conforme original) -->
                 <?php if (has_permission('roles.permissions')): ?>
-                <li><a href="<?= site_url('admin/roles/permissions') ?>"><i class="fas fa-key"></i> Permissões</a></li>
+                <!-- <li><a href="<?= site_url('admin/roles/permissions') ?>"><i class="fas fa-key"></i> Permissões</a></li> -->
                 <?php endif; ?>
+                
+                <!-- Utilitários -->
+                <li class="sidebar-divider"></li>
+                <li class="sidebar-header small text-uppercase px-3 mt-2 mb-1 text-white-50">Utilitários</li>
+                
+                <!-- Limpar Cache -->
+                <li><a href="<?= site_url('admin/settings/clear-cache') ?>" onclick="return confirm('Tem certeza que deseja limpar o cache?')">
+                    <i class="fas fa-broom"></i> Limpar Cache
+                </a></li>
             </ul>
         </li>
         <?php endif; ?>

@@ -657,16 +657,6 @@ $routes->group('mini-grade-sheet', ['filter' => 'auth:admin'], function($routes)
   });
 
   /**
-   * Configurações da Escola
-   */
-  $routes->group('school-settings', function ($routes) {
-    $routes->get('', [SchoolSettings::class, 'index'], ["as" => 'school.settings']);
-    $routes->post('save-general', [SchoolSettings::class, 'saveGeneral'], ["as" => 'school.settings.save_general']);
-    $routes->post('save-academic', [SchoolSettings::class, 'saveAcademic'], ["as" => 'school.settings.save_academic']);
-    $routes->post('save-fees', [SchoolSettings::class, 'saveFees'], ["as" => 'school.settings.save_fees']);
-  });
-
-  /**
    * Gestão de Utilizadores e Permissões (mantendo existente)
    */
   $routes->group('users', function ($routes) {
@@ -707,17 +697,38 @@ $routes->group('mini-grade-sheet', ['filter' => 'auth:admin'], function($routes)
         $routes->post('update-permissions', [Roles::class, 'update_permissions'], ["as" => 'roles.permissions.update']);
     });
 
-  /**
-   * Configurações Gerais (mantendo existente)
-   */
-  $routes->group('settings', function ($routes) {
-    $routes->get('', [Settings::class, 'settings'], ["as" => 'settings']);
-    $routes->get('general', [Settings::class, 'generalsettings'], ["as" => 'settings.general']);
-    $routes->post('save-general', [Settings::class, 'saveGeneralsettings'], ["as" => 'settings.save_general']);
-    $routes->post('save-company', [Settings::class, 'saveDatacompany'], ["as" => 'settings.save_company']);
-    $routes->get('email', [Settings::class, 'emailsettings'], ["as" => 'settings.email']);
-    $routes->get('payment', [Settings::class, 'paymentsettings'], ["as" => 'settings.payment']);
-  });
+    /**
+     * Configurações do Sistema
+     */
+    $routes->group('settings', ['filter' => 'auth:admin'], function($routes) {
+        // Dashboard de configurações
+        $routes->get('/',[Settings::class, 'index'], ['as' => 'settings.index']);
+        
+        // Configurações Gerais
+        $routes->get('general', [Settings::class, 'general'], ['as' => 'settings.general']);
+        $routes->post('save-general', [Settings::class, 'saveGeneral'], ['as' => 'settings.save_general']);
+        
+        // Configurações da Escola
+        $routes->get('school', [Settings::class, 'school'], ['as' => 'settings.school']);
+        $routes->post('save-school', [Settings::class, 'saveSchool'], ['as' => 'settings.save_school']);
+        $routes->post('remove-logo', [Settings::class, 'removeLogo'], ['as' => 'settings.remove_logo']);
+        
+        // Configurações Académicas
+        $routes->get('academic', [Settings::class, 'academic'], ['as' => 'settings.academic']);
+        $routes->post('save-academic', [Settings::class, 'saveAcademic'], ['as' => 'settings.save_academic']);
+        
+        // Configurações de Pagamento
+        $routes->get('payment', [Settings::class, 'payment'], ['as' => 'settings.payment']);
+        $routes->post('save-payment', [Settings::class, 'savePayment'], ['as' => 'settings.save_payment']);
+        
+        // Configurações de Email
+        $routes->get('email', [Settings::class, 'email'], ['as' => 'settings.email']);
+        $routes->post('save-email', [Settings::class, 'saveEmail'], ['as' => 'settings.save_email']);
+        $routes->post('test-email', [Settings::class, 'testEmail'], ['as' => 'settings.test_email']);
+        
+        // Utilitários
+        $routes->get('clear-cache', [Settings::class, 'clearCache'], ['as' => 'settings.clear_cache']);
+    });
 
     /**
    * Ferramentas
