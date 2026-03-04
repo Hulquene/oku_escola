@@ -499,7 +499,7 @@ public function approve($id)
     
     $this->enrollmentModel->update($id, ['status' => 'Ativo']);
     
-    return redirect()->to('/admin/students/enrollments/pending')
+    return redirect()->to('/admin/students/enrollments')
         ->with('success', 'Matrícula aprovada com sucesso');
 }
 }
