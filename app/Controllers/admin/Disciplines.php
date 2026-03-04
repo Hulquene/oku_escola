@@ -164,4 +164,181 @@ public function save()
         
         return $this->response->setJSON(array_values($available));
     }
+    /**
+ * Search disciplines by term (AJAX)
+ * 
+ * @param string|null $term Termo de busca (opcional, pode vir da query string)
+ * @return JSON
+ */
+public function search($term = null)
+{
+    // Pega o termo da URL ou da query string
+    if ($term === null) {
+        $term = $this->request->getGet('q') ?? $this->request->getGet('term') ?? '';
+    }
+    
+    // Log para debug
+    log_message('debug', 'Search disciplines - Term: ' . $term);
+    
+    // Validação básica
+    $term = trim($term);
+    if (empty($term)) {
+        return $this->response->setJSON([
+            'status' => 'error',
+            'message' => 'Termo de busca não informado',
+            'data' => []
+        ]);
+    }
+    
+    // Se o termo for muito curto, retorna vazio
+    if (strlen($term) < 2) {
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Digite pelo menos 2 caracteres',
+            'data' => []
+        ]);
+    }
+    
+    // Busca por LIKE em múltiplos campos
+    $disciplines = $this->disciplineModel
+        ->select('
+            id,
+            discipline_name,
+            discipline_code,
+            discipline_type,
+            workload_hours,
+            min_grade,
+            max_grade,
+            approval_grade,
+            description,
+            is_active,
+            created_at,
+            updated_at
+        ')
+        ->groupStart()
+            ->like('discipline_name', $term)
+            ->orLike('discipline_code', $term)
+            ->orLike('discipline_type', $term)
+            ->orLike('description', $term)
+        ->groupEnd()
+        ->orderBy('discipline_name', 'ASC')
+        ->limit(50) // Limite para evitar sobrecarga
+        ->findAll();
+    
+    // Log do resultado
+    log_message('debug', 'Search found ' . count($disciplines) . ' disciplines');
+    
+    // Se quiser incluir contagem total sem limite
+    $totalCount = $this->disciplineModel
+        ->groupStart()
+            ->like('discipline_name', $term)
+            ->orLike('discipline_code', $term)
+            ->orLike('discipline_type', $term)
+            ->orLike('description', $term)
+        ->groupEnd()
+        ->countAllResults();
+    
+    // Formata os resultados para incluir informações úteis
+    $formattedDisciplines = array_map(function($discipline) {
+        return [
+            'id' => $discipline->id,
+            'name' => $discipline->discipline_name,
+            'code' => $discipline->discipline_code,
+            'type' => $discipline->discipline_type,
+            'workload' => $discipline->workload_hours,
+            'min_grade' => $discipline->min_grade,
+            'max_grade' => $discipline->max_grade,
+            'approval_grade' => $discipline->approval_grade,
+            'description' => $discipline->description,
+            'is_active' => $discipline->is_active,
+            'formatted' => $discipline->discipline_code . ' - ' . $discipline->discipline_name,
+            'badge' => [
+                'type' => $discipline->is_active ? 'success' : 'secondary',
+                'text' => $discipline->is_active ? 'Ativa' : 'Inativa'
+            ]
+        ];
+    }, $disciplines);
+    
+    return $this->response->setJSON([
+        'status' => 'success',
+        'term' => $term,
+        'total' => count($disciplines),
+        'total_count' => $totalCount,
+        'has_more' => $totalCount > count($disciplines),
+        'data' => $formattedDisciplines
+    ]);
+}
+/**
+ * Advanced search disciplines with filters
+ * 
+ * @return JSON
+ */
+public function advancedSearch()
+{
+    // Pega os parâmetros da requisição
+    $term = $this->request->getGet('q') ?? '';
+    $type = $this->request->getGet('type') ?? '';
+    $activeOnly = $this->request->getGet('active_only') === 'true';
+    $minWorkload = $this->request->getGet('min_workload') ? (int)$this->request->getGet('min_workload') : null;
+    $maxWorkload = $this->request->getGet('max_workload') ? (int)$this->request->getGet('max_workload') : null;
+    $page = $this->request->getGet('page') ? (int)$this->request->getGet('page') : 1;
+    $limit = $this->request->getGet('limit') ? (int)$this->request->getGet('limit') : 20;
+    $offset = ($page - 1) * $limit;
+    
+    $builder = $this->disciplineModel;
+    
+    // Filtro por termo
+    if (!empty($term)) {
+        $builder->groupStart()
+            ->like('discipline_name', $term)
+            ->orLike('discipline_code', $term)
+            ->orLike('description', $term)
+            ->groupEnd();
+    }
+    
+    // Filtro por tipo
+    if (!empty($type)) {
+        $builder->where('discipline_type', $type);
+    }
+    
+    // Filtro por status
+    if ($activeOnly) {
+        $builder->where('is_active', 1);
+    }
+    
+    // Filtro por carga horária
+    if ($minWorkload !== null) {
+        $builder->where('workload_hours >=', $minWorkload);
+    }
+    if ($maxWorkload !== null) {
+        $builder->where('workload_hours <=', $maxWorkload);
+    }
+    
+    // Contagem total
+    $totalCount = $builder->countAllResults(false);
+    
+    // Paginação
+    $disciplines = $builder
+        ->orderBy('discipline_name', 'ASC')
+        ->limit($limit, $offset)
+        ->findAll();
+    
+    return $this->response->setJSON([
+        'status' => 'success',
+        'pagination' => [
+            'page' => $page,
+            'limit' => $limit,
+            'total' => $totalCount,
+            'pages' => ceil($totalCount / $limit)
+        ],
+        'filters' => [
+            'term' => $term,
+            'type' => $type,
+            'active_only' => $activeOnly,
+            'min_workload' => $minWorkload,
+            'max_workload' => $maxWorkload
+        ],
+        'data' => $disciplines
+    ]);
+}
 }

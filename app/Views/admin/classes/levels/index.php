@@ -195,6 +195,14 @@ body { background:var(--surface); color:var(--text-primary); }
                         </td>
                         <td class="center">
                             <div class="d-flex justify-content-center gap-1">
+                                  <!-- BOTÃO VER CURRÍCULO (NOVO) -->
+                                <a href="<?= site_url('admin/grade-curriculum/' . $level->id) ?>" 
+                                   class="row-btn" 
+                                   title="Ver Currículo"
+                                   style="background: rgba(59,127,232,0.1); border-color: rgba(59,127,232,0.2); color: var(--accent);">
+                                    <i class="fas fa-book-open"></i>
+                                </a>
+                                <!-- Botao de edição -->
                                 <button type="button" class="row-btn edit edit-level" title="Editar"
                                         data-id="<?= $level->id ?>"
                                         data-name="<?= esc($level->level_name) ?>"

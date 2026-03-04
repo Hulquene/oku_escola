@@ -44,7 +44,7 @@ use App\Controllers\admin\Courses;
 use App\Controllers\admin\CourseCurriculum;
 use App\Controllers\admin\Grades;
 use App\Controllers\admin\AcademicRecords;
-
+use App\Controllers\admin\GradeCurriculum;
 use App\Controllers\auth\Auth;
 use App\Controllers\Home;
 use App\Controllers\GeneratePdf;
@@ -203,6 +203,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
             $routes->post('curriculum/update/(:num)', [CourseCurriculum::class, 'updateDiscipline/$1'], ['as' => 'admin.courses.curriculum.update']);
             $routes->get('curriculum/remove/(:num)', [CourseCurriculum::class, 'removeDiscipline/$1'], ['as' => 'admin.courses.curriculum.remove']);
             $routes->get('curriculum/get-available/(:num)/(:num)', [CourseCurriculum::class, 'getAvailableDisciplines/$1/$2'], ['as' => 'admin.courses.curriculum.available']);
+
         });
       
 
@@ -253,6 +254,12 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('', [Disciplines::class, 'index'], ["as" => 'classes.subjects']);
       $routes->post('save', [Disciplines::class, 'save'], ["as" => 'classes.subjects.save']);
       $routes->get('delete/(:num)', [Disciplines::class, 'delete'], ["as" => 'classes.subjects.delete/$1']);
+
+      // NOVA ROTA PARA BUSCA
+      $routes->get('search', [Disciplines::class, 'search'], ["as" => 'classes.subjects.search']);
+      // Rota com termo na URL (opcional)
+      $routes->get('search/(:any)', [Disciplines::class, 'search/$1'], ["as" => 'classes.subjects.search.term']);
+        
     });
     // Alocação de Disciplinas por Classe
     $routes->group('class-subjects', function ($routes) {
@@ -284,6 +291,16 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         
     });
   });
+
+   // GRADE CURRICULUM - NOVO (Ensino Geral)
+            $routes->group('grade-curriculum', function ($routes) {
+                $routes->get('(:num)', [GradeCurriculum::class, 'index/$1'], ['as' => 'admin.grade.curriculum']);
+                $routes->post('add-discipline', [GradeCurriculum::class, 'addDiscipline'], ['as' => 'admin.grade.curriculum.add']);
+                $routes->get('edit/(:num)', [GradeCurriculum::class, 'editDiscipline/$1'], ['as' => 'admin.grade.curriculum.edit']);
+                $routes->post('update/(:num)', [GradeCurriculum::class, 'updateDiscipline/$1'], ['as' => 'admin.grade.curriculum.update']);
+                $routes->get('remove/(:num)', [GradeCurriculum::class, 'removeDiscipline/$1'], ['as' => 'admin.grade.curriculum.remove']);
+                $routes->get('get-available/(:num)', [GradeCurriculum::class, 'getAvailableDisciplines/$1'], ['as' => 'admin.grade.curriculum.available']);
+            });
 
 
   // ======================================================================

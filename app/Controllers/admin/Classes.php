@@ -173,16 +173,21 @@ class Classes extends BaseController
             $action = $id ? 'atualizada' : 'criada';
             
             // --- NOVA LÓGICA: Sugerir disciplinas do currículo ---
-            // Se for uma turma NOVA e tem curso definido
-            if (!$id && !empty($data['course_id'])) {
-                $this->suggestDisciplinesFromCurriculum($classId, $data['course_id'], $data['grade_level_id']);
+            if (!$id){
+                // Se for uma turma NOVA e tem curso definido
+                if (!empty($data['course_id'])) {
+                    $this->suggestDisciplinesFromCurriculum($classId, $data['course_id'], $data['grade_level_id']);
+                }else {
+                    // Se for turma nova sem curso, sugerir disciplinas do nível de ensino (Ensino Geral)
+                    $this->suggestDisciplinesFromGradeLevel($classId, $data['grade_level_id']);
+                }
             }
             // ----------------------------------------------------
             
             $message = "Turma '{$data['class_name']}' {$action} com sucesso!";
             
             // Redirecionar para página de alocação de professores se for turma nova com curso
-            if (!$id && !empty($data['course_id'])) {
+            if (!$id && !empty($data['course_id'] || !empty($data['grade_level_id']))) {
                 session()->setFlashdata('info', 'Sugestão: Atribua os professores às disciplinas sugeridas.');
                 return redirect()->to('/admin/classes/class-subjects/assign-teachers/' . $classId)
                     ->with('success', $message);
@@ -205,6 +210,7 @@ class Classes extends BaseController
      */
     private function suggestDisciplinesFromCurriculum($classId, $courseId, $gradeLevelId)
     {
+   /*     var_dump($classId, $courseId, $gradeLevelId);die; */
         // Carregar models necessários
         $courseDisciplineModel = new \App\Models\CourseDisciplineModel();
         $classDisciplineModel = new \App\Models\ClassDisciplineModel();
@@ -286,7 +292,97 @@ class Classes extends BaseController
         
         return $suggestedCount;
     }
+    /**
+ * Sugerir disciplinas do nível de ensino (Ensino Geral - 1ª à 9ª classe)
+ * 
+ * @param int $classId ID da turma
+ * @param int $gradeLevelId ID do nível de ensino
+ * @return int Número de disciplinas sugeridas
+ */
+private function suggestDisciplinesFromGradeLevel($classId, $gradeLevelId)
+{
+    // Carregar models necessários
+    $gradeDisciplineModel = new \App\Models\GradeDisciplineModel();
+    $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+    $semesterModel = new \App\Models\SemesterModel();
     
+    // Buscar a turma para saber o ano letivo
+    $class = $this->classModel->find($classId);
+    if (!$class) {
+        log_message('error', "Turma ID {$classId} não encontrada para sugerir disciplinas do nível de ensino");
+        return 0;
+    }
+    
+    // Buscar TODOS os semestres do ano letivo da turma
+    $semesters = $semesterModel
+        ->where('academic_year_id', $class->academic_year_id)
+        ->whereIn('status', ['ativo', 'processado'])
+        ->orderBy('start_date', 'ASC')
+        ->findAll();
+    
+    if (empty($semesters)) {
+        log_message('warning', "Nenhum semestre ativo encontrado para o ano letivo da turma ID {$classId}");
+        return 0;
+    }
+    
+    // Buscar disciplinas configuradas para este nível de ensino
+    $gradeDisciplines = $gradeDisciplineModel
+        ->select('
+            tbl_grade_disciplines.*,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.workload_hours as default_workload
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_grade_disciplines.discipline_id')
+        ->where('tbl_grade_disciplines.grade_level_id', $gradeLevelId)
+        ->where('tbl_grade_disciplines.is_mandatory', 1) // Só obrigatórias por padrão
+        ->where('tbl_disciplines.is_active', 1)
+        ->findAll();
+    
+    if (empty($gradeDisciplines)) {
+        log_message('info', "Nenhuma disciplina configurada para o nível de ensino ID {$gradeLevelId}");
+        return 0;
+    }
+    
+    $suggestedCount = 0;
+    $insertData = [];
+    
+    foreach ($gradeDisciplines as $gd) {
+        // O período já está no formato correto (Anual, 1º Semestre, 2º Semestre)
+        $periodType = $gd->semester ?? 'Anual';
+        
+        // Verificar se já existe para esta turma, disciplina e período
+        $exists = $classDisciplineModel
+            ->where('class_id', $classId)
+            ->where('discipline_id', $gd->discipline_id)
+            ->where('period_type', $periodType)
+            ->first();
+        
+        if (!$exists) {
+            // Usar workload configurado ou o padrão da disciplina
+            $workload = $gd->workload_hours ?? $gd->default_workload ?? 0;
+            
+            $insertData[] = [
+                'class_id' => $classId,
+                'discipline_id' => $gd->discipline_id,
+                'workload_hours' => $workload,
+                'period_type' => $periodType,
+                'teacher_id' => null,
+                'is_active' => 1,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+            $suggestedCount++;
+        }
+    }
+    
+    // Inserir em lote para melhor performance
+    if (!empty($insertData)) {
+        $db = db_connect();
+        $db->table('tbl_class_disciplines')->insertBatch($insertData);
+        log_message('info', "Sugeridas {$suggestedCount} disciplinas do nível de ensino para turma ID {$classId} (Nível: {$gradeLevelId})");
+    }
+    
+    return $suggestedCount;
+}
     /**
      * View class details - Atualizado para incluir curso
      */

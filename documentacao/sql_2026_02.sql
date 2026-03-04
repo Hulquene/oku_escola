@@ -1421,6 +1421,49 @@ CREATE TABLE IF NOT EXISTS `tbl_notifications` (
     KEY `expires_at` (`expires_at`),
     CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+-- Tabela: tbl_grade_disciplines
+-- Descrição: Associa disciplinas aos níveis de ensino (Ensino Geral)
+-- Relacionamentos: 
+--   - grade_level_id → tbl_grade_levels.id
+--   - discipline_id → tbl_disciplines.id
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `tbl_grade_disciplines` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `grade_level_id` INT(11) NOT NULL COMMENT 'ID do nível de ensino (1ª a 9ª classe)',
+    `discipline_id` INT(11) NOT NULL COMMENT 'ID da disciplina',
+    `workload_hours` INT(4) NULL DEFAULT NULL COMMENT 'Carga horária específica (se NULL, usa o padrão da disciplina)',
+    `is_mandatory` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1=Obrigatória, 0=Opcional',
+    `semester` ENUM('Anual', '1º Semestre', '2º Semestre') NOT NULL DEFAULT 'Anual' COMMENT 'Período da disciplina',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_grade_discipline` (`grade_level_id`, `discipline_id`),
+    KEY `idx_grade_level_id` (`grade_level_id`),
+    KEY `idx_discipline_id` (`discipline_id`),
+    KEY `idx_is_mandatory` (`is_mandatory`),
+    KEY `idx_semester` (`semester`),
+    
+    CONSTRAINT `fk_grade_disciplines_level` 
+        FOREIGN KEY (`grade_level_id`) 
+        REFERENCES `tbl_grade_levels` (`id`) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE,
+        
+    CONSTRAINT `fk_grade_disciplines_discipline` 
+        FOREIGN KEY (`discipline_id`) 
+        REFERENCES `tbl_disciplines` (`id`) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
+COMMENT='Disciplinas associadas aos níveis de ensino (Ensino Geral)';
+
+
+
 -- --------------------------------------------------------
 -- Inserção de Dados Iniciais
 -- --------------------------------------------------------
