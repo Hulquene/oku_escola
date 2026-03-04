@@ -1,12 +1,12 @@
-<footer class="bg-white mt-4 py-3 px-4 border-top">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6">
-                <span class="text-muted">&copy; <?= date('Y') ?> Sistema Escolar Angolano. Todos os direitos reservados.</span>
-            </div>
-            <div class="col-md-6 text-end">
-                <span class="text-muted">Versão 1.0.0</span>
-            </div>
-        </div>
+<footer class="ci-footer">
+    <div class="footer-left">
+        <span>&copy; <?= date('Y') ?> Sistema Escolar Angolano</span>
+        <span class="footer-sep">·</span>
+        <span>Todos os direitos reservados</span>
+    </div>
+    <div class="footer-right">
+        <span class="footer-version">
+            <i class="fas fa-code-branch me-1"></i> v1.0.0
+        </span>
     </div>
 </footer>
