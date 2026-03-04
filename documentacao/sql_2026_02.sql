@@ -1592,7 +1592,6 @@ INSERT INTO `tbl_users` (`username`, `email`, `password`, `first_name`, `last_na
 
 -- Inserir todas as disciplinas do sistema de ensino angolano com descrição
 -- Ensino Primário (1ª a 6ª Classe), I Ciclo (7ª a 9ª Classe) e II Ciclo (10ª a 13ª Classe)
-
 INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_hours`, `min_grade`, `max_grade`, `approval_grade`, `description`) VALUES
 -- ============ LÍNGUAS ============
 ('Língua Portuguesa', 'LP', 180, 0, 20, 10, 'Desenvolvimento da comunicação oral e escrita, leitura, escrita, gramática, literatura e produção textual'),
@@ -1607,7 +1606,6 @@ INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_h
 ('Química', 'QUI', 120, 0, 20, 10, 'Química inorgânica, orgânica, físico-química, análises químicas e processos químicos'),
 ('Biologia', 'BIO', 120, 0, 20, 10, 'Biologia celular, genética, evolução, ecologia, zoologia, botânica e seres vivos'),
 ('Ciências da Natureza', 'CN', 90, 0, 20, 10, 'Noções sobre seres vivos, corpo humano, saúde, elementos da natureza e meio ambiente'),
-('Ciências da Vida', 'CV', 140, 0, 20, 10, 'Estudo integrado dos seres vivos e processos químicos fundamentais para a vida'),
 ('Ciências da Terra e da Vida', 'CTV', 90, 0, 20, 10, 'Estudo integrado dos sistemas terrestres e da biodiversidade'),
 ('Geologia', 'GEO-CFB', 90, 0, 20, 10, 'Geologia geral, mineralogia, petrologia, recursos minerais de Angola e geologia histórica'),
 ('Astronomia', 'AST', 60, 0, 20, 10, 'Noções de astronomia, sistema solar, cosmos e observação astronômica'),
@@ -1615,7 +1613,6 @@ INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_h
 -- ============ CIÊNCIAS HUMANAS E SOCIAIS ============
 ('História', 'HIS', 120, 0, 20, 10, 'História de Angola, África e mundo, períodos históricos e análise historiográfica'),
 ('Geografia', 'GEO', 120, 0, 20, 10, 'Geografia física, humana, econômica de Angola e geopolítica mundial'),
-('Ciências Sociais', 'CS', 140, 0, 20, 10, 'Estudo integrado da história de Angola e geografia nacional e mundial'),
 ('Filosofia', 'FIL', 90, 0, 20, 10, 'Introdução ao pensamento filosófico, ética, epistemologia e filosofia africana'),
 ('Sociologia', 'SOC', 90, 0, 20, 10, 'Teorias sociológicas, instituições sociais, cultura, estratificação e mudança social'),
 ('Antropologia Cultural', 'ANT', 90, 0, 20, 10, 'Antropologia, diversidade cultural, etnias angolanas e patrimônio cultural'),
@@ -1628,7 +1625,6 @@ INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_h
 ('Educação Manual e Plástica', 'EMP', 60, 0, 20, 10, 'Expressão artística, trabalhos manuais, desenvolvimento da criatividade e coordenação motora fina'),
 ('Educação Musical', 'EMU', 60, 0, 20, 10, 'Teoria musical, ritmos angolanos, prática instrumental, canto e cultura musical'),
 ('Desenho', 'DES', 90, 0, 20, 10, 'Técnicas de desenho, perspectiva, composição e expressão gráfica'),
-('Desenho Técnico', 'DT', 90, 0, 20, 10, 'Desenho técnico, projeções, cotagem e representações gráficas'),
 ('Geometria Descritiva', 'GD', 90, 0, 20, 10, 'Geometria descritiva, sistemas de projeção e representação espacial'),
 ('Formação Pessoal e Social', 'FPS', 45, 0, 20, 10, 'Desenvolvimento da identidade, autonomia, relações interpessoais, orientação vocacional e cidadania'),
 
@@ -1655,7 +1651,7 @@ INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_h
 ('Matemática Financeira', 'MF', 90, 0, 20, 10, 'Juros, descontos, séries de pagamentos, análise de investimentos e sistemas de amortização'),
 ('Direito Fiscal', 'DF', 60, 0, 20, 10, 'Legislação tributária, impostos, taxas e obrigações fiscais em Angola'),
 ('Secretariado', 'SEC', 90, 0, 20, 10, 'Técnicas de secretariado, organização administrativa, comunicação e arquivo'),
-('Empreendedorismo', 'EMP', 60, 0, 20, 10, 'Criação de negócios, plano de negócios, inovação e gestão empreendedora'),
+('Empreendedorismo', 'EMPRE', 60, 0, 20, 10, 'Criação de negócios, plano de negócios, inovação e gestão empreendedora'),
 
 -- ============ ÁREA TÉCNICO-PROFISSIONAL - ELETRICIDADE/ELETRÓNICA ============
 ('Eletricidade Geral', 'ELETR', 120, 0, 20, 10, 'Circuitos elétricos, leis fundamentais, corrente contínua e alternada'),
@@ -1697,8 +1693,7 @@ INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_h
 ('Turismo Geral', 'TUR', 90, 0, 20, 10, 'Fundamentos do turismo, tipologias, impacto econômico e cultural'),
 ('Hotelaria', 'HOT', 90, 0, 20, 10, 'Gestão hoteleira, operações de hospedagem, recepção e governança'),
 ('Restauração', 'REST', 90, 0, 20, 10, 'Serviços de alimentação, gastronomia, gestão de restaurantes e eventos'),
-('Gestão Hoteleira', 'GH', 90, 0, 20, 10, 'Administração de hotéis, reservas, marketing hoteleiro e qualidade'),
-('Ecoturismo', 'ECO', 60, 0, 20, 10, 'Turismo sustentável, áreas naturais, conservação e desenvolvimento local'),
+('Ecoturismo', 'ECOT', 60, 0, 20, 10, 'Turismo sustentável, áreas naturais, conservação e desenvolvimento local'),
 ('Animação Turística', 'AT', 60, 0, 20, 10, 'Atividades de lazer, recreação, animação cultural e entretenimento'),
 
 -- ============ FORMAÇÃO DE PROFESSORES (MAGISTÉRIO) ============
@@ -1710,7 +1705,7 @@ INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_h
 ('Metodologias de Ensino', 'MET', 120, 0, 20, 10, 'Métodos e técnicas de ensino por área do conhecimento, recursos didáticos'),
 ('Prática Pedagógica', 'PP', 180, 0, 20, 10, 'Estágio supervisionado, regência de classe e reflexão sobre a prática docente'),
 ('Legislação Educacional', 'LEG', 45, 0, 20, 10, 'Lei de Bases do Sistema de Educação, normas e diretrizes educacionais'),
-('Gestão Escolar', 'GE', 60, 0, 20, 10, 'Administração escolar, liderança pedagógica, organização e gestão de escolas'),
+('Gestão Escolar', 'GESC', 60, 0, 20, 10, 'Administração escolar, liderança pedagógica, organização e gestão de escolas'),
 ('Educação Inclusiva', 'EI', 60, 0, 20, 10, 'Atendimento a alunos com necessidades especiais, inclusão e diversidade'),
 ('Avaliação Educacional', 'AE', 45, 0, 20, 10, 'Tipos e instrumentos de avaliação, elaboração de provas e análise de resultados'),
 
@@ -1722,7 +1717,6 @@ INSERT INTO `tbl_disciplines` (`discipline_name`, `discipline_code`, `workload_h
 -- ============ PATRIMÓNIO E CULTURA ============
 ('História das Artes', 'HA', 60, 0, 20, 10, 'Arte angolana, africana e ocidental, movimentos artísticos e crítica de arte'),
 ('Património Cultural Angolano', 'PCA', 60, 0, 20, 10, 'Preservação do patrimônio, sítios históricos, tradições e identidade cultural');
-
 
 
 -- --------------------------------------------------------

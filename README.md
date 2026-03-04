@@ -175,7 +175,13 @@ cd oku_escola
 
 sudo apt install php-intl php-mbstring
 sudo apt install php8.3-mysql
-
+# Instalar as extensões XML (inclui dom, simplexml, xml, xmlreader, xmlwriter)
+sudo apt update
+sudo apt install php8.3-xml
+# Instalar a extensão GD para processamento de imagens
+sudo apt install php8.3-gd
+ou
+sudo apt install php8.3-xml php8.3-gd
 
 Instale as dependências via Composer
 
