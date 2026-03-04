@@ -85,7 +85,7 @@
         </li>
         
         <!-- Notas (Avaliações Contínuas) -->
-        <li>
+        <!-- <li>
             <a href="#gradesSubmenu" data-bs-toggle="collapse" 
                class="dropdown-toggle <?= in_array(uri_string(), ['teachers/grades', 'teachers/grades/report', 'teachers/grades/report/select']) ? 'active' : '' ?>">
                 <i class="fas fa-star"></i> Notas
@@ -102,10 +102,10 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> -->
         
         <!-- Presenças -->
-        <li>
+        <!-- <li>
             <a href="#attendanceSubmenu" data-bs-toggle="collapse" 
                class="dropdown-toggle <?= in_array(uri_string(), ['teachers/attendance', 'teachers/attendance/report']) ? 'active' : '' ?>">
                 <i class="fas fa-calendar-check"></i> Presenças
@@ -122,7 +122,7 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> -->
         <!-- Mini Pauta -->
         <li class="nav-item <?= uri_string() == 'teachers/mini-grade-sheet' || strpos(uri_string(), 'teachers/mini-grade-sheet') === 0 ? 'active' : '' ?>">
             <a class="nav-link" href="<?= site_url('teachers/mini-grade-sheet') ?>">

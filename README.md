@@ -170,7 +170,10 @@ cd oku_escola
 
 
 
-
+extension=zip
+extension=xml
+extension=xmlwriter
+extension=dom
 
 
 sudo apt install php-intl php-mbstring
