@@ -13,8 +13,11 @@
             <a href="<?= site_url('admin/classes/export') ?>" class="btn btn-success me-2" title="Exportar lista">
                 <i class="fas fa-file-excel"></i> Exportar
             </a>
-            <a href="<?= site_url('admin/classes/classes/form-add') ?>" class="btn btn-primary">
+              <a href="<?= site_url('admin/classes/classes/form-add') ?>" class="btn btn-primary">
                 <i class="fas fa-plus-circle"></i> Nova Turma
+            </a>
+            <a href="<?= site_url('admin/classes/bulk-create') ?>" class="btn btn-secondary">
+                <i class="fas fa-plus-circle"></i> Criar Turmas em Lote
             </a>
         </div>
     </div>

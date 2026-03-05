@@ -44,6 +44,7 @@ use App\Controllers\admin\Courses;
 use App\Controllers\admin\CourseCurriculum;
 use App\Controllers\admin\Grades;
 use App\Controllers\admin\AcademicRecords;
+use App\Controllers\admin\BulkClassCreate;
 use App\Controllers\admin\GradeCurriculum;
 use App\Controllers\auth\Auth;
 use App\Controllers\Home;
@@ -241,13 +242,24 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         
         // Rota para imprimir pauta da turma - FALTANDO
         $routes->get('print-sheet/(:num)', [Classes::class, 'printSheet/$1'], ["as" => 'classes.print-sheet']);
+
+    
+      // $routes->get('get-by-year/(:num)', [BulkClassCreate::class, 'getByYear/$1'], ["as" => 'classes.get-by-year']);
        
     });
+
+      //  $routes->get('bulk_create', [BulkClassCreate::class, 'index'], ["as" => 'classes.bulk-class-create']);
+        // NOVAS ROTAS PARA CRIAÇÃO EM LOTE
+        $routes->get('bulk-create', [BulkClassCreate::class, 'index'], ['as' => 'admin.classes.bulk']);
+        $routes->post('bulk-create/process', [BulkClassCreate::class, 'process'], ['as' => 'admin.classes.bulk.process']);
+
+        
       $routes->get('get-by-level-and-year/(:num)/(:num)', [Classes::class, 'getByLevelAndYear/$1/$2'], ["as" => 'classes.get-by-level-and-year']);
       $routes->get('check-availability/(:num)', [Classes::class, 'checkAvailability/$1'], ["as" => 'classes.check-availability']);
 
       // Adicione no grupo 'classes' das rotas
       $routes->get('get-by-year/(:num)', [Classes::class, 'getByYear/$1'], ["as" => 'classes.get-by-year']);
+
 
     // Disciplinas
     $routes->group('subjects', function ($routes) {

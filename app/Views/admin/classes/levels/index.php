@@ -171,17 +171,47 @@ body { background:var(--surface); color:var(--text-primary); }
                     <th class="center">Classe</th>
                     <th class="center">Ordem</th>
                     <th>Estado</th>
+                    <th class="center">Currículo / Cursos</th>
                     <th class="center">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (!empty($levels)): ?>
                     <?php foreach ($levels as $level): ?>
+                        <?php 
+                        // Determinar se é Ensino Médio (níveis que usam cursos)
+                        $isHighSchool = in_array($level->education_level, ['2º Ciclo', 'Ensino Médio']);
+                        
+                        // Contar disciplinas do nível (apenas para Ensino Geral)
+                        $disciplineCount = 0;
+                        if (!$isHighSchool) {
+                            $gradeDisciplineModel = new \App\Models\GradeDisciplineModel();
+                            $disciplineCount = $gradeDisciplineModel
+                                ->where('grade_level_id', $level->id)
+                                ->countAllResults();
+                        }
+                        
+                        // Contar cursos disponíveis para este nível (se for Ensino Médio)
+                        $coursesCount = 0;
+                        if ($isHighSchool) {
+                            $courseModel = new \App\Models\CourseModel();
+                            $coursesCount = $courseModel
+                                ->where('start_grade_id <=', $level->id)
+                                ->where('end_grade_id >=', $level->id)
+                                ->where('is_active', 1)
+                                ->countAllResults();
+                        }
+                        ?>
                     <tr>
                         <td><span class="id-chip"><?= $level->id ?></span></td>
                         <td><span class="level-name"><?= esc($level->level_name) ?></span></td>
                         <td><span class="code-badge"><?= esc($level->level_code) ?></span></td>
-                        <td><span class="edu-badge"><?= esc($level->education_level) ?></span></td>
+                        <td>
+                            <span class="edu-badge" style="background: <?= $isHighSchool ? 'rgba(232,160,32,0.1)' : 'rgba(59,127,232,0.1)' ?>; 
+                                           color: <?= $isHighSchool ? 'var(--warning)' : 'var(--accent)' ?>;">
+                                <?= esc($level->education_level) ?>
+                            </span>
+                        </td>
                         <td class="center">
                             <span class="grade-chip"><?= $level->grade_number ?><span>ª Classe</span></span>
                         </td>
@@ -194,15 +224,47 @@ body { background:var(--surface); color:var(--text-primary); }
                             <?php endif; ?>
                         </td>
                         <td class="center">
-                            <div class="d-flex justify-content-center gap-1">
-                                  <!-- BOTÃO VER CURRÍCULO (NOVO) -->
-                                <a href="<?= site_url('admin/grade-curriculum/' . $level->id) ?>" 
-                                   class="row-btn" 
-                                   title="Ver Currículo"
-                                   style="background: rgba(59,127,232,0.1); border-color: rgba(59,127,232,0.2); color: var(--accent);">
-                                    <i class="fas fa-book-open"></i>
+                            <?php if ($isHighSchool): ?>
+                                <!-- Para 2º Ciclo e Ensino Médio - link para cursos -->
+                                <a href="<?= site_url('admin/courses?grade_level_id=' . $level->id) ?>" 
+                                   class="badge" 
+                                   title="Ver cursos deste nível"
+                                   style="background: var(--warning); color: #fff; padding: 0.3rem 0.6rem; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-graduation-cap" style="font-size: 0.7rem;"></i>
+                                    <?= $coursesCount ?> Curso(s)
                                 </a>
-                                <!-- Botao de edição -->
+                            <?php else: ?>
+                                <!-- Para Ensino Geral - botão ver currículo -->
+                                <a href="<?= site_url('admin/grade-curriculum/' . $level->id) ?>" 
+                                   class="badge"
+                                   title="Ver disciplinas do nível"
+                                   style="background: var(--accent); color: #fff; padding: 0.3rem 0.6rem; border-radius: 50px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                    <i class="fas fa-book-open" style="font-size: 0.7rem;"></i>
+                                    <?= $disciplineCount ?> Disciplina(s)
+                                </a>
+                            <?php endif; ?>
+                        </td>
+                        <td class="center">
+                            <div class="d-flex justify-content-center gap-1">
+                                
+                                <!-- Botão Ver Currículo/Cursos (contextual) -->
+                                <?php if ($isHighSchool): ?>
+                                    <a href="<?= site_url('admin/courses?grade_level_id=' . $level->id) ?>" 
+                                       class="row-btn" 
+                                       title="Ver Cursos"
+                                       style="background: rgba(232,160,32,0.1); border-color: rgba(232,160,32,0.2); color: var(--warning);">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= site_url('admin/grade-curriculum/' . $level->id) ?>" 
+                                       class="row-btn" 
+                                       title="Ver Disciplinas"
+                                       style="background: rgba(59,127,232,0.1); border-color: rgba(59,127,232,0.2); color: var(--accent);">
+                                        <i class="fas fa-book-open"></i>
+                                    </a>
+                                <?php endif; ?>
+                                
+                                <!-- Botão Editar (sempre disponível) -->
                                 <button type="button" class="row-btn edit edit-level" title="Editar"
                                         data-id="<?= $level->id ?>"
                                         data-name="<?= esc($level->level_name) ?>"
@@ -213,6 +275,8 @@ body { background:var(--surface); color:var(--text-primary); }
                                         data-active="<?= $level->is_active ?>">
                                     <i class="fas fa-edit"></i>
                                 </button>
+                                
+                                <!-- Botão Eliminar (apenas para ativos) -->
                                 <?php if ($level->is_active): ?>
                                     <a href="<?= site_url('admin/classes/levels/delete/' . $level->id) ?>"
                                        class="row-btn del" title="Eliminar"
@@ -225,7 +289,7 @@ body { background:var(--surface); color:var(--text-primary); }
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="8"><div class="ci-empty"><i class="fas fa-layer-group"></i><p>Nenhum nível de ensino encontrado</p></div></td></tr>
+                    <tr><td colspan="9"><div class="ci-empty"><i class="fas fa-layer-group"></i><p>Nenhum nível de ensino encontrado</p></div></td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
