@@ -332,6 +332,115 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Novos estilos para os ciclos */
+.cycle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.cycle-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cycle-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.cycle-card.selected {
+    border-color: var(--accent);
+    background: rgba(59,127,232,0.05);
+    box-shadow: 0 4px 12px rgba(59,127,232,0.15);
+}
+
+.cycle-icon {
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.cycle-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.cycle-count {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+/* Prefix selector */
+.prefix-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.prefix-selector select {
+    flex: 1;
+}
+
+.prefix-selector input {
+    width: 80px;
+    text-align: center;
+}
+
+.prefix-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.prefix-tag {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.prefix-tag:hover {
+    border-color: var(--accent);
+    background: rgba(59,127,232,0.05);
+}
+
+.prefix-tag.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* Níveis container */
+.levels-container {
+    display: none;
+    margin-top: 1rem;
+}
+
+.levels-container.active {
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cycle-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 </style>
 
 <!-- Page Header -->
@@ -380,8 +489,8 @@
             <div class="info-box-content">
                 <div class="info-box-title">Crie múltiplas turmas de uma só vez!</div>
                 <p class="info-box-text">
-                    Selecione os níveis, defina uma faixa de numeração e crie até 50 turmas automaticamente.
-                    As disciplinas serão sugeridas automaticamente após a criação.
+                    Escolha o ciclo de ensino, selecione os níveis desejados e defina a numeração.
+                    Para o 2º Ciclo e Ensino Médio, escolha também o curso.
                 </p>
             </div>
         </div>
@@ -392,7 +501,7 @@
               onsubmit="showLoading()">
             <?= csrf_field() ?>
             
-            <!-- Step 1: Ano e Turno -->
+            <!-- Step 1: Ano Letivo e Turno -->
             <div class="form-section">
                 <div class="form-section-title">
                     <i class="fas fa-calendar-alt"></i>
@@ -429,62 +538,110 @@
                 </div>
             </div>
             
-            <!-- Step 2: Níveis de Ensino -->
+            <!-- Step 2: Ciclo de Ensino -->
             <div class="form-section">
                 <div class="form-section-title">
-                    <i class="fas fa-layer-group"></i>
-                    Passo 2: Níveis de Ensino <span class="text-danger">*</span>
+                    <i class="fas fa-school"></i>
+                    Passo 2: Ciclo de Ensino <span class="text-danger">*</span>
                 </div>
                 
-                <div class="levels-grid" id="levelsGrid">
-                    <?php foreach ($gradeLevels as $level): ?>
-                    <label class="level-item" for="level_<?= $level->id ?>">
+                <div class="cycle-grid" id="cycleGrid">
+                    <?php 
+                    $cycles = [
+                        'Iniciação' => ['icon' => 'fa-baby', 'count' => 0],
+                        'Primário' => ['icon' => 'fa-book', 'count' => 0],
+                        '1º Ciclo' => ['icon' => 'fa-layer-group', 'count' => 0],
+                        '2º Ciclo' => ['icon' => 'fa-graduation-cap', 'count' => 0],
+                        'Ensino Médio' => ['icon' => 'fa-university', 'count' => 0]
+                    ];
+                    
+                    // Contar níveis por ciclo
+                    foreach ($gradeLevels as $level) {
+                        if (isset($cycles[$level->education_level])) {
+                            $cycles[$level->education_level]['count']++;
+                        }
+                    }
+                    ?>
+                    
+                    <?php foreach ($cycles as $cycleName => $cycleData): ?>
+                    <div class="cycle-card" data-cycle="<?= $cycleName ?>" onclick="selectCycle('<?= $cycleName ?>')">
+                        <div class="cycle-icon">
+                            <i class="fas <?= $cycleData['icon'] ?>"></i>
+                        </div>
+                        <div class="cycle-name"><?= $cycleName ?></div>
+                        <div class="cycle-count"><?= $cycleData['count'] ?> níveis</div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                
+                <input type="hidden" name="selected_cycle" id="selected_cycle" value="">
+            </div>
+            
+            <!-- Step 3: Níveis de Ensino (dinâmico por ciclo) -->
+            <?php foreach ($cycles as $cycleName => $cycleData): ?>
+            <div class="form-section levels-container" id="levels_<?= str_replace(' ', '_', $cycleName) ?>" data-cycle="<?= $cycleName ?>">
+                <div class="form-section-title">
+                    <i class="fas fa-layer-group"></i>
+                    Passo 3: Níveis de <?= $cycleName ?>
+                </div>
+                
+                <div class="levels-grid">
+                    <?php 
+                    $cycleLevels = array_filter($gradeLevels, function($level) use ($cycleName) {
+                        return $level->education_level == $cycleName;
+                    });
+                    
+                    foreach ($cycleLevels as $level): 
+                    ?>
+                    <label class="level-item" for="level_<?= $level->id ?>_<?= str_replace(' ', '_', $cycleName) ?>">
                         <input type="checkbox" 
-                               class="level-checkbox" 
+                               class="level-checkbox cycle-<?= str_replace(' ', '_', $cycleName) ?>" 
                                name="grade_level_ids[]" 
                                value="<?= $level->id ?>"
-                               id="level_<?= $level->id ?>"
+                               id="level_<?= $level->id ?>_<?= str_replace(' ', '_', $cycleName) ?>"
                                data-education="<?= $level->education_level ?>"
-                               onchange="toggleCourseSelect(<?= $level->id ?>, this.checked)">
+                               data-level-name="<?= $level->level_name ?>"
+                               data-grade-number="<?= $level->grade_number ?>"
+                               onchange="updatePreview()">
                         <div class="level-info">
                             <div class="level-name"><?= $level->level_name ?></div>
                             <div>
                                 <span class="level-code"><?= $level->level_code ?></span>
-                                <span class="level-badge ms-2"><?= $level->education_level ?></span>
                             </div>
                         </div>
                         
-                        <!-- Course selector for Ensino Médio (hidden by default) -->
-                        <?php if ($level->education_level == 'Ensino Médio'): ?>
-                        <div id="course_select_<?= $level->id ?>" style="display: none;">
-                            <select name="course_ids[<?= $level->id ?>]" class="course-select" onchange="event.stopPropagation()">
-                                <option value="">Sem curso</option>
-                                <?php foreach ($courses as $course): ?>
+                        <!-- Course selector for 2º Ciclo and Ensino Médio -->
+                        <?php if (in_array($level->education_level, ['2º Ciclo', 'Ensino Médio'])): ?>
+                        <div class="course-select-container" style="display: none;" id="course_container_<?= $level->id ?>">
+                            <select name="course_ids[<?= $level->id ?>]" class="course-select" onchange="updatePreview()">
+                                <option value="">Escolher curso...</option>
+                                <?php 
+                                // Filtrar cursos que incluem este nível
+                                foreach ($courses as $course): 
+                                    if ($course->start_grade_id <= $level->id && $course->end_grade_id >= $course->id):
+                                ?>
                                     <option value="<?= $course->id ?>"><?= $course->course_name ?></option>
-                                <?php endforeach; ?>
+                                <?php 
+                                    endif;
+                                endforeach; 
+                                ?>
                             </select>
                         </div>
                         <?php endif; ?>
                     </label>
                     <?php endforeach; ?>
                 </div>
-                
-                <div class="mt-2">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle"></i>
-                        Selecione pelo menos um nível. Para o Ensino Médio, escolha o curso.
-                    </small>
-                </div>
             </div>
+            <?php endforeach; ?>
             
-            <!-- Step 3: Numeração -->
+            <!-- Step 4: Numeração e Prefixos -->
             <div class="form-section">
                 <div class="form-section-title">
-                    <i class="fas fa-sort-numeric-up"></i>
-                    Passo 3: Faixa de Numeração
+                    <i class="fas fa-tag"></i>
+                    Passo 4: Numeração e Prefixos
                 </div>
                 
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label-custom" for="start_number">
                             <i class="fas fa-play"></i> Número Inicial <span class="text-danger">*</span>
@@ -515,42 +672,63 @@
                                onchange="updatePreview()">
                     </div>
                 </div>
-            </div>
-            
-            <!-- Step 4: Prefixos (Opcional) -->
-            <div class="form-section">
-                <div class="form-section-title">
-                    <i class="fas fa-tag"></i>
-                    Passo 4: Personalização (Opcional)
-                </div>
                 
-                <div class="row">
-                    <div class="col-md-4">
+                <div class="row mb-3">
+                    <div class="col-md-6">
                         <label class="form-label-custom" for="class_prefix">
                             <i class="fas fa-heading"></i> Prefixo da Turma
                         </label>
-                        <input type="text" 
-                               class="form-control-custom" 
-                               id="class_prefix" 
-                               name="class_prefix" 
-                               value="Turma"
-                               placeholder="Ex: Turma">
-                        <small class="text-muted">Nome base das turmas</small>
+                        <div class="prefix-selector">
+                            <select class="form-select-custom" id="class_prefix_select" onchange="syncPrefix()">
+                                <option value="Turma">Turma</option>
+                                <option value="Classe">Classe</option>
+                                <option value="Sala">Sala</option>
+                                <option value="Grupo">Grupo</option>
+                                <option value="T">T</option>
+                                <option value="custom">Personalizado...</option>
+                            </select>
+                            <input type="text" 
+                                   class="form-control-custom" 
+                                   id="class_prefix_custom" 
+                                   name="class_prefix" 
+                                   value="Turma"
+                                   placeholder="Personalizado"
+                                   style="display: none;"
+                                   oninput="updatePreview()">
+                        </div>
+                        
+                        <div class="prefix-options mt-2">
+                            <span class="prefix-tag selected" onclick="setPrefix('Turma')">Turma A</span>
+                            <span class="prefix-tag" onclick="setPrefix('Classe')">Classe 1</span>
+                            <span class="prefix-tag" onclick="setPrefix('Sala')">Sala 101</span>
+                            <span class="prefix-tag" onclick="setPrefix('T')">T1</span>
+                        </div>
+                        <small class="text-muted">Exemplo: <span id="prefixExample">Turma 1, Turma 2...</span></small>
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label-custom" for="room_prefix">
                             <i class="fas fa-door-open"></i> Prefixo da Sala
                         </label>
+                        <select class="form-select-custom" id="room_prefix" name="room_prefix" onchange="updatePreview()">
+                            <option value="Sala">Sala</option>
+                            <option value="Laboratório">Laboratório</option>
+                            <option value="Anfiteatro">Anfiteatro</option>
+                            <option value="Bloco">Bloco</option>
+                            <option value="Pavilhão">Pavilhão</option>
+                            <option value="custom-room">Personalizado...</option>
+                        </select>
                         <input type="text" 
-                               class="form-control-custom" 
-                               id="room_prefix" 
-                               name="room_prefix" 
-                               value="Sala"
-                               placeholder="Ex: Sala">
-                        <small class="text-muted">Identificação da sala</small>
+                               class="form-control-custom mt-2" 
+                               id="room_prefix_custom" 
+                               name="room_prefix_custom" 
+                               placeholder="Digite o prefixo personalizado"
+                               style="display: none;"
+                               oninput="updatePreview()">
                     </div>
-                    
+                </div>
+                
+                <div class="row">
                     <div class="col-md-4">
                         <label class="form-label-custom" for="capacity">
                             <i class="fas fa-users"></i> Capacidade
@@ -561,7 +739,8 @@
                                name="capacity" 
                                value="30" 
                                min="1" 
-                               max="100">
+                               max="100"
+                               onchange="updatePreview()">
                     </div>
                 </div>
             </div>
@@ -625,57 +804,182 @@
 <script>
 // Variáveis globais
 let previewData = [];
+let selectedCycle = '';
 
-// Toggle course select for Ensino Médio
-function toggleCourseSelect(levelId, isChecked) {
-    const courseDiv = document.getElementById('course_select_' + levelId);
-    if (courseDiv) {
-        courseDiv.style.display = isChecked ? 'inline-block' : 'none';
+// Selecionar ciclo
+function selectCycle(cycle) {
+    // Atualizar visual dos cards
+    document.querySelectorAll('.cycle-card').forEach(card => {
+        card.classList.remove('selected');
+        if (card.dataset.cycle === cycle) {
+            card.classList.add('selected');
+        }
+    });
+    
+    // Esconder todos os containers de níveis
+    document.querySelectorAll('.levels-container').forEach(container => {
+        container.classList.remove('active');
+    });
+    
+    // Mostrar container do ciclo selecionado
+    const containerId = 'levels_' + cycle.replace(/ /g, '_');
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.classList.add('active');
     }
+    
+    selectedCycle = cycle;
+    document.getElementById('selected_cycle').value = cycle;
+    
+    // Limpar seleções anteriores de outros ciclos
+    document.querySelectorAll('.level-checkbox').forEach(cb => {
+        if (!cb.closest('.levels-container.active')) {
+            cb.checked = false;
+        }
+    });
+    
     updatePreview();
 }
+
+// Mostrar/esconder selects de curso quando checkbox é marcado
+document.querySelectorAll('.level-checkbox').forEach(cb => {
+    cb.addEventListener('change', function() {
+        const levelItem = this.closest('.level-item');
+        const courseContainer = levelItem.querySelector('.course-select-container');
+        if (courseContainer) {
+            courseContainer.style.display = this.checked ? 'inline-block' : 'none';
+        }
+        updatePreview();
+    });
+});
+
+// Sincronizar prefixo personalizado
+function syncPrefix() {
+    const select = document.getElementById('class_prefix_select');
+    const customInput = document.getElementById('class_prefix_custom');
+    
+    if (select.value === 'custom') {
+        customInput.style.display = 'block';
+        customInput.value = '';
+        customInput.focus();
+    } else {
+        customInput.style.display = 'none';
+        customInput.value = select.value;
+        updatePreview();
+    }
+}
+
+// Definir prefixo rápido
+function setPrefix(prefix) {
+    document.getElementById('class_prefix_select').value = prefix;
+    document.getElementById('class_prefix_custom').value = prefix;
+    document.getElementById('class_prefix_custom').style.display = 'none';
+    
+    // Atualizar tags visuais
+    document.querySelectorAll('.prefix-tag').forEach(tag => {
+        tag.classList.remove('selected');
+        if (tag.textContent.includes(prefix)) {
+            tag.classList.add('selected');
+        }
+    });
+    
+    updatePreview();
+}
+
+// Gerenciar sala personalizada
+document.getElementById('room_prefix').addEventListener('change', function() {
+    const customInput = document.getElementById('room_prefix_custom');
+    if (this.value === 'custom-room') {
+        customInput.style.display = 'block';
+        customInput.value = '';
+    } else {
+        customInput.style.display = 'none';
+        updatePreview();
+    }
+});
 
 // Update preview
 function updatePreview() {
     const start = parseInt(document.getElementById('start_number').value) || 1;
     const end = parseInt(document.getElementById('end_number').value) || 1;
     const shift = document.getElementById('class_shift').value;
-    const prefix = document.getElementById('class_prefix').value || 'Turma';
-    const roomPrefix = document.getElementById('room_prefix').value || 'Sala';
     
-    // Get selected levels
+    // Obter prefixo (personalizado ou selecionado)
+    let prefix = document.getElementById('class_prefix_custom').value;
+    if (!prefix) {
+        prefix = document.getElementById('class_prefix_select').value;
+        if (prefix === 'custom') prefix = 'Turma';
+    }
+    
+    // Obter prefixo da sala
+    let roomPrefix = document.getElementById('room_prefix').value;
+    if (roomPrefix === 'custom-room') {
+        roomPrefix = document.getElementById('room_prefix_custom').value || 'Sala';
+    }
+    
+    // Obter níveis selecionados
     const selectedLevels = [];
     document.querySelectorAll('.level-checkbox:checked').forEach(cb => {
         const levelItem = cb.closest('.level-item');
-        const levelName = levelItem.querySelector('.level-name').textContent;
+        const levelName = cb.dataset.levelName || levelItem.querySelector('.level-name').textContent;
         const education = cb.dataset.education;
+        const gradeNumber = cb.dataset.gradeNumber;
         
         let courseName = 'Ensino Geral';
-        if (education === 'Ensino Médio') {
-            const levelId = cb.value;
-            const courseSelect = document.querySelector(`select[name="course_ids[${levelId}]"]`);
-            courseName = courseSelect && courseSelect.value 
-                ? courseSelect.options[courseSelect.selectedIndex].text 
-                : 'Sem curso';
+        let courseId = null;
+        
+        // Para 2º Ciclo e Ensino Médio, verificar curso selecionado
+        if (education === '2º Ciclo' || education === 'Ensino Médio') {
+            const courseSelect = document.querySelector(`select[name="course_ids[${cb.value}]"]`);
+            if (courseSelect && courseSelect.value) {
+                courseName = courseSelect.options[courseSelect.selectedIndex].text;
+                courseId = courseSelect.value;
+            } else {
+                courseName = '⚠️ Curso não selecionado';
+            }
         }
         
         selectedLevels.push({
             id: cb.value,
             name: levelName,
             education: education,
-            course: courseName
+            gradeNumber: gradeNumber,
+            course: courseName,
+            courseId: courseId
         });
     });
     
-    // Generate preview
+    // Gerar preview
     previewData = [];
     const tbody = document.getElementById('previewBody');
     tbody.innerHTML = '';
     
     selectedLevels.forEach(level => {
         for (let i = start; i <= end; i++) {
-            const className = `${prefix} ${i}`;
-            const classCode = `${level.education === 'Ensino Médio' ? 'EM' : 'EG'}-${level.id}-${shift.substring(0,1)}-${i}`;
+            // Nome da turma com formatação inteligente
+            let className;
+            if (prefix.toLowerCase() === 'turma' || prefix.toLowerCase() === 'classe') {
+                // Turma A, Turma B... para numeração pequena
+                if (i <= 26) {
+                    const letra = String.fromCharCode(64 + i); // A=1, B=2...
+                    className = `${prefix} ${letra}`;
+                } else {
+                    className = `${prefix} ${i}`;
+                }
+            } else {
+                className = `${prefix} ${i}`;
+            }
+            
+            // Gerar código
+            const shiftCode = shift ? shift.substring(0,1) : 'X';
+            let classCode;
+            if (level.courseId) {
+                // Para Ensino Médio, incluir código do curso
+                classCode = `EM-${level.id}-${shiftCode}-${i}`;
+            } else {
+                classCode = `EG-${level.id}-${shiftCode}-${i}`;
+            }
+            
             const room = `${roomPrefix} ${i}`;
             
             previewData.push({
@@ -683,13 +987,15 @@ function updatePreview() {
                 course: level.course,
                 name: className,
                 code: classCode,
-                room: room
+                room: room,
+                hasError: level.course.includes('⚠️')
             });
             
             const row = tbody.insertRow();
+            row.style.backgroundColor = level.course.includes('⚠️') ? 'rgba(232,70,70,0.05)' : '';
             row.innerHTML = `
                 <td>${level.name}</td>
-                <td><span class="preview-badge">${level.course}</span></td>
+                <td><span class="preview-badge" style="${level.course.includes('⚠️') ? 'background: rgba(232,70,70,0.1); color: var(--danger);' : ''}">${level.course}</span></td>
                 <td>${className}</td>
                 <td><code>${classCode}</code></td>
                 <td>${room}</td>
@@ -697,15 +1003,21 @@ function updatePreview() {
         }
     });
     
-    // Update summary
+    // Atualizar summary
     document.getElementById('previewCount').textContent = previewData.length;
     document.getElementById('previewLevels').textContent = selectedLevels.length;
     document.getElementById('previewShift').textContent = shift || 'Não definido';
-    document.getElementById('totalInfo').textContent = `${previewData.length} turma(s) a criar`;
-    document.getElementById('previewSection').style.display = previewData.length > 0 ? 'block' : 'none';
     
-    // Enable/disable submit
-    document.getElementById('submitBtn').disabled = previewData.length === 0;
+    const hasErrors = previewData.some(item => item.hasError);
+    const totalInfo = document.getElementById('totalInfo');
+    totalInfo.textContent = `${previewData.length} turma(s) a criar`;
+    totalInfo.style.color = hasErrors ? 'var(--danger)' : '';
+    
+    document.getElementById('previewSection').style.display = previewData.length > 0 ? 'block' : 'none';
+    document.getElementById('submitBtn').disabled = previewData.length === 0 || hasErrors;
+    
+    // Atualizar exemplo de prefixo
+    document.getElementById('prefixExample').textContent = `${prefix} 1, ${prefix} 2...`;
 }
 
 // Show loading overlay
@@ -714,18 +1026,23 @@ function showLoading() {
         alert('Nenhuma turma para criar. Faça a pré-visualização primeiro.');
         return false;
     }
+    
+    if (previewData.some(item => item.hasError)) {
+        alert('Existem níveis sem curso selecionado. Por favor, selecione os cursos antes de continuar.');
+        return false;
+    }
+    
     document.getElementById('loadingOverlay').style.display = 'flex';
     return true;
 }
 
 // Add event listeners
-document.querySelectorAll('.level-checkbox').forEach(cb => {
-    cb.addEventListener('change', updatePreview);
-});
-
 document.getElementById('class_shift').addEventListener('change', updatePreview);
-document.getElementById('class_prefix').addEventListener('input', updatePreview);
-document.getElementById('room_prefix').addEventListener('input', updatePreview);
+document.getElementById('start_number').addEventListener('change', updatePreview);
+document.getElementById('end_number').addEventListener('change', updatePreview);
+document.getElementById('capacity').addEventListener('change', updatePreview);
+document.getElementById('class_prefix_custom').addEventListener('input', updatePreview);
+document.getElementById('room_prefix_custom').addEventListener('input', updatePreview);
 
 // Initialize
 updatePreview();
