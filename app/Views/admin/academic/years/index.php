@@ -145,14 +145,14 @@ body { background:var(--surface); color:var(--text-primary); }
                             <?php endif; ?>
                         </td>
                         <td class="center">
-                            <?php if ($year->is_current): ?>
+                            <?php if ($year->id == current_academic_year()): ?>
                                 <span class="current-badge"><i class="fas fa-star" style="font-size:.6rem;"></i>Atual</span>
                             <?php else: ?>
-                                <a href="<?= site_url('admin/academic/years/set-current/' . $year->id) ?>"
+                              <!--   <a href="<?= site_url('admin/academic/years/set-current/' . $year->id) ?>"
                                    class="btn-set-current"
                                    onclick="return confirm('Definir este ano como atual?')">
                                     <i class="fas fa-check-circle"></i> Definir
-                                </a>
+                                </a> -->
                             <?php endif; ?>
                         </td>
                         <td class="center">

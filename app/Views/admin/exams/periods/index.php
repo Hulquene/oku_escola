@@ -39,8 +39,8 @@
                 <select class="form-select" name="academic_year" onchange="this.form.submit()">
                     <option value="">Todos os anos</option>
                     <?php foreach ($academicYears as $year): ?>
-                        <option value="<?= $year->id ?>" <?= $selectedYear == $year->id ? 'selected' : '' ?>>
-                            <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                        <option value="<?= $year->id ?>" <?= current_academic_year() == $year->id ? 'selected' : '' ?>>
+                            <?= $year->year_name ?> <?= current_academic_year() == $year->id ? '(Atual)' : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

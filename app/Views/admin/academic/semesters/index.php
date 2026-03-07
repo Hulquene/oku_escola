@@ -917,8 +917,8 @@ div.dataTables_wrapper {
                 <select class="filter-select" id="academic_year">
                     <option value="">Todos</option>
                     <?php foreach ($academicYears as $year): ?>
-                        <option value="<?= $year->id ?>" <?= $selectedYear == $year->id ? 'selected' : '' ?>>
-                            <?= $year->year_name . ($year->is_current ? ' (Atual)' : '') ?>
+                          <option value="<?= $year->id ?>" <?= current_academic_year() == $year->id ? 'selected' : '' ?>>
+                            <?= $year->year_name ?> <?= current_academic_year() == $year->id ? '(Atual)' : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
