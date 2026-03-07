@@ -2,6 +2,8 @@
 // app/Helpers/settings_helper.php
 
 use App\Models\SettingsModel;
+use App\Models\AcademicYearModel;
+use App\Models\CurrencyModel;
 
 if (!function_exists('setting')) {
     /**
@@ -57,23 +59,87 @@ if (!function_exists('school_logo')) {
     }
 }
 
+if (!function_exists('school_logo_url')) {
+    /**
+     * Get school logo URL with cache
+     */
+    function school_logo_url()
+    {
+        $cache = service('cache');
+        $logo = $cache->get('school_logo');
+        
+        if ($logo === null) {
+            $logo = setting('school_logo');
+            $cache->save('school_logo', $logo, 3600); // cache de 1 hora
+        }
+        
+        if ($logo && file_exists('uploads/school/' . $logo)) {
+            return base_url('uploads/school/' . $logo);
+        }
+        return base_url('assets/images/default-logo.png');
+    }
+}
+
+if (!function_exists('school_logo_html')) {
+    /**
+     * Get school logo HTML with specified dimensions
+     */
+    function school_logo_html($width = 40, $height = 40, $class = '')
+    {
+        $logoUrl = school_logo_url();
+        $acronym = setting('school_acronym') ?: 'Escola';
+        
+        if ($logoUrl && $logoUrl !== base_url('assets/images/default-logo.png')) {
+            return '<img src="' . $logoUrl . '" alt="' . $acronym . '" width="' . $width . '" height="' . $height . '" class="' . $class . '" style="object-fit: contain;">';
+        }
+        
+        return '<div class="school-logo-placeholder ' . $class . '" style="width: ' . $width . 'px; height: ' . $height . 'px; display:flex; align-items:center; justify-content:center; background:#f0f2f5; border-radius:8px;"><i class="fas fa-graduation-cap" style="font-size:1.2rem; color:#6c757d;"></i></div>';
+    }
+}
+
 if (!function_exists('current_academic_year')) {
     /**
-     * Get current academic year
+     * Get current academic year ID from session or settings
      */
     function current_academic_year()
     {
-        return setting('current_academic_year');
+        return session()->get('academic_year_id') ?: setting('current_academic_year');
+    }
+}
+
+if (!function_exists('current_academic_year_name')) {
+    /**
+     * Get current academic year name from session
+     */
+    function current_academic_year_name()
+    {
+        $yearName = session()->get('academic_year_name');
+        if (!$yearName) {
+            $academicYearId = current_academic_year();
+            if ($academicYearId) {
+                $academicYearModel = new AcademicYearModel();
+                $academicYear = $academicYearModel->find($academicYearId);
+                // 🔴 ACESSO COMO ARRAY
+                $yearName = $academicYear ? $academicYear['year_name'] : null;
+                
+                // Guardar na sessão para próxima vez
+                if ($yearName) {
+                    session()->set('academic_year_name', $yearName);
+                }
+            }
+        }
+        
+        return $yearName ?: 'Ano não definido';
     }
 }
 
 if (!function_exists('current_semester')) {
     /**
-     * Get current semester
+     * Get current semester from session
      */
     function current_semester()
     {
-        return setting('current_semester');
+        return session()->get('semester_id') ?: setting('current_semester');
     }
 }
 
@@ -100,13 +166,25 @@ if (!function_exists('default_currency')) {
     {
         $currencyId = setting('default_currency', 1);
         
-        $currencyModel = new \App\Models\CurrencyModel();
+        $currencyModel = new CurrencyModel();
         $currency = $currencyModel->find($currencyId);
         
-        return $currency ?: (object)[
+        if ($currency) {
+            // 🔴 ACESSO COMO ARRAY
+            return (object)[
+                'id' => $currency['id'],
+                'currency_name' => $currency['currency_name'],
+                'currency_code' => $currency['currency_code'],
+                'currency_symbol' => $currency['currency_symbol'],
+                'is_default' => $currency['is_default'] ?? false
+            ];
+        }
+        
+        return (object)[
             'currency_name' => 'Kwanza',
             'currency_code' => 'AOA',
-            'currency_symbol' => 'Kz'
+            'currency_symbol' => 'Kz',
+            'is_default' => true
         ];
     }
 }
@@ -125,56 +203,5 @@ if (!function_exists('format_money')) {
         }
         
         return $formatted;
-    }
-}
-
-// Adicionar no app/Helpers/settings_helper.php
-
-// if (!function_exists('school_logo_url')) {
-//     /**
-//      * Get school logo URL
-//      */
-//     function school_logo_url()
-//     {
-//         $logo = setting('school_logo');
-//         if ($logo && file_exists('uploads/school/' . $logo)) {
-//             return base_url('uploads/school/' . $logo);
-//         }
-//         return base_url('assets/images/default-logo.png'); // imagem padrão
-//     }
-// }
-
-if (!function_exists('school_logo_html')) {
-    /**
-     * Get school logo HTML with specified dimensions
-     */
-    function school_logo_html($width = 40, $height = 40, $class = '')
-    {
-        $logoUrl = school_logo_url();
-        $acronym = setting('school_acronym') ?: 'Escola';
-        
-        if ($logoUrl) {
-            return '<img src="' . $logoUrl . '" alt="' . $acronym . '" width="' . $width . '" height="' . $height . '" class="' . $class . '" style="object-fit: contain;">';
-        }
-        
-        return '<div class="school-logo-placeholder ' . $class . '" style="width: ' . $width . 'px; height: ' . $height . 'px;"><i class="fas fa-graduation-cap"></i></div>';
-    }
-}
-
-if (!function_exists('school_logo_url')) {
-    function school_logo_url()
-    {
-        $cache = service('cache');
-        $logo = $cache->get('school_logo');
-        
-        if ($logo === null) {
-            $logo = setting('school_logo');
-            $cache->save('school_logo', $logo, 3600); // cache de 1 hora
-        }
-        
-        if ($logo && file_exists('uploads/school/' . $logo)) {
-            return base_url('uploads/school/' . $logo);
-        }
-        return base_url('assets/images/default-logo.png');
     }
 }

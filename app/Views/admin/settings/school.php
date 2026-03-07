@@ -3,1016 +3,1114 @@
 <?= $this->section('content') ?>
 
 <style>
-/* Estilos adicionais para melhorar o layout */
-.school-logo-preview {
-    width: 100%;
-    height: 160px;
-    background: var(--surface);
-    border: 2px dashed var(--border);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    transition: all 0.2s;
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --primary:       #1B2B4B;
+    --primary-light: #243761;
+    --accent:        #3B7FE8;
+    --accent-hover:  #2C6FD4;
+    --success:       #16A87D;
+    --danger:        #E84646;
+    --warning:       #E8A020;
+    --surface:       #F5F7FC;
+    --surface-card:  #FFFFFF;
+    --border:        #E2E8F4;
+    --text-primary:  #1A2238;
+    --text-secondary:#6B7A99;
+    --text-muted:    #9AA5BE;
+    --shadow-sm:     0 1px 4px rgba(27,43,75,.07);
+    --shadow-md:     0 4px 16px rgba(27,43,75,.10);
+    --shadow-lg:     0 8px 32px rgba(27,43,75,.14);
+    --radius:        12px;
+    --radius-sm:     8px;
+}
+* { font-family:'Sora',sans-serif; box-sizing:border-box; }
+body { background:var(--surface); color:var(--text-primary); }
+
+/* ── PAGE HEADER ─────────────────────────────────────────── */
+.ci-page-header { background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 60%,#2D4A7A 100%); border-radius:var(--radius); padding:1.5rem 2rem; margin-bottom:1.5rem; position:relative; overflow:hidden; box-shadow:var(--shadow-lg); }
+.ci-page-header::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none; }
+.ci-page-header::after  { content:''; position:absolute; bottom:-40px; right:100px; width:130px; height:130px; border-radius:50%; background:rgba(59,127,232,.15); pointer-events:none; }
+.ci-page-header-inner   { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:.75rem; position:relative; z-index:1; }
+.ci-page-header h1 { font-size:1.4rem; font-weight:700; color:#fff; margin:0 0 .2rem; letter-spacing:-.3px; }
+.ci-page-header .breadcrumb { margin:0; padding:0; background:transparent; }
+.ci-page-header .breadcrumb-item a { color:rgba(255,255,255,.6); text-decoration:none; font-size:.8rem; transition:color .2s; }
+.ci-page-header .breadcrumb-item a:hover { color:#fff; }
+.ci-page-header .breadcrumb-item.active,
+.ci-page-header .breadcrumb-item + .breadcrumb-item::before { color:rgba(255,255,255,.4); font-size:.8rem; }
+.hdr-btn { display:inline-flex; align-items:center; gap:.45rem; border-radius:var(--radius-sm); padding:.45rem 1rem; font-size:.82rem; font-weight:600; text-decoration:none; transition:all .18s; cursor:pointer; border:none; font-family:'Sora',sans-serif; white-space:nowrap; }
+.hdr-btn.ghost { background:rgba(255,255,255,.12); color:#fff; border:1.5px solid rgba(255,255,255,.2); }
+.hdr-btn.ghost:hover { background:rgba(255,255,255,.22); color:#fff; }
+
+/* ── LAYOUT: SIDEBAR TABS + CONTENT ─────────────────────── */
+.settings-layout { display:grid; grid-template-columns:220px 1fr; gap:1.25rem; align-items:start; }
+@media(max-width:900px){ .settings-layout { grid-template-columns:1fr; } }
+
+/* ── VERTICAL TAB NAV ────────────────────────────────────── */
+.settings-nav { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; position:sticky; top:80px; }
+.settings-nav-header { padding:.85rem 1rem .6rem; border-bottom:1px solid var(--border); background:var(--surface); }
+.settings-nav-label { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); }
+.settings-nav ul { list-style:none; margin:0; padding:.4rem 0; }
+.settings-nav li { margin:0; }
+.settings-nav-item {
+    display:flex; align-items:center; gap:.6rem;
+    padding:.55rem 1rem;
+    font-size:.81rem; font-weight:500; color:var(--text-secondary);
+    cursor:pointer; text-decoration:none;
+    transition:all .15s;
+    border:none; background:transparent; width:100%; text-align:left;
+    position:relative;
+}
+.settings-nav-item:hover { background:var(--surface); color:var(--text-primary); }
+.settings-nav-item.active { color:var(--accent); font-weight:600; background:rgba(59,127,232,.06); }
+.settings-nav-item.active::before {
+    content:''; position:absolute; left:0; top:20%; height:60%;
+    width:3px; background:var(--accent); border-radius:0 3px 3px 0;
+}
+.settings-nav-item .nav-ico {
+    width:26px; height:26px; border-radius:7px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:.72rem; flex-shrink:0;
+    background:var(--surface); color:var(--text-muted);
+    transition:all .15s;
+}
+.settings-nav-item:hover .nav-ico { background:rgba(59,127,232,.08); color:var(--accent); }
+.settings-nav-item.active .nav-ico { background:rgba(59,127,232,.12); color:var(--accent); }
+.settings-nav-divider { height:1px; background:var(--border); margin:.3rem .8rem; }
+
+/* ── CARD ────────────────────────────────────────────────── */
+.ci-card { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; margin-bottom:1rem; }
+.ci-card-header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; padding:.85rem 1.25rem; background:var(--surface); border-bottom:1px solid var(--border); }
+.ci-card-title { display:flex; align-items:center; gap:.55rem; font-size:.84rem; font-weight:700; color:var(--text-primary); }
+.ci-card-title i { color:var(--accent); font-size:.8rem; }
+.ci-card-body { padding:1.25rem; }
+
+/* ── SECTION DIVIDER ─────────────────────────────────────── */
+.sec-divider { display:flex; align-items:center; gap:.55rem; margin:1.4rem 0 1rem; }
+.sec-divider-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); white-space:nowrap; }
+.sec-divider-label i { color:var(--accent); margin-right:.25rem; font-size:.62rem; }
+.sec-divider-line { flex:1; height:1px; background:var(--border); }
+
+/* ── FORM FIELDS ─────────────────────────────────────────── */
+.f-label { font-size:.72rem; font-weight:600; color:var(--text-secondary); margin-bottom:.32rem; display:block; text-transform:uppercase; letter-spacing:.04em; }
+.f-label i { color:var(--accent); margin-right:.25rem; font-size:.68rem; }
+.f-label .req { color:var(--danger); margin-left:.15rem; }
+.f-input, .f-select {
+    width:100%; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+    padding:.52rem .85rem; font-size:.84rem; color:var(--text-primary);
+    background:var(--surface); font-family:'Sora',sans-serif;
+    transition:border-color .18s, box-shadow .18s;
+    outline:none;
+}
+.f-input:focus, .f-select:focus {
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(59,127,232,.1);
+    background:#fff;
+}
+.f-input.is-invalid, .f-select.is-invalid { border-color:var(--danger); }
+.f-input.is-invalid:focus { box-shadow:0 0 0 3px rgba(232,70,70,.1); }
+.f-hint { font-size:.7rem; color:var(--text-muted); margin-top:.25rem; }
+.invalid-msg { font-size:.72rem; color:var(--danger); margin-top:.25rem; }
+.f-input-group { display:flex; }
+.f-input-group .f-input { border-radius:var(--radius-sm) 0 0 var(--radius-sm); }
+.f-input-group .f-addon {
+    display:flex; align-items:center; padding:0 .75rem;
+    background:var(--surface); border:1.5px solid var(--border); border-left:none;
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+    font-size:.8rem; color:var(--text-muted); white-space:nowrap;
 }
 
-.school-logo-preview.has-image {
-    border: 2px solid var(--accent);
-    background: #fff;
+/* ── LOGO/MEDIA UPLOAD BOXES ─────────────────────────────── */
+.media-upload-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+@media(max-width:700px){ .media-upload-grid { grid-template-columns:1fr 1fr; } }
+
+.media-box {
+    border:1.5px dashed var(--border); border-radius:var(--radius-sm);
+    background:var(--surface); overflow:hidden;
+    transition:border-color .2s;
+}
+.media-box:hover { border-color:var(--accent); }
+.media-box.has-image { border-style:solid; border-color:var(--accent); }
+
+.media-preview {
+    height:130px; display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+    cursor:pointer;
+}
+.media-preview img { max-width:100%; max-height:100%; object-fit:contain; padding:.5rem; }
+.media-preview .ph { text-align:center; color:var(--text-muted); }
+.media-preview .ph i { font-size:1.8rem; opacity:.2; display:block; margin-bottom:.4rem; }
+.media-preview .ph span { font-size:.72rem; }
+
+/* Dark background preview for dark logo */
+.media-preview.dark-bg { background:linear-gradient(135deg,#0D1B33,#1B2B4B); }
+.media-preview.dark-bg .ph { color:rgba(255,255,255,.3); }
+.media-preview.dark-bg .ph i { opacity:.3; }
+
+/* Favicon bg checkered */
+.media-preview.favicon-bg {
+    background-image: repeating-conic-gradient(#e8eaf0 0% 25%, #f5f7fc 0% 50%);
+    background-size: 16px 16px;
 }
 
-.school-logo-preview img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+.media-footer { padding:.6rem .8rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:.4rem; flex-wrap:wrap; }
+.media-title { font-size:.72rem; font-weight:700; color:var(--text-primary); }
+.media-hint  { font-size:.65rem; color:var(--text-muted); }
+.media-actions { display:flex; gap:.35rem; }
+.media-btn {
+    display:inline-flex; align-items:center; gap:.3rem;
+    padding:.22rem .6rem; border-radius:6px; font-size:.7rem; font-weight:600;
+    cursor:pointer; text-decoration:none; font-family:'Sora',sans-serif;
+    transition:all .15s; border:1.5px solid var(--border);
+    background:#fff; color:var(--text-secondary);
 }
+.media-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(59,127,232,.05); }
+.media-btn.danger:hover { border-color:var(--danger); color:var(--danger); background:rgba(232,70,70,.05); }
+input[type="file"].media-file { display:none; }
 
-.school-logo-preview .placeholder {
-    text-align: center;
-    color: var(--text-muted);
+/* ── MANAGEMENT CARD ─────────────────────────────────────── */
+.info-banner {
+    display:flex; align-items:flex-start; gap:.75rem;
+    background:rgba(59,127,232,.06); border:1px solid rgba(59,127,232,.15);
+    border-radius:var(--radius-sm); padding:.85rem 1rem;
+    margin-bottom:1.25rem; font-size:.82rem; color:var(--text-secondary);
 }
+.info-banner i { color:var(--accent); margin-top:.1rem; flex-shrink:0; }
 
-.school-logo-preview .placeholder i {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.3;
+/* ── PERSON CARD ─────────────────────────────────────────── */
+.person-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:1rem 1.1rem; margin-bottom:1rem;
 }
+.person-card-header { display:flex; align-items:center; gap:.6rem; margin-bottom:.85rem; }
+.person-card-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.8rem; flex-shrink:0; }
+.person-card-icon.blue  { background:rgba(59,127,232,.1);  color:var(--accent); }
+.person-card-icon.green { background:rgba(22,168,125,.1);  color:var(--success); }
+.person-card-title { font-size:.82rem; font-weight:700; color:var(--text-primary); }
+.person-card-sub   { font-size:.7rem; color:var(--text-muted); }
 
-.school-logo-preview .placeholder p {
-    font-size: 0.8rem;
-    margin: 0;
+/* ── SIGNATURE PREVIEW ───────────────────────────────────── */
+.sig-preview {
+    background:linear-gradient(135deg,var(--surface) 0%,#eef1f8 100%);
+    border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:1rem 1.25rem;
 }
+.sig-line { border-top:1.5px solid var(--text-primary); width:180px; margin:1rem 0 .3rem; }
+.sig-name { font-weight:700; font-size:.85rem; color:var(--text-primary); }
+.sig-role { font-size:.72rem; color:var(--text-muted); }
 
-.management-card {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-    color: #fff;
-    border-radius: var(--radius-sm);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+/* ── STATS MINI CARDS ────────────────────────────────────── */
+.stat-mini-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.75rem; }
+@media(max-width:700px){ .stat-mini-grid { grid-template-columns:1fr 1fr; } }
+.stat-mini { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:.85rem 1rem; text-align:center; }
+.stat-mini-val { font-size:1.5rem; font-weight:700; color:var(--primary); font-family:'JetBrains Mono',monospace; line-height:1; }
+.stat-mini-lbl { font-size:.66rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; margin-top:.25rem; }
+
+/* ── SYSTEM INFO TABLE ───────────────────────────────────── */
+.sys-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+.sys-table td { padding:.5rem .75rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+.sys-table tr:last-child td { border-bottom:none; }
+.sys-table td:first-child { color:var(--text-secondary); font-weight:600; font-size:.76rem; width:50%; }
+.sys-badge { font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; padding:.15rem .5rem; border-radius:5px; }
+.sys-badge.blue  { background:rgba(59,127,232,.1);  color:var(--accent); }
+.sys-badge.green { background:rgba(22,168,125,.1);  color:var(--success); }
+.sys-badge.amber { background:rgba(232,160,32,.1);  color:var(--warning); }
+
+/* ── ACTION BTNS ─────────────────────────────────────────── */
+.sys-action-btn {
+    display:flex; align-items:center; gap:.55rem;
+    padding:.55rem 1rem; border-radius:var(--radius-sm);
+    font-size:.8rem; font-weight:600; cursor:pointer; text-decoration:none;
+    transition:all .18s; border:1.5px solid var(--border);
+    background:#fff; color:var(--text-secondary); font-family:'Sora',sans-serif;
+    width:100%; margin-bottom:.5rem;
 }
+.sys-action-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(59,127,232,.05); }
+.sys-action-btn.danger:hover  { border-color:var(--danger);  color:var(--danger);  background:rgba(232,70,70,.04); }
+.sys-action-btn.warning:hover { border-color:var(--warning); color:var(--warning); background:rgba(232,160,32,.04); }
+.sys-action-btn i { width:20px; text-align:center; }
 
-.management-card i {
-    opacity: 0.8;
-    margin-right: 0.5rem;
+/* ── SAVE BAR ────────────────────────────────────────────── */
+.save-bar { display:flex; align-items:center; justify-content:flex-end; gap:.65rem; padding:1rem 1.25rem; background:var(--surface); border-top:1px solid var(--border); margin-top:.5rem; }
+.btn-save { display:inline-flex; align-items:center; gap:.45rem; padding:.55rem 1.4rem; border-radius:var(--radius-sm); background:var(--accent); color:#fff; border:none; font-size:.84rem; font-weight:600; cursor:pointer; font-family:'Sora',sans-serif; transition:all .18s; box-shadow:0 3px 10px rgba(59,127,232,.28); }
+.btn-save:hover { background:var(--accent-hover); transform:translateY(-1px); }
+.btn-cancel { display:inline-flex; align-items:center; gap:.4rem; padding:.52rem 1rem; border-radius:var(--radius-sm); background:#fff; color:var(--text-secondary); border:1.5px solid var(--border); font-size:.82rem; font-weight:600; cursor:pointer; font-family:'Sora',sans-serif; text-decoration:none; transition:all .18s; }
+.btn-cancel:hover { border-color:var(--text-secondary); color:var(--text-primary); }
+
+/* ── FORM CHECK (custom) ─────────────────────────────────── */
+.f-check { display:flex; align-items:center; gap:.55rem; padding:.5rem 0; cursor:pointer; }
+.f-check input[type="checkbox"] { display:none; }
+.f-check-box {
+    width:18px; height:18px; border-radius:5px; border:1.5px solid var(--border);
+    background:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    transition:all .15s;
 }
+.f-check input:checked + .f-check-box { background:var(--accent); border-color:var(--accent); }
+.f-check-box i { font-size:.6rem; color:#fff; display:none; }
+.f-check input:checked + .f-check-box i { display:block; }
+.f-check-text { font-size:.8rem; color:var(--text-secondary); }
+.f-check-text strong { color:var(--text-primary); }
 
-.section-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 1.5rem 0 1rem;
-    color: var(--text-secondary);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
+/* Alerts */
+.alert { border-radius:var(--radius-sm); border:none; font-size:.875rem; }
+.alert-success { background:rgba(22,168,125,.1); color:#0E7A5A; border-left:3px solid var(--success); }
+.alert-danger   { background:rgba(232,70,70,.08);  color:#B03030; border-left:3px solid var(--danger); }
+.alert-warning  { background:rgba(232,160,32,.1);  color:#8A5A00; border-left:3px solid var(--warning); }
 
-.section-divider-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-}
+/* Tab pane */
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
 
-.section-divider i {
-    color: var(--accent);
-}
-
-.form-control, .form-select {
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(59,127,232,0.1);
-}
-
-.form-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 0.3rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
-
-.form-label i {
-    color: var(--accent);
-    margin-right: 0.3rem;
-    font-size: 0.75rem;
-}
-
-.input-group-text {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text-muted);
-    font-size: 0.85rem;
-}
-
-.card-stats {
-    background: var(--surface);
-    border-radius: var(--radius-sm);
-    padding: 1rem;
-    text-align: center;
-    border: 1px solid var(--border);
-    transition: transform 0.2s;
-}
-
-.card-stats:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-}
-
-.card-stats .value {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary);
-    line-height: 1.2;
-}
-
-.card-stats .label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.btn-save {
-    background: var(--accent);
-    border: none;
-    color: #fff;
-    padding: 0.7rem 2rem;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    font-size: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
-}
-
-.btn-save:hover {
-    background: var(--accent-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59,127,232,0.3);
+@media(max-width:767px){
+    .ci-page-header { padding:1.1rem 1.2rem; }
+    .ci-page-header h1 { font-size:1.1rem; }
+    .media-upload-grid { grid-template-columns:1fr; }
+    .stat-mini-grid { grid-template-columns:1fr 1fr; }
 }
 </style>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1><i class="fas fa-cog me-2"></i><?= $title ?></h1>
-        <a href="<?= site_url('admin/settings') ?>" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Voltar
+<!-- ── PAGE HEADER ─────────────────────────────────────── -->
+<div class="ci-page-header mb-4">
+    <div class="ci-page-header-inner">
+        <div>
+            <h1><i class="fas fa-school me-2" style="opacity:.7;font-size:1.1rem;"></i><?= $title ?></h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/settings') ?>">Configurações</a></li>
+                    <li class="breadcrumb-item active">Escola</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="<?= site_url('admin/settings') ?>" class="hdr-btn ghost">
+            <i class="fas fa-arrow-left"></i> Voltar
         </a>
     </div>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/settings') ?>">Configurações</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Configurações da Escola</li>
-        </ol>
-    </nav>
 </div>
 
-<!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
-<!-- Settings Tabs -->
-<ul class="nav nav-tabs mb-4" id="settingsTab" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-            <i class="fas fa-building"></i> Gerais
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="management-tab" data-bs-toggle="tab" data-bs-target="#management" type="button" role="tab">
-            <i class="fas fa-users-cog"></i> Gestão
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="academic-tab" data-bs-toggle="tab" data-bs-target="#academic" type="button" role="tab">
-            <i class="fas fa-graduation-cap"></i> Académicas
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="fees-tab" data-bs-toggle="tab" data-bs-target="#fees" type="button" role="tab">
-            <i class="fas fa-coins"></i> Propinas
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab">
-            <i class="fas fa-cog"></i> Sistema
-        </button>
-    </li>
-</ul>
+<!-- ── SETTINGS LAYOUT ────────────────────────────────── -->
+<div class="settings-layout">
 
-<div class="tab-content" id="settingsTabContent">
-    
-    <!-- ==================== GENERAL SETTINGS ==================== -->
-    <div class="tab-pane fade show active" id="general" role="tabpanel">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-building"></i> Informações Gerais da Escola
-            </div>
-            <div class="card-body">
-                <form action="<?= site_url('admin/settings/save-school') ?>" method="post" enctype="multipart/form-data">
-                    <?= csrf_field() ?>
-                    
-                    <div class="row">
-                        <div class="col-md-8">
-                            <!-- Nome e Sigla -->
-                            <div class="row mb-3">
-                                <div class="col-md-8">
-                                    <label for="school_name" class="form-label">
-                                        <i class="fas fa-school"></i> Nome da Escola <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control <?= session('errors.school_name') ? 'is-invalid' : '' ?>" 
-                                           id="school_name" name="school_name" 
-                                           value="<?= old('school_name', $settings['school_name'] ?? '') ?>" 
-                                           placeholder="Ex: Escola do Ensino Primário 1º de Maio" required>
-                                    <?php if (session('errors.school_name')): ?>
-                                        <div class="invalid-feedback"><?= session('errors.school_name') ?></div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="school_acronym" class="form-label">
-                                        <i class="fas fa-tag"></i> Sigla
-                                    </label>
-                                    <input type="text" class="form-control" id="school_acronym" name="school_acronym" 
-                                           value="<?= old('school_acronym', $settings['school_acronym'] ?? '') ?>"
-                                           placeholder="Ex: EEP1M">
-                                    <small class="text-muted">Usada em documentos oficiais</small>
-                                </div>
+    <!-- ── VERTICAL NAV ────────────────────────────────── -->
+    <aside class="settings-nav">
+        <div class="settings-nav-header">
+            <span class="settings-nav-label">Secções</span>
+        </div>
+        <ul>
+            <li>
+                <button class="settings-nav-item active" data-tab="general">
+                    <span class="nav-ico"><i class="fas fa-building"></i></span>
+                    Informações Gerais
+                </button>
+            </li>
+            <li>
+                <button class="settings-nav-item" data-tab="branding">
+                    <span class="nav-ico"><i class="fas fa-paint-brush"></i></span>
+                    Identidade Visual
+                </button>
+            </li>
+            <li>
+                <button class="settings-nav-item" data-tab="management">
+                    <span class="nav-ico"><i class="fas fa-users-cog"></i></span>
+                    Gestão / Direção
+                </button>
+            </li>
+            <div class="settings-nav-divider"></div>
+            <li>
+                <button class="settings-nav-item" data-tab="academic">
+                    <span class="nav-ico"><i class="fas fa-graduation-cap"></i></span>
+                    Configurações Académicas
+                </button>
+            </li>
+            <li>
+                <button class="settings-nav-item" data-tab="fees">
+                    <span class="nav-ico"><i class="fas fa-coins"></i></span>
+                    Propinas e Taxas
+                </button>
+            </li>
+            <div class="settings-nav-divider"></div>
+            <li>
+                <button class="settings-nav-item" data-tab="system">
+                    <span class="nav-ico"><i class="fas fa-cog"></i></span>
+                    Sistema
+                </button>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- ── TAB CONTENT ─────────────────────────────────── -->
+    <div class="settings-content">
+
+        <!-- ══════════ TAB: GENERAL ══════════ -->
+        <div class="tab-pane active" id="tab-general">
+            <form action="<?= site_url('admin/settings/save-school') ?>" method="post" enctype="multipart/form-data">
+                <?= csrf_field() ?>
+
+                <div class="ci-card">
+                    <div class="ci-card-header">
+                        <div class="ci-card-title"><i class="fas fa-building"></i> Informações da Escola</div>
+                    </div>
+                    <div class="ci-card-body">
+
+                        <!-- Nome + Sigla -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <label class="f-label"><i class="fas fa-school"></i>Nome da Escola<span class="req">*</span></label>
+                                <input type="text" class="f-input <?= session('errors.school_name') ? 'is-invalid' : '' ?>"
+                                       name="school_name"
+                                       value="<?= old('school_name', $settings['school_name'] ?? '') ?>"
+                                       placeholder="Ex: Escola do Ensino Primário 1º de Maio" required>
+                                <?php if (session('errors.school_name')): ?>
+                                    <div class="invalid-msg"><?= session('errors.school_name') ?></div>
+                                <?php endif; ?>
                             </div>
-                            
-                            <!-- Endereço -->
-                            <div class="mb-3">
-                                <label for="school_address" class="form-label">
-                                    <i class="fas fa-map-marker-alt"></i> Endereço Completo
-                                </label>
-                                <input type="text" class="form-control" id="school_address" name="school_address" 
-                                       value="<?= old('school_address', $settings['school_address'] ?? '') ?>"
-                                       placeholder="Rua, Bairro, Nº">
-                            </div>
-                            
-                            <!-- Cidade, Província, Fundação -->
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label for="school_city" class="form-label">
-                                        <i class="fas fa-city"></i> Cidade/Município
-                                    </label>
-                                    <input type="text" class="form-control" id="school_city" name="school_city" 
-                                           value="<?= old('school_city', $settings['school_city'] ?? '') ?>"
-                                           placeholder="Ex: Luanda">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="school_province" class="form-label">
-                                        <i class="fas fa-map"></i> Província
-                                    </label>
-                                    <input type="text" class="form-control" id="school_province" name="school_province" 
-                                           value="<?= old('school_province', $settings['school_province'] ?? '') ?>"
-                                           placeholder="Ex: Luanda">
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="school_founding_year" class="form-label">
-                                        <i class="fas fa-calendar-alt"></i> Ano de Fundação
-                                    </label>
-                                    <input type="number" class="form-control" id="school_founding_year" name="school_founding_year" 
-                                           value="<?= old('school_founding_year', $settings['school_founding_year'] ?? date('Y')) ?>"
-                                           min="1900" max="<?= date('Y') ?>">
-                                </div>
-                            </div>
-                            
-                            <!-- Contactos -->
-                            <div class="section-divider">
-                                <i class="fas fa-phone-alt"></i>
-                                <span>Contactos</span>
-                                <div class="section-divider-line"></div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="school_phone" class="form-label">
-                                        <i class="fas fa-phone"></i> Telefone Principal <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control <?= session('errors.school_phone') ? 'is-invalid' : '' ?>" 
-                                           id="school_phone" name="school_phone" 
-                                           value="<?= old('school_phone', $settings['school_phone'] ?? '') ?>" 
-                                           placeholder="+244 999 999 999" required>
-                                    <?php if (session('errors.school_phone')): ?>
-                                        <div class="invalid-feedback"><?= session('errors.school_phone') ?></div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="school_alt_phone" class="form-label">
-                                        <i class="fas fa-phone-alt"></i> Telefone Alternativo
-                                    </label>
-                                    <input type="text" class="form-control" id="school_alt_phone" name="school_alt_phone" 
-                                           value="<?= old('school_alt_phone', $settings['school_alt_phone'] ?? '') ?>"
-                                           placeholder="+244 999 999 998">
-                                </div>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="school_email" class="form-label">
-                                        <i class="fas fa-envelope"></i> Email Institucional <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="email" class="form-control <?= session('errors.school_email') ? 'is-invalid' : '' ?>" 
-                                           id="school_email" name="school_email" 
-                                           value="<?= old('school_email', $settings['school_email'] ?? '') ?>" 
-                                           placeholder="info@escola.ao" required>
-                                    <?php if (session('errors.school_email')): ?>
-                                        <div class="invalid-feedback"><?= session('errors.school_email') ?></div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="school_website" class="form-label">
-                                        <i class="fas fa-globe"></i> Website
-                                    </label>
-                                    <input type="url" class="form-control" id="school_website" name="school_website" 
-                                           value="<?= old('school_website', $settings['school_website'] ?? '') ?>"
-                                           placeholder="www.escola.ao">
-                                </div>
-                            </div>
-                            
-                            <!-- NIF -->
-                            <div class="mb-3">
-                                <label for="school_nif" class="form-label">
-                                    <i class="fas fa-id-card"></i> NIF
-                                </label>
-                                <input type="text" class="form-control" id="school_nif" name="school_nif" 
-                                       value="<?= old('school_nif', $settings['school_nif'] ?? '') ?>"
-                                       placeholder="Ex: 5000000000">
-                                <small class="text-muted">Número de Identificação Fiscal</small>
+                            <div class="col-md-4">
+                                <label class="f-label"><i class="fas fa-tag"></i>Sigla</label>
+                                <input type="text" class="f-input" name="school_acronym"
+                                       value="<?= old('school_acronym', $settings['school_acronym'] ?? '') ?>"
+                                       placeholder="Ex: EEP1M">
+                                <p class="f-hint">Usada em documentos oficiais</p>
                             </div>
                         </div>
-                        
-                        <!-- Logo Section -->
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <i class="fas fa-image"></i> Logo da Escola
+
+                        <!-- Endereço -->
+                        <div class="mb-3">
+                            <label class="f-label"><i class="fas fa-map-marker-alt"></i>Endereço Completo</label>
+                            <input type="text" class="f-input" name="school_address"
+                                   value="<?= old('school_address', $settings['school_address'] ?? '') ?>"
+                                   placeholder="Rua, Bairro, Nº">
+                        </div>
+
+                        <!-- Cidade / Provincia / Fundação -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="f-label"><i class="fas fa-city"></i>Cidade / Município</label>
+                                <input type="text" class="f-input" name="school_city"
+                                       value="<?= old('school_city', $settings['school_city'] ?? '') ?>"
+                                       placeholder="Ex: Luanda">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="f-label"><i class="fas fa-map"></i>Província</label>
+                                <input type="text" class="f-input" name="school_province"
+                                       value="<?= old('school_province', $settings['school_province'] ?? '') ?>"
+                                       placeholder="Ex: Luanda">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="f-label"><i class="fas fa-calendar-alt"></i>Ano de Fundação</label>
+                                <input type="number" class="f-input" name="school_founding_year"
+                                       value="<?= old('school_founding_year', $settings['school_founding_year'] ?? date('Y')) ?>"
+                                       min="1900" max="<?= date('Y') ?>">
+                            </div>
+                        </div>
+
+                        <div class="sec-divider">
+                            <span class="sec-divider-label"><i class="fas fa-phone-alt"></i>Contactos</span>
+                            <div class="sec-divider-line"></div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="f-label"><i class="fas fa-phone"></i>Telefone Principal<span class="req">*</span></label>
+                                <input type="text" class="f-input <?= session('errors.school_phone') ? 'is-invalid' : '' ?>"
+                                       name="school_phone"
+                                       value="<?= old('school_phone', $settings['school_phone'] ?? '') ?>"
+                                       placeholder="+244 999 999 999" required>
+                                <?php if (session('errors.school_phone')): ?>
+                                    <div class="invalid-msg"><?= session('errors.school_phone') ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="f-label"><i class="fas fa-phone-alt"></i>Telefone Alternativo</label>
+                                <input type="text" class="f-input" name="school_alt_phone"
+                                       value="<?= old('school_alt_phone', $settings['school_alt_phone'] ?? '') ?>"
+                                       placeholder="+244 999 999 998">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="f-label"><i class="fas fa-envelope"></i>Email Institucional<span class="req">*</span></label>
+                                <input type="email" class="f-input <?= session('errors.school_email') ? 'is-invalid' : '' ?>"
+                                       name="school_email"
+                                       value="<?= old('school_email', $settings['school_email'] ?? '') ?>"
+                                       placeholder="info@escola.ao" required>
+                                <?php if (session('errors.school_email')): ?>
+                                    <div class="invalid-msg"><?= session('errors.school_email') ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="f-label"><i class="fas fa-globe"></i>Website</label>
+                                <input type="url" class="f-input" name="school_website"
+                                       value="<?= old('school_website', $settings['school_website'] ?? '') ?>"
+                                       placeholder="https://www.escola.ao">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="f-label"><i class="fas fa-id-card"></i>NIF</label>
+                            <input type="text" class="f-input" name="school_nif"
+                                   value="<?= old('school_nif', $settings['school_nif'] ?? '') ?>"
+                                   placeholder="5000000000">
+                            <p class="f-hint">Número de Identificação Fiscal</p>
+                        </div>
+
+                    </div>
+                    <div class="save-bar">
+                        <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
+                        <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div><!-- /tab-general -->
+
+        <!-- ══════════ TAB: BRANDING ══════════ -->
+        <div class="tab-pane" id="tab-branding">
+            <form action="<?= site_url('admin/settings/save-branding') ?>" method="post" enctype="multipart/form-data">
+                <?= csrf_field() ?>
+
+                <div class="ci-card">
+                    <div class="ci-card-header">
+                        <div class="ci-card-title"><i class="fas fa-paint-brush"></i> Identidade Visual</div>
+                    </div>
+                    <div class="ci-card-body">
+
+                        <div class="info-banner">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Os logotipos são usados no sidebar, documentos e e-mails do sistema. O <strong>Logo Dark</strong> aplica-se em fundos escuros (sidebar, cabeçalhos navy). O <strong>Favicon</strong> aparece no separador do browser.</span>
+                        </div>
+
+                        <div class="media-upload-grid">
+
+                            <!-- Logo Principal -->
+                            <div class="media-box <?= !empty($settings['school_logo']) ? 'has-image' : '' ?>" id="box-logo">
+                                <div class="media-preview" id="prev-logo" onclick="document.getElementById('file-logo').click()">
+                                    <?php if (!empty($settings['school_logo'])): ?>
+                                        <img src="<?= base_url('uploads/school/' . $settings['school_logo']) ?>" id="img-logo" alt="Logo">
+                                    <?php else: ?>
+                                        <div class="ph"><i class="fas fa-image"></i><span>Logo Principal</span></div>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="card-body">
-                                    <div class="school-logo-preview <?= !empty($settings['school_logo']) ? 'has-image' : '' ?>" id="logoPreview">
+                                <div class="media-footer">
+                                    <div>
+                                        <div class="media-title">Logo Principal</div>
+                                        <div class="media-hint">PNG / SVG • 512×512px recomendado</div>
+                                    </div>
+                                    <div class="media-actions">
+                                        <button type="button" class="media-btn" onclick="document.getElementById('file-logo').click()">
+                                            <i class="fas fa-upload"></i> Upload
+                                        </button>
                                         <?php if (!empty($settings['school_logo'])): ?>
-                                            <img src="<?= base_url('uploads/school/' . $settings['school_logo']) ?>" 
-                                                 alt="Logo da Escola" id="previewImage">
-                                        <?php else: ?>
-                                            <div class="placeholder">
-                                                <i class="fas fa-image"></i>
-                                                <p>Nenhum logo selecionado</p>
-                                            </div>
+                                        <a href="<?= site_url('admin/settings/remove-logo?type=logo') ?>"
+                                           class="media-btn danger"
+                                           onclick="return confirm('Remover logo principal?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
                                         <?php endif; ?>
                                     </div>
-                                    
-                                    <label for="school_logo" class="form-label">Alterar Logo</label>
-                                    <input type="file" class="form-control" id="school_logo" name="school_logo" 
-                                           accept="image/jpeg,image/png,image/gif">
-                                    <small class="text-muted d-block mt-2">
-                                        <i class="fas fa-info-circle"></i> Formatos: JPG, PNG, GIF. Máx: 2MB
-                                    </small>
-                                    
-                                    <?php if (!empty($settings['school_logo'])): ?>
-                                        <div class="mt-3">
-                                            <a href="<?= site_url('admin/settings/remove-logo') ?>" 
-                                               class="btn btn-sm btn-outline-danger w-100"
-                                               onclick="return confirm('Tem certeza que deseja remover o logo?')">
-                                                <i class="fas fa-trash"></i> Remover Logo
-                                            </a>
-                                        </div>
+                                </div>
+                                <input type="file" class="media-file" id="file-logo" name="school_logo" accept="image/*"
+                                       onchange="previewMedia(this,'prev-logo','img-logo','box-logo')">
+                            </div>
+
+                            <!-- Logo Dark -->
+                            <div class="media-box <?= !empty($settings['school_logo_dark']) ? 'has-image' : '' ?>" id="box-logo-dark">
+                                <div class="media-preview dark-bg" id="prev-logo-dark" onclick="document.getElementById('file-logo-dark').click()">
+                                    <?php if (!empty($settings['school_logo_dark'])): ?>
+                                        <img src="<?= base_url('uploads/school/' . $settings['school_logo_dark']) ?>" id="img-logo-dark" alt="Logo Dark">
+                                    <?php else: ?>
+                                        <div class="ph"><i class="fas fa-moon"></i><span>Logo versão dark</span></div>
                                     <?php endif; ?>
                                 </div>
+                                <div class="media-footer">
+                                    <div>
+                                        <div class="media-title">Logo Dark</div>
+                                        <div class="media-hint">Para fundos escuros (sidebar)</div>
+                                    </div>
+                                    <div class="media-actions">
+                                        <button type="button" class="media-btn" onclick="document.getElementById('file-logo-dark').click()">
+                                            <i class="fas fa-upload"></i> Upload
+                                        </button>
+                                        <?php if (!empty($settings['school_logo_dark'])): ?>
+                                        <a href="<?= site_url('admin/settings/remove-logo?type=dark') ?>"
+                                           class="media-btn danger"
+                                           onclick="return confirm('Remover logo dark?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <input type="file" class="media-file" id="file-logo-dark" name="school_logo_dark" accept="image/*"
+                                       onchange="previewMedia(this,'prev-logo-dark','img-logo-dark','box-logo-dark')">
                             </div>
-                        </div>
+
+                            <!-- Favicon -->
+                            <div class="media-box <?= !empty($settings['school_favicon']) ? 'has-image' : '' ?>" id="box-favicon">
+                                <div class="media-preview favicon-bg" id="prev-favicon" onclick="document.getElementById('file-favicon').click()">
+                                    <?php if (!empty($settings['school_favicon'])): ?>
+                                        <img src="<?= base_url('uploads/school/' . $settings['school_favicon']) ?>" id="img-favicon" alt="Favicon" style="max-width:64px;max-height:64px;">
+                                    <?php else: ?>
+                                        <div class="ph"><i class="fas fa-bookmark"></i><span>Favicon</span></div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="media-footer">
+                                    <div>
+                                        <div class="media-title">Favicon</div>
+                                        <div class="media-hint">ICO / PNG • 32×32 ou 64×64px</div>
+                                    </div>
+                                    <div class="media-actions">
+                                        <button type="button" class="media-btn" onclick="document.getElementById('file-favicon').click()">
+                                            <i class="fas fa-upload"></i> Upload
+                                        </button>
+                                        <?php if (!empty($settings['school_favicon'])): ?>
+                                        <a href="<?= site_url('admin/settings/remove-logo?type=favicon') ?>"
+                                           class="media-btn danger"
+                                           onclick="return confirm('Remover favicon?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <input type="file" class="media-file" id="file-favicon" name="school_favicon" accept="image/*,.ico"
+                                       onchange="previewMedia(this,'prev-favicon','img-favicon','box-favicon')">
+                            </div>
+
+                        </div><!-- /media-upload-grid -->
+
                     </div>
-                    
-                    <hr>
-                    
-                    <div class="text-end">
-                        <button type="submit" class="btn-save">
-                            <i class="fas fa-save"></i> Salvar Configurações Gerais
-                        </button>
+                    <div class="save-bar">
+                        <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
+                        <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Identidade Visual</button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-    
-    <!-- ==================== MANAGEMENT SETTINGS (NOVO) ==================== -->
-    <div class="tab-pane fade" id="management" role="tabpanel">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-users-cog"></i> Gestão Escolar
-            </div>
-            <div class="card-body">
-                <!-- Informação sobre direção -->
-                <div class="management-card">
-                    <i class="fas fa-info-circle"></i>
-                    Informações dos responsáveis pela escola para documentos oficiais
-                </div>
-                
-                <form action="<?= site_url('admin/settings/save-management') ?>" method="post">
-                    <?= csrf_field() ?>
-                    
-                    <div class="row">
-                        <!-- Diretor -->
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fas fa-user-tie text-primary"></i> Diretor(a) da Escola</h6>
-                                </div>
-                                <div class="card-body">
+        </div><!-- /tab-branding -->
+
+        <!-- ══════════ TAB: MANAGEMENT ══════════ -->
+        <div class="tab-pane" id="tab-management">
+            <form action="<?= site_url('admin/settings/save-management') ?>" method="post">
+                <?= csrf_field() ?>
+
+                <div class="ci-card">
+                    <div class="ci-card-header">
+                        <div class="ci-card-title"><i class="fas fa-users-cog"></i> Gestão / Direção</div>
+                    </div>
+                    <div class="ci-card-body">
+
+                        <div class="info-banner">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Informações dos responsáveis pela escola. Usadas em assinaturas de documentos oficiais, boletins e certificados.</span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Diretor -->
+                            <div class="col-md-6">
+                                <div class="person-card">
+                                    <div class="person-card-header">
+                                        <div class="person-card-icon blue"><i class="fas fa-user-tie"></i></div>
+                                        <div>
+                                            <div class="person-card-title">Diretor(a) da Escola</div>
+                                            <div class="person-card-sub">Responsável máximo da instituição</div>
+                                        </div>
+                                    </div>
                                     <div class="mb-3">
-                                        <label for="director_name" class="form-label">
-                                            <i class="fas fa-user"></i> Nome Completo
-                                        </label>
-                                        <input type="text" class="form-control" id="director_name" name="director_name" 
+                                        <label class="f-label"><i class="fas fa-user"></i>Nome Completo</label>
+                                        <input type="text" class="f-input" name="director_name"
                                                value="<?= old('director_name', $settings['director_name'] ?? '') ?>"
-                                               placeholder="Ex: Dr. António Manuel Santos">
-                                        <small class="text-muted">Nome do Diretor para assinaturas e documentos</small>
+                                               placeholder="Dr. António Manuel Santos">
                                     </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label for="director_title" class="form-label">Título/Tratamento</label>
-                                            <select class="form-select" id="director_title" name="director_title">
-                                                <option value="Dr." <?= (old('director_title', $settings['director_title'] ?? '') == 'Dr.') ? 'selected' : '' ?>>Dr.</option>
-                                                <option value="Dra." <?= (old('director_title', $settings['director_title'] ?? '') == 'Dra.') ? 'selected' : '' ?>>Dra.</option>
-                                                <option value="Prof. Dr." <?= (old('director_title', $settings['director_title'] ?? '') == 'Prof. Dr.') ? 'selected' : '' ?>>Prof. Dr.</option>
-                                                <option value="Prof. Dra." <?= (old('director_title', $settings['director_title'] ?? '') == 'Prof. Dra.') ? 'selected' : '' ?>>Prof. Dra.</option>
-                                                <option value="Professor" <?= (old('director_title', $settings['director_title'] ?? '') == 'Professor') ? 'selected' : '' ?>>Professor</option>
-                                                <option value="Professora" <?= (old('director_title', $settings['director_title'] ?? '') == 'Professora') ? 'selected' : '' ?>>Professora</option>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="f-label">Título</label>
+                                            <select class="f-select" name="director_title">
+                                                <?php foreach(['Dr.','Dra.','Prof. Dr.','Prof. Dra.','Professor','Professora'] as $t): ?>
+                                                <option value="<?= $t ?>" <?= (old('director_title', $settings['director_title'] ?? '') == $t) ? 'selected' : '' ?>><?= $t ?></option>
+                                                <?php endforeach; ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="director_degree" class="form-label">Grau Académico</label>
-                                            <select class="form-select" id="director_degree" name="director_degree">
-                                                <option value="Licenciado" <?= (old('director_degree', $settings['director_degree'] ?? '') == 'Licenciado') ? 'selected' : '' ?>>Licenciado</option>
-                                                <option value="Mestre" <?= (old('director_degree', $settings['director_degree'] ?? '') == 'Mestre') ? 'selected' : '' ?>>Mestre</option>
-                                                <option value="Doutor" <?= (old('director_degree', $settings['director_degree'] ?? '') == 'Doutor') ? 'selected' : '' ?>>Doutor</option>
-                                                <option value="Pós-Graduado" <?= (old('director_degree', $settings['director_degree'] ?? '') == 'Pós-Graduado') ? 'selected' : '' ?>>Pós-Graduado</option>
+                                        <div class="col-6">
+                                            <label class="f-label">Grau Académico</label>
+                                            <select class="f-select" name="director_degree">
+                                                <?php foreach(['Licenciado','Mestre','Doutor','Pós-Graduado'] as $d): ?>
+                                                <option value="<?= $d ?>" <?= (old('director_degree', $settings['director_degree'] ?? '') == $d) ? 'selected' : '' ?>><?= $d ?></option>
+                                                <?php endforeach; ?>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Subdiretor Pedagógico -->
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0"><i class="fas fa-chalkboard-teacher text-success"></i> Subdiretor(a) Pedagógico(a)</h6>
-                                </div>
-                                <div class="card-body">
+
+                            <!-- Subdiretor Pedagógico -->
+                            <div class="col-md-6">
+                                <div class="person-card">
+                                    <div class="person-card-header">
+                                        <div class="person-card-icon green"><i class="fas fa-chalkboard-teacher"></i></div>
+                                        <div>
+                                            <div class="person-card-title">Subdiretor(a) Pedagógico(a)</div>
+                                            <div class="person-card-sub">Responsável pela área pedagógica</div>
+                                        </div>
+                                    </div>
                                     <div class="mb-3">
-                                        <label for="pedagogical_director_name" class="form-label">
-                                            <i class="fas fa-user"></i> Nome Completo
-                                        </label>
-                                        <input type="text" class="form-control" id="pedagogical_director_name" name="pedagogical_director_name" 
+                                        <label class="f-label"><i class="fas fa-user"></i>Nome Completo</label>
+                                        <input type="text" class="f-input" name="pedagogical_director_name"
                                                value="<?= old('pedagogical_director_name', $settings['pedagogical_director_name'] ?? '') ?>"
-                                               placeholder="Ex: Dra. Maria Fernanda Costa">
-                                        <small class="text-muted">Responsável pela área pedagógica</small>
+                                               placeholder="Dra. Maria Fernanda Costa">
                                     </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label for="pedagogical_title" class="form-label">Título/Tratamento</label>
-                                            <select class="form-select" id="pedagogical_title" name="pedagogical_title">
-                                                <option value="Dr." <?= (old('pedagogical_title', $settings['pedagogical_title'] ?? '') == 'Dr.') ? 'selected' : '' ?>>Dr.</option>
-                                                <option value="Dra." <?= (old('pedagogical_title', $settings['pedagogical_title'] ?? '') == 'Dra.') ? 'selected' : '' ?>>Dra.</option>
-                                                <option value="Prof. Dr." <?= (old('pedagogical_title', $settings['pedagogical_title'] ?? '') == 'Prof. Dr.') ? 'selected' : '' ?>>Prof. Dr.</option>
-                                                <option value="Prof. Dra." <?= (old('pedagogical_title', $settings['pedagogical_title'] ?? '') == 'Prof. Dra.') ? 'selected' : '' ?>>Prof. Dra.</option>
-                                                <option value="Professor" <?= (old('pedagogical_title', $settings['pedagogical_title'] ?? '') == 'Professor') ? 'selected' : '' ?>>Professor</option>
-                                                <option value="Professora" <?= (old('pedagogical_title', $settings['pedagogical_title'] ?? '') == 'Professora') ? 'selected' : '' ?>>Professora</option>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="f-label">Título</label>
+                                            <select class="f-select" name="pedagogical_title">
+                                                <?php foreach(['Dr.','Dra.','Prof. Dr.','Prof. Dra.','Professor','Professora'] as $t): ?>
+                                                <option value="<?= $t ?>" <?= (old('pedagogical_title', $settings['pedagogical_title'] ?? '') == $t) ? 'selected' : '' ?>><?= $t ?></option>
+                                                <?php endforeach; ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label for="pedagogical_degree" class="form-label">Grau Académico</label>
-                                            <select class="form-select" id="pedagogical_degree" name="pedagogical_degree">
-                                                <option value="Licenciado" <?= (old('pedagogical_degree', $settings['pedagogical_degree'] ?? '') == 'Licenciado') ? 'selected' : '' ?>>Licenciado</option>
-                                                <option value="Mestre" <?= (old('pedagogical_degree', $settings['pedagogical_degree'] ?? '') == 'Mestre') ? 'selected' : '' ?>>Mestre</option>
-                                                <option value="Doutor" <?= (old('pedagogical_degree', $settings['pedagogical_degree'] ?? '') == 'Doutor') ? 'selected' : '' ?>>Doutor</option>
-                                                <option value="Pós-Graduado" <?= (old('pedagogical_degree', $settings['pedagogical_degree'] ?? '') == 'Pós-Graduado') ? 'selected' : '' ?>>Pós-Graduado</option>
+                                        <div class="col-6">
+                                            <label class="f-label">Grau Académico</label>
+                                            <select class="f-select" name="pedagogical_degree">
+                                                <?php foreach(['Licenciado','Mestre','Doutor','Pós-Graduado'] as $d): ?>
+                                                <option value="<?= $d ?>" <?= (old('pedagogical_degree', $settings['pedagogical_degree'] ?? '') == $d) ? 'selected' : '' ?>><?= $d ?></option>
+                                                <?php endforeach; ?>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Informações para documentos -->
-                    <div class="section-divider">
-                        <i class="fas fa-file-alt"></i>
-                        <span>Informações para Documentos Oficiais</span>
-                        <div class="section-divider-line"></div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="document_city" class="form-label">
-                                    <i class="fas fa-city"></i> Cidade para Documentos
-                                </label>
-                                <input type="text" class="form-control" id="document_city" name="document_city" 
+
+                        <div class="sec-divider">
+                            <span class="sec-divider-label"><i class="fas fa-file-alt"></i>Documentos Oficiais</span>
+                            <div class="sec-divider-line"></div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="f-label"><i class="fas fa-city"></i>Cidade para Documentos</label>
+                                <input type="text" class="f-input" name="document_city"
                                        value="<?= old('document_city', $settings['document_city'] ?? $settings['school_city'] ?? '') ?>"
                                        placeholder="Ex: Luanda">
-                                <small class="text-muted">Aparecerá em cabeçalhos de documentos</small>
+                                <p class="f-hint">Aparece no cabeçalho de documentos</p>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="signature_title" class="form-label">
-                                    <i class="fas fa-signature"></i> Título para Assinaturas
-                                </label>
-                                <input type="text" class="form-control" id="signature_title" name="signature_title" 
+                            <div class="col-md-6">
+                                <label class="f-label"><i class="fas fa-signature"></i>Título para Assinaturas</label>
+                                <input type="text" class="f-input" name="signature_title"
                                        value="<?= old('signature_title', $settings['signature_title'] ?? 'O Director') ?>">
-                                <small class="text-muted">Ex: O Director, A Directora, O Subdirector Pedagógico</small>
+                                <p class="f-hint">Ex: O Director, A Directora</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Pré-visualização de assinatura -->
-                    <div class="card bg-light mt-3">
-                        <div class="card-body">
-                            <h6 class="mb-3"><i class="fas fa-eye"></i> Pré-visualização de Assinatura</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p class="mb-1"><strong>Director:</strong></p>
-                                    <p class="mb-0" style="font-family: 'Brush Script MT', cursive; font-size: 1.2rem;">
-                                        <?= old('director_title', $settings['director_title'] ?? 'Dr.') ?> 
+
+                        <!-- Signature preview -->
+                        <div class="sec-divider">
+                            <span class="sec-divider-label"><i class="fas fa-eye"></i>Pré-visualização</span>
+                            <div class="sec-divider-line"></div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="sig-preview">
+                                    <div class="sig-line"></div>
+                                    <div class="sig-name" id="sig-director-name">
+                                        <?= old('director_title', $settings['director_title'] ?? 'Dr.') ?>
                                         <?= old('director_name', $settings['director_name'] ?? '[Nome do Director]') ?>
-                                    </p>
-                                    <p class="text-muted small"><?= old('signature_title', $settings['signature_title'] ?? 'O Director') ?></p>
+                                    </div>
+                                    <div class="sig-role" id="sig-director-role">
+                                        <?= old('signature_title', $settings['signature_title'] ?? 'O Director') ?>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <p class="mb-1"><strong>Subdirector Pedagógico:</strong></p>
-                                    <p class="mb-0" style="font-family: 'Brush Script MT', cursive; font-size: 1.2rem;">
-                                        <?= old('pedagogical_title', $settings['pedagogical_title'] ?? 'Dra.') ?> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="sig-preview">
+                                    <div class="sig-line"></div>
+                                    <div class="sig-name" id="sig-peda-name">
+                                        <?= old('pedagogical_title', $settings['pedagogical_title'] ?? 'Dra.') ?>
                                         <?= old('pedagogical_director_name', $settings['pedagogical_director_name'] ?? '[Nome do Subdirector]') ?>
-                                    </p>
-                                    <p class="text-muted small">O Subdirector Pedagógico</p>
+                                    </div>
+                                    <div class="sig-role">O Subdirector Pedagógico</div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
-                    
-                    <hr>
-                    
-                    <div class="text-end">
-                        <button type="submit" class="btn-save">
-                            <i class="fas fa-save"></i> Salvar Informações de Gestão
-                        </button>
+                    <div class="save-bar">
+                        <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
+                        <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Gestão</button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-    
-    <!-- ==================== ACADEMIC SETTINGS ==================== -->
-    <div class="tab-pane fade" id="academic" role="tabpanel">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-graduation-cap"></i> Configurações Académicas
-            </div>
-            <div class="card-body">
-                <form action="<?= site_url('admin/settings/save-academic') ?>" method="post">
-                    <?= csrf_field() ?>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="academic_year_id" class="form-label">
-                                    <i class="fas fa-calendar-alt"></i> Ano Letivo Atual <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select <?= session('errors.academic_year_id') ? 'is-invalid' : '' ?>" 
-                                        id="academic_year_id" name="academic_year_id" required>
-                                    <option value="">Selecione...</option>
-                                    <?php if (!empty($academicYears)): ?>
-                                        <?php foreach ($academicYears as $year): ?>
-                                            <option value="<?= $year->id ?>" 
-                                                <?= (old('academic_year_id', $settings['current_academic_year'] ?? '') == $year->id) ? 'selected' : '' ?>>
-                                                <?= $year->year_name ?>
-                                            </option>
+        </div><!-- /tab-management -->
+
+        <!-- ══════════ TAB: ACADEMIC ══════════ -->
+        <div class="tab-pane" id="tab-academic">
+            <form action="<?= site_url('admin/settings/save-academic') ?>" method="post">
+                <?= csrf_field() ?>
+
+                <div class="ci-card">
+                    <div class="ci-card-header">
+                        <div class="ci-card-title"><i class="fas fa-graduation-cap"></i> Configurações Académicas</div>
+                    </div>
+                    <div class="ci-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-calendar-alt"></i>Ano Letivo Atual<span class="req">*</span></label>
+                                    <select class="f-select <?= session('errors.academic_year_id') ? 'is-invalid' : '' ?>" name="academic_year_id" required>
+                                        <option value="">Selecione...</option>
+                                        <?php foreach ($academicYears ?? [] as $y): ?>
+                                        <option value="<?= $y->id ?>" <?= (old('academic_year_id', $settings['current_academic_year'] ?? '') == $y->id) ? 'selected' : '' ?>>
+                                            <?= esc($y->year_name) ?>
+                                        </option>
                                         <?php endforeach; ?>
+                                    </select>
+                                    <?php if (session('errors.academic_year_id')): ?>
+                                        <div class="invalid-msg"><?= session('errors.academic_year_id') ?></div>
                                     <?php endif; ?>
-                                </select>
-                                <?php if (session('errors.academic_year_id')): ?>
-                                    <div class="invalid-feedback d-block"><?= session('errors.academic_year_id') ?></div>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="semester_id" class="form-label">
-                                    <i class="fas fa-calendar-week"></i> Semestre Atual <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select <?= session('errors.semester_id') ? 'is-invalid' : '' ?>" 
-                                        id="semester_id" name="semester_id" required>
-                                    <option value="">Selecione...</option>
-                                    <?php if (!empty($semesters)): ?>
-                                        <?php foreach ($semesters as $sem): ?>
-                                            <option value="<?= $sem->id ?>" 
-                                                <?= (old('semester_id', $settings['current_semester'] ?? '') == $sem->id) ? 'selected' : '' ?>>
-                                                <?= $sem->semester_name ?>
-                                            </option>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-calendar-week"></i>Semestre Atual<span class="req">*</span></label>
+                                    <select class="f-select" name="semester_id" required>
+                                        <option value="">Selecione...</option>
+                                        <?php foreach ($semesters ?? [] as $s): ?>
+                                        <option value="<?= $s->id ?>" <?= (old('semester_id', $settings['current_semester'] ?? '') == $s->id) ? 'selected' : '' ?>>
+                                            <?= esc($s->semester_name) ?>
+                                        </option>
                                         <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                                <?php if (session('errors.semester_id')): ?>
-                                    <div class="invalid-feedback d-block"><?= session('errors.semester_id') ?></div>
-                                <?php endif; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-chart-line"></i>Sistema de Avaliação<span class="req">*</span></label>
+                                    <select class="f-select" name="grading_system" required>
+                                        <option value="0-20"  <?= (old('grading_system', $settings['grading_system'] ?? '0-20') == '0-20') ? 'selected' : '' ?>>0 a 20 valores</option>
+                                        <option value="0-100" <?= (old('grading_system', $settings['grading_system'] ?? '') == '0-100') ? 'selected' : '' ?>>0 a 100%</option>
+                                        <option value="A-F"   <?= (old('grading_system', $settings['grading_system'] ?? '') == 'A-F') ? 'selected' : '' ?>>A a F (Letras)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-calendar-check"></i>Tipo de Calendário</label>
+                                    <select class="f-select" name="academic_calendar">
+                                        <option value="semester"  <?= (old('academic_calendar', $settings['academic_calendar'] ?? 'semester') == 'semester') ? 'selected' : '' ?>>Semestral</option>
+                                        <option value="trimester" <?= (old('academic_calendar', $settings['academic_calendar'] ?? '') == 'trimester') ? 'selected' : '' ?>>Trimestral</option>
+                                    </select>
+                                </div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label for="grading_system" class="form-label">
-                                    <i class="fas fa-chart-line"></i> Sistema de Avaliação <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select <?= session('errors.grading_system') ? 'is-invalid' : '' ?>" 
-                                        id="grading_system" name="grading_system" required>
-                                    <option value="0-20" <?= (old('grading_system', $settings['grading_system'] ?? '0-20') == '0-20') ? 'selected' : '' ?>>0 a 20 valores</option>
-                                    <option value="0-100" <?= (old('grading_system', $settings['grading_system'] ?? '') == '0-100') ? 'selected' : '' ?>>0 a 100%</option>
-                                    <option value="A-F" <?= (old('grading_system', $settings['grading_system'] ?? '') == 'A-F') ? 'selected' : '' ?>>A a F (Letras)</option>
-                                </select>
-                                <?php if (session('errors.grading_system')): ?>
-                                    <div class="invalid-feedback d-block"><?= session('errors.grading_system') ?></div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="min_grade" class="form-label">Nota Mínima</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="min_grade" name="min_grade" 
-                                                   step="0.1" value="<?= old('min_grade', $settings['min_grade'] ?? 0) ?>">
-                                            <span class="input-group-text">val</span>
+                            <div class="col-md-6">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-4">
+                                        <label class="f-label">Nota Mínima</label>
+                                        <div class="f-input-group">
+                                            <input type="number" class="f-input" name="min_grade" step="0.1"
+                                                   value="<?= old('min_grade', $settings['min_grade'] ?? 0) ?>">
+                                            <span class="f-addon">val</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="f-label">Nota Máxima</label>
+                                        <div class="f-input-group">
+                                            <input type="number" class="f-input" name="max_grade" step="0.1"
+                                                   value="<?= old('max_grade', $settings['max_grade'] ?? 20) ?>">
+                                            <span class="f-addon">val</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="f-label">Aprovação</label>
+                                        <div class="f-input-group">
+                                            <input type="number" class="f-input" name="approval_grade" step="0.1"
+                                                   value="<?= old('approval_grade', $settings['approval_grade'] ?? 10) ?>">
+                                            <span class="f-addon">val</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="max_grade" class="form-label">Nota Máxima</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="max_grade" name="max_grade" 
-                                                   step="0.1" value="<?= old('max_grade', $settings['max_grade'] ?? 20) ?>">
-                                            <span class="input-group-text">val</span>
-                                        </div>
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-percent"></i>Presenças Mínimas</label>
+                                    <div class="f-input-group">
+                                        <input type="number" class="f-input" name="attendance_threshold" min="0" max="100"
+                                               value="<?= old('attendance_threshold', $settings['attendance_threshold'] ?? 75) ?>">
+                                        <span class="f-addon">%</span>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="approval_grade" class="form-label">Nota de Aprovação</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="approval_grade" name="approval_grade" 
-                                                   step="0.1" value="<?= old('approval_grade', $settings['approval_grade'] ?? 10) ?>">
-                                            <span class="input-group-text">val</span>
-                                        </div>
-                                    </div>
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-calendar"></i>Prazo de Matrícula</label>
+                                    <input type="date" class="f-input" name="enrollment_deadline"
+                                           value="<?= old('enrollment_deadline', $settings['enrollment_deadline'] ?? '') ?>">
                                 </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="attendance_threshold" class="form-label">Percentagem Mínima de Presenças</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="attendance_threshold" name="attendance_threshold" 
-                                           min="0" max="100" value="<?= old('attendance_threshold', $settings['attendance_threshold'] ?? 75) ?>">
-                                    <span class="input-group-text">%</span>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="enrollment_deadline" class="form-label">Prazo de Matrícula</label>
-                                <input type="date" class="form-control" id="enrollment_deadline" name="enrollment_deadline" 
-                                       value="<?= old('enrollment_deadline', $settings['enrollment_deadline'] ?? '') ?>">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="academic_calendar" class="form-label">Tipo de Calendário</label>
-                                <select class="form-select" id="academic_calendar" name="academic_calendar">
-                                    <option value="semester" <?= (old('academic_calendar', $settings['academic_calendar'] ?? 'semester') == 'semester') ? 'selected' : '' ?>>Semestral</option>
-                                    <option value="trimester" <?= (old('academic_calendar', $settings['academic_calendar'] ?? '') == 'trimester') ? 'selected' : '' ?>>Trimestral</option>
-                                </select>
                             </div>
                         </div>
                     </div>
-                    
-                    <hr>
-                    
-                    <div class="text-end">
-                        <button type="submit" class="btn-save">
-                            <i class="fas fa-save"></i> Salvar Configurações Académicas
-                        </button>
+                    <div class="save-bar">
+                        <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
+                        <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Configurações Académicas</button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-    
-    <!-- ==================== FEES SETTINGS ==================== -->
-    <div class="tab-pane fade" id="fees" role="tabpanel">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-coins"></i> Configurações de Propinas
-            </div>
-            <div class="card-body">
-                <form action="<?= site_url('admin/settings/save-payment') ?>" method="post">
-                    <?= csrf_field() ?>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="default_currency" class="form-label">
-                                    <i class="fas fa-money-bill-wave"></i> Moeda Padrão <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select <?= session('errors.default_currency') ? 'is-invalid' : '' ?>" 
-                                        id="default_currency" name="default_currency" required>
-                                    <option value="">Selecione...</option>
-                                    <?php if (!empty($currencies)): ?>
-                                        <?php foreach ($currencies as $currency): ?>
-                                            <option value="<?= $currency->id ?>" 
-                                                <?= (old('default_currency', $settings['default_currency'] ?? '') == $currency->id) ? 'selected' : '' ?>>
-                                                <?= $currency->currency_name ?> (<?= $currency->currency_code ?>)
-                                            </option>
+        </div><!-- /tab-academic -->
+
+        <!-- ══════════ TAB: FEES ══════════ -->
+        <div class="tab-pane" id="tab-fees">
+            <form action="<?= site_url('admin/settings/save-payment') ?>" method="post">
+                <?= csrf_field() ?>
+
+                <div class="ci-card">
+                    <div class="ci-card-header">
+                        <div class="ci-card-title"><i class="fas fa-coins"></i> Propinas e Taxas</div>
+                    </div>
+                    <div class="ci-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-money-bill-wave"></i>Moeda Padrão<span class="req">*</span></label>
+                                    <select class="f-select <?= session('errors.default_currency') ? 'is-invalid' : '' ?>" name="default_currency" required>
+                                        <option value="">Selecione...</option>
+                                        <?php foreach ($currencies ?? [] as $c): ?>
+                                        <option value="<?= $c->id ?>" <?= (old('default_currency', $settings['default_currency'] ?? '') == $c->id) ? 'selected' : '' ?>>
+                                            <?= esc($c->currency_name) ?> (<?= esc($c->currency_code) ?>)
+                                        </option>
                                         <?php endforeach; ?>
+                                    </select>
+                                    <?php if (session('errors.default_currency')): ?>
+                                        <div class="invalid-msg"><?= session('errors.default_currency') ?></div>
                                     <?php endif; ?>
-                                </select>
-                                <?php if (session('errors.default_currency')): ?>
-                                    <div class="invalid-feedback d-block"><?= session('errors.default_currency') ?></div>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="late_fee_percentage" class="form-label">Multa por Atraso</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="late_fee_percentage" name="late_fee_percentage" 
-                                                   step="0.1" min="0" max="100" value="<?= old('late_fee_percentage', $settings['late_fee_percentage'] ?? 0) ?>">
-                                            <span class="input-group-text">%</span>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="f-label">Multa por Atraso</label>
+                                        <div class="f-input-group">
+                                            <input type="number" class="f-input" name="late_fee_percentage" step="0.1" min="0" max="100"
+                                                   value="<?= old('late_fee_percentage', $settings['late_fee_percentage'] ?? 0) ?>">
+                                            <span class="f-addon">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="f-label">Desconto Antecipado</label>
+                                        <div class="f-input-group">
+                                            <input type="number" class="f-input" name="discount_early_payment" step="0.1" min="0" max="100"
+                                                   value="<?= old('discount_early_payment', $settings['discount_early_payment'] ?? 0) ?>">
+                                            <span class="f-addon">%</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="discount_early_payment" class="form-label">Desconto Pagamento Antecipado</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="discount_early_payment" name="discount_early_payment" 
-                                                   step="0.1" min="0" max="100" value="<?= old('discount_early_payment', $settings['discount_early_payment'] ?? 0) ?>">
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
+                                <div class="mb-3">
+                                    <label class="f-label"><i class="fas fa-clock"></i>Dias para Vencimento</label>
+                                    <input type="number" class="f-input" name="payment_deadline_days" min="1"
+                                           value="<?= old('payment_deadline_days', $settings['payment_deadline_days'] ?? 30) ?>">
+                                    <p class="f-hint">Dias após emissão da fatura</p>
                                 </div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label for="payment_deadline_days" class="form-label">Dias para Vencimento</label>
-                                <input type="number" class="form-control" id="payment_deadline_days" name="payment_deadline_days" 
-                                       min="1" value="<?= old('payment_deadline_days', $settings['payment_deadline_days'] ?? 30) ?>">
-                                <small class="text-muted">Número de dias após emissão da fatura</small>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="invoice_prefix" class="form-label">Prefixo da Fatura</label>
-                                        <input type="text" class="form-control" id="invoice_prefix" name="payment_invoice_prefix" 
+                            <div class="col-md-6">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="f-label">Prefixo Fatura</label>
+                                        <input type="text" class="f-input" name="payment_invoice_prefix"
                                                value="<?= old('payment_invoice_prefix', $settings['payment_invoice_prefix'] ?? 'INV') ?>">
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="receipt_prefix" class="form-label">Prefixo do Recibo</label>
-                                        <input type="text" class="form-control" id="receipt_prefix" name="payment_receipt_prefix" 
+                                    <div class="col-6">
+                                        <label class="f-label">Prefixo Recibo</label>
+                                        <input type="text" class="f-input" name="payment_receipt_prefix"
                                                value="<?= old('payment_receipt_prefix', $settings['payment_receipt_prefix'] ?? 'REC') ?>">
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="card bg-light mb-3">
-                                <div class="card-body">
-                                    <h6 class="mb-3">Opções de Pagamento</h6>
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="enable_multiple_payments" name="payment_enable_multiple" value="1"
-                                               <?= (old('payment_enable_multiple', $settings['payment_enable_multiple'] ?? 0) == 1) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="enable_multiple_payments">
-                                            <i class="fas fa-check-circle text-success"></i> Permitir pagamentos múltiplos por fatura
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox" id="enable_partial_payments" name="payment_enable_partial" value="1"
-                                               <?= (old('payment_enable_partial', $settings['payment_enable_partial'] ?? 0) == 1) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="enable_partial_payments">
-                                            <i class="fas fa-percent text-info"></i> Permitir pagamentos parciais
-                                        </label>
-                                    </div>
-                                    
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="enable_fines" name="payment_enable_fines" value="1"
-                                               <?= (old('payment_enable_fines', $settings['payment_enable_fines'] ?? 0) == 1) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="enable_fines">
-                                            <i class="fas fa-exclamation-triangle text-warning"></i> Aplicar multas por atraso automaticamente
-                                        </label>
-                                    </div>
+
+                                <div class="sec-divider" style="margin-top:0">
+                                    <span class="sec-divider-label"><i class="fas fa-toggle-on"></i>Opções</span>
+                                    <div class="sec-divider-line"></div>
                                 </div>
+
+                                <label class="f-check">
+                                    <input type="checkbox" name="payment_enable_multiple" value="1"
+                                           <?= (old('payment_enable_multiple', $settings['payment_enable_multiple'] ?? 0) == 1) ? 'checked' : '' ?>>
+                                    <span class="f-check-box"><i class="fas fa-check"></i></span>
+                                    <span class="f-check-text"><strong>Pagamentos múltiplos</strong> por fatura</span>
+                                </label>
+                                <label class="f-check">
+                                    <input type="checkbox" name="payment_enable_partial" value="1"
+                                           <?= (old('payment_enable_partial', $settings['payment_enable_partial'] ?? 0) == 1) ? 'checked' : '' ?>>
+                                    <span class="f-check-box"><i class="fas fa-check"></i></span>
+                                    <span class="f-check-text"><strong>Pagamentos parciais</strong> permitidos</span>
+                                </label>
+                                <label class="f-check">
+                                    <input type="checkbox" name="payment_enable_fines" value="1"
+                                           <?= (old('payment_enable_fines', $settings['payment_enable_fines'] ?? 0) == 1) ? 'checked' : '' ?>>
+                                    <span class="f-check-box"><i class="fas fa-check"></i></span>
+                                    <span class="f-check-text"><strong>Multas automáticas</strong> por atraso</span>
+                                </label>
                             </div>
                         </div>
                     </div>
-                    
-                    <hr>
-                    
-                    <div class="text-end">
-                        <button type="submit" class="btn-save">
-                            <i class="fas fa-save"></i> Salvar Configurações de Propinas
-                        </button>
+                    <div class="save-bar">
+                        <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
+                        <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Propinas</button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
-    
-    <!-- ==================== SYSTEM SETTINGS ==================== -->
-    <div class="tab-pane fade" id="system" role="tabpanel">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <i class="fas fa-cog"></i> Configurações do Sistema
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-info-circle"></i> Informações do Sistema</h6>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-sm">
-                                    <tr>
-                                        <th>Versão do Sistema:</th>
-                                        <td><span class="badge bg-primary">1.0.0</span></td>
-                                    </tr>
-                                    <tr>
-                                        <th>CodeIgniter:</th>
-                                        <td><?= \CodeIgniter\CodeIgniter::CI_VERSION ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>PHP:</th>
-                                        <td><?= PHP_VERSION ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Banco de Dados:</th>
-                                        <td>MySQL</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Ambiente:</th>
-                                        <td><span class="badge bg-<?= ENVIRONMENT == 'production' ? 'success' : 'warning' ?>"><?= ENVIRONMENT ?></span></td>
-                                    </tr>
-                                </table>
-                            </div>
+        </div><!-- /tab-fees -->
+
+        <!-- ══════════ TAB: SYSTEM ══════════ -->
+        <div class="tab-pane" id="tab-system">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <div class="ci-card">
+                        <div class="ci-card-header">
+                            <div class="ci-card-title"><i class="fas fa-info-circle"></i> Informações do Sistema</div>
+                        </div>
+                        <div class="ci-card-body" style="padding:0">
+                            <table class="sys-table">
+                                <tr><td>Versão</td><td><span class="sys-badge blue">v1.0.0</span></td></tr>
+                                <tr><td>CodeIgniter</td><td><span class="sys-badge blue"><?= \CodeIgniter\CodeIgniter::CI_VERSION ?></span></td></tr>
+                                <tr><td>PHP</td><td><span class="sys-badge blue"><?= PHP_VERSION ?></span></td></tr>
+                                <tr><td>Base de Dados</td><td><span class="sys-badge blue">MySQL</span></td></tr>
+                                <tr><td>Ambiente</td>
+                                    <td><span class="sys-badge <?= ENVIRONMENT == 'production' ? 'green' : 'amber' ?>"><?= ENVIRONMENT ?></span></td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-                    
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-tools"></i> Ações do Sistema</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-grid gap-2">
-                                    <a href="<?= site_url('admin/settings/clear-cache') ?>" class="btn btn-outline-warning" onclick="return confirm('Esta ação limpará todos os caches. Continuar?')">
-                                        <i class="fas fa-trash"></i> Limpar Cache
-                                    </a>
-                                    <a href="<?= site_url('admin/settings/backup') ?>" class="btn btn-outline-danger" onclick="return confirm('Gerar backup do banco de dados?')">
-                                        <i class="fas fa-database"></i> Backup do Banco de Dados
-                                    </a>
-                                    <button class="btn btn-outline-secondary" onclick="return confirm('Restaurar configurações padrão? Esta ação não pode ser desfeita.')">
-                                        <i class="fas fa-undo"></i> Restaurar Padrões
-                                    </button>
+
+                    <div class="ci-card">
+                        <div class="ci-card-header">
+                            <div class="ci-card-title"><i class="fas fa-chart-pie"></i> Estatísticas</div>
+                        </div>
+                        <div class="ci-card-body">
+                            <div class="stat-mini-grid">
+                                <div class="stat-mini">
+                                    <div class="stat-mini-val"><?= count($gradeLevels ?? []) ?></div>
+                                    <div class="stat-mini-lbl">Níveis</div>
+                                </div>
+                                <div class="stat-mini">
+                                    <div class="stat-mini-val"><?= count($disciplines ?? []) ?></div>
+                                    <div class="stat-mini-lbl">Disciplinas</div>
+                                </div>
+                                <div class="stat-mini">
+                                    <div class="stat-mini-val"><?= count($feeTypes ?? []) ?></div>
+                                    <div class="stat-mini-lbl">Taxas</div>
+                                </div>
+                                <div class="stat-mini">
+                                    <div class="stat-mini-val"><?= count($currencies ?? []) ?></div>
+                                    <div class="stat-mini-lbl">Moedas</div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Atenção:</strong> Alterações nestas configurações podem afetar todo o sistema.
-                        </div>
                     </div>
                 </div>
-                
-                <!-- Statistics Cards -->
-                <div class="section-divider mt-4">
-                    <i class="fas fa-chart-pie"></i>
-                    <span>Estatísticas do Sistema</span>
-                    <div class="section-divider-line"></div>
-                </div>
-                
-                <div class="row mt-3">
-                    <div class="col-md-3 col-6 mb-3">
-                        <div class="card-stats">
-                            <div class="value"><?= count($gradeLevels ?? []) ?></div>
-                            <div class="label">Níveis de Ensino</div>
+
+                <div class="col-md-7">
+                    <div class="ci-card">
+                        <div class="ci-card-header">
+                            <div class="ci-card-title"><i class="fas fa-tools"></i> Ações do Sistema</div>
                         </div>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <div class="card-stats">
-                            <div class="value"><?= count($disciplines ?? []) ?></div>
-                            <div class="label">Disciplinas</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <div class="card-stats">
-                            <div class="value"><?= count($feeTypes ?? []) ?></div>
-                            <div class="label">Tipos de Taxas</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6 mb-3">
-                        <div class="card-stats">
-                            <div class="value"><?= count($currencies ?? []) ?></div>
-                            <div class="label">Moedas</div>
+                        <div class="ci-card-body">
+                            <a href="<?= site_url('admin/settings/clear-cache') ?>" class="sys-action-btn warning"
+                               onclick="return confirm('Limpar todos os caches do sistema?')">
+                                <i class="fas fa-broom"></i> Limpar Cache do Sistema
+                            </a>
+                            <a href="<?= site_url('admin/settings/backup') ?>" class="sys-action-btn danger"
+                               onclick="return confirm('Gerar backup da base de dados?')">
+                                <i class="fas fa-database"></i> Backup da Base de Dados
+                            </a>
+                            <button class="sys-action-btn" onclick="return confirm('Restaurar configurações padrão? Esta ação não pode ser revertida.')">
+                                <i class="fas fa-undo"></i> Restaurar Configurações Padrão
+                            </button>
+
+                            <div class="alert alert-warning mt-3" style="font-size:.8rem;">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                <strong>Atenção:</strong> As ações acima afetam todo o sistema. Proceda com cautela.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+        </div><!-- /tab-system -->
+
+    </div><!-- /settings-content -->
+</div><!-- /settings-layout -->
 
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
-// Preview logo before upload
-document.getElementById('school_logo').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        // Verificar tamanho (2MB max)
-        if (file.size > 2 * 1024 * 1024) {
-            alert('O ficheiro é muito grande. Tamanho máximo: 2MB');
-            this.value = '';
-            return;
-        }
-        
-        // Verificar tipo
-        if (!file.type.match('image.*')) {
-            alert('Por favor, selecione uma imagem válida (JPG, PNG, GIF)');
-            this.value = '';
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = document.getElementById('logoPreview');
-            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" id="previewImage">`;
-            preview.classList.add('has-image');
-        }
-        reader.readAsDataURL(file);
-    }
+// ── Vertical Tab Navigation ───────────────────────────────
+document.querySelectorAll('.settings-nav-item').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const target = this.dataset.tab;
+
+        // Nav active state
+        document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        // Pane visibility
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-' + target)?.classList.add('active');
+
+        // Update URL hash without scroll
+        history.replaceState(null, '', '#' + target);
+    });
 });
 
-// Atualizar preview de assinatura em tempo real
-document.getElementById('director_name')?.addEventListener('input', updateSignaturePreview);
-document.getElementById('director_title')?.addEventListener('change', updateSignaturePreview);
-document.getElementById('pedagogical_director_name')?.addEventListener('input', updateSignaturePreview);
-document.getElementById('pedagogical_title')?.addEventListener('change', updateSignaturePreview);
-document.getElementById('signature_title')?.addEventListener('input', updateSignaturePreview);
-
-function updateSignaturePreview() {
-    // Esta função pode ser implementada para atualizar a pré-visualização em tempo real
-    console.log('Preview atualizado');
+// Restore tab from URL hash
+const hash = location.hash.replace('#', '');
+if (hash) {
+    const btn = document.querySelector(`.settings-nav-item[data-tab="${hash}"]`);
+    if (btn) btn.click();
 }
 
-// Confirmação antes de sair com alterações não salvas
-let formModified = false;
+// ── Media Upload Preview ──────────────────────────────────
+function previewMedia(input, previewId, imgId, boxId) {
+    const file = input.files[0];
+    if (!file) return;
 
-document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('change', () => {
-        formModified = true;
-    });
-    
-    form.addEventListener('submit', () => {
-        formModified = false;
-    });
-});
-
-window.addEventListener('beforeunload', (e) => {
-    if (formModified) {
-        e.preventDefault();
-        e.returnValue = 'Existem alterações não salvas. Deseja realmente sair?';
+    if (file.size > 3 * 1024 * 1024) {
+        alert('Ficheiro muito grande. Máximo: 3MB');
+        input.value = '';
+        return;
     }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const prev  = document.getElementById(previewId);
+        const box   = document.getElementById(boxId);
+        let img = document.getElementById(imgId);
+
+        if (!img) {
+            prev.innerHTML = `<img id="${imgId}" src="${e.target.result}" alt="Preview">`;
+            if (boxId === 'box-favicon') {
+                document.getElementById(imgId).style.cssText = 'max-width:64px;max-height:64px;';
+            }
+        } else {
+            img.src = e.target.result;
+        }
+        box.classList.add('has-image');
+    };
+    reader.readAsDataURL(file);
+}
+
+// ── Signature Preview Live Update ────────────────────────
+function updateSigPreview() {
+    const dTitle = document.querySelector('[name="director_title"]')?.value || '';
+    const dName  = document.querySelector('[name="director_name"]')?.value  || '[Nome do Director]';
+    const pTitle = document.querySelector('[name="pedagogical_title"]')?.value || '';
+    const pName  = document.querySelector('[name="pedagogical_director_name"]')?.value || '[Nome do Subdirector]';
+    const sRole  = document.querySelector('[name="signature_title"]')?.value || 'O Director';
+
+    const dn = document.getElementById('sig-director-name');
+    const dr = document.getElementById('sig-director-role');
+    const pn = document.getElementById('sig-peda-name');
+
+    if (dn) dn.textContent = dTitle + ' ' + dName;
+    if (dr) dr.textContent = sRole;
+    if (pn) pn.textContent = pTitle + ' ' + pName;
+}
+
+['director_name','director_title','pedagogical_director_name','pedagogical_title','signature_title']
+    .forEach(n => document.querySelector(`[name="${n}"]`)?.addEventListener('input', updateSigPreview));
+['director_title','pedagogical_title']
+    .forEach(n => document.querySelector(`[name="${n}"]`)?.addEventListener('change', updateSigPreview));
+
+// ── Unsaved changes warning ───────────────────────────────
+let _dirty = false;
+document.querySelectorAll('form').forEach(f => {
+    f.addEventListener('change', () => _dirty = true);
+    f.addEventListener('submit', () => _dirty = false);
+});
+window.addEventListener('beforeunload', e => {
+    if (_dirty) { e.preventDefault(); e.returnValue = ''; }
 });
 </script>
 <?= $this->endSection() ?>

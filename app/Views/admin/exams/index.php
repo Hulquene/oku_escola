@@ -27,7 +27,6 @@
 <!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
-<!-- Filters -->
 <!-- Filtros -->
 <div class="card mb-4">
     <div class="card-body">

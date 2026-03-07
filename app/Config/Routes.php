@@ -45,7 +45,9 @@ use App\Controllers\admin\CourseCurriculum;
 use App\Controllers\admin\Grades;
 use App\Controllers\admin\AcademicRecords;
 use App\Controllers\admin\BulkClassCreate;
+use App\Controllers\admin\ExamPeriods;
 use App\Controllers\admin\GradeCurriculum;
+use App\Controllers\admin\Schedule;
 use App\Controllers\auth\Auth;
 use App\Controllers\Home;
 use App\Controllers\GeneratePdf;
@@ -168,6 +170,10 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       // Semestres/Trimestres
     $routes->group('semesters', function ($routes) {
         $routes->get('', [Semesters::class, 'index'], ["as" => 'academic.semesters']);
+        // No grupo de rotas de semesters
+        $routes->post('get-table-data', [Semesters::class, 'getTableData'], ['as' => 'academic.semesters.get-table-data']);
+        $routes->get('get-stats', [Semesters::class, 'getStats'], ['as' => 'academic.semesters.get-stats']);
+
         $routes->get('form-add', [Semesters::class, 'form'], ["as" => 'academic.semesters.form']);
         $routes->get('form-edit/(:num)', [Semesters::class, 'form/$1'], ["as" => 'academic.semesters.form.edit']);
         $routes->post('save', [Semesters::class, 'save'], ["as" => 'academic.semesters.save']);
@@ -222,25 +228,24 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
     // Classes/Turmas
     $routes->group('classes', function ($routes) {
-        $routes->get('', [Classes::class, 'index'], ["as" => 'classes']);
+        $routes->get('', [Classes::class, 'index'], ['as' => 'classes']);
+        $routes->post('get-table-data', [Classes::class, 'getTableData'], ['as' => 'classes.get-table-data']); // NOVA ROTA PARA DATATABLE
+            // Formulários
         $routes->get('form-add', [Classes::class, 'form'], ["as" => 'classes.form']);
         $routes->get('form-edit/(:num)', [Classes::class, 'form/$1'], ["as" => 'classes.form.edit']);
+          // Ações CRUD
         $routes->post('save', [Classes::class, 'save'], ["as" => 'classes.save']); // <-- MÉTODO SAVE AQUI
         $routes->get('delete/(:num)', [Classes::class, 'delete/$1'], ["as" => 'classes.delete']);
         $routes->get('activate/(:num)', [Classes::class, 'activate/$1'], ["as" => 'classes.activate']);
+        // Visualizações
         $routes->get('view/(:num)', [Classes::class, 'view/$1'], ["as" => 'classes.view']);
         $routes->get('list-students/(:num)', [Classes::class, 'listStudents/$1'], ["as" => 'classes.students']);
-
-        // Rota para obter disciplinas da turma (AJAX) - FALTANDO
+        // Rotas AJAX para filtros
+        // Rota para obter disciplinas da turma (AJAX)
         $routes->get('get-class-disciplines/(:num)', [Classes::class, 'getClassDisciplines/$1'], ["as" => 'classes.get-disciplines']);
-        
-        // Rota para obter horário da turma - FALTANDO
-        $routes->get('schedule/(:num)', [Classes::class, 'schedule/$1'], ["as" => 'classes.schedule']);
-        
-        // Rota para exportar lista de alunos da turma - FALTANDO
+        // Rota para exportar lista de alunos da turma
         $routes->get('export-students/(:num)', [Classes::class, 'exportStudents/$1'], ["as" => 'classes.export-students']);
-        
-        // Rota para imprimir pauta da turma - FALTANDO
+        // Rota para imprimir pauta da turma -
         $routes->get('print-sheet/(:num)', [Classes::class, 'printSheet/$1'], ["as" => 'classes.print-sheet']);
 
     
@@ -260,6 +265,25 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       // Adicione no grupo 'classes' das rotas
       $routes->get('get-by-year/(:num)', [Classes::class, 'getByYear/$1'], ["as" => 'classes.get-by-year']);
 
+     // Rotas para Schedule
+
+
+    // Rotas para Schedule
+    $routes->group('schedule', ['namespace' => 'App\Controllers\admin'], function($routes) {
+        $routes->get('', [Schedule::class, 'index'], ['as' => 'schedule.index']);
+        $routes->post('get-data', [Schedule::class, 'getData'], ['as' => 'schedule.get-data']);
+        // No arquivo de rotas, adicione:
+        $routes->post('get-schedule-data', [Schedule::class, 'getScheduleData']);
+        $routes->get('view/(:num)', [Schedule::class, 'view/$1'], ['as' => 'schedule.view']);
+        $routes->post('save', [Schedule::class, 'save'], ['as' => 'schedule.save']);
+        $routes->get('delete/(:alphanum)', [Schedule::class, 'delete/$1'], ['as' => 'schedule.delete']);
+        $routes->post('duplicate', [Schedule::class, 'duplicate'], ['as' => 'schedule.duplicate']);
+        $routes->post('check-availability', [Schedule::class, 'checkAvailability'], ['as' => 'schedule.check-availability']);
+        $routes->post('get-schedule-item', [Schedule::class, 'getScheduleItem'], ['as' => 'schedule.get-item']); // <-- ADICIONAR ESTA
+        $routes->get('export-pdf/(:num)', [Schedule::class, 'exportPdf/$1'], ['as' => 'schedule.export-pdf']);
+        $routes->get('export-excel/(:num)', [Schedule::class, 'exportExcel/$1'], ['as' => 'schedule.export-excel']);
+
+    });
 
     // Disciplinas
     $routes->group('subjects', function ($routes) {
@@ -332,7 +356,13 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     });
     // === PERÍODOS DE EXAME ===
     $routes->group('periods', function ($routes) {
-        $routes->get('/', [\App\Controllers\admin\ExamPeriods::class, 'index'], ['as' => 'exams.periods']);
+        //$routes->get('/', [\App\Controllers\admin\ExamPeriods::class, 'index'], ['as' => 'exams.periods']);
+
+         // Rotas principais
+        $routes->get('', [ExamPeriods::class, 'index'], ['as' => 'exams.periods']);
+        $routes->post('get-table-data', [ExamPeriods::class, 'getTableData'], ['as' => 'exams.periods.get-table-data']);
+        $routes->get('get-stats', [ExamPeriods::class, 'getStats'], ['as' => 'exams.periods.get-stats']);
+
         $routes->get('create', [\App\Controllers\admin\ExamPeriods::class, 'create'], ['as' => 'exams.periods.create']);
         $routes->get('edit/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'edit/$1'], ['as' => 'exams.periods.edit']);
         $routes->get('view/(:num)', [\App\Controllers\admin\ExamPeriods::class, 'view/$1'], ['as' => 'exams.periods.view']);
@@ -465,7 +495,10 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
    */
   $routes->group('students', function ($routes) {
 
-    $routes->get('', [Clients::class, 'students'], ["as" => 'students']);
+    $routes->get('', [Clients::class, 'index'], ['as' => 'students.index']);
+    $routes->post('get-table-data', [Clients::class, 'getTableData'], ['as' => 'students.get-table-data']);
+    $routes->get('get-stats', [Clients::class, 'getStats'], ['as' => 'students.get-stats']);
+
     $routes->get('form-add', [Clients::class, 'studentForm'], ["as" => 'students.form']);
     $routes->get('form-edit/(:num)', [Clients::class, 'studentForm'], ["as" => 'students.form/$1']);
     $routes->post('save', [Clients::class, 'saveStudent'], ["as" => 'students.save']);
@@ -478,6 +511,12 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     // Matrículas
     $routes->group('enrollments', function ($routes) {
         $routes->get('', [Enrollments::class, 'index'], ["as" => 'students.enrollments']);
+          $routes->get('', [Enrollments::class, 'index'], ['as' => 'students.enrollments']);
+        $routes->post('get-table-data', [Enrollments::class, 'getTableData'], ['as' => 'students.enrollments.get-table-data']);
+        $routes->get('get-stats', [Enrollments::class, 'getStats'], ['as' => 'students.enrollments.get-stats']);
+        $routes->get('get-classes-by-year/(:num)', [Enrollments::class, 'getClassesByYear/$1'], ['as' => 'students.enrollments.get-classes-by-year']);
+
+
         $routes->get('pending', [Enrollments::class, 'pending'], ["as" => 'students.enrollments.pending']); 
         $routes->get('form-add', [Enrollments::class, 'form'], ["as" => 'students.enrollments.form']);
         $routes->get('form-edit/(:num)', [Enrollments::class, 'form/$1'], ["as" => 'students.enrollments.form.edit']);
@@ -507,7 +546,15 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
    * Gestão de Professores
    */
   $routes->group('teachers', function ($routes) {
-    $routes->get('', [Teachers::class, 'index'], ["as" => 'teachers']);
+       // Rotas principais
+    $routes->get('', [Teachers::class, 'index'], ['as' => 'teachers.index']);
+    $routes->post('get-table-data', [Teachers::class, 'getTableData'], ['as' => 'teachers.get-table-data']);
+    $routes->get('get-stats', [Teachers::class, 'getStats'], ['as' => 'teachers.get-stats']);
+    $routes->get('export', [Teachers::class, 'export'], ['as' => 'teachers.export']);
+
+
+
+
     $routes->get('form-add', [Teachers::class, 'form'], ["as" => 'teachers.form']);
     $routes->get('form-edit/(:num)', [Teachers::class, 'form'], ["as" => 'teachers.form/$1']);
     $routes->post('save', [Teachers::class, 'save'], ["as" => 'teachers.save']);
@@ -517,12 +564,12 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->post('save-assignment', [Teachers::class, 'saveAssignment'], ["as" => 'teachers.save-assignment']);
 
     // NOVA ROTA PARA ESTATÍSTICAS AJAX
-    $routes->get('get-stats', [Teachers::class, 'getStats'], ["as" => 'teachers.get-stats']);
+/*     $routes->get('get-stats', [Teachers::class, 'getStats'], ["as" => 'teachers.get-stats']); */
     
     // Outras rotas que você possa ter
     $routes->get('activate/(:num)', [Teachers::class, 'activate/$1'], ["as" => 'teachers.activate']);
     $routes->get('schedule/(:num)', [Teachers::class, 'schedule/$1'], ["as" => 'teachers.schedule']);
-    $routes->get('export', [Teachers::class, 'export'], ["as" => 'teachers.export']);
+    //$routes->get('export', [Teachers::class, 'export'], ["as" => 'teachers.export']);
 
     // Rota para ativar professor - FALTANDO (você tem delete mas não activate)
     $routes->get('activate/(:num)', [Teachers::class, 'activate/$1'], ["as" => 'teachers.activate']);

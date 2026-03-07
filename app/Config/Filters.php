@@ -35,6 +35,7 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'auth'          => \App\Filters\AuthFilter::class, //Verifica a sessao (user logado ou nao)
+        'academicYear'  => \App\Filters\AcademicYearFilter::class, // Verifica se o ano academico esta na sessao, se nao tiver, busca das configuracoes e seta na sessao
     ];
 
     /**
@@ -76,6 +77,7 @@ class Filters extends BaseFilters
             // 'honeypot',
              'csrf',
             // 'invalidchars',
+            'academicYear',
         ],
         'after' => [
             'toolbar',

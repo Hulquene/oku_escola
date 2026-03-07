@@ -40,61 +40,11 @@ class Settings extends BaseController
         
         helper(['auth', 'settings']); // Carregar helpers
     }
-    
-    /**
-     * Settings dashboard
-     */
-    public function index()
-    {
-        $data['title'] = 'Configurações do Sistema';
-        
-        // Get all settings
-        $data['settings'] = $this->settingsModel->getAll();
-        
-        // Academic data for reference
-        $data['currentYear'] = $this->academicYearModel->getCurrent();
-        $data['academicYears'] = $this->academicYearModel
-            ->where('is_active', 1)
-            ->orderBy('start_date', 'DESC')
-            ->findAll();
-        
-        $data['semesters'] = $this->semesterModel
-            ->whereIn('status', ['ativo', 'processado'])
-            ->orderBy('start_date', 'DESC')
-            ->findAll();
-        
-        $data['gradeLevels'] = $this->gradeLevelModel
-            ->where('is_active', 1)
-            ->orderBy('sort_order', 'ASC')
-            ->findAll();
-        
-        $data['currencies'] = $this->currencyModel
-            ->orderBy('is_default', 'DESC')
-            ->orderBy('currency_name', 'ASC')
-            ->findAll();
-        
-        return view('admin/settings/index', $data);
-    }
-    
-    /**
-     * General settings page
-     */
-    public function general()
-    {
-        $data['title'] = 'Configurações Gerais';
-        
-        // Get settings
-        $data['settings'] = $this->settingsModel->getAll();
-        $data['timezones'] = $this->getTimezones();
-        $data['dateFormats'] = $this->getDateFormats();
-        
-        return view('admin/settings/general', $data);
-    }
-    
+
 /**
  * School settings page
  */
-public function school()
+public function index()
 {
     $data['title'] = 'Configurações da Escola';
     
@@ -135,27 +85,23 @@ public function school()
     
     return view('admin/settings/school', $data);
 }
-    
+        
     /**
-     * Academic settings page
+     * General settings page
      */
-    public function academic()
+    public function general()
     {
-        $data['title'] = 'Configurações Académicas';
+        $data['title'] = 'Configurações Gerais';
         
+        // Get settings
         $data['settings'] = $this->settingsModel->getAll();
-        $data['academicYears'] = $this->academicYearModel
-            ->where('is_active', 1)
-            ->orderBy('start_date', 'DESC')
-            ->findAll();
+        $data['timezones'] = $this->getTimezones();
+        $data['dateFormats'] = $this->getDateFormats();
         
-        $data['semesters'] = $this->semesterModel
-            ->whereIn('status', ['ativo', 'processado'])
-            ->orderBy('start_date', 'ASC')
-            ->findAll();
-        
-        return view('admin/settings/academic', $data);
+        return view('admin/settings/general', $data);
     }
+    
+
     
     /**
      * Payment settings page
@@ -273,7 +219,7 @@ public function school()
              // Limpar cache do logo
             cache()->delete('school_logo');
         
-            return redirect()->to('/admin/settings/school')
+            return redirect()->to('/admin/settings')
                 ->with('success', 'Configurações da escola salvas com sucesso');
         } else {
             return redirect()->back()->with('error', 'Erro ao salvar configurações');
@@ -296,9 +242,12 @@ public function school()
                 ->with('errors', $this->validator->getErrors());
         }
         
+        $academicYearId = $this->request->getPost('academic_year_id');
+        $semesterId = $this->request->getPost('semester_id');
+        
         $settings = [
-            'current_academic_year' => $this->request->getPost('academic_year_id'),
-            'current_semester' => $this->request->getPost('semester_id'),
+            'current_academic_year' => $academicYearId,
+            'current_semester' => $semesterId,
             'grading_system' => $this->request->getPost('grading_system'),
             'min_grade' => $this->request->getPost('min_grade') ?: 0,
             'max_grade' => $this->request->getPost('max_grade') ?: 20,
@@ -309,10 +258,22 @@ public function school()
         ];
         
         if ($this->settingsModel->saveSettings($settings)) {
-             // Limpar cache do logo
+            
+            // Buscar o nome do ano letivo para guardar na sessão
+            $academicYear = $this->academicYearModel->find($academicYearId);
+            
+            // Guardar na sessão
+            session()->set([
+                'academic_year_id' => $academicYearId,
+                'academic_year_name' => $academicYear ? $academicYear->year_name : null,
+                'semester_id' => $semesterId
+            ]);
+            
+            // Limpar caches
             cache()->delete('school_logo');
-        
-            return redirect()->to('/admin/settings/academic')
+            cache()->delete('current_academic_year');
+            
+            return redirect()->to('/admin/settings')
                 ->with('success', 'Configurações académicas salvas com sucesso');
         } else {
             return redirect()->back()->with('error', 'Erro ao salvar configurações');

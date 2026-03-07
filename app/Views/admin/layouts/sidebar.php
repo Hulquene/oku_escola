@@ -107,6 +107,11 @@
                     <i class="fas fa-users"></i> Turmas
                 </a></li>
                 <?php endif; ?>
+                <?php if (has_permission('classes.schedule')): ?>
+                <li><a href="<?= site_url('admin/classes/schedule') ?>" class="<?= uri_string() == 'admin/classes/schedule' ? 'active' : '' ?>">
+                    <i class="fas fa-clock"></i> Horários
+                </a></li>
+                <?php endif; ?>
                 <?php if (has_permission('subjects.list')): ?>
                 <li><a href="<?= site_url('admin/classes/subjects') ?>" class="<?= uri_string() == 'admin/classes/subjects' ? 'active' : '' ?>">
                     <i class="fas fa-book"></i> Disciplinas
@@ -528,20 +533,20 @@
             </a>
             <ul class="collapse submenu <?= $settingsActive ? 'show' : '' ?>" id="settingsSubmenu">
                 <li><a href="<?= site_url('admin/settings') ?>" class="<?= uri_string() == 'admin/settings' ? 'active' : '' ?>">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <i class="fas fa-tachometer-alt"></i> Gerais
                 </a></li>
                 <?php if (has_permission('settings.general')): ?>
-                <li><a href="<?= site_url('admin/settings/general') ?>" class="<?= uri_string() == 'admin/settings/general' ? 'active' : '' ?>">
+           <!--      <li><a href="<?= site_url('admin/settings/general') ?>" class="<?= uri_string() == 'admin/settings/general' ? 'active' : '' ?>">
                     <i class="fas fa-sliders-h"></i> Gerais
-                </a></li>
-                <li><a href="<?= site_url('admin/settings/school') ?>" class="<?= uri_string() == 'admin/settings/school' ? 'active' : '' ?>">
+                </a></li> -->
+             <!--    <li><a href="<?= site_url('admin/settings/school') ?>" class="<?= uri_string() == 'admin/settings/school' ? 'active' : '' ?>">
                     <i class="fas fa-school"></i> Escola
-                </a></li>
+                </a></li> -->
                 <?php endif; ?>
                 <?php if (has_permission('settings.payment')): ?>
-                <li><a href="<?= site_url('admin/settings/payment') ?>" class="<?= uri_string() == 'admin/settings/payment' ? 'active' : '' ?>">
+             <!--    <li><a href="<?= site_url('admin/settings/payment') ?>" class="<?= uri_string() == 'admin/settings/payment' ? 'active' : '' ?>">
                     <i class="fas fa-money-bill-wave"></i> Pagamento
-                </a></li>
+                </a></li> -->
                 <?php endif; ?>
                 <?php if (has_permission('settings.email')): ?>
                 <li><a href="<?= site_url('admin/settings/email') ?>" class="<?= uri_string() == 'admin/settings/email' ? 'active' : '' ?>">
@@ -607,3 +612,12 @@
     </div>
 
 </nav>
+
+<style>
+    .sidebar .nav-link.dropdown-toggle::after,
+.sidebar .nav-link.dropdown-toggle::before {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+}
+</style>

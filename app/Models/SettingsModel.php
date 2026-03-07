@@ -3,132 +3,145 @@
 
 namespace App\Models;
 
-class SettingsModel extends BaseModel
+use CodeIgniter\Model;
+
+class SettingsModel extends Model
 {
     protected $table = 'tbl_settings';
     protected $primaryKey = 'id';
+    protected $allowedFields = ['name', 'value', 'status'];
+    protected $useTimestamps = false;
     
-    protected $allowedFields = [
-        'name',
-        'value',
-        'status'
-    ];
-     protected $useTimestamps = false;
-    protected $validationRules = [
-        'name' => 'required|is_unique[tbl_settings.name,id,{id}]',
-        'value' => 'permit_empty',
-        'status' => 'permit_empty|in_list[0,1]'
-    ];
-    
-    // Sem timestamps - a tabela não tem created_at/updated_at
+    // 🔴 Garantir que retorne array (padrão do CI4)
+    protected $returnType = 'array';
     
     /**
-     * Get all settings as key-value pairs
+     * Get a setting value
+     * 
+     * @param string $key Setting key
+     * @param mixed $default Default value if setting not found
+     * @return mixed
      */
-    public function getAll($activeOnly = true)
+    public function get($key, $default = null)
     {
-        $builder = $this->select('name, value');
+        // Tentar do cache primeiro
+        $cache = service('cache');
+        $cached = $cache->get('setting_' . $key);
         
-        if ($activeOnly) {
-            $builder->where('status', 1);
+        if ($cached !== null) {
+            return $cached;
         }
         
-        $settings = $builder->findAll();
+        $setting = $this->where('name', $key)->first();
         
+        if ($setting) {
+            // 🔴 ACESSO COMO ARRAY
+            $value = $setting['value'];
+            $cache->save('setting_' . $key, $value, 3600); // Cache por 1 hora
+            return $value;
+        }
+        
+        return $default;
+    }
+    
+    /**
+     * Save a setting
+     * 
+     * @param string $key Setting key
+     * @param mixed $value Setting value
+     * @return bool
+     */
+    public function saveSetting($key, $value)
+    {
+        $exists = $this->where('name', $key)->first();
+        
+        if ($exists) {
+            // 🔴 ACESSO COMO ARRAY
+            $result = $this->update($exists['id'], ['value' => $value]);
+        } else {
+            $result = $this->insert(['name' => $key, 'value' => $value]);
+        }
+        
+        // Limpar cache
+        cache()->delete('setting_' . $key);
+        
+        return $result;
+    }
+    
+    /**
+     * Save multiple settings
+     * 
+     * @param array $settings Key-value pairs of settings
+     * @return bool
+     */
+    public function saveSettings(array $settings)
+    {
+        foreach ($settings as $key => $value) {
+            $this->saveSetting($key, $value);
+        }
+        return true;
+    }
+    
+    /**
+     * Get all settings as key-value array
+     * 
+     * @return array
+     */
+    public function getAll()
+    {
+        $settings = $this->findAll();
         $result = [];
+        
         foreach ($settings as $setting) {
-            $result[$setting->name] = $setting->value;
+            // 🔴 ACESSO COMO ARRAY
+            $result[$setting['name']] = $setting['value'];
         }
         
         return $result;
     }
     
     /**
-     * Get a single setting value
+     * Get multiple settings at once
+     * 
+     * @param array $keys Array of setting keys
+     * @return array
      */
-    public function get($key, $default = null)
+    public function getMultiple(array $keys)
     {
-        $setting = $this->where('name', $key)
-            ->where('status', 1)
-            ->first();
-        
-        return $setting ? $setting->value : $default;
-    }
-    
-    /**
-     * Save a setting (update or insert)
-     */
-    public function saveSetting($key, $value)
-    {
-        $existing = $this->where('name', $key)->first();
-        
-        if ($existing) {
-            return $this->update($existing->id, [
-                'value' => $value,
-                'status' => 1
-            ]);
-        } else {
-            return $this->insert([
-                'name' => $key,
-                'value' => $value,
-                'status' => 1
-            ]);
+        $result = [];
+        foreach ($keys as $key) {
+            $result[$key] = $this->get($key);
         }
-    }
-    
-    /**
-     * Save multiple settings at once
-     */
-    public function saveSettings(array $settings)
-    {
-        $success = true;
-        
-        foreach ($settings as $key => $value) {
-            if (!$this->saveSetting($key, $value)) {
-                $success = false;
-            }
-        }
-        
-        return $success;
+        return $result;
     }
     
     /**
      * Delete a setting
+     * 
+     * @param string $key Setting key to delete
+     * @return bool
      */
     public function deleteSetting($key)
     {
-        return $this->where('name', $key)->delete();
+        $exists = $this->where('name', $key)->first();
+        
+        if ($exists) {
+            $result = $this->delete($exists['id']);
+            cache()->delete('setting_' . $key);
+            return $result;
+        }
+        
+        return false;
     }
     
     /**
-     * Get settings by prefix (e.g., 'school_', 'payment_')
+     * Check if a setting exists
+     * 
+     * @param string $key Setting key
+     * @return bool
      */
-    public function getByPrefix($prefix)
+    public function has($key)
     {
-        $settings = $this->like('name', $prefix, 'after')
-            ->where('status', 1)
-            ->findAll();
-        
-        $result = [];
-        foreach ($settings as $setting) {
-            $result[$setting->name] = $setting->value;
-        }
-        
-        return $result;
-    }
-    
-    /**
-     * Toggle setting status
-     */
-    public function toggleStatus($id)
-    {
-        $setting = $this->find($id);
-        if (!$setting) {
-            return false;
-        }
-        
-        $newStatus = $setting->status == 1 ? 0 : 1;
-        
-        return $this->update($id, ['status' => $newStatus]);
+        return $this->where('name', $key)->countAllResults() > 0;
     }
 }

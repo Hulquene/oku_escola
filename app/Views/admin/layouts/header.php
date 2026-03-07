@@ -5,6 +5,12 @@
         </button>
         <div class="topbar-breadcrumb d-none d-md-flex">
             <a href="<?= site_url('admin/dashboard') ?>"><i class="fas fa-home"></i></a>
+            <?php if (current_academic_year()): ?>
+                <div class="academic-year-badge">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span><?= current_academic_year_name() ?></span>
+                </div>
+            <?php endif; ?>
             <?php if (isset($breadcrumb)): ?>
                 <?php foreach ($breadcrumb as $item): ?>
                     <span class="bc-sep"><i class="fas fa-chevron-right"></i></span>

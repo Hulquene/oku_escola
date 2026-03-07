@@ -49,7 +49,7 @@ class PublicSite extends BaseController
             'featuredCourses' => array_slice($coursesArray, 0, 3)
         ];
         
-        return view('public/home', $data);
+        return view('public/index', $data);
     }
     
     public function courses()

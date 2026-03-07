@@ -1463,7 +1463,35 @@ CREATE TABLE IF NOT EXISTS `tbl_grade_disciplines` (
 COMMENT='Disciplinas associadas aos níveis de ensino (Ensino Geral)';
 
 
+-- --------------------------------------------------------
+-- Estrutura da tabela `tbl_schedules` (VERSÃO JSON)
+-- --------------------------------------------------------
+DROP TABLE IF EXISTS `tbl_schedules`;
 
+CREATE TABLE IF NOT EXISTS `tbl_schedules` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `class_id` INT(11) NOT NULL COMMENT 'ID da turma',
+    `schedule_data` JSON NOT NULL COMMENT 'Dados do horário em formato JSON',
+    `total_items` INT(4) DEFAULT 0 COMMENT 'Total de itens no horário',
+    `total_hours` DECIMAL(6,2) DEFAULT 0 COMMENT 'Total de horas semanais',
+    `version` INT(2) DEFAULT 1 COMMENT 'Versão do formato do horário',
+    `is_active` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '1=Ativo, 0=Inativo',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_class_schedule` (`class_id`),
+    KEY `idx_class_id` (`class_id`),
+    KEY `idx_is_active` (`is_active`),
+    
+    CONSTRAINT `fk_schedules_class` 
+        FOREIGN KEY (`class_id`) 
+        REFERENCES `tbl_classes` (`id`) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
+        
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
+COMMENT='Horários das turmas em formato JSON';
 -- --------------------------------------------------------
 -- Inserção de Dados Iniciais
 -- --------------------------------------------------------
@@ -1502,7 +1530,7 @@ INSERT INTO `tbl_grade_levels` (`level_name`, `level_code`, `education_level`, `
 ('10ª Classe', '2CIC-10', '2º Ciclo', 10, 13),
 ('11ª Classe', '2CIC-11', '2º Ciclo', 11, 14),
 ('12ª Classe', '2CIC-12', '2º Ciclo', 12, 15),
-('13ª Classe', 'MED-13', 'Ensino Médio', 13, 16);
+('13ª Classe', '2CIC-13', '2º Ciclo', 13, 16);
 
 -- Inserir cursos padrão do sistema angolano
 -- INSERT INTO `tbl_courses` (`course_name`, `course_code`, `course_type`, `start_grade_id`, `end_grade_id`, `duration_years`) VALUES

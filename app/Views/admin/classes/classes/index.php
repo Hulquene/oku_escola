@@ -2,503 +2,376 @@
 
 <?= $this->section('content') ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --primary:       #1B2B4B;
+    --primary-light: #243761;
+    --accent:        #3B7FE8;
+    --accent-hover:  #2C6FD4;
+    --success:       #16A87D;
+    --danger:        #E84646;
+    --warning:       #E8A020;
+    --surface:       #F5F7FC;
+    --surface-card:  #FFFFFF;
+    --border:        #E2E8F4;
+    --text-primary:  #1A2238;
+    --text-secondary:#6B7A99;
+    --text-muted:    #9AA5BE;
+    --shadow-sm:     0 1px 4px rgba(27,43,75,.07);
+    --shadow-md:     0 4px 16px rgba(27,43,75,.10);
+    --shadow-lg:     0 8px 32px rgba(27,43,75,.14);
+    --radius:        12px;
+    --radius-sm:     8px;
+}
+* { font-family:'Sora',sans-serif; box-sizing:border-box; }
+body { background:var(--surface); color:var(--text-primary); }
+
+/* ── PAGE HEADER ─────────────────────────────────────────── */
+.ci-page-header { background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 60%,#2D4A7A 100%); border-radius:var(--radius); padding:1.5rem 2rem; margin-bottom:1.5rem; position:relative; overflow:hidden; box-shadow:var(--shadow-lg); }
+.ci-page-header::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none; }
+.ci-page-header::after  { content:''; position:absolute; bottom:-40px; right:100px; width:130px; height:130px; border-radius:50%; background:rgba(59,127,232,.15); pointer-events:none; }
+.ci-page-header-inner   { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:.75rem; position:relative; z-index:1; }
+.ci-page-header h1 { font-size:1.4rem; font-weight:700; color:#fff; margin:0 0 .2rem; letter-spacing:-.3px; }
+.ci-page-header .breadcrumb { margin:0; padding:0; background:transparent; }
+.ci-page-header .breadcrumb-item a { color:rgba(255,255,255,.6); text-decoration:none; font-size:.8rem; transition:color .2s; }
+.ci-page-header .breadcrumb-item a:hover { color:#fff; }
+.ci-page-header .breadcrumb-item.active,
+.ci-page-header .breadcrumb-item + .breadcrumb-item::before { color:rgba(255,255,255,.4); font-size:.8rem; }
+.hdr-actions { display:flex; gap:.5rem; flex-wrap:wrap; }
+.hdr-btn { display:inline-flex; align-items:center; gap:.45rem; border-radius:var(--radius-sm); padding:.45rem 1rem; font-size:.82rem; font-weight:600; text-decoration:none; transition:all .18s; cursor:pointer; border:none; font-family:'Sora',sans-serif; white-space:nowrap; }
+.hdr-btn.primary   { background:var(--accent); color:#fff; box-shadow:0 3px 10px rgba(59,127,232,.28); }
+.hdr-btn.primary:hover { background:var(--accent-hover); color:#fff; transform:translateY(-1px); }
+.hdr-btn.secondary { background:rgba(255,255,255,.12); color:#fff; border:1.5px solid rgba(255,255,255,.2); }
+.hdr-btn.secondary:hover { background:rgba(255,255,255,.2); color:#fff; transform:translateY(-1px); }
+.hdr-btn.success   { background:var(--success); color:#fff; box-shadow:0 3px 10px rgba(22,168,125,.28); }
+.hdr-btn.success:hover { background:#12906B; color:#fff; transform:translateY(-1px); }
+
+/* ── STAT CARDS ─────────────────────────────────────────── */
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.25rem; }
+@media(max-width:900px){ .stat-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:480px){ .stat-grid { grid-template-columns:1fr; } }
+.stat-card { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:1rem; }
+.stat-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex-shrink:0; }
+.stat-icon.blue   { background:rgba(59,127,232,.1);  color:var(--accent); }
+.stat-icon.green  { background:rgba(22,168,125,.1);  color:var(--success); }
+.stat-icon.orange { background:rgba(232,160,32,.1);  color:var(--warning); }
+.stat-icon.navy   { background:rgba(27,43,75,.08);   color:var(--primary); }
+.stat-label { font-size:.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.07em; margin-bottom:.15rem; }
+.stat-value { font-size:1.45rem; font-weight:700; color:var(--text-primary); font-family:'JetBrains Mono',monospace; line-height:1; }
+.stat-sub   { font-size:.68rem; color:var(--text-muted); margin-top:.18rem; }
+
+/* ── FILTER CARD ─────────────────────────────────────────── */
+.ci-card { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; margin-bottom:1.25rem; }
+.ci-card-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; padding:.85rem 1.25rem; background:var(--surface); border-bottom:1px solid var(--border); }
+.ci-card-title  { display:flex; align-items:center; gap:.55rem; font-size:.82rem; font-weight:700; color:var(--text-primary); }
+.ci-card-title i { color:var(--accent); font-size:.8rem; }
+.ci-card-body   { padding:1.1rem 1.25rem; }
+
+.filter-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:.75rem; }
+@media(max-width:1100px){ .filter-grid { grid-template-columns:repeat(3,1fr); } }
+@media(max-width:600px) { .filter-grid { grid-template-columns:1fr 1fr; } }
+
+.filter-label { font-size:.72rem; font-weight:600; color:var(--text-secondary); margin-bottom:.3rem; display:block; }
+.filter-select { width:100%; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:.42rem .65rem; font-size:.8rem; color:var(--text-primary); background:var(--surface); font-family:'Sora',sans-serif; transition:border-color .18s; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7A99' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right .6rem center; padding-right:2rem; }
+.filter-select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(59,127,232,.1); }
+
+.filter-actions { display:flex; align-items:flex-end; gap:.5rem; }
+.btn-filter { display:inline-flex; align-items:center; gap:.35rem; padding:.42rem .9rem; border-radius:var(--radius-sm); font-size:.78rem; font-weight:600; border:none; cursor:pointer; font-family:'Sora',sans-serif; transition:all .18s; text-decoration:none; white-space:nowrap; }
+.btn-filter.apply  { background:var(--accent); color:#fff; }
+.btn-filter.apply:hover  { background:var(--accent-hover); color:#fff; }
+.btn-filter.clear  { background:var(--surface); color:var(--text-secondary); border:1.5px solid var(--border); }
+.btn-filter.clear:hover  { border-color:var(--accent); color:var(--accent); }
+
+/* Active filter badges */
+.active-filters { display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; padding:.65rem 1.25rem; border-top:1px solid var(--border); background:rgba(59,127,232,.03); }
+.af-label { font-size:.7rem; color:var(--text-muted); font-weight:600; }
+.af-badge { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .6rem; border-radius:50px; font-size:.7rem; font-weight:600; }
+.af-badge.blue   { background:rgba(59,127,232,.1);  color:var(--accent); }
+.af-badge.green  { background:rgba(22,168,125,.1);  color:var(--success); }
+.af-badge.orange { background:rgba(232,160,32,.1);  color:var(--warning); }
+.af-badge.navy   { background:rgba(27,43,75,.08);   color:var(--primary); }
+.af-badge a { color:inherit; text-decoration:none; opacity:.6; transition:opacity .15s; margin-left:.15rem; }
+.af-badge a:hover { opacity:1; }
+
+/* ── TABLE ───────────────────────────────────────────────── */
+.ci-table { width:100%; border-collapse:separate; border-spacing:0; }
+.ci-table thead tr th { background:var(--surface); color:var(--text-secondary); font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em; padding:.65rem 1rem; border-bottom:1.5px solid var(--border); white-space:nowrap; }
+.ci-table tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
+.ci-table tbody tr:last-child { border-bottom:none; }
+.ci-table tbody tr:hover { background:#F5F8FF; }
+.ci-table tbody td { padding:.7rem 1rem; vertical-align:middle; font-size:.83rem; border:none; }
+.ci-table tbody td.center { text-align:center; }
+
+.id-chip    { font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; background:rgba(27,43,75,.07); color:var(--primary); padding:.15rem .45rem; border-radius:5px; }
+.code-badge { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:600; background:rgba(59,127,232,.1); color:var(--accent); padding:.12rem .42rem; border-radius:5px; }
+.class-name { font-weight:700; color:var(--text-primary); display:block; }
+
+.shift-badge { font-size:.65rem; font-weight:700; padding:.2rem .55rem; border-radius:50px; display:inline-flex; align-items:center; gap:.25rem; white-space:nowrap; }
+.shift-manha  { background:rgba(59,127,232,.1);  color:var(--accent); }
+.shift-tarde  { background:rgba(232,160,32,.1);  color:var(--warning); }
+.shift-noite  { background:rgba(27,43,75,.1);    color:var(--primary); }
+.shift-integral { background:rgba(22,168,125,.1); color:var(--success); }
+
+.course-pill { font-size:.68rem; font-weight:600; padding:.18rem .55rem; border-radius:50px; background:rgba(59,127,232,.1); color:var(--accent); display:inline-block; }
+.general-pill { font-size:.68rem; font-weight:600; padding:.18rem .55rem; border-radius:50px; background:rgba(27,43,75,.07); color:var(--text-muted); display:inline-block; }
+
+.capacity-bar { width:60px; height:5px; border-radius:3px; background:var(--border); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:.35rem; }
+.capacity-fill { height:100%; border-radius:3px; transition:width .3s; }
+.cap-ok   { background:var(--success); }
+.cap-mid  { background:var(--warning); }
+.cap-full { background:var(--danger); }
+.cap-text  { font-family:'JetBrains Mono',monospace; font-size:.7rem; color:var(--text-secondary); }
+.seats-ok   { color:var(--success); font-size:.72rem; font-weight:700; }
+.seats-full { color:var(--danger);  font-size:.72rem; font-weight:700; }
+
+.status-dot { display:inline-flex; align-items:center; gap:.3rem; font-size:.72rem; font-weight:700; }
+.sd { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.sd-active   { background:var(--success); box-shadow:0 0 0 2px rgba(22,168,125,.2); }
+.sd-inactive { background:var(--text-muted); }
+.st-active   { color:var(--success); }
+.st-inactive { color:var(--text-muted); }
+
+.teacher-name { font-weight:600; font-size:.8rem; color:var(--text-primary); }
+.no-teacher   { font-size:.7rem; font-weight:600; color:var(--warning); background:rgba(232,160,32,.1); padding:.15rem .45rem; border-radius:5px; }
+
+/* ── ACTION BUTTONS (8 BOTÕES) ──────────────────────────── */
+.action-group { display: flex; gap: 0.25rem; flex-wrap: wrap; justify-content: center; }
+.row-btn { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--border); background:#fff; color:var(--text-secondary); display:inline-flex; align-items:center; justify-content:center; font-size:.75rem; text-decoration:none; cursor:pointer; transition:all .18s; position:relative; }
+.row-btn:hover { color:#fff; border-color:transparent; transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,0.15); }
+.row-btn.view:hover     { background:var(--success); }
+.row-btn.edit:hover     { background:var(--accent); }
+.row-btn.students:hover { background:var(--primary); }
+.row-btn.subjects:hover { background:var(--warning); }
+.row-btn.teachers:hover { background:#16A87D; }
+.row-btn.schedule:hover { background:#6B7A99; }
+.row-btn.del:hover      { background:var(--danger); }
+.row-btn.activate:hover { background:var(--success); }
+
+/* Tooltips personalizados */
+.row-btn[title] { position: relative; }
+.row-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: white;
+    font-size: .7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.ci-empty { text-align:center; padding:3rem; color:var(--text-muted); }
+.ci-empty i { font-size:2rem; opacity:.15; display:block; margin-bottom:.6rem; }
+.ci-empty p { font-size:.82rem; margin:0; }
+
+.alert { border-radius:var(--radius-sm); border:none; font-size:.875rem; }
+.alert-success { background:rgba(22,168,125,.1); color:#0E7A5A; border-left:3px solid var(--success); }
+.alert-danger  { background:rgba(232,70,70,.08); color:#B03030; border-left:3px solid var(--danger); }
+
+/* DataTables override */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:.3rem .6rem; font-size:.8rem; font-family:'Sora',sans-serif; color:var(--text-primary); background:var(--surface);
+}
+.dataTables_wrapper .dataTables_filter input:focus,
+.dataTables_wrapper .dataTables_length select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(59,127,232,.1); }
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label { font-size:.78rem; color:var(--text-secondary); }
+.dataTables_wrapper .dataTables_paginate .paginate_button { border-radius:6px !important; font-size:.78rem !important; font-family:'Sora',sans-serif !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover { background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover { background:rgba(59,127,232,.1) !important; color:var(--accent) !important; border-color:var(--border) !important; }
+div.dataTables_wrapper { padding:.85rem 1.25rem 1rem; }
+
+@media(max-width:767px){
+    .ci-page-header { padding:1.1rem 1.2rem; }
+    .ci-page-header h1 { font-size:1.1rem; }
+    .stat-grid { grid-template-columns:1fr 1fr; }
+}
+
+/* Ajustes para DataTables */
+div.dt-container .dt-layout-row {
+    margin: 0 0 1rem 0;
+    padding: 0 1.25rem;
+}
+div.dt-container .dt-layout-cell {
+    padding: 0;
+}
+div.dt-container .dt-search input {
+    width: 300px !important;
+}
+</style>
+
+<!-- ── CSS DATATABLE 2.x ──────────────────────────────────── -->
+<link rel="stylesheet" href="https://cdn.datatables.net/2.3.7/css/dataTables.dataTables.min.css">
+
+<!-- ── PAGE HEADER ─────────────────────────────────────── -->
+<div class="ci-page-header mb-4">
+    <div class="ci-page-header-inner">
         <div>
-            <h1 class="mb-2"><?= $title ?></h1>
-            <p class="text-muted mb-0">Gerencie todas as turmas da instituição</p>
+            <h1><i class="fas fa-school me-2" style="opacity:.7;font-size:1.1rem;"></i><?= $title ?></h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Turmas</li>
+                </ol>
+            </nav>
         </div>
-        <div>
-            <a href="<?= site_url('admin/classes/export') ?>" class="btn btn-success me-2" title="Exportar lista">
+        <div class="hdr-actions">
+            <a href="<?= site_url('admin/classes/export') ?>" class="hdr-btn success">
                 <i class="fas fa-file-excel"></i> Exportar
             </a>
-              <a href="<?= site_url('admin/classes/classes/form-add') ?>" class="btn btn-primary">
+            <a href="<?= site_url('admin/classes/bulk-create') ?>" class="hdr-btn secondary">
+                <i class="fas fa-layer-group"></i> Lote
+            </a>
+            <a href="<?= site_url('admin/classes/classes/form-add') ?>" class="hdr-btn primary">
                 <i class="fas fa-plus-circle"></i> Nova Turma
             </a>
-            <a href="<?= site_url('admin/classes/bulk-create') ?>" class="btn btn-secondary">
-                <i class="fas fa-plus-circle"></i> Criar Turmas em Lote
-            </a>
         </div>
     </div>
-    <nav aria-label="breadcrumb" class="mt-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">
-                <i class="fas fa-home me-1"></i>Dashboard
-            </a></li>
-            <li class="breadcrumb-item active" aria-current="page">Turmas</li>
-        </ol>
-    </nav>
 </div>
 
-<!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
-<!-- Cards de Estatísticas -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-white-50 mb-1">Total de Turmas</h6>
-                        <h2 class="mb-0"><?= $totalClasses ?? 0 ?></h2>
-                        <small>Cadastradas no sistema</small>
-                    </div>
-                    <i class="fas fa-school fa-3x text-white-50"></i>
-                </div>
-            </div>
-        </div>
+<!-- ── FILTROS ────────────────────────────────────────── -->
+<div class="ci-card">
+    <div class="ci-card-header">
+        <div class="ci-card-title"><i class="fas fa-filter"></i> Filtros</div>
     </div>
-    
-    <div class="col-md-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-white-50 mb-1">Turmas Ativas</h6>
-                        <h2 class="mb-0"><?= $activeClasses ?? 0 ?></h2>
-                        <small>Em funcionamento</small>
-                    </div>
-                    <i class="fas fa-check-circle fa-3x text-white-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-white-50 mb-1">Total de Alunos</h6>
-                        <h2 class="mb-0"><?= $totalStudents ?? 0 ?></h2>
-                        <small>Matriculados</small>
-                    </div>
-                    <i class="fas fa-users fa-3x text-white-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="text-white-50 mb-1">Vagas Disponíveis</h6>
-                        <h2 class="mb-0"><?= $availableSeats ?? 0 ?></h2>
-                        <small>Em todas as turmas</small>
-                    </div>
-                    <i class="fas fa-chair fa-3x text-white-50"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Filtros Avançados -->
-<div class="card mb-4">
-    <div class="card-header bg-white">
-        <h5 class="mb-0">
-            <i class="fas fa-filter me-2 text-primary"></i>
-            Filtros Avançados
-        </h5>
-    </div>
-    <div class="card-body">
-        <form method="get" class="row g-3">
-            <div class="col-md-2">
-                <label for="academic_year" class="form-label fw-semibold">Ano Letivo</label>
-                <select class="form-select" id="academic_year" name="academic_year">
-                    <option value="">Todos</option>
-                    <?php if (!empty($academicYears)): ?>
-                        <?php foreach ($academicYears as $year): ?>
-                            <option value="<?= $year->id ?>" <?= $selectedYear == $year->id ? 'selected' : '' ?>>
-                                <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-            
-            <div class="col-md-2">
-                <label for="grade_level" class="form-label fw-semibold">Nível de Ensino</label>
-                <select class="form-select" id="grade_level" name="grade_level">
-                    <option value="">Todos</option>
-                    <?php if (!empty($gradeLevels)): ?>
-                        <?php foreach ($gradeLevels as $level): ?>
-                            <option value="<?= $level->id ?>" <?= $selectedLevel == $level->id ? 'selected' : '' ?>>
-                                <?= $level->level_name ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-            
-            <!-- FILTRO: Curso (aparece apenas para Ensino Médio) -->
-            <div class="col-md-2" id="courseFilterContainer" style="<?= (isset($selectedLevel) && $selectedLevel >= 13 && $selectedLevel <= 16) ? 'display:block' : 'display:none' ?>">
-                <label for="course" class="form-label fw-semibold">Curso</label>
-                <select class="form-select" id="course" name="course">
-                    <option value="">Todos os cursos</option>
-                    <option value="0" <?= ($selectedCourse === '0' || $selectedCourse === 0) ? 'selected' : '' ?>>Ensino Geral</option>
-                    <?php if (!empty($courses)): ?>
-                        <?php foreach ($courses as $course): ?>
-                            <option value="<?= $course->id ?>" <?= $selectedCourse == $course->id ? 'selected' : '' ?>>
-                                <?= $course->course_name ?> (<?= $course->course_code ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-            
-            <div class="col-md-2">
-                <label for="shift" class="form-label fw-semibold">Turno</label>
-                <select class="form-select" id="shift" name="shift">
-                    <option value="">Todos</option>
-                    <option value="Manhã" <?= $selectedShift == 'Manhã' ? 'selected' : '' ?>>Manhã</option>
-                    <option value="Tarde" <?= $selectedShift == 'Tarde' ? 'selected' : '' ?>>Tarde</option>
-                    <option value="Noite" <?= $selectedShift == 'Noite' ? 'selected' : '' ?>>Noite</option>
-                    <option value="Integral" <?= $selectedShift == 'Integral' ? 'selected' : '' ?>>Integral</option>
-                </select>
-            </div>
-            
-            <div class="col-md-2">
-                <label for="status" class="form-label fw-semibold">Status</label>
-                <select class="form-select" id="status" name="status">
-                    <option value="">Todos</option>
-                    <option value="active" <?= $selectedStatus == 'active' ? 'selected' : '' ?>>Ativas</option>
-                    <option value="inactive" <?= $selectedStatus == 'inactive' ? 'selected' : '' ?>>Inativas</option>
-                </select>
-            </div>
-            
-            <div class="col-md-2">
-                <label for="teacher" class="form-label fw-semibold">Professor</label>
-                <select class="form-select" id="teacher" name="teacher">
-                    <option value="">Todos</option>
-                    <?php if (!empty($teachers)): ?>
-                        <?php foreach ($teachers as $teacher): ?>
-                            <option value="<?= $teacher->id ?>" <?= $selectedTeacher == $teacher->id ? 'selected' : '' ?>>
-                                <?= $teacher->first_name ?> <?= $teacher->last_name ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
-            
-            <div class="col-12 d-flex align-items-end justify-content-end mt-3">
-                <button type="submit" class="btn btn-primary me-2">
-                    <i class="fas fa-filter me-1"></i>Filtrar
-                </button>
-                <a href="<?= site_url('admin/classes/classes') ?>" class="btn btn-secondary">
-                    <i class="fas fa-undo me-1"></i>Limpar Filtros
-                </a>
-            </div>
-        </form>
-        
-        <!-- Badges de filtros ativos -->
-        <?php if (!empty($selectedYear) || !empty($selectedLevel) || !empty($selectedCourse) || !empty($selectedShift) || !empty($selectedStatus) || !empty($selectedTeacher)): ?>
-            <div class="mt-3">
-                <hr>
-                <div class="d-flex flex-wrap gap-2">
-                    <span class="text-muted me-2"><i class="fas fa-filter"></i> Filtros ativos:</span>
-                    
-                    <?php if (!empty($selectedYear)): ?>
-                        <?php foreach ($academicYears as $year): ?>
-                            <?php if ($year->id == $selectedYear): ?>
-                                <span class="badge bg-primary p-2">
-                                    <i class="fas fa-calendar me-1"></i>Ano: <?= $year->year_name ?>
-                                    <a href="<?= site_url('admin/classes/classes?remove=year') ?>" class="text-white ms-1">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </span>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($selectedLevel)): ?>
-                        <?php foreach ($gradeLevels as $level): ?>
-                            <?php if ($level->id == $selectedLevel): ?>
-                                <span class="badge bg-success p-2">
-                                    <i class="fas fa-layer-group me-1"></i>Nível: <?= $level->level_name ?>
-                                    <a href="<?= site_url('admin/classes/classes?remove=level') ?>" class="text-white ms-1">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </span>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($selectedCourse) && $selectedCourse != 0): ?>
-                        <?php foreach ($courses as $course): ?>
-                            <?php if ($course->id == $selectedCourse): ?>
-                                <span class="badge bg-info p-2">
-                                    <i class="fas fa-graduation-cap me-1"></i>Curso: <?= $course->course_name ?>
-                                    <a href="<?= site_url('admin/classes/classes?remove=course') ?>" class="text-white ms-1">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </span>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($selectedShift)): ?>
-                        <span class="badge bg-warning text-dark p-2">
-                            <i class="fas fa-clock me-1"></i>Turno: <?= $selectedShift ?>
-                            <a href="<?= site_url('admin/classes/classes?remove=shift') ?>" class="text-dark ms-1">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($selectedStatus)): ?>
-                        <span class="badge bg-secondary p-2">
-                            <i class="fas fa-power-off me-1"></i>Status: <?= $selectedStatus == 'active' ? 'Ativas' : 'Inativas' ?>
-                            <a href="<?= site_url('admin/classes/classes?remove=status') ?>" class="text-white ms-1">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        </span>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-<!-- Data Table -->
-<div class="card">
-    <div class="card-header bg-white">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-                <i class="fas fa-list me-2 text-primary"></i>
-                Lista de Turmas
-                <span class="badge bg-secondary ms-2"><?= $totalFiltered ?? count($classes) ?> registros</span>
-            </h5>
+    <div class="ci-card-body">
+        <div class="filter-grid">
             <div>
-                <button class="btn btn-sm btn-outline-secondary me-2" onclick="window.print()">
-                    <i class="fas fa-print me-1"></i>Imprimir
-                </button>
-                
-                <!-- Botão para atribuição rápida (quando uma turma está selecionada no filtro) -->
-                <?php if (isset($selectedClassId) && $selectedClassId): ?>
-                    <a href="<?= site_url('admin/classes/class-subjects/assign-teachers/' . $selectedClassId) ?>" 
-                       class="btn btn-sm btn-success">
-                        <i class="fas fa-chalkboard-teacher me-1"></i>Atribuir Professores
-                    </a>
-                <?php endif; ?>
+                <label class="filter-label">Ano Letivo</label>
+                <select class="filter-select" id="academic_year">
+                    <option value="">Todos</option>
+                    <?php foreach ($academicYears as $year): ?>
+                        <option value="<?= $year->id ?>" <?= $year->is_current ? 'selected' : '' ?>>
+                            <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="filter-label">Nível de Ensino</label>
+                <select class="filter-select" id="grade_level">
+                    <option value="">Todos</option>
+                    <?php foreach ($gradeLevels ?? [] as $level): ?>
+                        <option value="<?= $level->id ?>">
+                            <?= esc($level->level_name) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div id="courseFilterWrap">
+                <label class="filter-label">Curso</label>
+                <select class="filter-select" id="course">
+                    <option value="">Todos</option>
+                    <option value="0">Ensino Geral</option>
+                    <?php foreach ($courses ?? [] as $c): ?>
+                        <option value="<?= $c->id ?>">
+                            <?= esc($c->course_name) ?> (<?= esc($c->course_code) ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="filter-label">Turno</label>
+                <select class="filter-select" id="shift">
+                    <option value="">Todos</option>
+                    <option value="Manhã">Manhã</option>
+                    <option value="Tarde">Tarde</option>
+                    <option value="Noite">Noite</option>
+                    <option value="Integral">Integral</option>
+                </select>
+            </div>
+            <div>
+                <label class="filter-label">Estado</label>
+                <select class="filter-select" id="status">
+                    <option value="">Todos</option>
+                    <option value="active">Ativas</option>
+                    <option value="inactive">Inativas</option>
+                </select>
+            </div>
+            <div>
+                <label class="filter-label">Professor</label>
+                <select class="filter-select" id="teacher">
+                    <option value="">Todos</option>
+                    <?php foreach ($teachers ?? [] as $t): ?>
+                        <option value="<?= $t->id ?>">
+                            <?= esc($t->first_name) ?> <?= esc($t->last_name) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table id="classesTable" class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Turma</th>
-                        <th>Código</th>
-                        <th>Nível</th>
-                        <th>Curso</th>
-                        <th>Ano Letivo</th>
-                        <th>Turno</th>
-                        <th>Sala</th>
-                        <th>Capacidade</th>
-                        <th>Alunos</th>
-                        <th>Vagas</th>
-                        <th>Professor</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($classes)): ?>
-                        <?php foreach ($classes as $class): 
-                            // Calcular ocupação
-                            $enrolledCount = $class->enrolled_count ?? 0;
-                            $occupancyPercentage = $class->capacity > 0 ? round(($enrolledCount / $class->capacity) * 100) : 0;
-                            $availableSeats = $class->capacity - $enrolledCount;
-                        ?>
-                            <tr>
-                                <td><span class="badge bg-secondary"><?= $class->id ?></span></td>
-                                <td>
-                                    <strong><?= $class->class_name ?></strong>
-                                </td>
-                                <td><span class="badge bg-info"><?= $class->class_code ?></span></td>
-                                <td><?= $class->level_name ?></td>
-                                <td>
-                                    <?php if (isset($class->course_name) && $class->course_name): ?>
-                                        <span class="badge bg-primary" title="<?= $class->course_type ?? '' ?>">
-                                            <?= $class->course_name ?>
-                                        </span>
-                                        <br>
-                                        <small class="text-muted"><?= $class->course_code ?></small>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary">Ensino Geral</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= $class->year_name ?></td>
-                                <td><?= $class->class_shift ?></td>
-                                <td><?= $class->class_room ?: '-' ?></td>
-                                <td class="text-center">
-                                    <span class="badge bg-info"><?= $class->capacity ?></span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary"><?= $enrolledCount ?></span>
-                                </td>
-                                <td>
-                                    <?php if ($availableSeats > 0): ?>
-                                        <span class="badge bg-success"><?= $availableSeats ?> vagas</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-danger">Lotada</span>
-                                    <?php endif; ?>
-                                    <br>
-                                    <small class="text-muted"><?= $occupancyPercentage ?>% ocupada</small>
-                                </td>
-                                <td>
-                                    <?php if ($class->class_teacher_id): ?>
-                                        <strong><?= $class->teacher_first_name ?> <?= $class->teacher_last_name ?></strong>
-                                    <?php else: ?>
-                                        <span class="badge bg-warning text-dark">Não atribuído</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($class->is_active): ?>
-                                        <span class="badge bg-success">Ativa</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-danger">Inativa</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="<?= site_url('admin/classes/classes/view/' . $class->id) ?>" 
-                                           class="btn btn-sm btn-outline-success" 
-                                           title="Ver Detalhes"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="<?= site_url('admin/classes/classes/form-edit/' . $class->id) ?>" 
-                                           class="btn btn-sm btn-outline-info" 
-                                           title="Editar"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="<?= site_url('admin/classes/classes/list-students/' . $class->id) ?>" 
-                                           class="btn btn-sm btn-outline-primary" 
-                                           title="Listar Alunos"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fas fa-users"></i>
-                                        </a>
-                                        <a href="<?= site_url('admin/classes/class-subjects?class=' . $class->id) ?>" 
-                                           class="btn btn-sm btn-outline-warning" 
-                                           title="Disciplinas"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fas fa-book"></i>
-                                        </a>
-                                        <a href="<?= site_url('admin/classes/class-subjects/assign-teachers/' . $class->id) ?>" 
-                                           class="btn btn-sm btn-outline-success" 
-                                           title="Atribuir Professores"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fas fa-chalkboard-teacher"></i>
-                                        </a>
-                                        <a href="<?= site_url('admin/classes/schedule/' . $class->id) ?>" 
-                                           class="btn btn-sm btn-outline-secondary" 
-                                           title="Horário"
-                                           data-bs-toggle="tooltip">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </a>
-                                        <?php if ($class->is_active): ?>
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-outline-danger" 
-                                                    onclick="confirmDeactivate(<?= $class->id ?>, '<?= $class->class_name ?>')"
-                                                    title="Desativar"
-                                                    data-bs-toggle="tooltip">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        <?php else: ?>
-                                            <a href="<?= site_url('admin/classes/classes/activate/' . $class->id) ?>" 
-                                               class="btn btn-sm btn-outline-success" 
-                                               title="Reativar"
-                                               data-bs-toggle="tooltip"
-                                               onclick="return confirm('Tem certeza que deseja reativar esta turma?')">
-                                                <i class="fas fa-check-circle"></i>
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="14" class="text-center py-5">
-                                <i class="fas fa-school fa-4x text-muted mb-3"></i>
-                                <h5 class="text-muted">Nenhuma turma encontrada</h5>
-                                <p class="text-muted mb-3">
-                                    <?= isset($search) ? 'Tente ajustar os filtros de busca' : 'Comece cadastrando a primeira turma' ?>
-                                </p>
-                                <?php if (!isset($search)): ?>
-                                    <a href="<?= site_url('admin/classes/classes/form-add') ?>" class="btn btn-primary">
-                                        <i class="fas fa-plus-circle me-2"></i>Criar Nova Turma
-                                    </a>
-                                <?php else: ?>
-                                    <a href="<?= site_url('admin/classes/classes') ?>" class="btn btn-secondary">
-                                        <i class="fas fa-undo me-2"></i>Limpar Filtros
-                                    </a>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+        <div class="filter-actions mt-3">
+            <button class="btn-filter apply" id="btnFilter"><i class="fas fa-filter"></i> Filtrar</button>
+            <button class="btn-filter clear" id="btnClear"><i class="fas fa-undo"></i> Limpar</button>
         </div>
-        
-        <!-- Paginação com informações -->
-        <?php if (!empty($classes) && isset($pager)): ?>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <div class="text-muted">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Mostrando <strong><?= count($classes) ?></strong> de <strong><?= $totalFiltered ?? $pager->getTotal() ?></strong> registros
-                </div>
-                <div>
-                    <?= $pager->links() ?>
-                </div>
-            </div>
-        <?php endif; ?>
     </div>
 </div>
 
-<!-- Modal de Confirmação de Desativação -->
+<!-- ── TABLE ──────────────────────────────────────────── -->
+<div class="ci-card">
+    <div class="ci-card-header">
+        <div class="ci-card-title"><i class="fas fa-list"></i> Lista de Turmas</div>
+    </div>
+    <div style="overflow-x:auto; padding: 0 1.25rem 1.25rem;">
+        <table id="classesTable" class="ci-table" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Turma</th>
+                    <th>Nível</th>
+                    <th>Curso</th>
+                    <th>Ano Letivo</th>
+                    <th>Turno</th>
+                    <th>Sala</th>
+                    <th>Capacidade</th>
+                    <th>Alunos</th>
+                    <th>Professor</th>
+                    <th>Estado</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- DataTables preencherá via AJAX -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── MODAL DESATIVAÇÃO ──────────────────────────────── -->
 <div class="modal fade" id="deactivateModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title text-white">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Confirmar Desativação
+        <div class="modal-content" style="border-radius:var(--radius);border:none;overflow:hidden;">
+            <div class="modal-header" style="background:var(--primary);border:none;">
+                <h5 class="modal-title text-white" style="font-size:.95rem;font-weight:700;">
+                    <i class="fas fa-exclamation-triangle me-2" style="color:var(--warning);"></i>Confirmar Desativação
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja desativar a turma <strong id="deactivateClassName"></strong>?</p>
-                
-                <div class="alert alert-warning">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Ao desativar uma turma:</strong>
-                    <ul class="mt-2 mb-0">
-                        <li>Os alunos não poderão ser matriculados nesta turma</li>
-                        <li>As disciplinas atribuídas serão desativadas</li>
-                        <li>Os dados históricos serão preservados</li>
-                        <li>Não será possível lançar novas notas ou presenças</li>
-                    </ul>
+            <div class="modal-body" style="padding:1.4rem;">
+                <p style="font-size:.88rem;">Tem certeza que deseja desativar a turma <strong id="deactivateClassName"></strong>?</p>
+                <div style="background:rgba(232,160,32,.08);border:1px solid rgba(232,160,32,.25);border-radius:var(--radius-sm);padding:.85rem 1rem;font-size:.8rem;color:var(--text-secondary);">
+                    <i class="fas fa-info-circle me-1" style="color:var(--warning);"></i>
+                    <strong>Ao desativar:</strong> matrículas bloqueadas, disciplinas desativadas, dados históricos preservados.
+                    <div style="margin-top:.4rem;color:var(--text-muted);font-size:.75rem;"><i class="fas fa-undo me-1"></i>Esta acção pode ser revertida.</div>
                 </div>
-                
-                <p class="text-muted small mt-3">
-                    <i class="fas fa-clock me-1"></i>
-                    Esta ação pode ser revertida posteriormente.
-                </p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <a href="#" id="confirmDeactivateBtn" class="btn btn-warning">
-                    <i class="fas fa-trash me-1"></i>Desativar Turma
+            <div class="modal-footer" style="border-top:1px solid var(--border);padding:.85rem 1.25rem;">
+                <button type="button" class="btn-filter clear" data-bs-dismiss="modal">Cancelar</button>
+                <a href="#" id="confirmDeactivateBtn" class="btn-filter" style="background:var(--danger);color:#fff;">
+                    <i class="fas fa-trash me-1"></i>Desativar
                 </a>
             </div>
         </div>
@@ -508,55 +381,232 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<!-- DataTables -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<!-- ── JS DATATABLE 2.x ───────────────────────────────────── -->
+<script src="https://cdn.datatables.net/2.3.7/js/dataTables.min.js"></script>
 
 <script>
-$(document).ready(function() {
-    // Inicializar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
+$(document).ready(function () {
     
-    // Inicializar DataTable (apenas para ordenação e busca, não para paginação)
-    $('#classesTable').DataTable({
+    // Inicializar DataTable com AJAX
+    let table = new DataTable('#classesTable', {
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '<?= site_url('admin/classes/classes/get-table-data') ?>',
+            type: 'POST',
+            data: function(d) {
+                // Adicionar filtros ao request
+                d.academic_year = $('#academic_year').val();
+                d.grade_level = $('#grade_level').val();
+                d.course = $('#course').val();
+                d.shift = $('#shift').val();
+                d.status = $('#status').val();
+                d.teacher = $('#teacher').val();
+                d['<?= csrf_token() ?>'] = '<?= csrf_hash() ?>';
+            }
+        },
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
+            url: '//cdn.datatables.net/plug-ins/2.3.7/i18n/pt-PT.json'
         },
         order: [[1, 'asc']],
-        pageLength: 25,
-        paging: false, // Usar paginação do CI
-        info: false,
         columnDefs: [
-            { orderable: false, targets: [13] } // Coluna de ações
-        ]
+            { 
+                targets: 11, // Coluna de ações
+                orderable: false,
+                className: 'text-center',
+                render: function(data, type, row) {
+                    // Renderizar 8 botões de ação
+                    let buttons = `
+                        <div class="action-group">
+                            <!-- 1. Ver -->
+                            <a href="<?= site_url('admin/classes/classes/view/') ?>/${row.id}" 
+                               class="row-btn view" 
+                               title="Ver Detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            
+                            <!-- 2. Editar -->
+                            <a href="<?= site_url('admin/classes/classes/form-edit/') ?>/${row.id}" 
+                               class="row-btn edit" 
+                               title="Editar Turma">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            <!-- 3. Alunos -->
+                            <a href="<?= site_url('admin/classes/classes/list-students/') ?>/${row.id}" 
+                               class="row-btn students" 
+                               title="Listar Alunos">
+                                <i class="fas fa-users"></i>
+                            </a>
+                            
+                            <!-- 4. Disciplinas -->
+                            <a href="<?= site_url('admin/classes/class-subjects?class=') ?>${row.id}" 
+                               class="row-btn subjects" 
+                               title="Disciplinas da Turma">
+                                <i class="fas fa-book"></i>
+                            </a>
+                            
+                            <!-- 5. Atribuir Professores -->
+                            <a href="<?= site_url('admin/classes/class-subjects/assign-teachers/') ?>/${row.id}" 
+                               class="row-btn teachers" 
+                               title="Atribuir Professores">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </a>
+                            
+                            <!-- 6. Horário -->
+                            <a href="<?= site_url('admin/classes/schedule/view/') ?>${row.id}" 
+                               class="row-btn schedule" 
+                               title="Ver Horário">
+                                <i class="fas fa-calendar-alt"></i>
+                            </a>
+                    `;
+                    
+                    // 7. Desativar / 8. Reativar (condicional)
+                    if (row.is_active == 1) {
+                        buttons += `
+                            <button class="row-btn del" 
+                                    onclick="confirmDeactivate(${row.id}, '${row.class_name.replace(/'/g, "\\'")}')" 
+                                    title="Desativar Turma">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                    } else {
+                        buttons += `
+                            <a href="<?= site_url('admin/classes/classes/activate/') ?>/${row.id}" 
+                               class="row-btn activate" 
+                               title="Reativar Turma"
+                               onclick="return confirm('Tem certeza que deseja reativar esta turma?')">
+                                <i class="fas fa-check-circle"></i>
+                            </a>
+                        `;
+                    }
+                    
+                    buttons += `</div>`;
+                    return buttons;
+                }
+            },
+            {
+                targets: 7, // Capacidade
+                render: function(data) {
+                    return `<span class="code-badge">${data || 0}</span>`;
+                }
+            },
+            {
+                targets: 8, // Alunos
+                render: function(data) {
+                    return `<span style="font-family:'JetBrains Mono',monospace;font-weight:700;">${data || 0}</span>`;
+                }
+            },
+            {
+                targets: 5, // Turno
+                render: function(data) {
+                    let shiftClass = '';
+                    if (data === 'Manhã') shiftClass = 'shift-manha';
+                    else if (data === 'Tarde') shiftClass = 'shift-tarde';
+                    else if (data === 'Noite') shiftClass = 'shift-noite';
+                    else if (data === 'Integral') shiftClass = 'shift-integral';
+                    
+                    return `<span class="shift-badge ${shiftClass}"><i class="fas fa-clock" style="font-size:.6rem;"></i>${data || ''}</span>`;
+                }
+            },
+            {
+                targets: 3, // Curso
+                render: function(data, type, row) {
+                    if (row.course_name) {
+                        return `<span class="course-pill">${row.course_name}</span>`;
+                    } else {
+                        return `<span class="general-pill">Geral</span>`;
+                    }
+                }
+            },
+            {
+                targets: 10, // Estado
+                render: function(data) {
+                    if (data == 1) {
+                        return `<span class="status-dot st-active"><span class="sd sd-active"></span>Ativa</span>`;
+                    } else {
+                        return `<span class="status-dot st-inactive"><span class="sd sd-inactive"></span>Inativa</span>`;
+                    }
+                }
+            }
+        ],
+        columns: [
+            { data: 'id' },
+            { 
+                data: null,
+                render: function(data) {
+                    return `<span class="class-name">${data.class_name}</span><span class="code-badge">${data.class_code}</span>`;
+                }
+            },
+            { data: 'level_name' },
+            { data: 'course_name' },
+            { data: 'year_name' },
+            { data: 'class_shift' },
+            { data: 'class_room' },
+            { data: 'capacity' },
+            { data: 'enrolled_count' },
+            { 
+                data: null,
+                render: function(data) {
+                    if (data.teacher_first_name) {
+                        return `<span class="teacher-name">${data.teacher_first_name} ${data.teacher_last_name}</span>`;
+                    } else {
+                        return `<span class="no-teacher"><i class="fas fa-exclamation-triangle me-1" style="font-size:.6rem;"></i>Não atribuído</span>`;
+                    }
+                }
+            },
+            { data: 'is_active' },
+            { data: null }
+        ],
+        pageLength: 25,
+        lengthMenu: [10, 25, 50, 100],
+        layout: {
+            topStart: 'pageLength',
+            topEnd: 'search',
+            bottomStart: 'info',
+            bottomEnd: 'paging'
+        }
     });
-});
 
-// Script para mostrar/esconder campo de curso baseado no nível selecionado
-document.getElementById('grade_level')?.addEventListener('change', function() {
-    const levelId = parseInt(this.value);
-    const courseContainer = document.getElementById('courseFilterContainer');
+    // Filtrar ao clicar no botão
+    $('#btnFilter').on('click', function() {
+        table.ajax.reload();
+    });
     
-    // Verificar se o nível é do Ensino Médio (IDs 13-16)
-    if (levelId >= 13 && levelId <= 16) {
-        courseContainer.style.display = 'block';
-    } else {
-        courseContainer.style.display = 'none';
-        document.getElementById('course').value = ''; // Limpar seleção
-    }
-});
+    // Filtrar ao mudar qualquer select
+    $('#academic_year, #grade_level, #course, #shift, #status, #teacher').on('change', function () {
+        table.ajax.reload();
+    });
+    
+    // Limpar filtros
+    $('#btnClear').on('click', function() {
+        $('#academic_year').val('');
+        $('#grade_level').val('');
+        $('#course').val('');
+        $('#shift').val('');
+        $('#status').val('');
+        $('#teacher').val('');
+        table.ajax.reload();
+    });
 
-// Auto-submit dos filtros
-let filterTimeout;
-$('#academic_year, #grade_level, #course, #shift, #status, #teacher').on('change', function() {
-    clearTimeout(filterTimeout);
-    filterTimeout = setTimeout(() => {
-        $(this).closest('form').submit();
-    }, 500);
+    // Mostrar/esconder filtro de curso baseado no nível de ensino
+    $('#grade_level').on('change', function () {
+        const id = parseInt(this.value);
+        const wrap = document.getElementById('courseFilterWrap');
+        if (id >= 13 && id <= 16) {
+            wrap.style.display = 'block';
+        } else {
+            wrap.style.display = 'none';
+            $('#course').val('');
+        }
+    });
+    
+    // Trigger inicial para o filtro de curso
+    if ($('#grade_level').val() >= 13 && $('#grade_level').val() <= 16) {
+        $('#courseFilterWrap').show();
+    } else {
+        $('#courseFilterWrap').hide();
+    }
 });
 
 // Função para confirmar desativação
@@ -565,82 +615,5 @@ function confirmDeactivate(id, name) {
     document.getElementById('confirmDeactivateBtn').href = '<?= site_url('admin/classes/classes/delete/') ?>' + id;
     new bootstrap.Modal(document.getElementById('deactivateModal')).show();
 }
-
-// Atualizar estatísticas via AJAX (opcional)
-function refreshStats() {
-    $.get('<?= site_url('admin/classes/get-stats') ?>', function(data) {
-        $('#totalClasses').text(data.totalClasses);
-        $('#activeClasses').text(data.activeClasses);
-        $('#totalStudents').text(data.totalStudents);
-        $('#availableSeats').text(data.availableSeats);
-    });
-}
-
-// Chamar refresh a cada 30 segundos (opcional)
-// setInterval(refreshStats, 30000);
 </script>
-
-<style>
-/* Animações */
-.page-header {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.card {
-    transition: all 0.2s;
-    border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-/* Estilo para os botões de ação */
-.btn-group .btn {
-    transition: all 0.2s;
-    margin: 0 2px;
-}
-
-.btn-group .btn:hover {
-    transform: translateY(-2px);
-    z-index: 10;
-}
-
-/* Badges personalizados */
-.badge {
-    font-weight: 500;
-    padding: 0.5em 0.8em;
-}
-
-/* Tabela responsiva */
-.table td {
-    vertical-align: middle;
-}
-
-/* Filtros ativos */
-.badge a {
-    text-decoration: none;
-}
-
-.badge a:hover {
-    opacity: 0.8;
-}
-
-/* Loading state */
-.loading {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-/* Animações para as linhas da tabela */
-@keyframes rowFadeIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-tbody tr {
-    animation: rowFadeIn 0.2s ease-out;
-}
-</style>
 <?= $this->endSection() ?>

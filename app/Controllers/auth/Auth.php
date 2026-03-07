@@ -7,6 +7,7 @@ use App\Models\UserModel;
 use App\Models\RoleModel;
 use App\Models\PermissionModel;
 use App\Models\RolePermissionModel;
+use App\Models\AcademicYearModel;
 
 class Auth extends BaseController
 {
@@ -14,6 +15,7 @@ class Auth extends BaseController
     protected $roleModel;
     protected $permissionModel;
     protected $rolePermissionModel;
+    protected $academicYearModel;
     
     public function __construct()
     {
@@ -21,6 +23,7 @@ class Auth extends BaseController
         $this->roleModel = new RoleModel();
         $this->permissionModel = new PermissionModel();
         $this->rolePermissionModel = new RolePermissionModel();
+        $this->academicYearModel = new AcademicYearModel();
     }
     
     /**
@@ -168,6 +171,10 @@ class Auth extends BaseController
             // Buscar permissões específicas ou departamentos
             // $additionalData['department'] = ...
         }
+
+        // Após validar o login
+        $academicYearId = setting('current_academic_year');
+        $academicYear = $this->academicYearModel->find($academicYearId);
         
         // Set session data COMPLETA
         $sessionData = array_merge([
@@ -183,7 +190,12 @@ class Auth extends BaseController
             'user_type' => $user->user_type,
             'permissions' => $permissionKeys,
             'logged_in' => true,
-            'last_login' => date('Y-m-d H:i:s')
+            'last_login' => date('Y-m-d H:i:s'),
+
+            // Dados acadêmicos
+            'academic_year_id' => $academicYearId,
+            'academic_year_name' => $academicYear ? $academicYear->year_name : null,
+            'semester_id' => setting('current_semester')
         ], $additionalData);
         
         $this->session->set($sessionData);

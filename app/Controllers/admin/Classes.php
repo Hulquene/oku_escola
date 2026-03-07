@@ -1,5 +1,5 @@
 <?php
-// app/Controllers/admin/Classes.php - Atualizado
+// app/Controllers/admin/Classes.php
 
 namespace App\Controllers\admin;
 
@@ -9,7 +9,7 @@ use App\Models\GradeLevelModel;
 use App\Models\AcademicYearModel;
 use App\Models\UserModel;
 use App\Models\EnrollmentModel;
-use App\Models\CourseModel; // <-- NOVO
+use App\Models\CourseModel;
 
 class Classes extends BaseController
 {
@@ -18,7 +18,7 @@ class Classes extends BaseController
     protected $academicYearModel;
     protected $userModel;
     protected $enrollmentModel;
-    protected $courseModel; // <-- NOVO
+    protected $courseModel;
     
     public function __construct()
     {
@@ -27,79 +27,230 @@ class Classes extends BaseController
         $this->academicYearModel = new AcademicYearModel();
         $this->userModel = new UserModel();
         $this->enrollmentModel = new EnrollmentModel();
-        $this->courseModel = new CourseModel(); // <-- NOVO
+        $this->courseModel = new CourseModel();
+        
+        helper(['form', 'url']);
     }
     
     /**
-     * List classes - Atualizado para incluir informações de curso
+     * List classes - método único
      */
     public function index()
     {
+        // Se for requisição AJAX, retorna JSON (GET ou POST)
+        if ($this->request->isAJAX()) {
+            return $this->getDataTablesData();
+        }
+        
+        // Se não for AJAX, carrega a view
+        return $this->loadIndexView();
+    }
+    
+    /**
+     * Carrega a view com os filtros
+     */
+    private function loadIndexView()
+    {
         $data['title'] = 'Turmas';
         
-        $academicYearId = $this->request->getGet('academic_year');
-        $gradeLevelId = $this->request->getGet('grade_level');
-        $courseId = $this->request->getGet('course'); // <-- NOVO FILTRO
-        $shift = $this->request->getGet('shift');
-        $status = $this->request->getGet('status');
-        
-        $builder = $this->classModel
-            ->select('
-                tbl_classes.*, 
-                tbl_grade_levels.level_name, 
-                tbl_academic_years.year_name, 
-                tbl_users.first_name as teacher_first_name, 
-                tbl_users.last_name as teacher_last_name,
-                tbl_courses.course_name,
-                tbl_courses.course_code,
-                tbl_courses.course_type
-            ')
-            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
-            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-            ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
-            ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left'); // <-- NOVO JOIN
-        
-        if ($academicYearId) {
-            $builder->where('tbl_classes.academic_year_id', $academicYearId);
-        }
-        
-        if ($gradeLevelId) {
-            $builder->where('tbl_classes.grade_level_id', $gradeLevelId);
-        }
-        
-        if ($courseId) { // <-- NOVO FILTRO
-            $builder->where('tbl_classes.course_id', $courseId);
-        }
-        
-        if ($shift) {
-            $builder->where('tbl_classes.class_shift', $shift);
-        }
-        
-        if ($status == 'active') {
-            $builder->where('tbl_classes.is_active', 1);
-        } elseif ($status == 'inactive') {
-            $builder->where('tbl_classes.is_active', 0);
-        }
-        
-        $data['classes'] = $builder->orderBy('tbl_academic_years.start_date', 'DESC')
-            ->orderBy('tbl_classes.class_name', 'ASC')
-            ->paginate(10);
-        
-        $data['pager'] = $this->classModel->pager;
-        
-        // Filters
+        // Dados para os filtros
         $data['academicYears'] = $this->academicYearModel->findAll();
         $data['gradeLevels'] = $this->gradeLevelModel->getActive();
-        $data['courses'] = $this->courseModel->getHighSchoolCourses(); // <-- NOVO
-        $data['selectedYear'] = $academicYearId;
-        $data['selectedLevel'] = $gradeLevelId;
-        $data['selectedCourse'] = $courseId; // <-- NOVO
-        $data['selectedShift'] = $shift;
-        $data['selectedStatus'] = $status;
+        $data['courses'] = $this->courseModel->getHighSchoolCourses();
+        
+        // Valores selecionados nos filtros (via GET)
+        $data['selectedYear'] = $this->request->getGet('academic_year');
+        $data['selectedLevel'] = $this->request->getGet('grade_level');
+        $data['selectedCourse'] = $this->request->getGet('course');
+        $data['selectedShift'] = $this->request->getGet('shift');
+        $data['selectedStatus'] = $this->request->getGet('status');
+        
+        // Professores para o filtro
+        $data['teachers'] = $this->getTeachers();
+        
+        $data['selectedTeacher'] = $this->request->getGet('teacher');
         
         return view('admin/classes/classes/index', $data);
     }
-
+    
+    /**
+     * NOVO MÉTODO: Processa a requisição AJAX do DataTables via POST
+     */
+    public function getTableData()
+    {
+        try {
+            $request = service('request');
+            
+            // Parâmetros do DataTables - via POST
+            $draw = (int)($request->getPost('draw') ?? 0);
+            $start = (int)($request->getPost('start') ?? 0);
+            $length = (int)($request->getPost('length') ?? 25);
+            
+            // TRATAMENTO CORRETO DO SEARCH
+            $search = $request->getPost('search');
+            $searchValue = is_array($search) ? ($search['value'] ?? '') : '';
+            
+            // TRATAMENTO CORRETO DO ORDER
+            $order = $request->getPost('order');
+            $orderColumnIndex = 1; // padrão
+            $orderDir = 'asc'; // padrão
+            
+            if (is_array($order) && isset($order[0])) {
+                $orderColumnIndex = (int)($order[0]['column'] ?? 1);
+                $orderDir = $order[0]['dir'] ?? 'asc';
+            }
+            
+            // Filtros adicionais (via POST)
+            $academicYearId = $request->getPost('academic_year');
+            $gradeLevelId = $request->getPost('grade_level');
+            $courseId = $request->getPost('course');
+            $shift = $request->getPost('shift');
+            $status = $request->getPost('status');
+            $teacherId = $request->getPost('teacher');
+            
+            // Mapeamento de colunas
+            $columns = [
+                0 => 'tbl_classes.id',
+                1 => 'tbl_classes.class_name',
+                2 => 'tbl_grade_levels.level_name',
+                3 => 'tbl_courses.course_name',
+                4 => 'tbl_academic_years.year_name',
+                5 => 'tbl_classes.class_shift',
+                6 => 'tbl_classes.class_room',
+                7 => 'tbl_classes.capacity',
+                8 => 'enrolled_count',
+                9 => 'teacher_name',
+                10 => 'tbl_classes.is_active',
+            ];
+            
+            $orderColumn = $columns[$orderColumnIndex] ?? 'tbl_classes.class_name';
+            
+            // Subconsulta para contar alunos matriculados
+            $enrollmentSubquery = '(SELECT COUNT(*) FROM tbl_enrollments WHERE class_id = tbl_classes.id AND status = "Ativo") as enrolled_count';
+            
+            $builder = $this->classModel
+                ->select('
+                    tbl_classes.*, 
+                    tbl_grade_levels.level_name, 
+                    tbl_grade_levels.education_level,
+                    tbl_academic_years.year_name,
+                    tbl_academic_years.start_date,
+                    tbl_users.first_name as teacher_first_name, 
+                    tbl_users.last_name as teacher_last_name,
+                    tbl_courses.course_name,
+                    tbl_courses.course_code,
+                    tbl_courses.course_type,
+                    CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as teacher_name,
+                    ' . $enrollmentSubquery . '
+                ')
+                ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+                ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+                ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
+                ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left');
+            
+            // Aplicar filtros
+            if (!empty($academicYearId)) {
+                $builder->where('tbl_classes.academic_year_id', $academicYearId);
+            }
+            
+            if (!empty($gradeLevelId)) {
+                $builder->where('tbl_classes.grade_level_id', $gradeLevelId);
+            }
+            
+            if (isset($courseId) && $courseId !== '') {
+                if ($courseId === '0') {
+                    $builder->where('tbl_classes.course_id', null);
+                } else {
+                    $builder->where('tbl_classes.course_id', $courseId);
+                }
+            }
+            
+            if (!empty($shift)) {
+                $builder->where('tbl_classes.class_shift', $shift);
+            }
+            
+            if (!empty($teacherId)) {
+                $builder->where('tbl_classes.class_teacher_id', $teacherId);
+            }
+            
+            if ($status == 'active') {
+                $builder->where('tbl_classes.is_active', 1);
+            } elseif ($status == 'inactive') {
+                $builder->where('tbl_classes.is_active', 0);
+            }
+            
+            // Aplicar busca global
+            if (!empty($searchValue)) {
+                $builder->groupStart()
+                    ->like('tbl_classes.class_name', $searchValue)
+                    ->orLike('tbl_classes.class_code', $searchValue)
+                    ->orLike('tbl_grade_levels.level_name', $searchValue)
+                    ->orLike('tbl_courses.course_name', $searchValue)
+                    ->orLike('tbl_academic_years.year_name', $searchValue)
+                    ->orLike('tbl_classes.class_shift', $searchValue)
+                    ->orLike('tbl_classes.class_room', $searchValue)
+                    ->orLike('CONCAT(tbl_users.first_name, " ", tbl_users.last_name)', $searchValue)
+                    ->groupEnd();
+            }
+            
+            // Contar total de registros filtrados
+            $recordsFiltered = $builder->countAllResults(false);
+            
+            // Aplicar ordenação e paginação
+            $builder->orderBy($orderColumn, $orderDir);
+            
+            $data = $builder->limit($length, $start)
+                ->get()
+                ->getResult();
+            
+            // Contar total de registros sem filtros
+            $totalRecords = $this->classModel->countAll();
+            
+            return $this->response->setJSON([
+                'draw' => $draw,
+                'recordsTotal' => $totalRecords,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $data
+            ]);
+            
+        } catch (\Exception $e) {
+            // Log do erro para debug
+            log_message('error', 'Erro no DataTables: ' . $e->getMessage());
+            log_message('error', 'Linha: ' . $e->getLine());
+            log_message('error', 'Arquivo: ' . $e->getFile());
+            
+            // Retornar erro amigável
+            return $this->response->setStatusCode(500)->setJSON([
+                'error' => 'Erro interno: ' . $e->getMessage(),
+                'draw' => (int)($request->getPost('draw') ?? 0),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => []
+            ]);
+        }
+    }
+    
+    /**
+     * Mantido para compatibilidade com GET requests (opcional)
+     */
+    private function getDataTablesData()
+    {
+        return $this->getTableData();
+    }
+    
+    /**
+     * Helper para buscar professores
+     */
+    private function getTeachers()
+    {
+        return $this->userModel
+            ->select('tbl_users.id, tbl_users.first_name, tbl_users.last_name')
+            ->join('tbl_roles', 'tbl_roles.id = tbl_users.role_id')
+            ->where('tbl_roles.role_name', 'Professor')
+            ->where('tbl_users.is_active', 1)
+            ->orderBy('tbl_users.first_name', 'asc')
+            ->findAll();
+    }
     /**
      * Class form - Atualizado para incluir cursos
      */
@@ -644,5 +795,5 @@ public function getByLevelAndYear($levelId, $yearId)
         
         return $this->response->setJSON($classes);
     }
-        
+  
 }
