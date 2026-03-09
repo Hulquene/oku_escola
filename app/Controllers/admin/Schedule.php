@@ -49,7 +49,7 @@ class Schedule extends BaseController
         
         // Buscar ano letivo corrente para o filtro padrão
         $currentYear = $this->academicYearModel
-            ->where('is_current', 1)
+            ->where('id', current_academic_year())
             ->where('is_active', 1)
             ->first();
         
@@ -101,7 +101,6 @@ class Schedule extends BaseController
                 tbl_classes.class_shift,
                 tbl_grade_levels.level_name,
                 tbl_academic_years.year_name,
-                tbl_academic_years.is_current,
                 (SELECT COUNT(*) FROM tbl_class_disciplines WHERE class_id = tbl_classes.id) as total_disciplines
             ')
             ->join('tbl_classes', 'tbl_classes.id = tbl_schedules.class_id')

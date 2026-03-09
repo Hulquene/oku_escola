@@ -97,6 +97,35 @@ if (!function_exists('school_logo_html')) {
     }
 }
 
+            
+if (!function_exists('set_current_academic_year')) {
+    /**
+     * Set current academic year ID in session and settings
+     */
+    function set_current_academic_year($id)
+    {
+        // Buscar o nome do ano letivo para guardar na sessão
+         $academicYearModel = new AcademicYearModel();
+            $academicYear = $academicYearModel->find($id);
+          // Guardar na sessão
+            session()->set([
+                'academic_year_id' => $id,
+                'academic_year_name' => $academicYear ? $academicYear->year_name : null,
+            ]);
+        return set_setting('current_academic_year', $id);
+    }
+}
+
+if (!function_exists('current_academic_year')) {
+    /**
+     * Get current academic year ID from session or settings
+     */
+    function current_academic_year()
+    {
+        return session()->get('academic_year_id') ?: setting('current_academic_year');
+    }
+}
+
 if (!function_exists('current_academic_year')) {
     /**
      * Get current academic year ID from session or settings

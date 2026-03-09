@@ -174,7 +174,7 @@ class AcademicYears extends BaseController
             return redirect()->back()->with('error', 'Ano letivo não encontrado.');
         }
         
-        if ($year->is_current) {
+        if ($year->id = current_academic_year()) {
             return redirect()->back()->with('error', 'Não é possível eliminar o ano letivo atual. Defina outro ano como atual primeiro.');
         }
         

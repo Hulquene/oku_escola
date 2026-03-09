@@ -7,6 +7,8 @@ use App\Models\UserModel;
 use App\Models\TeacherModel;
 use App\Models\RoleModel;
 use App\Models\ClassModel;
+use App\Models\ClassDisciplineModel;
+use App\Models\AcademicYearModel;
 
 class Teachers extends BaseController
 {
@@ -14,6 +16,8 @@ class Teachers extends BaseController
     protected $teacherModel;
     protected $roleModel;
     protected $classModel;
+    protected $classDisciplineModel;
+    protected $academicYearModel;
     
     public function __construct()
     {
@@ -21,6 +25,8 @@ class Teachers extends BaseController
         $this->teacherModel = new TeacherModel();
         $this->roleModel = new RoleModel();
         $this->classModel = new ClassModel();
+        $this->classDisciplineModel = new ClassDisciplineModel();
+        $this->academicYearModel = new AcademicYearModel();
         
         helper(['form', 'url']);
     }
@@ -570,7 +576,7 @@ public function assignClass($id)
         return redirect()->to('/admin/teachers')->with('error', 'Professor não encontrado');
     }
     
-    $currentYear =  $this->academicYearModel ->getCurrent();
+    $currentYear =  $this->academicYearModel->find(current_academic_year());
     
     // Enviar ano letivo atual para a view
     $data['currentYear'] = $currentYear;

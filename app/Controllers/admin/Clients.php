@@ -61,7 +61,7 @@ class Clients extends BaseController
         
         // Buscar ano letivo atual para o filtro padrão
         $currentYear = $this->academicYearModel
-            ->where('is_current', 1)
+            ->where('id', current_academic_year())
             ->where('is_active', 1)
             ->first();
         

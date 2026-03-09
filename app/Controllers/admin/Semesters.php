@@ -39,7 +39,7 @@ public function index()
     
     // Buscar o ano letivo atual
     $currentYear = $this->academicYearModel
-        ->where('is_current', 1)
+        ->where('id', current_academic_year())
         ->where('is_active', 1)
         ->first();
     

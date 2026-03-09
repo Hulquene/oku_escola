@@ -122,7 +122,6 @@ CREATE TABLE `tbl_academic_years` (
     `year_name` VARCHAR(50) NOT NULL,
     `start_date` DATE NOT NULL,
     `end_date` DATE NOT NULL,
-    `is_current` TINYINT(1) DEFAULT '0',
     `is_active` TINYINT(1) DEFAULT '1',
     `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

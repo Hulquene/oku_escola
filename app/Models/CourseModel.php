@@ -142,4 +142,9 @@ class CourseModel extends BaseModel
             'by_type' => $byType
         ];
     }
+    // No CourseModel.php
+public function countDistinct($field)
+{
+    return $this->select($field)->distinct()->countAllResults();
+}
 }

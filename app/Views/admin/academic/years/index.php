@@ -148,18 +148,18 @@ body { background:var(--surface); color:var(--text-primary); }
                             <?php if ($year->id == current_academic_year()): ?>
                                 <span class="current-badge"><i class="fas fa-star" style="font-size:.6rem;"></i>Atual</span>
                             <?php else: ?>
-                              <!--   <a href="<?= site_url('admin/academic/years/set-current/' . $year->id) ?>"
+                                <a href="<?= site_url('admin/academic/years/set-current/' . $year->id) ?>"
                                    class="btn-set-current"
                                    onclick="return confirm('Definir este ano como atual?')">
                                     <i class="fas fa-check-circle"></i> Definir
-                                </a> -->
+                                </a>
                             <?php endif; ?>
                         </td>
                         <td class="center">
                             <div class="d-flex justify-content-center gap-1">
                                 <a href="<?= site_url('admin/academic/years/form-edit/' . $year->id) ?>" class="row-btn edit" title="Editar"><i class="fas fa-edit"></i></a>
                                 <a href="<?= site_url('admin/academic/years/view/' . $year->id) ?>"    class="row-btn view" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
-                                <?php if (!$year->is_current): ?>
+                                <?php if (!$year->id == current_academic_year()): ?>
                                     <a href="<?= site_url('admin/academic/years/delete/' . $year->id) ?>"
                                        class="row-btn del" title="Eliminar"
                                        onclick="return confirm('Tem certeza que deseja eliminar este ano letivo?')">

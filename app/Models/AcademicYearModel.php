@@ -11,7 +11,6 @@ class AcademicYearModel extends BaseModel
         'year_name',
         'start_date',
         'end_date',
-        'is_current',
         'is_active'
     ];
     
@@ -47,8 +46,7 @@ class AcademicYearModel extends BaseModel
      */
     public function getCurrent()
     {
-        $current = $this->where('is_current', 1)
-            ->where('is_active', 1)
+        $current = $this->where('id', current_academic_year())
             ->first();
             
         if (!$current) {
@@ -66,13 +64,11 @@ class AcademicYearModel extends BaseModel
      */
     public function setCurrent($id)
     {
+      
+/* var_dump($id);die; */
         $this->transStart();
         
-        // Remove current from all
-        $this->where('is_current', 1)->set(['is_current' => 0])->update();
-        
-        // Set new current
-        $this->update($id, ['is_current' => 1]);
+            set_current_academic_year($id);
         
         $this->transComplete();
         

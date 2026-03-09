@@ -271,7 +271,7 @@
                                         <?php foreach ($academicYears as $year): ?>
                                             <option value="<?= $year->id ?>" 
                                                 <?= (old('academic_year_id', $selectedYear ?? $currentYear->id ?? '') == $year->id) ? 'selected' : '' ?>>
-                                                <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                                                <?= $year->year_name ?> <?= $year->id == current_academic_year() ? '(Atual)' : '' ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>

@@ -80,7 +80,7 @@ class AcademicRecords extends BaseController
         }
         
         // Obter ano letivo atual
-        $currentYear = $this->academicYearModel->getCurrent();
+        $currentYear = current_academic_year();
         
         // Se não selecionou ano, usa o atual como padrão
         if (!$academicYearId && $currentYear) {
@@ -114,7 +114,6 @@ class AcademicRecords extends BaseController
                 tbl_courses.course_name,
                 tbl_courses.course_code,
                 tbl_academic_years.year_name,
-                tbl_academic_years.is_current as year_is_current,
                 tbl_users.first_name as teacher_first_name,
                 tbl_users.last_name as teacher_last_name,
                 (

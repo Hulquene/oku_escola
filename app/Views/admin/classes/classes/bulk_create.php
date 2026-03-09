@@ -517,7 +517,7 @@
                             <option value="">Selecione...</option>
                             <?php foreach ($academicYears as $year): ?>
                                 <option value="<?= $year->id ?>" <?= ($year->is_current ?? false) ? 'selected' : '' ?>>
-                                    <?= $year->year_name ?>
+                                    <?= $year->year_name . ($year->id == current_academic_year() ? ' (Atual)' : '') ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
