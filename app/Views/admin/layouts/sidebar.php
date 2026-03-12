@@ -273,71 +273,85 @@
 
         <!-- Pautas Académicas -->
         <?php
-        $pautasUris = ['admin/academic-records','admin/academic-records/trimestral','admin/academic-records/disciplina'];
+        $pautasUris = ['admin/academic-records','admin/academic-records/approvals','admin/academic-records/promotion-results'];
         $pautasActive = in_array(uri_string(), $pautasUris);
-        if (has_permission('reports.academic') || has_permission('exams.view_results') || has_permission('grades.view_averages')):
-            $enrollmentModel = new \App\Models\EnrollmentModel();
-            $pendingRecords = $enrollmentModel->where('final_result','Em Andamento')->where('status','Ativo')->countAllResults();
+        if (has_permission('reports.academic') || has_permission('exams.view_results') || has_permission('grades.view_averages') || has_permission('results.approve')):
+            
+            // Usar o helper em vez do model
+            $pendingApprovals = count_pending_approvals();
         ?>
         <li class="nav-item">
             <a href="#pautasSubmenu" data-bs-toggle="collapse"
-               class="nav-link dropdown-toggle <?= $pautasActive ? 'active' : '' ?>"
-               aria-expanded="<?= $pautasActive ? 'true' : 'false' ?>">
+            class="nav-link dropdown-toggle <?= $pautasActive ? 'active' : '' ?>"
+            aria-expanded="<?= $pautasActive ? 'true' : 'false' ?>">
                 <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
                 <span class="nav-label">Pautas Académicas</span>
-                <?php if ($pendingRecords > 0): ?>
-                    <span class="nav-badge warning"><?= $pendingRecords ?></span>
+                <?php if ($pendingApprovals > 0): ?>
+                    <span class="nav-badge warning"><?= $pendingApprovals ?></span>
                 <?php endif; ?>
                 <i class="fas fa-chevron-right nav-arrow"></i>
             </a>
             <ul class="collapse submenu <?= $pautasActive ? 'show' : '' ?>" id="pautasSubmenu">
-                <?php if (has_permission('reports.academic')): ?>
+                <?php if (has_permission('reports.academic') || is_admin()): ?>
                 <li><a href="<?= site_url('admin/academic-records') ?>" class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
-                    <i class="fas fa-file-alt"></i> Pauta Académica
+                    <i class="fas fa-list"></i> Turmas
                 </a></li>
                 <?php endif; ?>
-                <?php if (has_permission('exams.view_results') || has_permission('grades.view_averages')): ?>
+                
+                <?php if (has_permission('exams.view_results') || has_permission('grades.view_averages') || is_admin()): ?>
                 <li><a href="<?= site_url('admin/academic-records/trimestral') ?>" class="<?= uri_string() == 'admin/academic-records/trimestral' ? 'active' : '' ?>">
                     <i class="fas fa-calendar-alt"></i> Pauta Trimestral
                 </a></li>
                 <?php endif; ?>
-                <?php if (has_permission('grades.view_averages')): ?>
+                
+                <?php if (has_permission('grades.view_averages') || is_admin()): ?>
                 <li><a href="<?= site_url('admin/academic-records/disciplina') ?>" class="<?= uri_string() == 'admin/academic-records/disciplina' ? 'active' : '' ?>">
                     <i class="fas fa-book-open"></i> Pauta por Disciplina
+                </a></li>
+                <?php endif; ?>
+                
+                <!-- NOVOS LINKS PARA APROVAÇÃO E PROGRESSÃO -->
+                <?php if (has_permission('results.approve') || is_admin()): ?>
+                <li><a href="<?= site_url('admin/academic-records/approvals') ?>" class="<?= uri_string() == 'admin/academic-records/approvals' ? 'active' : '' ?>">
+                    <i class="fas fa-check-circle"></i> Processar Aprovações
+                    <?php if ($pendingApprovals > 0): ?>
+                        <span class="sub-badge warning"><?= $pendingApprovals ?></span>
+                    <?php endif; ?>
+                </a></li>
+                <li><a href="<?= site_url('admin/academic-records/promotion-results') ?>" class="<?= uri_string() == 'admin/academic-records/promotion-results' ? 'active' : '' ?>">
+                    <i class="fas fa-arrow-up"></i> Resultados da Progressão
                 </a></li>
                 <?php endif; ?>
             </ul>
         </li>
         <?php endif; ?>
-
-        <!-- Mini Pautas -->
+        <!-- Documentos Acadêmicos - NOVO MENU -->
         <?php
-        $miniUris = ['admin/mini-grade-sheet','admin/mini-grade-sheet/trimestral','admin/mini-grade-sheet/disciplina'];
-        $miniActive = in_array(uri_string(), $miniUris);
-        if (has_permission('exams.view') || has_permission('grades.view_averages')):
+        $docUris = ['admin/academic-documents','admin/academic-documents/eligible-certificates','admin/academic-documents/eligible-declarations','admin/academic-documents/history'];
+        $docActive = in_array(uri_string(), $docUris);
+        if (has_permission('documents.generate') || is_admin()):
         ?>
         <li class="nav-item">
-            <a href="#miniPautasSubmenu" data-bs-toggle="collapse"
-               class="nav-link dropdown-toggle <?= $miniActive ? 'active' : '' ?>"
-               aria-expanded="<?= $miniActive ? 'true' : 'false' ?>">
+            <a href="#academicDocsSubmenu" data-bs-toggle="collapse"
+            class="nav-link dropdown-toggle <?= $docActive ? 'active' : '' ?>"
+            aria-expanded="<?= $docActive ? 'true' : 'false' ?>">
                 <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
-                <span class="nav-label">Mini Pautas</span>
+                <span class="nav-label">Documentos Acadêmicos</span>
                 <i class="fas fa-chevron-right nav-arrow"></i>
             </a>
-            <ul class="collapse submenu <?= $miniActive ? 'show' : '' ?>" id="miniPautasSubmenu">
-                <li><a href="<?= site_url('admin/mini-grade-sheet') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet' ? 'active' : '' ?>">
-                    <i class="fas fa-list"></i> Todas as Mini Pautas
+            <ul class="collapse submenu <?= $docActive ? 'show' : '' ?>" id="academicDocsSubmenu">
+                <li><a href="<?= site_url('admin/academic-documents/eligible-certificates') ?>" class="<?= uri_string() == 'admin/academic-documents/eligible-certificates' ? 'active' : '' ?>">
+                    <i class="fas fa-certificate"></i> Certificados (Fim de Ciclo)
                 </a></li>
-                <li><a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/trimestral' ? 'active' : '' ?>">
-                    <i class="fas fa-calendar-alt"></i> Pautas Trimestrais
+                <li><a href="<?= site_url('admin/academic-documents/eligible-declarations') ?>" class="<?= uri_string() == 'admin/academic-documents/eligible-declarations' ? 'active' : '' ?>">
+                    <i class="fas fa-file-signature"></i> Declarações (Fim de Ano)
                 </a></li>
-                <li><a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
-                    <i class="fas fa-book-open"></i> Pautas por Disciplina
+                <li><a href="<?= site_url('admin/academic-documents/history') ?>" class="<?= uri_string() == 'admin/academic-documents/history' ? 'active' : '' ?>">
+                    <i class="fas fa-history"></i> Histórico de Documentos
                 </a></li>
             </ul>
         </li>
         <?php endif; ?>
-
         <!-- Propinas e Taxas -->
         <?php if (has_permission('fees.list') || has_permission('fee_types.list')): ?>
         <?php $feesActive = in_array(uri_string(), ['admin/fees/types','admin/fees/structure','admin/fees/payments']); ?>
@@ -548,8 +562,8 @@
                     <i class="fas fa-money-bill-wave"></i> Pagamento
                 </a></li> -->
                 <?php endif; ?>
-                <?php if (has_permission('settings.email')): ?>
-                <li><a href="<?= site_url('admin/settings/email') ?>" class="<?= uri_string() == 'admin/settings/email' ? 'active' : '' ?>">
+                <?php if (has_permission('emails')): ?>
+                <li><a href="<?= site_url('admin/email') ?>" class="<?= uri_string() == 'admin/email' ? 'active' : '' ?>">
                     <i class="fas fa-envelope"></i> Email
                 </a></li>
                 <?php endif; ?>

@@ -81,3 +81,85 @@ if (!function_exists('get_period_info')) {
         return $info[$periodType] ?? $info['Anual'];
     }
 }
+
+use App\Models\EnrollmentModel;
+
+if (!function_exists('count_pending_approvals')) {
+    /**
+     * Contar alunos aprovados aguardando aprovação final
+     */
+    function count_pending_approvals()
+    {
+        $enrollmentModel = new EnrollmentModel();
+        
+        return $enrollmentModel
+            ->where('status', 'Ativo')
+            ->where('final_result', 'Aprovado')
+            ->where('is_approved', 0)
+            ->countAllResults();
+    }
+}
+
+if (!function_exists('count_pending_promotions')) {
+    /**
+     * Contar alunos prontos para progressão
+     */
+    function count_pending_promotions()
+    {
+        $enrollmentModel = new EnrollmentModel();
+        
+        return $enrollmentModel
+            ->where('status', 'Ativo')
+            ->where('final_result', 'Aprovado')
+            ->where('is_approved', 1)
+            ->where('promotion_status', 'pending')
+            ->countAllResults();
+    }
+}
+
+if (!function_exists('count_pending_enrollments')) {
+    /**
+     * Contar matrículas pendentes
+     */
+    function count_pending_enrollments()
+    {
+        $enrollmentModel = new EnrollmentModel();
+        
+        return $enrollmentModel
+            ->where('status', 'Pendente')
+            ->countAllResults();
+    }
+}
+
+if (!function_exists('count_students_by_status')) {
+    /**
+     * Contar alunos por status
+     */
+    function count_students_by_status($status = 'Ativo')
+    {
+        $enrollmentModel = new EnrollmentModel();
+        
+        return $enrollmentModel
+            ->where('status', $status)
+            ->countAllResults();
+    }
+}
+
+if (!function_exists('count_exams_pending')) {
+    /**
+     * Contar exames pendentes
+     */
+    function count_exams_pending()
+    {
+        $db = db_connect();
+        
+        $result = $db->query("
+            SELECT COUNT(*) as total 
+            FROM tbl_exam_schedules 
+            WHERE status = 'Agendado' 
+            AND exam_date >= CURDATE()
+        ")->getRow();
+        
+        return $result->total ?? 0;
+    }
+}

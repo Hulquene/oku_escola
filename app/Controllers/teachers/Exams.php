@@ -135,7 +135,7 @@ class Exams extends BaseController
         $currentYear = model('App\Models\AcademicYearModel')->getCurrent();
         if ($currentYear) {
             $data['periods'] = $this->examPeriodModel
-                ->where('academic_year_id', $currentYear->id)
+                ->where('academic_year_id', $currentYear['id'])
                 ->orderBy('start_date', 'DESC')
                 ->findAll();
         } else {
@@ -223,7 +223,7 @@ class Exams extends BaseController
         $currentYear = model('App\Models\AcademicYearModel')->getCurrent();
         if ($currentYear) {
             $data['periods'] = $this->examPeriodModel
-                ->where('academic_year_id', $currentYear->id)
+                ->where('academic_year_id', $currentYear['id'])
                 ->where('status', 'Planejado')
                 ->orderBy('start_date', 'ASC')
                 ->findAll();

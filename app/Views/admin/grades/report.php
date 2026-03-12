@@ -137,7 +137,7 @@
                         <option value="">Selecione...</option>
                         <?php if (!empty($academicYears)): ?>
                             <?php foreach ($academicYears as $year): ?>
-                                <option value="<?= $year->id ?>"><?= $year->year_name ?></option>
+                                <option value="<?= $year['id'] ?>"><?= $year['year_name'] ?></option>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>
@@ -200,7 +200,7 @@
                         <option value="">Selecione...</option>
                         <?php if (!empty($academicYears)): ?>
                             <?php foreach ($academicYears as $year): ?>
-                                <option value="<?= $year->id ?>"><?= $year->year_name ?></option>
+                                <option value="<?= $year['id'] ?>"><?= $year['year_name'] ?></option>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>

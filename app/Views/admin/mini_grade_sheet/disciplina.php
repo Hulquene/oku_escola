@@ -31,8 +31,8 @@
                     <select name="academic_year" class="form-select" id="academicYear">
                         <option value="">Todos</option>
                         <?php foreach ($academicYears as $year): ?>
-                            <option value="<?= $year->id ?>" <?= ($selectedYear ?? '') == $year->id ? 'selected' : '' ?>>
-                                <?= $year->year_name ?>
+                            <option value="<?= $year['id'] ?>" <?= ($selectedYear ?? '') == $year['id'] ? 'selected' : '' ?>>
+                                <?= $year['year_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

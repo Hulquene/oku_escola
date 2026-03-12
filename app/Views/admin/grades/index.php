@@ -44,8 +44,8 @@
                     <option value="">Todos os anos</option>
                     <?php if (!empty($academicYears)): ?>
                         <?php foreach ($academicYears as $year): ?>
-                            <option value="<?= $year->id ?>" <?= ($selectedYear ?? '') == $year->id ? 'selected' : '' ?>>
-                                <?= $year->year_name ?> <?= !empty($year->is_current) && $year->is_current ? '(Atual)' : '' ?>
+                            <option value="<?= $year['id'] ?>" <?= ($selectedYear ?? '') == $year['id'] ? 'selected' : '' ?>>
+                                <?= $year['year_name'] ?> <?= !empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

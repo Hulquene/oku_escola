@@ -84,7 +84,7 @@ class AcademicRecords extends BaseController
         
         // Se não selecionou ano, usa o atual como padrão
         if (!$academicYearId && $currentYear) {
-            $academicYearId = $currentYear->id;
+            $academicYearId = $currentYear['id'];
         }
         
         // Dados para filtros
@@ -951,13 +951,13 @@ private function getNextColumn($col)
                     
                     // Buscar total de semestres do ano
                     $totalSemesters = $this->semesterModel
-                        ->where('academic_year_id', $academicYear->id)
+                        ->where('academic_year_id', $academicyear['id'])
                         ->countAllResults();
                     
                     // Buscar semestres já calculados para este aluno
                     $calculatedSemesters = $this->semesterResultModel
                         ->where('enrollment_id', $enrollment->id)
-                        ->where('semester_id IN (SELECT id FROM tbl_semesters WHERE academic_year_id = ?)', [$academicYear->id])
+                        ->where('semester_id IN (SELECT id FROM tbl_semesters WHERE academic_year_id = ?)', [$academicyear['id']])
                         ->countAllResults();
                     
                     // Se todos os semestres foram calculados, gerar histórico anual
@@ -1415,5 +1415,671 @@ public function export()
         }
         
         return 'primary';
+    }
+    /**
+     * Processar aprovação dos alunos (transita/não transita)
+     */
+    public function processApprovals($classId)
+    {
+        // Verificar permissão
+        if (!has_permission('results.approve') && !is_admin()) {
+            return redirect()->to('/admin/dashboard')
+                ->with('error', 'Não tem permissão para aprovar resultados');
+        }
+        
+        $data['title'] = 'Processar Aprovações - Pauta Final';
+        
+        // Buscar informações da turma
+        $data['class'] = $this->classModel
+            ->select('
+                tbl_classes.*,
+                tbl_grade_levels.level_name,
+                tbl_courses.course_name,
+                tbl_courses.course_code,
+                tbl_academic_years.year_name,
+                tbl_users.first_name as teacher_first_name,
+                tbl_users.last_name as teacher_last_name
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
+            ->where('tbl_classes.id', $classId)
+            ->first();
+        
+        if (!$data['class']) {
+            return redirect()->to('/admin/academic-records')
+                ->with('error', 'Turma não encontrada');
+        }
+        
+        // Buscar disciplinas da turma
+        $data['disciplines'] = $this->classDisciplineModel
+            ->select('
+                tbl_class_disciplines.*,
+                tbl_disciplines.discipline_name,
+                tbl_disciplines.discipline_code
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.is_active', 1)
+            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+            ->findAll();
+        
+        // Buscar alunos da turma com seus resultados
+        $enrollments = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.id as enrollment_id,
+                tbl_enrollments.final_result,
+                tbl_enrollments.final_average,
+                tbl_enrollments.is_approved,
+                tbl_enrollments.approved_at,
+                tbl_students.id as student_id,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_enrollments.class_id', $classId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+        
+        // Para cada aluno, calcular MFD por disciplina e determinar resultado
+        foreach ($enrollments as $student) {
+            $student->disciplinas = [];
+            $totalMFD = 0;
+            $disciplinasCount = 0;
+            $reprovadas = [];
+            
+            foreach ($data['disciplines'] as $discipline) {
+                // Buscar notas da disciplina por trimestre
+                $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline->id);
+                $student->disciplinas[$discipline->id] = $notas;
+                
+                if ($notas['mfd'] !== null) {
+                    $totalMFD += $notas['mfd'];
+                    $disciplinasCount++;
+                    
+                    if ($notas['mfd'] < 10) {
+                        $reprovadas[] = $discipline->discipline_name;
+                    }
+                }
+            }
+            
+            // Calcular média final geral
+            $student->media_final_geral = $disciplinasCount > 0 ? 
+                round($totalMFD / $disciplinasCount, 2) : 0;
+            
+            // Determinar resultado final (Transita/Não Transita)
+            $student->resultado_final = $this->determinarResultadoFinalAngolano(
+                $student->disciplinas, 
+                $student->media_final_geral,
+                $reprovadas
+            );
+            
+            // Verificar se já foi aprovado
+            $student->ja_aprovado = ($student->is_approved == 1);
+        }
+        
+        $data['students'] = $enrollments;
+        
+        // Estatísticas da turma
+        $total = count($enrollments);
+        $transitam = 0;
+        $nao_transitam = 0;
+        $pendentes = 0;
+        
+        foreach ($enrollments as $s) {
+            if ($s->resultado_final == 'Transita') $transitam++;
+            elseif ($s->resultado_final == 'Não Transita') $nao_transitam++;
+            else $pendentes++;
+        }
+        
+        $data['stats'] = [
+            'total' => $total,
+            'transitam' => $transitam,
+            'nao_transitam' => $nao_transitam,
+            'pendentes' => $pendentes,
+            'taxa_aprovacao' => $total > 0 ? round(($transitam / $total) * 100, 1) : 0
+        ];
+        
+        return view('admin/academic-records/approvals', $data);
+    }
+    
+    /**
+     * Determinar resultado final conforme sistema angolano
+     */
+    private function determinarResultadoFinalAngolano($disciplinas, $mediaGeral, $reprovadas = [])
+    {
+        if (empty($disciplinas)) {
+            return 'Sem dados';
+        }
+        
+        $disciplinasAprovadas = 0;
+        $totalDisciplinas = count($disciplinas);
+        
+        foreach ($disciplinas as $discId => $notas) {
+            // Considera aprovado se MFD >= 10
+            if (isset($notas['mfd']) && $notas['mfd'] >= 10) {
+                $disciplinasAprovadas++;
+            }
+        }
+        
+        // Critério 1: Precisa ter MFD >= 10 em todas as disciplinas
+        if ($disciplinasAprovadas == $totalDisciplinas) {
+            return 'Transita';
+        } 
+        // Critério 2: Se tem até 2 disciplinas com nota < 10 mas >= 8, pode ir a recurso
+        elseif ($disciplinasAprovadas >= $totalDisciplinas - 2) {
+            // Verificar se as reprovadas têm nota >= 8
+            $podeRecurso = true;
+            foreach ($disciplinas as $discId => $notas) {
+                if (isset($notas['mfd']) && $notas['mfd'] < 10) {
+                    if ($notas['mfd'] < 8) {
+                        $podeRecurso = false;
+                        break;
+                    }
+                }
+            }
+            
+            if ($podeRecurso) {
+                return 'Recurso';
+            } else {
+                return 'Não Transita';
+            }
+        } else {
+            return 'Não Transita';
+        }
+    }
+    
+    /**
+     * Salvar aprovações em lote
+     */
+    public function saveApprovals()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
+        }
+        
+        $classId = $this->request->getPost('class_id');
+        $approvals = $this->request->getPost('approvals');
+        
+        if (!$classId || empty($approvals)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Dados inválidos']);
+        }
+        
+        $db = db_connect();
+        $db->transStart();
+        
+        $approved = 0;
+        $failed = 0;
+        $errors = [];
+        
+        foreach ($approvals as $enrollmentId => $data) {
+            $updateData = [
+                'final_result' => $data['resultado'],
+                'final_average' => $data['media_final']
+            ];
+            
+            if ($data['resultado'] == 'Transita') {
+                $updateData['is_approved'] = 1;
+                $updateData['approved_at'] = date('Y-m-d H:i:s');
+                $updateData['approved_by'] = session()->get('user_id');
+                $updateData['promotion_status'] = 'pending';
+            } elseif ($data['resultado'] == 'Não Transita') {
+                $updateData['is_approved'] = 2;
+                $updateData['promotion_status'] = 'retained';
+            } elseif ($data['resultado'] == 'Recurso') {
+                $updateData['is_approved'] = 0;
+                $updateData['promotion_status'] = 'pending';
+            }
+            
+            if ($this->enrollmentModel->update($enrollmentId, $updateData)) {
+                $approved++;
+                
+                // Se aprovado, criar histórico acadêmico
+                if ($data['resultado'] == 'Transita') {
+                    $this->createAcademicHistory($enrollmentId);
+                }
+            } else {
+                $failed++;
+                $errors[] = "Erro no aluno ID: {$enrollmentId}";
+            }
+        }
+        
+        $db->transComplete();
+        
+        if ($db->transStatus()) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => "{$approved} alunos processados com sucesso. {$failed} falhas.",
+                'approved' => $approved,
+                'failed' => $failed
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Erro ao processar aprovações',
+                'errors' => $errors
+            ]);
+        }
+    }
+    
+    /**
+     * Criar histórico acadêmico para aluno aprovado
+     */
+    private function createAcademicHistory($enrollmentId)
+    {
+        $enrollment = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.*,
+                tbl_classes.class_id,
+                tbl_classes.class_name,
+                tbl_classes.grade_level_id,
+                tbl_grade_levels.level_name
+            ')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->where('tbl_enrollments.id', $enrollmentId)
+            ->first();
+        
+        if (!$enrollment) {
+            return false;
+        }
+        
+        // Verificar se já existe histórico para este ano
+        $existing = $this->academicHistoryModel
+            ->where('student_id', $enrollment->student_id)
+            ->where('academic_year_id', $enrollment->academic_year_id)
+            ->first();
+        
+        if ($existing) {
+            return $existing->id;
+        }
+        
+        $historyData = [
+            'student_id' => $enrollment->student_id,
+            'academic_year_id' => $enrollment->academic_year_id,
+            'class_id' => $enrollment->class_id,
+            'final_status' => $enrollment->final_result ?? 'Aprovado',
+            'final_average' => $enrollment->final_average ?? 0,
+            'observations' => 'Aprovado - Gerado automaticamente',
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        
+        return $this->academicHistoryModel->insert($historyData);
+    }
+    
+    /**
+     * Processar progressão dos alunos aprovados para o próximo ano letivo
+     */
+    public function promoteStudents()
+    {
+        if (!has_permission('results.approve') && !is_admin()) {
+            return redirect()->to('/admin/dashboard')
+                ->with('error', 'Não tem permissão para processar progressão');
+        }
+        
+        $academicYearId = $this->request->getPost('academic_year_id');
+        $nextAcademicYearId = $this->request->getPost('next_academic_year_id');
+        
+        if (!$academicYearId || !$nextAcademicYearId) {
+            return redirect()->back()
+                ->with('error', 'Anos letivos não especificados');
+        }
+        
+        // Verificar se o próximo ano letivo existe
+        $nextYear = $this->academicYearModel->find($nextAcademicYearId);
+        if (!$nextYear) {
+            return redirect()->back()
+                ->with('error', 'Ano letivo de destino não encontrado');
+        }
+        
+        // Buscar alunos aprovados no ano letivo atual
+        $approvedStudents = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.*,
+                tbl_classes.class_id,
+                tbl_classes.class_name,
+                tbl_classes.grade_level_id,
+                tbl_classes.class_shift,
+                tbl_grade_levels.level_name,
+                tbl_grade_levels.sort_order
+            ')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->where('tbl_enrollments.academic_year_id', $academicYearId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->where('tbl_enrollments.final_result', 'Aprovado')
+            ->where('tbl_enrollments.is_approved', 1)
+            ->where('tbl_enrollments.promotion_status', 'pending')
+            ->findAll();
+        
+        if (empty($approvedStudents)) {
+            return redirect()->back()
+                ->with('warning', 'Nenhum aluno aprovado encontrado para progressão');
+        }
+        
+        $db = db_connect();
+        $db->transStart();
+        
+        $promotedCount = 0;
+        $retainedCount = 0;
+        $graduatedCount = 0;
+        $errors = [];
+        
+        foreach ($approvedStudents as $enrollment) {
+            // Buscar próximo nível
+            $nextLevel = $this->gradeLevelModel->getNextLevel($enrollment->grade_level_id);
+            
+            // Se não há próximo nível (aluno concluiu o ciclo)
+            if (!$nextLevel) {
+                // Marcar como graduado
+                $this->enrollmentModel->update($enrollment->id, [
+                    'status' => 'Concluído',
+                    'final_result' => 'Aprovado',
+                    'promotion_status' => 'graduated'
+                ]);
+                
+                $graduatedCount++;
+                continue;
+            }
+            
+            // Verificar se o próximo nível faz parte de um curso
+            $isCourseLevel = $this->gradeLevelModel->isCourseLevel($nextLevel->id);
+            
+            // Buscar turma para o próximo nível
+            $nextClass = $this->classModel
+                ->select('tbl_classes.*, tbl_grade_levels.level_name')
+                ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+                ->where('tbl_classes.grade_level_id', $nextLevel->id)
+                ->where('tbl_classes.academic_year_id', $nextAcademicYearId)
+                ->where('tbl_classes.class_shift', $enrollment->class_shift)
+                ->first();
+            
+            // Se não encontrar turma, tentar sem turno específico
+            if (!$nextClass) {
+                $nextClass = $this->classModel
+                    ->select('tbl_classes.*, tbl_grade_levels.level_name')
+                    ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+                    ->where('tbl_classes.grade_level_id', $nextLevel->id)
+                    ->where('tbl_classes.academic_year_id', $nextAcademicYearId)
+                    ->first();
+            }
+            
+            // Se ainda não encontrou turma, marcar como pendente
+            if (!$nextClass) {
+                $this->enrollmentModel->update($enrollment->id, [
+                    'promotion_status' => 'pending'
+                ]);
+                $errors[] = "Aluno {$enrollment->first_name} {$enrollment->last_name}: Nenhuma turma encontrada para o próximo nível";
+                $retainedCount++;
+                continue;
+            }
+            
+            // Verificar vagas
+            $availableSeats = $this->classModel->getAvailableSeats($nextClass->id);
+            if ($availableSeats <= 0) {
+                $this->enrollmentModel->update($enrollment->id, [
+                    'promotion_status' => 'pending'
+                ]);
+                $errors[] = "Aluno {$enrollment->first_name} {$enrollment->last_name}: Turma sem vagas";
+                $retainedCount++;
+                continue;
+            }
+            
+            // Criar nova matrícula para o próximo ano
+            $newEnrollmentData = [
+                'student_id' => $enrollment->student_id,
+                'class_id' => $nextClass->id,
+                'academic_year_id' => $nextAcademicYearId,
+                'grade_level_id' => $nextLevel->id,
+                'course_id' => $isCourseLevel ? $enrollment->course_id : null,
+                'enrollment_date' => date('Y-m-d'),
+                'enrollment_number' => $this->enrollmentModel->generateEnrollmentNumber(),
+                'enrollment_type' => 'Renovação',
+                'status' => 'Pendente', // Pendente para aprovação manual
+                'previous_class_id' => $enrollment->class_id,
+                'previous_grade_id' => $enrollment->grade_level_id,
+                'created_by' => session()->get('user_id')
+            ];
+            
+            $newEnrollmentId = $this->enrollmentModel->insert($newEnrollmentData);
+            
+            if ($newEnrollmentId) {
+                // Atualizar matrícula antiga
+                $this->enrollmentModel->update($enrollment->id, [
+                    'status' => 'Concluído',
+                    'promoted_to_enrollment_id' => $newEnrollmentId,
+                    'promotion_status' => 'promoted'
+                ]);
+                
+                $promotedCount++;
+            } else {
+                $errors[] = "Erro ao criar matrícula para aluno {$enrollment->first_name} {$enrollment->last_name}";
+                $retainedCount++;
+            }
+        }
+        
+        $db->transComplete();
+        
+        if ($db->transStatus()) {
+            $message = "Progressão concluída: {$promotedCount} promovidos, {$graduatedCount} graduados, {$retainedCount} retidos.";
+            if (!empty($errors)) {
+                $message .= " Erros: " . implode('; ', array_slice($errors, 0, 5));
+            }
+            
+            return redirect()->to('/admin/academic-records/promotion-results')
+                ->with('success', $message);
+        } else {
+            return redirect()->back()
+                ->with('error', 'Erro ao processar progressão');
+        }
+    }
+    
+    /**
+     * Página de resultados da progressão
+     */
+    public function promotionResults()
+    {
+        $data['title'] = 'Resultados da Progressão';
+        
+        $academicYearId = $this->request->getGet('academic_year') ?? current_academic_year();
+        
+        $data['academicYearId'] = $academicYearId;
+        
+        // Buscar alunos que foram promovidos
+        $promotedQuery = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.*,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_old.class_name as old_class,
+                tbl_old.class_code as old_class_code,
+                tbl_new.class_name as new_class,
+                tbl_new.class_code as new_class_code,
+                tbl_new_enroll.enrollment_number as new_enrollment_number
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->join('tbl_classes as tbl_old', 'tbl_old.id = tbl_enrollments.class_id')
+            ->join('tbl_enrollments as tbl_new_enroll', 'tbl_new_enroll.id = tbl_enrollments.promoted_to_enrollment_id', 'left')
+            ->join('tbl_classes as tbl_new', 'tbl_new.id = tbl_new_enroll.class_id', 'left')
+            ->where('tbl_enrollments.promotion_status', 'promoted')
+            ->where('tbl_enrollments.academic_year_id', $academicYearId)
+            ->orderBy('tbl_users.first_name', 'ASC');
+        
+        $data['promoted'] = $promotedQuery->findAll();
+        
+        // Buscar alunos que graduaram
+        $data['graduated'] = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.*,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_classes.class_name,
+                tbl_classes.class_code
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->where('tbl_enrollments.promotion_status', 'graduated')
+            ->where('tbl_enrollments.academic_year_id', $academicYearId)
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+        
+        // Buscar alunos retidos
+        $data['retained'] = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.*,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_classes.class_name,
+                tbl_classes.class_code
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->where('tbl_enrollments.promotion_status', 'retained')
+            ->where('tbl_enrollments.academic_year_id', $academicYearId)
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+        
+        // Buscar alunos pendentes
+        $data['pending'] = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.*,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_classes.class_name,
+                tbl_classes.class_code
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
+            ->where('tbl_enrollments.promotion_status', 'pending')
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->where('tbl_enrollments.academic_year_id', $academicYearId)
+            ->where('tbl_enrollments.final_result', 'Aprovado')
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+        
+        return view('admin/academic-records/promotion_results', $data);
+    }
+    /**
+     * Verificar se aluno pode ser matriculado no próximo ano
+     */
+    public function checkEligibility($studentId, $nextAcademicYearId)
+    {
+        // Buscar matrícula do ano anterior
+        $previousYear = $this->academicYearModel->getPreviousYear($nextAcademicYearId);
+        
+        if (!$previousYear) {
+            return $this->response->setJSON([
+                'eligible' => true,
+                'message' => 'Primeiro ano letivo - pode matricular'
+            ]);
+        }
+        
+        $previousEnrollment = $this->enrollmentModel
+            ->where('student_id', $studentId)
+            ->where('academic_year_id', $previousYear->id)
+            ->where('status', 'Ativo')
+            ->first();
+        
+        // Se não tem matrícula no ano anterior (novo aluno)
+        if (!$previousEnrollment) {
+            return $this->response->setJSON([
+                'eligible' => true,
+                'message' => 'Novo aluno - pode matricular'
+            ]);
+        }
+        
+        // Verificar se foi aprovado
+        if ($previousEnrollment->final_result == 'Aprovado') {
+            return $this->response->setJSON([
+                'eligible' => true,
+                'message' => 'Aluno aprovado - pode matricular'
+            ]);
+        } elseif ($previousEnrollment->final_result == 'Reprovado') {
+            return $this->response->setJSON([
+                'eligible' => false,
+                'message' => 'Aluno reprovado no ano anterior - não pode matricular'
+            ]);
+        } elseif ($previousEnrollment->final_result == 'Recurso') {
+            return $this->response->setJSON([
+                'eligible' => false,
+                'message' => 'Aluno em recurso - aguardando resultados'
+            ]);
+        } else {
+            return $this->response->setJSON([
+                'eligible' => false,
+                'message' => 'Resultados do ano anterior não processados'
+            ]);
+        }
+    }
+    /**
+     * Listar turmas disponíveis para processar aprovações
+     */
+    public function approvalClasses()
+    {
+        // Verificar permissão
+        if (!has_permission('results.approve') && !is_admin()) {
+            return redirect()->to('/admin/dashboard')
+                ->with('error', 'Não tem permissão para aprovar resultados');
+        }
+        
+        $data['title'] = 'Turmas para Aprovação';
+        
+        // Capturar filtros
+        $academicYearId = $this->request->getGet('academic_year') ?? current_academic_year();
+        
+        // Dados para filtros
+        $data['academicYears'] = $this->academicYearModel
+            ->where('is_active', 1)
+            ->orderBy('year_name', 'DESC')
+            ->findAll();
+        
+        // Buscar turmas que têm alunos ativos
+        $classes = $this->classModel
+            ->select('
+                tbl_classes.*,
+                tbl_grade_levels.level_name,
+                tbl_courses.course_name,
+                tbl_academic_years.year_name,
+                (
+                    SELECT COUNT(*) 
+                    FROM tbl_enrollments 
+                    WHERE class_id = tbl_classes.id 
+                    AND status = "Ativo"
+                ) as total_alunos,
+                (
+                    SELECT COUNT(*) 
+                    FROM tbl_enrollments 
+                    WHERE class_id = tbl_classes.id 
+                    AND status = "Ativo"
+                    AND final_result IS NOT NULL
+                ) as alunos_com_notas
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+            ->where('tbl_classes.academic_year_id', $academicYearId)
+            ->where('tbl_classes.is_active', 1)
+            ->having('total_alunos > 0')
+            ->orderBy('tbl_grade_levels.sort_order', 'ASC')
+            ->orderBy('tbl_classes.class_name', 'ASC')
+            ->findAll();
+        
+        $data['classes'] = $classes;
+        $data['selectedYear'] = $academicYearId;
+        
+        return view('admin/academic-records/approval_classes', $data);
     }
 }

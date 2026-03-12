@@ -594,7 +594,7 @@ public function assignClass($id)
         ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
         ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
         ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-        ->where('tbl_classes.academic_year_id', $currentYear->id)
+        ->where('tbl_classes.academic_year_id', $currentYear['id'])
         ->where('tbl_classes.is_active', 1)
         ->orderBy('tbl_classes.class_name', 'ASC')
         ->findAll();
@@ -745,7 +745,7 @@ public function saveAssignment()
         }
         
         $currentYear = $this->academicYearModel->getCurrent();
-        $currentYearId = $currentYear ? $currentYear->id : null;
+        $currentYearId = $currentYear ? $currentYear['id'] : null;
         
         $stats = [
             'totalTeachers' => $this->userModel->where('user_type', 'teacher')->countAllResults(),
@@ -806,7 +806,7 @@ public function schedule($id)
     
     // Obter o ano letivo atual
     $currentYear = $this->academicYearModel->getCurrent();
-    $currentYearId = $currentYear ? $currentYear->id : null;
+    $currentYearId = $currentYear ? $currentYear['id'] : null;
     
     // Buscar todas as atribuições do professor
     $data['assignments'] = $this->classDisciplineModel

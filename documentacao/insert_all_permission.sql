@@ -384,3 +384,13 @@ INSERT INTO `tbl_permissions` (`permission_name`, `permission_key`, `module`, `c
 ('Gerar Boletins', 'report_cards.generate', 'reports', NOW()),
 ('Ver Boletins', 'report_cards.view', 'reports', NOW()),
 ('Exportar Boletins', 'report_cards.export', 'reports', NOW());
+
+
+-- 27. EMAILS (EMAILS)
+INSERT INTO `tbl_permissions` (`permission_name`, `permission_key`, `module`, `created_at`) VALUES
+('Ver Página de Emails', 'emails.view', 'email', NOW()),
+('Enviar Email Individual', 'emails.send', 'email', NOW()),
+('Enviar Email em Massa', 'emails.bulk', 'email', NOW()),
+('Gerir Templates de Email', 'emails.templates', 'email', NOW()),
+('Testar Configuração de Email', 'emails.test', 'email', NOW()),
+('Ver Logs de Email', 'emails.logs', 'email', NOW());

@@ -51,7 +51,7 @@ class FeeStructureModel extends BaseModel
             $academicYearModel = new AcademicYearModel();
             $currentYear = $academicYearModel->getCurrent();
             if ($currentYear) {
-                $builder->where('tbl_fee_structure.academic_year_id', $currentYear->id);
+                $builder->where('tbl_fee_structure.academic_year_id', $currentYear['id']);
             }
         }
         
@@ -68,7 +68,7 @@ class FeeStructureModel extends BaseModel
         if (!$academicYearId) {
             $academicYearModel = new AcademicYearModel();
             $currentYear = $academicYearModel->getCurrent();
-            $academicYearId = $currentYear ? $currentYear->id : null;
+            $academicYearId = $currentYear ? $currentYear['id'] : null;
         }
         
         if (!$academicYearId) {

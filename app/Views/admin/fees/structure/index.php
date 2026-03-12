@@ -37,8 +37,8 @@
                     <option value="">Selecione...</option>
                     <?php if (!empty($academicYears)): ?>
                         <?php foreach ($academicYears as $year): ?>
-                            <option value="<?= $year->id ?>" <?= $currentYearId == $year->id ? 'selected' : '' ?>>
-                                <?= $year->year_name ?>
+                            <option value="<?= $year['id'] ?>" <?= $currentYearId == $year['id'] ? 'selected' : '' ?>>
+                                <?= $year['year_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -159,8 +159,8 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($academicYears)): ?>
                                 <?php foreach ($academicYears as $year): ?>
-                                    <option value="<?= $year->id ?>" <?= $currentYearId == $year->id ? 'selected' : '' ?>>
-                                        <?= $year->year_name ?>
+                                    <option value="<?= $year['id'] ?>" <?= $currentYearId == $year['id'] ? 'selected' : '' ?>>
+                                        <?= $year['year_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -284,8 +284,8 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($academicYears)): ?>
                                 <?php foreach ($academicYears as $year): ?>
-                                    <option value="<?= $year->id ?>" <?= $currentYearId == $year->id ? 'selected' : '' ?>>
-                                        <?= $year->year_name ?>
+                                    <option value="<?= $year['id'] ?>" <?= $currentYearId == $year['id'] ? 'selected' : '' ?>>
+                                        <?= $year['year_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

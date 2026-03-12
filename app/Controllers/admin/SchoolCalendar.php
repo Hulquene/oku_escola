@@ -40,7 +40,7 @@ class SchoolCalendar extends BaseController
         
         $currentYear = $this->academicYearModel->getCurrent();
         $data['selectedYear'] = $this->request->getGet('academic_year') ?: 
-            ($currentYear->id ?? null);
+            ($currentYear['id'] ?? null);
         
         return view('admin/academic/calendar/index', $data);
     }

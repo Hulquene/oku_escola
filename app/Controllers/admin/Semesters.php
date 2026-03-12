@@ -46,7 +46,7 @@ public function index()
     // Se não houver ano selecionado na URL, usar o ano atual
     $selectedYear = $this->request->getGet('academic_year');
     if (empty($selectedYear) && $currentYear) {
-        $selectedYear = $currentYear->id;
+        $selectedYear = $currentYear['id'];
     }
     
     $data['selectedYear'] = $selectedYear;

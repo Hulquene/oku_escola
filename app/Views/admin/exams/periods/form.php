@@ -70,11 +70,11 @@
                                         name="academic_year_id" id="academicYear" required>
                                     <option value="">Selecione</option>
                                     <?php foreach ($academicYears as $year): ?>
-                                        <option value="<?= $year->id ?>" 
-                                            <?= (old('academic_year_id') ?: ($period->academic_year_id ?? '')) == $year->id ? 'selected' : '' ?>
-                                            data-start="<?= $year->start_date ?>" 
-                                            data-end="<?= $year->end_date ?>">
-                                            <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                                        <option value="<?= $year['id'] ?>" 
+                                            <?= (old('academic_year_id') ?: ($period->academic_year_id ?? '')) == $year['id'] ? 'selected' : '' ?>
+                                            data-start="<?= $year['start_date'] ?>" 
+                                            data-end="<?= $year['end_date'] ?>">
+                                            <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

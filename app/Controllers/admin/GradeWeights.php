@@ -37,7 +37,7 @@ class GradeWeights extends BaseController
         // If no academic year selected, get current
         if (!$academicYearId) {
             $currentYear = $this->academicYearModel->getCurrent();
-            $academicYearId = $currentYear->id ?? null;
+            $academicYearId = $currentYear['id'] ?? null;
         }
         
         // Build query
@@ -243,7 +243,7 @@ class GradeWeights extends BaseController
         
         if (!$academicYearId) {
             $currentYear = $this->academicYearModel->getCurrent();
-            $academicYearId = $currentYear->id ?? null;
+            $academicYearId = $currentYear['id'] ?? null;
         }
         
         $weights = $this->gradeWeightModel->getByGradeLevel($gradeLevelId, $academicYearId);

@@ -144,13 +144,13 @@ body { background:var(--surface); color:var(--text-primary); }
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="<?= site_url('admin/academic/years') ?>">Anos Letivos</a></li>
-                    <li class="breadcrumb-item active" aria-current="page"><?= esc($year->year_name) ?></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?= esc($year['year_name']) ?></li>
                 </ol>
             </nav>
         </div>
         <div class="d-flex gap-2 flex-wrap">
             <?php if (has_permission('settings.academic_years')): ?>
-                <a href="<?= site_url('admin/academic/years/form/' . $year->id) ?>" class="hdr-btn accent">
+                <a href="<?= site_url('admin/academic/years/form/' . $year['id']) ?>" class="hdr-btn accent">
                     <i class="fas fa-edit"></i> Editar
                 </a>
             <?php endif; ?>
@@ -180,18 +180,18 @@ body { background:var(--surface); color:var(--text-primary); }
                         <table class="info-table">
                             <tr>
                                 <th>Ano Letivo</th>
-                                <td style="font-weight:800;font-size:1rem;letter-spacing:-.2px;"><?= esc($year->year_name) ?></td>
+                                <td style="font-weight:800;font-size:1rem;letter-spacing:-.2px;"><?= esc($year['year_name']) ?></td>
                             </tr>
                             <tr>
                                 <th>Estado</th>
                                 <td>
                                     <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
-                                        <?php if ($year->is_active): ?>
+                                        <?php if ($year['is_active']): ?>
                                             <span class="status-badge sb-active"><span style="width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;"></span>Ativo</span>
                                         <?php else: ?>
                                             <span class="status-badge sb-inactive">Inativo</span>
                                         <?php endif; ?>
-                                        <?php if ($year->is_current): ?>
+                                        <?php if ($year['id'] == current_academic_year()): ?>
                                             <span class="status-badge sb-current"><i class="fas fa-star" style="font-size:.55rem;"></i>Atual</span>
                                         <?php endif; ?>
                                     </div>
@@ -205,27 +205,27 @@ body { background:var(--surface); color:var(--text-primary); }
                                 <th>Período</th>
                                 <td>
                                     <div class="period-row">
-                                        <span class="period-date"><?= date('d/m/Y', strtotime($year->start_date)) ?></span>
+                                        <span class="period-date"><?= date('d/m/Y', strtotime($year['start_date'])) ?></span>
                                         <i class="fas fa-arrow-right period-arrow"></i>
-                                        <span class="period-date"><?= date('d/m/Y', strtotime($year->end_date)) ?></span>
+                                        <span class="period-date"><?= date('d/m/Y', strtotime($year['end_date'])) ?></span>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <th>Duração</th>
                                 <td>
-                                    <?php $days = (int) ceil((strtotime($year->end_date) - strtotime($year->start_date)) / 86400) + 1; ?>
+                                    <?php $days = (int) ceil((strtotime($year['end_date']) - strtotime($year['start_date'])) / 86400) + 1; ?>
                                     <span class="dur-chip"><?= $days ?></span> <span class="dur-unit">dias</span>
                                 </td>
                             </tr>
                             <tr>
                                 <th>Criado em</th>
-                                <td style="font-size:.78rem;color:var(--text-secondary);"><?= date('d/m/Y H:i', strtotime($year->created_at)) ?></td>
+                                <td style="font-size:.78rem;color:var(--text-secondary);"><?= date('d/m/Y H:i', strtotime($year['created_at'])) ?></td>
                             </tr>
-                            <?php if ($year->updated_at && $year->updated_at != $year->created_at): ?>
+                            <?php if ($year['updated_at'] && $year['updated_at'] != $year['created_at']): ?>
                             <tr>
                                 <th>Atualizado</th>
-                                <td style="font-size:.78rem;color:var(--text-secondary);"><?= date('d/m/Y H:i', strtotime($year->updated_at)) ?></td>
+                                <td style="font-size:.78rem;color:var(--text-secondary);"><?= date('d/m/Y H:i', strtotime($year['updated_at'])) ?></td>
                             </tr>
                             <?php endif; ?>
                         </table>
@@ -239,7 +239,7 @@ body { background:var(--surface); color:var(--text-primary); }
             <div class="ci-card-header">
                 <div class="ci-card-title"><i class="fas fa-layer-group"></i> Semestres / Trimestres</div>
                 <?php if (has_permission('settings.semesters')): ?>
-                    <a href="<?= site_url('admin/academic/semesters/form?year_id=' . $year->id) ?>" class="add-btn">
+                    <a href="<?= site_url('admin/academic/semesters/form?year_id=' . $year['id']) ?>" class="add-btn">
                         <i class="fas fa-plus"></i> Novo Semestre
                     </a>
                 <?php endif; ?>
@@ -377,37 +377,37 @@ body { background:var(--surface); color:var(--text-primary); }
             <div class="qa-card-header"><i class="fas fa-bolt"></i> Ações Rápidas</div>
             <div class="qa-card-body">
 
-                <?php if (!$year->is_current && has_permission('settings.academic_years')): ?>
-                    <a href="<?= site_url('admin/academic/years/setCurrent/' . $year->id) ?>"
+                <?php if (!$year['id'] == current_academic_year() && has_permission('settings.academic_years')): ?>
+                    <a href="<?= site_url('admin/academic/years/setCurrent/' . $year['id']) ?>"
                        class="qa-action"
-                       onclick="return confirm('Tem certeza que deseja definir <?= esc($year->year_name) ?> como ano letivo atual?')">
+                       onclick="return confirm('Tem certeza que deseja definir <?= esc($year['year_name']) ?> como ano letivo atual?')">
                         <i class="fas fa-star" style="color:var(--warning);"></i> Definir como Atual
                     </a>
-                <?php elseif ($year->is_current): ?>
+                <?php elseif ($year['id'] == current_academic_year()): ?>
                     <div class="qa-info"><i class="fas fa-star" style="color:var(--warning);"></i> Este é o ano letivo atual</div>
                 <?php endif; ?>
 
-                <a href="<?= site_url('admin/reports/academic?year_id=' . $year->id) ?>" class="qa-action success-btn">
+                <a href="<?= site_url('admin/reports/academic?year_id=' . $year['id']) ?>" class="qa-action success-btn">
                     <i class="fas fa-chart-bar"></i> Gerar Relatório
                 </a>
 
-                <?php if (!$year->is_current && $year->is_active && has_permission('settings.academic_years')): ?>
-                    <form action="<?= site_url('admin/academic/years/toggle-active/' . $year->id) ?>" method="post"
+                <?php if (!$year['id'] == current_academic_year() && $year['is_active'] && has_permission('settings.academic_years')): ?>
+                    <form action="<?= site_url('admin/academic/years/toggle-active/' . $year['id']) ?>" method="post"
                           onsubmit="return confirm('ATENÇÃO: Desativar este ano letivo irá afetar todas as turmas, matrículas e semestres associados. Tem certeza?')">
                         <?= csrf_field() ?>
                         <button type="submit" class="qa-action warning-btn">
                             <i class="fas fa-ban"></i> Desativar Ano Letivo
                         </button>
                     </form>
-                <?php elseif ($year->is_current): ?>
+                <?php elseif ($year['id'] == current_academic_year()): ?>
                     <div class="qa-info"><i class="fas fa-info-circle"></i> O ano letivo atual não pode ser desativado.</div>
-                <?php elseif (!$year->is_active): ?>
+                <?php elseif (!$year['is_active']): ?>
                     <div class="qa-info"><i class="fas fa-info-circle"></i> Este ano letivo já está desativado.</div>
                 <?php endif; ?>
 
-                <?php if (!$year->is_active && has_permission('settings.academic_years')): ?>
-                    <form action="<?= site_url('admin/academic/years/toggle-active/' . $year->id) ?>" method="post"
-                          onsubmit="return confirm('Tem certeza que deseja ativar <?= esc($year->year_name) ?>?')">
+                <?php if (!$year['is_active'] && has_permission('settings.academic_years')): ?>
+                    <form action="<?= site_url('admin/academic/years/toggle-active/' . $year['id']) ?>" method="post"
+                          onsubmit="return confirm('Tem certeza que deseja ativar <?= esc($year['year_name']) ?>?')">
                         <?= csrf_field() ?>
                         <button type="submit" class="qa-action success-btn">
                             <i class="fas fa-check"></i> Ativar Ano Letivo

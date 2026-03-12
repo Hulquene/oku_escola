@@ -133,22 +133,22 @@ body { background:var(--surface); color:var(--text-primary); }
                 <?php if (!empty($years)): ?>
                     <?php foreach ($years as $year): ?>
                     <tr>
-                        <td><span class="id-chip"><?= $year->id ?></span></td>
-                        <td><span class="year-name"><?= esc($year->year_name) ?></span></td>
-                        <td><span class="period-text"><?= date('d/m/Y', strtotime($year->start_date)) ?></span></td>
-                        <td><span class="period-text"><?= date('d/m/Y', strtotime($year->end_date)) ?></span></td>
+                        <td><span class="id-chip"><?= $year['id'] ?></span></td>
+                        <td><span class="year-name"><?= esc($year['year_name']) ?></span></td>
+                        <td><span class="period-text"><?= date('d/m/Y', strtotime($year['start_date'])) ?></span></td>
+                        <td><span class="period-text"><?= date('d/m/Y', strtotime($year['end_date'])) ?></span></td>
                         <td>
-                            <?php if ($year->is_active): ?>
+                            <?php if ($year['is_active']): ?>
                                 <span class="status-dot st-active"><span class="sd sd-active"></span>Ativo</span>
                             <?php else: ?>
                                 <span class="status-dot st-inactive"><span class="sd sd-inactive"></span>Inativo</span>
                             <?php endif; ?>
                         </td>
                         <td class="center">
-                            <?php if ($year->id == current_academic_year()): ?>
+                            <?php if ($year['id'] == current_academic_year()): ?>
                                 <span class="current-badge"><i class="fas fa-star" style="font-size:.6rem;"></i>Atual</span>
                             <?php else: ?>
-                                <a href="<?= site_url('admin/academic/years/set-current/' . $year->id) ?>"
+                                <a href="<?= site_url('admin/academic/years/set-current/' . $year['id']) ?>"
                                    class="btn-set-current"
                                    onclick="return confirm('Definir este ano como atual?')">
                                     <i class="fas fa-check-circle"></i> Definir
@@ -157,10 +157,10 @@ body { background:var(--surface); color:var(--text-primary); }
                         </td>
                         <td class="center">
                             <div class="d-flex justify-content-center gap-1">
-                                <a href="<?= site_url('admin/academic/years/form-edit/' . $year->id) ?>" class="row-btn edit" title="Editar"><i class="fas fa-edit"></i></a>
-                                <a href="<?= site_url('admin/academic/years/view/' . $year->id) ?>"    class="row-btn view" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
-                                <?php if (!$year->id == current_academic_year()): ?>
-                                    <a href="<?= site_url('admin/academic/years/delete/' . $year->id) ?>"
+                                <a href="<?= site_url('admin/academic/years/form-edit/' . $year['id']) ?>" class="row-btn edit" title="Editar"><i class="fas fa-edit"></i></a>
+                                <a href="<?= site_url('admin/academic/years/view/' . $year['id']) ?>"    class="row-btn view" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
+                                <?php if (!$year['id'] == current_academic_year()): ?>
+                                    <a href="<?= site_url('admin/academic/years/delete/' . $year['id']) ?>"
                                        class="row-btn del" title="Eliminar"
                                        onclick="return confirm('Tem certeza que deseja eliminar este ano letivo?')">
                                         <i class="fas fa-trash"></i>

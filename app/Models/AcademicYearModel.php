@@ -1,4 +1,5 @@
 <?php
+// app/Models/AcademicYearModel.php
 
 namespace App\Models;
 
@@ -40,6 +41,8 @@ class AcademicYearModel extends BaseModel
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
     
+    // 🔴 IMPORTANTE: Garantir que retorne array (padrão do CI4)
+    protected $returnType = 'array';
     
     /**
      * Get current academic year
@@ -64,11 +67,9 @@ class AcademicYearModel extends BaseModel
      */
     public function setCurrent($id)
     {
-      
-/* var_dump($id);die; */
         $this->transStart();
         
-            set_current_academic_year($id);
+        set_current_academic_year($id);
         
         $this->transComplete();
         
@@ -96,8 +97,43 @@ class AcademicYearModel extends BaseModel
             return false;
         }
         
+        // 🔴 ACESSO COMO ARRAY
         $timestamp = strtotime($date);
-        return $timestamp >= strtotime($year->start_date) && 
-               $timestamp <= strtotime($year->end_date);
+        return $timestamp >= strtotime($year['start_date']) && 
+               $timestamp <= strtotime($year['end_date']);
+    }
+    
+    /**
+     * Get previous academic year
+     */
+    public function getPreviousYear($currentYearId)
+    {
+        $current = $this->find($currentYearId);
+        
+        if (!$current) {
+            return null;
+        }
+        
+        // 🔴 ACESSO COMO ARRAY
+        return $this->where('end_date <', $current['start_date'])
+            ->orderBy('end_date', 'DESC')
+            ->first();
+    }
+    
+    /**
+     * Get next academic year
+     */
+    public function getNextYear($currentYearId)
+    {
+        $current = $this->find($currentYearId);
+        
+        if (!$current) {
+            return null;
+        }
+        
+        // 🔴 ACESSO COMO ARRAY
+        return $this->where('start_date >', $current['end_date'])
+            ->orderBy('start_date', 'ASC')
+            ->first();
     }
 }

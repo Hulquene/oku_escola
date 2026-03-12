@@ -554,7 +554,7 @@ class MiniGradeSheet extends BaseController
             ->findAll();
         
         $data['semesters'] = $this->semesterModel
-            ->where('academic_year_id', $academicYearId ?? ($currentYear->id ?? 0))
+            ->where('academic_year_id', $academicYearId ?? ($currentYear['id'] ?? 0))
             ->whereIn('status', ['ativo', 'processado'])
             ->orderBy('start_date', 'ASC')
             ->findAll();

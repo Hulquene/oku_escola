@@ -1491,6 +1491,263 @@ CREATE TABLE IF NOT EXISTS `tbl_schedules` (
         
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
 COMMENT='Horários das turmas em formato JSON';
+
+
+
+-- --------------------------------------------------------
+-- Tabela de Logs de Email
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_email_logs` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `recipient` VARCHAR(255) NOT NULL COMMENT 'Email do destinatário',
+    `recipient_name` VARCHAR(255) DEFAULT NULL COMMENT 'Nome do destinatário',
+    `recipient_id` INT(11) DEFAULT NULL COMMENT 'ID do destinatário (tbl_students, tbl_teachers, etc)',
+    `recipient_type` ENUM('student','teacher','guardian','staff','admin') DEFAULT NULL COMMENT 'Tipo de destinatário',
+    `subject` VARCHAR(255) NOT NULL COMMENT 'Assunto do email',
+    `template` VARCHAR(100) DEFAULT NULL COMMENT 'Template utilizado',
+    `status` ENUM('sent','failed','queued') DEFAULT 'sent' COMMENT 'Status do envio',
+    `sent_by` INT(11) DEFAULT NULL COMMENT 'ID do usuário que enviou (tbl_users)',
+    `ip_address` VARCHAR(45) DEFAULT NULL COMMENT 'IP de quem enviou',
+    `sent_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Data/hora do envio',
+    PRIMARY KEY (`id`),
+    KEY `recipient` (`recipient`),
+    KEY `recipient_type` (`recipient_type`),
+    KEY `status` (`status`),
+    KEY `sent_at` (`sent_at`),
+    KEY `sent_by` (`sent_by`),
+    CONSTRAINT `fk_email_logs_sent_by` FOREIGN KEY (`sent_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registo de emails enviados pelo sistema';
+
+ALTER TABLE `tbl_enrollments` 
+ADD COLUMN `is_approved` TINYINT(1) DEFAULT '0' COMMENT '0=Pendente, 1=Aprovado, 2=Reprovado' AFTER `final_result`,
+ADD COLUMN `approved_at` DATETIME NULL COMMENT 'Data da aprovação' AFTER `is_approved`,
+ADD COLUMN `approved_by` INT(11) NULL COMMENT 'Usuário que aprovou' AFTER `approved_at`,
+ADD COLUMN `promoted_to_enrollment_id` INT(11) NULL COMMENT 'ID da matrícula no próximo ano (progressão)' AFTER `approved_by`,
+ADD COLUMN `promotion_status` ENUM('pending','promoted','retained','transferred','graduated') DEFAULT 'pending' AFTER `promoted_to_enrollment_id`;
+
+-- --------------------------------------------------------
+-- Tabela de Ciclos de Ensino
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_cycles` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `cycle_name` VARCHAR(100) NOT NULL COMMENT 'Nome do ciclo (ex: Iniciação, Primário, 1º Ciclo, 2º Ciclo)',
+    `cycle_code` VARCHAR(20) NOT NULL COMMENT 'Código do ciclo (INI, PRI, 1CIC, 2CIC)',
+    `education_level` ENUM('Iniciação','Primário','1º Ciclo','2º Ciclo','Ensino Médio') NOT NULL,
+    `start_grade_id` INT(11) NOT NULL COMMENT 'Nível inicial do ciclo',
+    `end_grade_id` INT(11) NOT NULL COMMENT 'Nível final do ciclo',
+    `duration_years` INT(2) NOT NULL COMMENT 'Duração em anos',
+    `is_cycle_end` TINYINT(1) DEFAULT '0' COMMENT 'Se este ciclo emite certificado (ex: Primário, 1º Ciclo, 2º Ciclo)',
+    `description` TEXT NULL,
+    `sort_order` INT(3) DEFAULT 0,
+    `is_active` TINYINT(1) DEFAULT 1,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `cycle_code` (`cycle_code`),
+    KEY `start_grade_id` (`start_grade_id`),
+    KEY `end_grade_id` (`end_grade_id`),
+    KEY `education_level` (`education_level`),
+    CONSTRAINT `fk_cycles_start_grade` FOREIGN KEY (`start_grade_id`) REFERENCES `tbl_grade_levels` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_cycles_end_grade` FOREIGN KEY (`end_grade_id`) REFERENCES `tbl_grade_levels` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Ciclos de ensino do sistema angolano';
+
+-- --------------------------------------------------------
+-- Tabela de Áreas de Formação/Especialidade
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_education_areas` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `area_name` VARCHAR(100) NOT NULL COMMENT 'Nome da área/especialidade (ex: Ciências Físicas e Biológicas, Variante Física)',
+    `area_code` VARCHAR(20) NOT NULL COMMENT 'Código da área (CFB, FIS, QUI, BIO)',
+    `area_type` ENUM('Área', 'Especialidade') NOT NULL DEFAULT 'Área' COMMENT 'Área (geral) ou Especialidade (variante)',
+    `parent_area_id` INT(11) NULL COMMENT 'ID da área pai (para especialidades)',
+    `cycle_id` INT(11) NOT NULL COMMENT 'Ciclo ao qual pertence (2º Ciclo/Ensino Médio)',
+    `description` TEXT NULL,
+    `is_active` TINYINT(1) DEFAULT 1,
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `area_code` (`area_code`),
+    KEY `cycle_id` (`cycle_id`),
+    KEY `parent_area_id` (`parent_area_id`),
+    CONSTRAINT `fk_areas_cycle` FOREIGN KEY (`cycle_id`) REFERENCES `tbl_cycles` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_areas_parent` FOREIGN KEY (`parent_area_id`) REFERENCES `tbl_education_areas` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Áreas de formação e especialidades do Ensino Médio';
+
+-- Adicionar campos para identificar fim de ciclo nos níveis de ensino
+ALTER TABLE `tbl_grade_levels` 
+ADD COLUMN `is_cycle_end` TINYINT(1) DEFAULT '0' COMMENT '1=Final de ciclo' AFTER `sort_order`,
+ADD COLUMN `cycle_id` INT(11) NULL COMMENT 'ID do ciclo ao qual pertence' AFTER `is_cycle_end`,
+ADD KEY `cycle_id` (`cycle_id`);
+
+-- --------------------------------------------------------
+-- Inserir Ciclos de Ensino
+-- --------------------------------------------------------
+INSERT INTO `tbl_cycles` (`cycle_name`, `cycle_code`, `education_level`, `start_grade_id`, `end_grade_id`, `duration_years`, `is_cycle_end`, `sort_order`) VALUES
+('Iniciação', 'INI', 'Iniciação', 1, 3, 3, 0, 1),
+('Ensino Primário', 'PRI', 'Primário', 4, 9, 6, 1, 2),  -- Emite certificado (6ª classe)
+('1º Ciclo do Ensino Secundário', '1CIC', '1º Ciclo', 10, 12, 3, 1, 3),  -- Emite certificado (9ª classe)
+('2º Ciclo do Ensino Secundário', '2CIC', '2º Ciclo', 13, 16, 4, 1, 4);  -- Emite certificado (13ª classe)
+
+-- --------------------------------------------------------
+-- Atualizar tbl_grade_levels com os ciclos correspondentes
+-- --------------------------------------------------------
+-- Iniciação (IDs 1-3)
+UPDATE `tbl_grade_levels` SET `cycle_id` = 1 WHERE `id` BETWEEN 1 AND 3;
+UPDATE `tbl_grade_levels` SET `is_cycle_end` = 1 WHERE `id` = 3; -- 3º Ano Iniciação
+
+-- Ensino Primário (IDs 4-9)
+UPDATE `tbl_grade_levels` SET `cycle_id` = 2 WHERE `id` BETWEEN 4 AND 9;
+UPDATE `tbl_grade_levels` SET `is_cycle_end` = 1 WHERE `id` = 9; -- 6ª Classe
+
+-- 1º Ciclo (IDs 10-12)
+UPDATE `tbl_grade_levels` SET `cycle_id` = 3 WHERE `id` BETWEEN 10 AND 12;
+UPDATE `tbl_grade_levels` SET `is_cycle_end` = 1 WHERE `id` = 12; -- 9ª Classe
+
+-- 2º Ciclo (IDs 13-16)
+UPDATE `tbl_grade_levels` SET `cycle_id` = 4 WHERE `id` BETWEEN 13 AND 16;
+UPDATE `tbl_grade_levels` SET `is_cycle_end` = 1 WHERE `id` = 16; -- 13ª Classe
+
+-- --------------------------------------------------------
+-- Primeiro, inserir as ÁREAS principais (nível 1)
+-- --------------------------------------------------------
+INSERT INTO `tbl_education_areas` (`area_name`, `area_code`, `area_type`, `cycle_id`, `description`) VALUES
+('Ciências Físicas e Biológicas', 'CFB', 'Área', 4, 'Área das Ciências Físicas e Biológicas'),
+('Ciências Económicas e Jurídicas', 'CEJ', 'Área', 4, 'Área das Ciências Económicas e Jurídicas'),
+('Ciências Humanas', 'CH', 'Área', 4, 'Área das Ciências Humanas'),
+('Ensino Técnico-Profissional', 'ETP', 'Área', 4, 'Área do Ensino Técnico-Profissional'),
+('Formação de Professores', 'FP', 'Área', 4, 'Área de Formação de Professores (Magistério)');
+
+-- --------------------------------------------------------
+-- Depois, inserir as ESPECIALIDADES (nível 2) - vinculadas às áreas
+-- --------------------------------------------------------
+
+-- Especialidades de Ciências Físicas e Biológicas (CFB)
+INSERT INTO `tbl_education_areas` (`area_name`, `area_code`, `area_type`, `parent_area_id`, `cycle_id`, `description`) VALUES
+('Variante Física', 'CFB-FIS', 'Especialidade', 1, 4, 'Especialidade em Física'),
+('Variante Química', 'CFB-QUI', 'Especialidade', 1, 4, 'Especialidade em Química'),
+('Variante Biologia', 'CFB-BIO', 'Especialidade', 1, 4, 'Especialidade em Biologia');
+
+-- Especialidades de Ciências Económicas e Jurídicas (CEJ)
+INSERT INTO `tbl_education_areas` (`area_name`, `area_code`, `area_type`, `parent_area_id`, `cycle_id`, `description`) VALUES
+('Variante Economia', 'CEJ-ECO', 'Especialidade', 2, 4, 'Especialidade em Economia'),
+('Variante Direito', 'CEJ-DIR', 'Especialidade', 2, 4, 'Especialidade em Direito'),
+('Variante Contabilidade', 'CEJ-CONT', 'Especialidade', 2, 4, 'Especialidade em Contabilidade');
+
+-- Especialidades de Ciências Humanas (CH)
+INSERT INTO `tbl_education_areas` (`area_name`, `area_code`, `area_type`, `parent_area_id`, `cycle_id`, `description`) VALUES
+('Variante História', 'CH-HIS', 'Especialidade', 3, 4, 'Especialidade em História'),
+('Variante Geografia', 'CH-GEO', 'Especialidade', 3, 4, 'Especialidade em Geografia'),
+('Variante Filosofia', 'CH-FIL', 'Especialidade', 3, 4, 'Especialidade em Filosofia');
+
+-- Especialidades de Ensino Técnico-Profissional (ETP)
+INSERT INTO `tbl_education_areas` (`area_name`, `area_code`, `area_type`, `parent_area_id`, `cycle_id`, `description`) VALUES
+('Eletricidade', 'ETP-ELE', 'Especialidade', 4, 4, 'Curso Técnico de Eletricidade'),
+('Eletrónica', 'ETP-ELT', 'Especialidade', 4, 4, 'Curso Técnico de Eletrónica'),
+('Informática', 'ETP-INF', 'Especialidade', 4, 4, 'Curso Técnico de Informática'),
+('Mecânica', 'ETP-MEC', 'Especialidade', 4, 4, 'Curso Técnico de Mecânica'),
+('Construção Civil', 'ETP-CC', 'Especialidade', 4, 4, 'Curso Técnico de Construção Civil'),
+('Enfermagem', 'ETP-ENF', 'Especialidade', 4, 4, 'Curso Técnico de Enfermagem'),
+('Farmácia', 'ETP-FAR', 'Especialidade', 4, 4, 'Curso Técnico de Farmácia'),
+('Contabilidade', 'ETP-CONT', 'Especialidade', 4, 4, 'Curso Técnico de Contabilidade'),
+('Administração', 'ETP-ADM', 'Especialidade', 4, 4, 'Curso Técnico de Administração'),
+('Turismo', 'ETP-TUR', 'Especialidade', 4, 4, 'Curso Técnico de Turismo'),
+('Hotelaria', 'ETP-HOT', 'Especialidade', 4, 4, 'Curso Técnico de Hotelaria');
+
+-- Especialidades de Formação de Professores (FP)
+INSERT INTO `tbl_education_areas` (`area_name`, `area_code`, `area_type`, `parent_area_id`, `cycle_id`, `description`) VALUES
+('Ensino Primário', 'FP-EP', 'Especialidade', 5, 4, 'Magistério Primário'),
+('Educação de Infância', 'FP-EI', 'Especialidade', 5, 4, 'Educação Pré-Escolar'),
+('Português', 'FP-PT', 'Especialidade', 5, 4, 'Formação de Professores de Português'),
+('Matemática', 'FP-MAT', 'Especialidade', 5, 4, 'Formação de Professores de Matemática'),
+('História', 'FP-HIS', 'Especialidade', 5, 4, 'Formação de Professores de História'),
+('Geografia', 'FP-GEO', 'Especialidade', 5, 4, 'Formação de Professores de Geografia'),
+('Biologia', 'FP-BIO', 'Especialidade', 5, 4, 'Formação de Professores de Biologia'),
+('Física', 'FP-FIS', 'Especialidade', 5, 4, 'Formação de Professores de Física'),
+('Química', 'FP-QUI', 'Especialidade', 5, 4, 'Formação de Professores de Química'),
+('Educação Física', 'FP-EF', 'Especialidade', 5, 4, 'Formação de Professores de Educação Física');
+
+-- Adicionar campo area_id à tabela tbl_courses
+ALTER TABLE `tbl_courses` 
+ADD COLUMN `area_id` INT(11) NULL COMMENT 'ID da área de formação' AFTER `course_type`,
+ADD KEY `area_id` (`area_id`),
+ADD CONSTRAINT `fk_courses_area` FOREIGN KEY (`area_id`) REFERENCES `tbl_education_areas` (`id`) ON DELETE SET NULL;
+
+-- Atualizar os cursos existentes com suas áreas correspondentes
+-- CFB (área principal id=1)
+UPDATE `tbl_courses` SET `area_id` = 1 WHERE `course_code` LIKE 'CFB%';
+UPDATE `tbl_courses` SET `area_id` = 6 WHERE `course_code` = 'CFB-FIS'; -- Especialidade Física
+UPDATE `tbl_courses` SET `area_id` = 7 WHERE `course_code` = 'CFB-QUI'; -- Especialidade Química
+UPDATE `tbl_courses` SET `area_id` = 8 WHERE `course_code` = 'CFB-BIO'; -- Especialidade Biologia
+
+-- CEJ (área principal id=2)
+UPDATE `tbl_courses` SET `area_id` = 2 WHERE `course_code` LIKE 'CEJ%';
+UPDATE `tbl_courses` SET `area_id` = 9 WHERE `course_code` = 'CEJ-ECO'; -- Especialidade Economia
+UPDATE `tbl_courses` SET `area_id` = 10 WHERE `course_code` = 'CEJ-DIR'; -- Especialidade Direito
+
+-- CH (área principal id=3)
+UPDATE `tbl_courses` SET `area_id` = 3 WHERE `course_code` LIKE 'CH%';
+UPDATE `tbl_courses` SET `area_id` = 12 WHERE `course_code` = 'CH-HIS'; -- Especialidade História
+UPDATE `tbl_courses` SET `area_id` = 13 WHERE `course_code` = 'CH-GEO'; -- Especialidade Geografia
+UPDATE `tbl_courses` SET `area_id` = 14 WHERE `course_code` = 'CH-FIL'; -- Especialidade Filosofia
+
+-- ETP (área principal id=4)
+UPDATE `tbl_courses` SET `area_id` = 4 WHERE `course_code` LIKE 'ETP%' AND LENGTH(`course_code`) <= 7;
+UPDATE `tbl_courses` SET `area_id` = 15 WHERE `course_code` = 'ETP-ELE'; -- Eletricidade
+UPDATE `tbl_courses` SET `area_id` = 16 WHERE `course_code` = 'ETP-ELT'; -- Eletrónica
+UPDATE `tbl_courses` SET `area_id` = 17 WHERE `course_code` = 'ETP-INF'; -- Informática
+UPDATE `tbl_courses` SET `area_id` = 18 WHERE `course_code` = 'ETP-MEC'; -- Mecânica
+UPDATE `tbl_courses` SET `area_id` = 19 WHERE `course_code` = 'ETP-CC';  -- Construção Civil
+UPDATE `tbl_courses` SET `area_id` = 20 WHERE `course_code` = 'ETP-ENF'; -- Enfermagem
+UPDATE `tbl_courses` SET `area_id` = 21 WHERE `course_code` = 'ETP-FAR'; -- Farmácia
+UPDATE `tbl_courses` SET `area_id` = 22 WHERE `course_code` = 'ETP-CONT'; -- Contabilidade
+UPDATE `tbl_courses` SET `area_id` = 23 WHERE `course_code` = 'ETP-ADM'; -- Administração
+UPDATE `tbl_courses` SET `area_id` = 24 WHERE `course_code` = 'ETP-TUR'; -- Turismo
+UPDATE `tbl_courses` SET `area_id` = 25 WHERE `course_code` = 'ETP-HOT'; -- Hotelaria
+
+-- FP (área principal id=5)
+UPDATE `tbl_courses` SET `area_id` = 5 WHERE `course_code` LIKE 'FP%' AND LENGTH(`course_code`) <= 5;
+UPDATE `tbl_courses` SET `area_id` = 26 WHERE `course_code` = 'FP-EP';  -- Ensino Primário
+UPDATE `tbl_courses` SET `area_id` = 27 WHERE `course_code` = 'FP-EI';  -- Educação de Infância
+UPDATE `tbl_courses` SET `area_id` = 28 WHERE `course_code` = 'FP-PT';  -- Português
+UPDATE `tbl_courses` SET `area_id` = 29 WHERE `course_code` = 'FP-MAT'; -- Matemática
+UPDATE `tbl_courses` SET `area_id` = 30 WHERE `course_code` = 'FP-HIS'; -- História
+UPDATE `tbl_courses` SET `area_id` = 31 WHERE `course_code` = 'FP-GEO'; -- Geografia
+UPDATE `tbl_courses` SET `area_id` = 32 WHERE `course_code` = 'FP-BIO'; -- Biologia
+UPDATE `tbl_courses` SET `area_id` = 33 WHERE `course_code` = 'FP-FIS'; -- Física
+UPDATE `tbl_courses` SET `area_id` = 34 WHERE `course_code` = 'FP-QUI'; -- Química
+UPDATE `tbl_courses` SET `area_id` = 35 WHERE `course_code` = 'FP-EF';  -- Educação Física
+
+-- Cursos Técnicos de Curta Duração (todos pertencem à área ETP)
+UPDATE `tbl_courses` SET `area_id` = 4 WHERE `course_code` IN ('TI', 'TC', 'TE', 'TR', 'TM');
+
+-- --------------------------------------------------------
+-- Tabela de Documentos Acadêmicos Emitidos
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tbl_academic_documents` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `student_id` INT(11) NOT NULL COMMENT 'ID do aluno',
+    `enrollment_id` INT(11) NOT NULL COMMENT 'ID da matrícula',
+    `document_type` ENUM('certificate','declaration') NOT NULL COMMENT 'Tipo de documento',
+    `document_number` VARCHAR(50) NOT NULL COMMENT 'Número único do documento',
+    `issue_date` DATE NOT NULL COMMENT 'Data de emissão',
+    `file_path` VARCHAR(255) NULL COMMENT 'Caminho do arquivo PDF',
+    `status` ENUM('issued','cancelled','draft') DEFAULT 'issued' COMMENT 'Status',
+    `issued_by` INT(11) NULL COMMENT 'ID do usuário que emitiu',
+    `observations` TEXT NULL COMMENT 'Observações',
+    `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `document_number` (`document_number`),
+    UNIQUE KEY `student_enrollment_type` (`student_id`, `enrollment_id`, `document_type`),
+    KEY `student_id` (`student_id`),
+    KEY `enrollment_id` (`enrollment_id`),
+    KEY `issued_by` (`issued_by`),
+    CONSTRAINT `fk_academic_documents_student` FOREIGN KEY (`student_id`) REFERENCES `tbl_students` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_academic_documents_enrollment` FOREIGN KEY (`enrollment_id`) REFERENCES `tbl_enrollments` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_academic_documents_issued_by` FOREIGN KEY (`issued_by`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Documentos acadêmicos emitidos (certificados e declarações)';
+
+
 -- --------------------------------------------------------
 -- Inserção de Dados Iniciais
 -- --------------------------------------------------------

@@ -329,7 +329,7 @@ class GradeCalculator extends BaseController
         
         // Get semesters for current year
         $semesters = $this->semesterModel
-            ->where('academic_year_id', $currentYear->id ?? 0)
+            ->where('academic_year_id', $currentYear['id'] ?? 0)
             ->where('is_active', 1)
             ->findAll();
 
@@ -340,7 +340,7 @@ class GradeCalculator extends BaseController
                 tbl_grade_levels.level_name
             ')
             ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
-            ->where('tbl_classes.academic_year_id', $currentYear->id ?? 0)
+            ->where('tbl_classes.academic_year_id', $currentYear['id'] ?? 0)
             ->where('tbl_classes.is_active', 1)
             ->orderBy('tbl_classes.class_name', 'ASC')
             ->findAll();

@@ -26,8 +26,8 @@
                 <select class="form-select" id="academic_year" name="academic_year" onchange="this.form.submit()">
                     <?php if (!empty($academicYears)): ?>
                         <?php foreach ($academicYears as $year): ?>
-                            <option value="<?= $year->id ?>" <?= $selectedYear == $year->id ? 'selected' : '' ?>>
-                                <?= $year->year_name ?>
+                            <option value="<?= $year['id'] ?>" <?= $selectedYear == $year['id'] ? 'selected' : '' ?>>
+                                <?= $year['year_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

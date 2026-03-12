@@ -41,7 +41,7 @@ class ExamPeriodModel extends BaseModel
         if (!$academicYearId) {
             $academicYearModel = new AcademicYearModel();
             $currentYear = $academicYearModel->getCurrent();
-            $academicYearId = $currentYear->id ?? null;
+            $academicYearId = $currentYear['id'] ?? null;
         }
         
         return $this->select('

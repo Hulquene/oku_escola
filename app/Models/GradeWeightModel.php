@@ -32,7 +32,7 @@ class GradeWeightModel extends BaseModel
         if (!$academicYearId) {
             $yearModel = new AcademicYearModel();
             $currentYear = $yearModel->getCurrent();
-            $academicYearId = $currentYear->id ?? null;
+            $academicYearId = $currentYear['id'] ?? null;
         }
         
         return $this->select('

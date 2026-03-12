@@ -92,7 +92,7 @@ class ClassModel extends BaseModel
             $academicYearModel = new \App\Models\AcademicYearModel();
             $currentYear = $academicYearModel->getCurrent();
             if ($currentYear) {
-                $builder->where('academic_year_id', $currentYear->id);
+                $builder->where('academic_year_id', $currentYear['id']);
             }
         }
         
@@ -143,7 +143,7 @@ class ClassModel extends BaseModel
             $academicYearModel = new \App\Models\AcademicYearModel();
             $currentYear = $academicYearModel->getCurrent();
             if ($currentYear) {
-                $builder->where('academic_year_id', $currentYear->id);
+                $builder->where('academic_year_id', $currentYear['id']);
             }
         }
         

@@ -68,7 +68,7 @@ class Clients extends BaseController
         // Se não houver ano selecionado na URL, usar o ano atual
         $selectedYear = $this->request->getGet('academic_year');
         if (empty($selectedYear) && $currentYear) {
-            $selectedYear = $currentYear->id;
+            $selectedYear = $currentYear['id'];
         }
         
         $data['selectedYear'] = $selectedYear;
@@ -468,7 +468,7 @@ public function studentForm($id = null)
     $data['courses'] = $this->courseModel->getActive();
     
     // Inicializar variáveis
-    $data['selectedYear'] = $currentYear->id ?? null;
+    $data['selectedYear'] = $currentYear['id'] ?? null;
     $data['selectedLevel'] = null;
     $data['selectedCourse'] = null; // NOVO
     $data['selectedEnrollmentType'] = 'Nova';
@@ -478,7 +478,7 @@ public function studentForm($id = null)
         // Buscar matrícula pendente primeiro
         $enrollment = $this->enrollmentModel
             ->where('student_id', $id)
-            ->where('academic_year_id', $currentYear->id ?? 0)
+            ->where('academic_year_id', $currentYear['id'] ?? 0)
             ->where('status', 'Pendente')
             ->orderBy('created_at', 'DESC')
             ->first();

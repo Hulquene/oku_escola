@@ -234,8 +234,8 @@ div.dt-container .dt-search input {
                     <select class="filter-select" name="academic_year" id="academic_year">
                         <option value="">Todos</option>
                         <?php foreach ($academicYears ?? [] as $year): ?>
-                            <option value="<?= $year->id ?>" <?= ($selectedYear == $year->id) ? 'selected' : '' ?>>
-                                <?= esc($year->year_name) ?><?= $year->is_current ? ' ★' : '' ?>
+                            <option value="<?= $year['id'] ?>" <?= ($selectedYear == $year['id']) ? 'selected' : '' ?>>
+                                <?= esc($year['year_name']) ?><?= $year->is_current ? ' ★' : '' ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

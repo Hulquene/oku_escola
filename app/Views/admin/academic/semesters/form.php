@@ -249,13 +249,13 @@ body { background: var(--surface); color: var(--text-primary); }
                                 id="academic_year_id" name="academic_year_id" required>
                             <option value="">Selecione o ano letivo...</option>
                             <?php foreach ($academicYears as $year): ?>
-                                <option value="<?= $year->id ?>"
-                                        data-start="<?= $year->start_date ?>"
-                                        data-end="<?= $year->end_date ?>"
-                                        <?= old('academic_year_id', $semester->academic_year_id ?? '') == $year->id ? 'selected' : '' ?>>
-                                    <?= esc($year->year_name) ?>
-                                    (<?= date('d/m/Y', strtotime($year->start_date)) ?> –
-                                     <?= date('d/m/Y', strtotime($year->end_date)) ?>)
+                                <option value="<?= $year['id'] ?>"
+                                        data-start="<?= $year['start_date'] ?>"
+                                        data-end="<?= $year['end_date'] ?>"
+                                        <?= old('academic_year_id'), $semester->academic_year_id ?? '') == $year['id'] ? 'selected' : '' ?>>
+                                    <?= esc($year['year_name']) ?>
+                                    (<?= date('d/m/Y', strtotime($year['start_date'])) ?> –
+                                     <?= date('d/m/Y', strtotime($year['end_date'])) ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>

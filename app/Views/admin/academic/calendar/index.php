@@ -517,8 +517,8 @@
                 <option value="">Todos os Anos</option>
                 <?php if (!empty($academicYears)): ?>
                     <?php foreach ($academicYears as $year): ?>
-                        <option value="<?= $year->id ?>" <?= $selectedYear == $year->id ? 'selected' : '' ?>>
-                            <?= $year->year_name ?> <?= $year->id == current_academic_year() ? '(Atual)' : '' ?>
+                        <option value="<?= $year['id'] ?>" <?= $selectedYear == $year['id'] ? 'selected' : '' ?>>
+                            <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                         </option>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -585,8 +585,8 @@
                                 <option value="">Selecione...</option>
                                 <?php if (!empty($academicYears)): ?>
                                     <?php foreach ($academicYears as $year): ?>
-                                        <option value="<?= $year->id ?>" <?= $selectedYear == $year->id ? 'selected' : '' ?>>
-                                            <?= $year->year_name ?>
+                                        <option value="<?= $year['id'] ?>" <?= $selectedYear == $year['id'] ? 'selected' : '' ?>>
+                                            <?= $year['year_name'] ?>
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>

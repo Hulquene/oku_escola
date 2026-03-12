@@ -362,7 +362,7 @@ public function assign()
         $currentYear = $this->academicYearModel->getCurrent();
         if ($currentYear) {
             $data['semesters'] = $this->semesterModel
-                ->where('academic_year_id', $currentYear->id)
+                ->where('academic_year_id', $currentYear['id'])
                 ->whereIn('status', ['ativo', 'processado'])
                 ->orderBy('start_date', 'ASC')
                 ->findAll();

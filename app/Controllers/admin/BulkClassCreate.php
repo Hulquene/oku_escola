@@ -212,7 +212,7 @@ class BulkClassCreate extends BaseController
     private function generateClassCode($gradeLevel, $number, $shift, $academicYearId)
     {
         $year = $this->academicYearModel->find($academicYearId);
-        $yearSuffix = $year ? date('y', strtotime($year->start_date)) : date('y');
+        $yearSuffix = $year ? date('y', strtotime($year['start_date'])) : date('y');
         
         $shiftCode = match($shift) {
             'Manhã' => 'M',

@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\admin\AcademicDocuments;
 use App\Controllers\admin\AcademicYears;
 use App\Controllers\admin\Classes;
 use App\Controllers\admin\ClassSubjects;
@@ -45,6 +46,7 @@ use App\Controllers\admin\CourseCurriculum;
 use App\Controllers\admin\Grades;
 use App\Controllers\admin\AcademicRecords;
 use App\Controllers\admin\BulkClassCreate;
+use App\Controllers\admin\EmailController;
 use App\Controllers\admin\ExamPeriods;
 use App\Controllers\admin\GradeCurriculum;
 use App\Controllers\admin\Schedule;
@@ -170,6 +172,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('delete/(:num)', [AcademicYears::class, 'delete'], ["as" => 'academic.years.delete/$1']);
         $routes->get('check-dates/(:num)', [AcademicYears::class, 'checkDates'], ["as" => 'academic.years.check-dates']);
     });
+
       // Semestres/Trimestres
     $routes->group('semesters', function ($routes) {
         $routes->get('', [Semesters::class, 'index'], ["as" => 'academic.semesters']);
@@ -197,24 +200,33 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     });
   });
 
+    // No arquivo de rotas, adicione:
+    $routes->group('academic-documents', ['filter' => 'auth:admin'], function($routes) {
+        $routes->get('/', [AcademicDocuments::class, 'index'], ['as' => 'academic_documents.index']);
+        $routes->get('eligible-certificates', [AcademicDocuments::class, 'eligibleForCertificate'], ['as' => 'academic_documents.certificates']);
+        $routes->get('eligible-declarations', [AcademicDocuments::class, 'eligibleForDeclaration'], ['as' => 'academic_documents.declarations']);
+        $routes->get('generate-certificate/(:num)', [AcademicDocuments::class, 'generateCertificate/$1'], ['as' => 'academic_documents.generate_certificate']);
+        $routes->get('generate-declaration/(:num)', [AcademicDocuments::class, 'generateDeclaration/$1'], ['as' => 'academic_documents.generate_declaration']);
+        $routes->get('history', [AcademicDocuments::class, 'history'], ['as' => 'academic_documents.history']);
+    });
   // Cursos (Ensino Médio)
-        $routes->group('courses', function ($routes) {
-            $routes->get('/', [Courses::class, 'index'], ['as' => 'admin.courses']);
-            $routes->get('form-add', [Courses::class, 'form'], ['as' => 'admin.courses.form']);
-            $routes->get('form-edit/(:num)', [Courses::class, 'form/$1'], ['as' => 'admin.courses.form.edit']);
-            $routes->post('save', [Courses::class, 'save'], ['as' => 'admin.courses.save']);
-            $routes->get('view/(:num)', [Courses::class, 'view/$1'], ['as' => 'admin.courses.view']);
-            $routes->get('delete/(:num)', [Courses::class, 'delete/$1'], ['as' => 'admin.courses.delete']);
-            
-            // Currículo do curso
-            $routes->get('curriculum/(:num)', [CourseCurriculum::class, 'index/$1'], ['as' => 'admin.courses.curriculum']);
-            $routes->post('curriculum/add-discipline', [CourseCurriculum::class, 'addDiscipline'], ['as' => 'admin.courses.curriculum.add']);
-            $routes->get('curriculum/edit/(:num)', [CourseCurriculum::class, 'editDiscipline/$1'], ['as' => 'admin.courses.curriculum.edit']);
-            $routes->post('curriculum/update/(:num)', [CourseCurriculum::class, 'updateDiscipline/$1'], ['as' => 'admin.courses.curriculum.update']);
-            $routes->get('curriculum/remove/(:num)', [CourseCurriculum::class, 'removeDiscipline/$1'], ['as' => 'admin.courses.curriculum.remove']);
-            $routes->get('curriculum/get-available/(:num)/(:num)', [CourseCurriculum::class, 'getAvailableDisciplines/$1/$2'], ['as' => 'admin.courses.curriculum.available']);
+    $routes->group('courses', function ($routes) {
+        $routes->get('/', [Courses::class, 'index'], ['as' => 'admin.courses']);
+        $routes->get('form-add', [Courses::class, 'form'], ['as' => 'admin.courses.form']);
+        $routes->get('form-edit/(:num)', [Courses::class, 'form/$1'], ['as' => 'admin.courses.form.edit']);
+        $routes->post('save', [Courses::class, 'save'], ['as' => 'admin.courses.save']);
+        $routes->get('view/(:num)', [Courses::class, 'view/$1'], ['as' => 'admin.courses.view']);
+        $routes->get('delete/(:num)', [Courses::class, 'delete/$1'], ['as' => 'admin.courses.delete']);
+        
+        // Currículo do curso
+        $routes->get('curriculum/(:num)', [CourseCurriculum::class, 'index/$1'], ['as' => 'admin.courses.curriculum']);
+        $routes->post('curriculum/add-discipline', [CourseCurriculum::class, 'addDiscipline'], ['as' => 'admin.courses.curriculum.add']);
+        $routes->get('curriculum/edit/(:num)', [CourseCurriculum::class, 'editDiscipline/$1'], ['as' => 'admin.courses.curriculum.edit']);
+        $routes->post('curriculum/update/(:num)', [CourseCurriculum::class, 'updateDiscipline/$1'], ['as' => 'admin.courses.curriculum.update']);
+        $routes->get('curriculum/remove/(:num)', [CourseCurriculum::class, 'removeDiscipline/$1'], ['as' => 'admin.courses.curriculum.remove']);
+        $routes->get('curriculum/get-available/(:num)/(:num)', [CourseCurriculum::class, 'getAvailableDisciplines/$1/$2'], ['as' => 'admin.courses.curriculum.available']);
 
-        });
+    });
       
 
 
@@ -624,51 +636,45 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
       $routes->get('period', [Grades::class, 'period'], ['as' => 'admin.grades.period']);
   });
 
-    // Pautas/Histórico Acadêmico
-  $routes->group('academic-records', ['filter' => 'auth:admin,teachers'], function($routes) {
-      $routes->get('/', [AcademicRecords::class, 'index'], ['as' => 'academic.records']);
-      $routes->get('class/(:num)', [AcademicRecords::class, 'class/$1'], ['as' => 'academic.records.class']);
-      $routes->get('student/(:num)', [AcademicRecords::class, 'student/$1'], ['as' => 'academic.records.student']);
-      $routes->get('semester/(:num)', [AcademicRecords::class, 'semester/$1'], ['as' => 'academic.records.semester']);
-      $routes->get('export', [AcademicRecords::class, 'export'], ['as' => 'academic.records.export']);
-      $routes->post('finalize-year', [AcademicRecords::class, 'finalizeYear'], ['as' => 'academic.records.finalize']);
-      $routes->get('transcript/(:num)', [AcademicRecords::class, 'transcript/$1'], ['as' => 'academic.records.transcript']);
-      $routes->get('certificate/(:num)', [AcademicRecords::class, 'certificate/$1'], ['as' => 'academic.records.certificate']);
+      // Pautas/Histórico Acadêmico
+    $routes->group('academic-records', ['filter' => 'auth:admin,teachers'], function($routes) {
+        $routes->get('/', [AcademicRecords::class, 'index'], ['as' => 'academic.records']);
+        $routes->get('class/(:num)', [AcademicRecords::class, 'class/$1'], ['as' => 'academic.records.class']);
+        $routes->get('student/(:num)', [AcademicRecords::class, 'student/$1'], ['as' => 'academic.records.student']);
+        $routes->get('semester/(:num)', [AcademicRecords::class, 'semester/$1'], ['as' => 'academic.records.semester']);
+        $routes->get('export', [AcademicRecords::class, 'export'], ['as' => 'academic.records.export']);
+        $routes->post('finalize-year', [AcademicRecords::class, 'finalizeYear'], ['as' => 'academic.records.finalize']);
+        $routes->get('transcript/(:num)', [AcademicRecords::class, 'transcript/$1'], ['as' => 'academic.records.transcript']);
+        $routes->get('certificate/(:num)', [AcademicRecords::class, 'certificate/$1'], ['as' => 'academic.records.certificate']);
 
-/* 
-    
-        // Pauta Trimestral
-      $routes->get('trimestral', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestral']);
-      $routes->post('trimestral', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestral']);
-      $routes->get('trimestral/class/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestralClass/$1'], ['as' => 'academic.records.trimestral.class']);
-      $routes->get('trimestral/export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportTrimestral/$1'], ['as' => 'academic.records.trimestral.export']);
+            // Novas rotas para aprovação e progressão
+            // Lista de turmas disponíveis para aprovação
+        $routes->get('approvals', [AcademicRecords::class, 'approvalClasses'], ['as' => 'academic.approvals.list']);
+        $routes->get('approvals/(:num)', [AcademicRecords::class, 'processApprovals/$1'], ['as' => 'academic.approvals']);
+        $routes->post('save-approvals', [AcademicRecords::class, 'saveApprovals'], ['as' => 'academic.save_approvals']);
+        $routes->post('promote-students', [AcademicRecords::class, 'promoteStudents'], ['as' => 'academic.promote_students']);
+        $routes->get('promotion-results', [AcademicRecords::class, 'promotionResults'], ['as' => 'academic.promotion_results']);
+        $routes->get('check-eligibility/(:num)/(:num)', [AcademicRecords::class, 'checkEligibility/$1/$2'], ['as' => 'academic.check_eligibility']);
 
-      
-      // Pauta por Disciplina
-      $routes->get('disciplina', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplina'], ['as' => 'academic.records.disciplina']);
-      $routes->post('disciplina', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplina'], ['as' => 'academic.records.disciplina']);
-      $routes->get('disciplina/view/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplinaView/$1//$2'], ['as' => 'academic.records.disciplina.view']);
-      $routes->get('disciplina/export/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportDisciplina/$1/$1'], ['as' => 'academic.records.disciplina.expor']); */
+    });
 
-  });
-
-  // Mini Grade Sheet Admin
-$routes->group('mini-grade-sheet', ['filter' => 'auth:admin'], function($routes) {
-    $routes->get('/', [\App\Controllers\admin\MiniGradeSheet::class, 'index']);
-    $routes->get('view/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'view/$1']);
-    $routes->get('print/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'print/$1']);
-    $routes->get('export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'export/$1']);
-    
-    // Pautas Trimestrais
-    $routes->get('trimestral', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestral']);
-    $routes->get('trimestral/class/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestralClass/$1']);
-    $routes->get('trimestral/export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportTrimestral/$1']);
-    
-    // Pautas por Disciplina
-    $routes->get('disciplina', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplina']);
-    $routes->get('disciplina/view/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplinaView/$1/$2']);
-    $routes->get('disciplina/export/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportDisciplina/$1/$2']);
-});
+      // Mini Grade Sheet Admin
+    $routes->group('mini-grade-sheet', ['filter' => 'auth:admin'], function($routes) {
+        $routes->get('/', [\App\Controllers\admin\MiniGradeSheet::class, 'index']);
+        $routes->get('view/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'view/$1']);
+        $routes->get('print/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'print/$1']);
+        $routes->get('export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'export/$1']);
+        
+        // Pautas Trimestrais
+        $routes->get('trimestral', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestral']);
+        $routes->get('trimestral/class/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'trimestralClass/$1']);
+        $routes->get('trimestral/export/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportTrimestral/$1']);
+        
+        // Pautas por Disciplina
+        $routes->get('disciplina', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplina']);
+        $routes->get('disciplina/view/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'disciplinaView/$1/$2']);
+        $routes->get('disciplina/export/(:num)/(:num)', [\App\Controllers\admin\MiniGradeSheet::class, 'exportDisciplina/$1/$2']);
+    });
   /**
    * Gestão Financeira (mantendo módulos existentes)
    */
@@ -776,37 +782,45 @@ $routes->group('mini-grade-sheet', ['filter' => 'auth:admin'], function($routes)
         $routes->post('update-permissions', [Roles::class, 'update_permissions'], ["as" => 'roles.permissions.update']);
     });
 
+    // Grupo de rotas para emails (protegido por autenticação)
+    $routes->group('emails', ['filter' => 'auth:admin'], function($routes) {
+        $routes->get('/', [EmailController::class, 'index'], ['as' => 'emails.index']);
+        $routes->get('compose/(:num)/(:any)', [EmailController::class, 'compose/$1/$2'], ['as' => 'emails.compose']);
+        $routes->get('compose', [EmailController::class, 'compose'], ['as' => 'emails.compose.empty']);
+        $routes->get('bulk', [EmailController::class, 'bulk'], ['as' => 'emails.bulk']);
+        $routes->post('send', [EmailController::class, 'send'], ['as' => 'emails.send']);
+        $routes->post('send-bulk', [EmailController::class, 'sendBulk'], ['as' => 'emails.send_bulk']);
+        $routes->get('templates', [EmailController::class, 'templates'], ['as' => 'emails.templates']);
+        $routes->get('preview/(:any)', [EmailController::class, 'previewTemplate/$1'], ['as' => 'emails.preview']);
+        $routes->post('test', [EmailController::class, 'test'], ['as' => 'emails.test']);
+    });
     /**
      * Configurações do Sistema
      */
     $routes->group('settings', ['filter' => 'auth:admin'], function($routes) {
-        // Dashboard de configurações
-        $routes->get('/',[Settings::class, 'index'], ['as' => 'settings.index']);
+        // Main settings page (school settings)
+        $routes->get('/', [Settings::class, 'index'], ['as' => 'settings.index']);
+        $routes->get('school', [Settings::class, 'index'], ['as' => 'settings.school']);
         
-        // Configurações Gerais
-        $routes->get('general', [Settings::class, 'general'], ['as' => 'settings.general']);
-        $routes->post('save-general', [Settings::class, 'saveGeneral'], ['as' => 'settings.save_general']);
-        
-        // Configurações da Escola
-        $routes->get('school', [Settings::class, 'school'], ['as' => 'settings.school']);
+        // Save routes
         $routes->post('save-school', [Settings::class, 'saveSchool'], ['as' => 'settings.save_school']);
-        $routes->post('remove-logo', [Settings::class, 'removeLogo'], ['as' => 'settings.remove_logo']);
-        
-        // Configurações Académicas
-        $routes->get('academic', [Settings::class, 'academic'], ['as' => 'settings.academic']);
+        $routes->post('save-branding', [Settings::class, 'saveBranding'], ['as' => 'settings.save_branding']);
+        $routes->post('save-management', [Settings::class, 'saveManagement'], ['as' => 'settings.save_management']);
         $routes->post('save-academic', [Settings::class, 'saveAcademic'], ['as' => 'settings.save_academic']);
+        $routes->post('save-payment', [Settings::class, 'savePayment'], ['as' => 'settings.save_payment']);
         
+        // Remove logo routes
+        $routes->get('remove-logo/(:any)', [Settings::class, 'removeLogo/$1'], ['as' => 'settings.remove_logo']);
+        
+        // Utility routes
+        $routes->get('clear-cache', [Settings::class, 'clearCache'], ['as' => 'settings.clear_cache']);
+        $routes->get('backup', [Settings::class, 'backup'], ['as' => 'settings.backup']);
         // Configurações de Pagamento
-        $routes->get('payment', [Settings::class, 'payment'], ['as' => 'settings.payment']);
         $routes->post('save-payment', [Settings::class, 'savePayment'], ['as' => 'settings.save_payment']);
         
         // Configurações de Email
-        $routes->get('email', [Settings::class, 'email'], ['as' => 'settings.email']);
         $routes->post('save-email', [Settings::class, 'saveEmail'], ['as' => 'settings.save_email']);
         $routes->post('test-email', [Settings::class, 'testEmail'], ['as' => 'settings.test_email']);
-        
-        // Utilitários
-        $routes->get('clear-cache', [Settings::class, 'clearCache'], ['as' => 'settings.clear_cache']);
     });
 
     /**

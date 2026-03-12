@@ -19,6 +19,7 @@ class AcademicYearFilter implements FilterInterface
             // Buscar das configurações
             $academicYearId = setting('current_academic_year');
             $semesterId = setting('current_semester');
+            $academicYearName = null;
             
             // Se não encontrar nas configurações, usar valores padrão
             if (!$academicYearId) {
@@ -29,12 +30,16 @@ class AcademicYearFilter implements FilterInterface
                     ->orderBy('start_date', 'DESC')
                     ->first();
                     
-                $academicYearId = $latestYear ? $latestYear->id : null;
-                $academicYearName = $latestYear ? $latestYear->year_name : null;
+                if ($latestYear) {
+                    // 🔴 CORREÇÃO: Acesso como array
+                    $academicYearId = $latestYear['id'];
+                    $academicYearName = $latestYear['year_name'];
+                }
             } else {
                 $academicYearModel = new \App\Models\AcademicYearModel();
                 $academicYear = $academicYearModel->find($academicYearId);
-                $academicYearName = $academicYear ? $academicYear->year_name : null;
+                // 🔴 CORREÇÃO: Acesso como array
+                $academicYearName = $academicYear ? $academicYear['year_name'] : null;
             }
             
             // Guardar na sessão

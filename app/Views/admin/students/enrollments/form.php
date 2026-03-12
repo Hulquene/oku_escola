@@ -297,15 +297,15 @@
                                     // Verificar se este ano deve ser selecionado
                                     $isSelected = false;
                                     if (old('academic_year_id') !== null) {
-                                        $isSelected = (old('academic_year_id') == $year->id);
+                                        $isSelected = (old('academic_year_id') == $year['id']);
                                     } elseif ($enrollment && isset($enrollment->academic_year_id)) {
-                                        $isSelected = ($enrollment->academic_year_id == $year->id);
-                                    } elseif (!$enrollment && $currentYear && $currentYear->id == $year->id) {
+                                        $isSelected = ($enrollment->academic_year_id == $year['id']);
+                                    } elseif (!$enrollment && $currentYear && $currentYear['id'] == $year['id']) {
                                         $isSelected = true;
                                     }
                                     ?>
-                                    <option value="<?= $year->id ?>" <?= $isSelected ? 'selected' : '' ?>>
-                                        <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                                    <option value="<?= $year['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                        <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -663,4 +663,22 @@ function confirmCancel() {
     return confirm('Tem certeza que deseja cancelar esta matrícula? Esta ação não pode ser desfeita.');
 }
 </script>
+<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+// No JavaScript do formulário de matrícula
+function checkEligibility() {
+    const studentId = document.getElementById('student_id').value;
+    const academicYearId = document.getElementById('academic_year_id').value;
+    
+    if (studentId && academicYearId) {
+        fetch(`<?= site_url('admin/academic-records/check-eligibility') ?>/${studentId}/${academicYearId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.eligible) {
+                    alert(data.message);
+                    // Desabilitar botão de submit ou mostrar aviso
+                }
+            });
+    }
+}
 <?= $this->endSection() ?>

@@ -53,8 +53,8 @@ class Schedule extends BaseController
             ->where('is_active', 1)
             ->first();
         
-        $data['currentYearId'] = $currentYear ? $currentYear->id : null;
-        $data['selectedYear'] = $this->request->getGet('academic_year') ?: ($currentYear ? $currentYear->id : '');
+        $data['currentYearId'] = $currentYear ? $currentYear['id'] : null;
+        $data['selectedYear'] = $this->request->getGet('academic_year') ?: ($currentYear ? $currentYear['id'] : '');
         
         return view('admin/classes/schedule/index', $data);
     }

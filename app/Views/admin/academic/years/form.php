@@ -149,7 +149,7 @@ body { background:var(--surface); color:var(--text-primary); }
         <form action="<?= site_url('admin/academic/years/save') ?>" method="post" id="yearForm">
             <?= csrf_field() ?>
             <?php if ($year): ?>
-                <input type="hidden" name="id" value="<?= $year->id ?>">
+                <input type="hidden" name="id" value="<?= $year['id'] ?>">
             <?php endif; ?>
 
             <!-- Dynamic alert -->
@@ -168,7 +168,7 @@ body { background:var(--surface); color:var(--text-primary); }
                         <input type="text"
                                class="form-input-ci <?= session('errors.year_name') ? 'is-invalid' : '' ?>"
                                id="year_name" name="year_name"
-                               value="<?= old('year_name', $year->year_name ?? '') ?>"
+                               value="<?= old('year_name', $year['year_name'] ?? '') ?>"
                                placeholder="Ex: 2024 ou 2024/2025"
                                required maxlength="50">
                         <?php if (session('errors.year_name')): ?>
@@ -185,7 +185,7 @@ body { background:var(--surface); color:var(--text-primary); }
                         <input type="date"
                                class="form-input-ci <?= session('errors.start_date') ? 'is-invalid' : '' ?>"
                                id="start_date" name="start_date"
-                               value="<?= old('start_date', $year->start_date ?? '') ?>"
+                               value="<?= old('start_date', $year['start_date'] ?? '') ?>"
                                required>
                         <?php if (session('errors.start_date')): ?>
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i><?= session('errors.start_date') ?></div>
@@ -200,7 +200,7 @@ body { background:var(--surface); color:var(--text-primary); }
                         <input type="date"
                                class="form-input-ci <?= session('errors.end_date') ? 'is-invalid' : '' ?>"
                                id="end_date" name="end_date"
-                               value="<?= old('end_date', $year->end_date ?? '') ?>"
+                               value="<?= old('end_date', $year['end_date'] ?? '') ?>"
                                required>
                         <?php if (session('errors.end_date')): ?>
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i><?= session('errors.end_date') ?></div>
@@ -224,7 +224,7 @@ body { background:var(--surface); color:var(--text-primary); }
                     <!-- Active toggle -->
                     <div class="col-md-6">
                         <label class="form-label-ci">Estado</label>
-                        <label class="toggle-row <?= old('is_active', $year->is_active ?? true) ? 'checked' : '' ?>"
+                        <label class="toggle-row <?= old('is_active', $year['is_active'] ?? true) ? 'checked' : '' ?>"
                                id="toggle-active" for="is_active">
                             <div>
                                 <div class="tl-info">Ano Letivo Ativo</div>
@@ -232,7 +232,7 @@ body { background:var(--surface); color:var(--text-primary); }
                             </div>
                             <label class="ci-switch">
                                 <input type="checkbox" id="is_active" name="is_active" value="1"
-                                       <?= old('is_active', $year->is_active ?? true) ? 'checked' : '' ?>>
+                                       <?= old('is_active', $year['is_active'] ?? true) ? 'checked' : '' ?>>
                                 <span class="ci-switch-track"></span>
                             </label>
                         </label>
@@ -254,7 +254,7 @@ body { background:var(--surface); color:var(--text-primary); }
                                     <span class="ci-switch-track"></span>
                                 </label>
                             </label>
-                        <?php elseif ($year->is_current): ?>
+                        <?php elseif ($year['id'] == current_academic_year()): ?>
                             <label class="form-label-ci">Ano Atual</label>
                             <div class="current-strip">
                                 <i class="fas fa-star" style="color:var(--warning);"></i>
@@ -272,21 +272,21 @@ body { background:var(--surface); color:var(--text-primary); }
                 <div class="meta-card">
                     <div class="meta-item">
                         <span class="meta-label">Criado em</span>
-                        <span class="meta-value"><?= date('d/m/Y H:i', strtotime($year->created_at)) ?></span>
+                        <span class="meta-value"><?= date('d/m/Y H:i', strtotime($year['created_at'])) ?></span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Última Atualização</span>
-                        <span class="meta-value"><?= $year->updated_at ? date('d/m/Y H:i', strtotime($year->updated_at)) : '—' ?></span>
+                        <span class="meta-value"><?= $year['updated_at'] ? date('d/m/Y H:i', strtotime($year['updated_at'])) : '—' ?></span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Estado</span>
                         <span class="meta-value">
-                            <?php if ($year->is_active): ?>
+                            <?php if ($year['is_active']): ?>
                                 <span class="meta-badge mb-active">Ativo</span>
                             <?php else: ?>
                                 <span class="meta-badge mb-inactive">Inativo</span>
                             <?php endif; ?>
-                            <?php if ($year->is_current): ?>
+                            <?php if ($year['id'] == current_academic_year()): ?>
                                 <span class="meta-badge mb-current"><i class="fas fa-star" style="font-size:.6rem;"></i> Atual</span>
                             <?php endif; ?>
                         </span>

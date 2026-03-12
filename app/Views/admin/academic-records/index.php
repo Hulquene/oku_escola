@@ -131,12 +131,12 @@
                     <?php if (!empty($academicYears)): ?>
                         <?php foreach ($academicYears as $year): ?>
                             <?php 
-                            $isSelected = ($selectedYear == $year->id) || 
-                                         (empty($selectedYear) && $year->is_current == 1);
+                            $isSelected = ($selectedYear == $year['id']) || 
+                                         (empty($selectedYear) && $year['id'] == current_academic_year() == 1);
                             ?>
-                            <option value="<?= $year->id ?>" <?= $isSelected ? 'selected' : '' ?> 
-                                    data-current="<?= $year->is_current ?>">
-                                <?= $year->year_name ?> <?= $year->is_current ? '📅' : '' ?>
+                            <option value="<?= $year['id'] ?>" <?= $isSelected ? 'selected' : '' ?> 
+                                    data-current="<?= $year['id'] == current_academic_year() ?>">
+                                <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '📅' : '' ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -227,10 +227,10 @@
                 
                 <?php if (!empty($selectedYear)): ?>
                     <?php foreach ($academicYears as $year): ?>
-                        <?php if ($year->id == $selectedYear): ?>
+                        <?php if ($year['id'] == $selectedYear): ?>
                             <?php $activeFilters++; ?>
                             <span class="filter-tag">
-                                <i class="fas fa-calendar me-1"></i>Ano: <?= $year->year_name ?>
+                                <i class="fas fa-calendar me-1"></i>Ano: <?= $year['year_name'] ?>
                                 <a href="<?= site_url('admin/academic-records?remove=year') ?>" class="remove-filter">
                                     <i class="fas fa-times"></i>
                                 </a>

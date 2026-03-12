@@ -45,8 +45,8 @@
                 <select class="form-select" name="academic_year" onchange="this.form.submit()">
                     <option value="">Todos</option>
                     <?php foreach ($academicYears as $year): ?>
-                        <option value="<?= $year->id ?>" <?= $selectedYear == $year->id ? 'selected' : '' ?>>
-                            <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                        <option value="<?= $year['id'] ?>" <?= $selectedYear == $year['id'] ? 'selected' : '' ?>>
+                            <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -220,8 +220,8 @@
                         <select class="form-select" name="academic_year_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($academicYears as $year): ?>
-                                <option value="<?= $year->id ?>" <?= $year->is_current ? 'selected' : '' ?>>
-                                    <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                                <option value="<?= $year['id'] ?>" <?= $year['id'] == current_academic_year() ? 'selected' : '' ?>>
+                                    <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -285,8 +285,8 @@
                         <select class="form-select" name="source_academic_year_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($academicYears as $year): ?>
-                                <option value="<?= $year->id ?>">
-                                    <?= $year->year_name ?>
+                                <option value="<?= $year['id'] ?>">
+                                    <?= $year['year_name'] ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -297,8 +297,8 @@
                         <select class="form-select" name="target_academic_year_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($academicYears as $year): ?>
-                                <option value="<?= $year->id ?>" <?= $year->is_current ? 'selected' : '' ?>>
-                                    <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                                <option value="<?= $year['id'] ?>" <?= $year['id'] == current_academic_year() ? 'selected' : '' ?>>
+                                    <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

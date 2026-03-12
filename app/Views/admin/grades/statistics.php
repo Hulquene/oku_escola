@@ -235,8 +235,8 @@
                         // Encontrar o ID do ano atual
                         $currentYearId = null;
                         foreach ($academicYears as $year) {
-                            if (!empty($year->is_current) && $year->is_current == 1) {
-                                $currentYearId = $year->id;
+                            if (!empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year() == 1) {
+                                $currentYearId = $year['id'];
                                 break;
                             }
                         }
@@ -245,14 +245,14 @@
                             <?php 
                             // Determinar se esta opção deve ser selecionada
                             $isSelected = false;
-                            if (isset($selectedYear) && $selectedYear == $year->id) {
+                            if (isset($selectedYear) && $selectedYear == $year['id']) {
                                 $isSelected = true;
-                            } elseif (!isset($selectedYear) && $year->id == $currentYearId) {
+                            } elseif (!isset($selectedYear) && $year['id'] == $currentYearId) {
                                 $isSelected = true;
                             }
                             ?>
-                            <option value="<?= $year->id ?>" <?= $isSelected ? 'selected' : '' ?>>
-                                <?= $year->year_name ?> <?= !empty($year->is_current) && $year->is_current ? '(Atual)' : '' ?>
+                            <option value="<?= $year['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                <?= $year['year_name'] ?> <?= !empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

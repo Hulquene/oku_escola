@@ -73,7 +73,7 @@ if (!function_exists('school_logo_url')) {
             $cache->save('school_logo', $logo, 3600); // cache de 1 hora
         }
         
-        if ($logo && file_exists('uploads/school/' . $logo)) {
+        if ($logo && file_exists(FCPATH . 'uploads/school/' . $logo)) {
             return base_url('uploads/school/' . $logo);
         }
         return base_url('assets/images/default-logo.png');
@@ -97,7 +97,6 @@ if (!function_exists('school_logo_html')) {
     }
 }
 
-            
 if (!function_exists('set_current_academic_year')) {
     /**
      * Set current academic year ID in session and settings
@@ -105,24 +104,22 @@ if (!function_exists('set_current_academic_year')) {
     function set_current_academic_year($id)
     {
         // Buscar o nome do ano letivo para guardar na sessão
-         $academicYearModel = new AcademicYearModel();
-            $academicYear = $academicYearModel->find($id);
-          // Guardar na sessão
-            session()->set([
-                'academic_year_id' => $id,
-                'academic_year_name' => $academicYear ? $academicYear->year_name : null,
-            ]);
+        $academicYearModel = new AcademicYearModel();
+        $academicYear = $academicYearModel->find($id);
+        
+        // 🔴 CORREÇÃO: Agora tratamos como array
+        $academicYearName = null;
+        if ($academicYear && isset($academicYear['year_name'])) {
+            $academicYearName = $academicYear['year_name'];
+        }
+        
+        // Guardar na sessão
+        session()->set([
+            'academic_year_id' => $id,
+            'academic_year_name' => $academicYearName,
+        ]);
+        
         return set_setting('current_academic_year', $id);
-    }
-}
-
-if (!function_exists('current_academic_year')) {
-    /**
-     * Get current academic year ID from session or settings
-     */
-    function current_academic_year()
-    {
-        return session()->get('academic_year_id') ?: setting('current_academic_year');
     }
 }
 
@@ -143,12 +140,38 @@ if (!function_exists('current_academic_year_name')) {
     function current_academic_year_name()
     {
         $yearName = session()->get('academic_year_name');
+        
         if (!$yearName) {
             $academicYearId = current_academic_year();
             if ($academicYearId) {
                 $academicYearModel = new AcademicYearModel();
                 $academicYear = $academicYearModel->find($academicYearId);
                 // 🔴 ACESSO COMO ARRAY
+                $yearName = $academicYear ? $academicYear['year_name'] : null;
+                
+                // Guardar na sessão para próxima vez
+                if ($yearName) {
+                    session()->set('academic_year_name', $yearName);
+                }
+            }
+        }
+        
+        return $yearName ?: 'Ano não definido';
+    }
+}
+
+if (!function_exists('current_academic_year_name')) {
+    /**
+     * Get current academic year name from session
+     */
+    function current_academic_year_name()
+    {
+        $yearName = session()->get('academic_year_name');
+        if (!$yearName) {
+            $academicYearId = current_academic_year();
+            if ($academicYearId) {
+                $academicYearModel = new AcademicYearModel();
+                $academicYear = $academicYearModel->find($academicYearId);
                 $yearName = $academicYear ? $academicYear['year_name'] : null;
                 
                 // Guardar na sessão para próxima vez
@@ -199,7 +222,6 @@ if (!function_exists('default_currency')) {
         $currency = $currencyModel->find($currencyId);
         
         if ($currency) {
-            // 🔴 ACESSO COMO ARRAY
             return (object)[
                 'id' => $currency['id'],
                 'currency_name' => $currency['currency_name'],

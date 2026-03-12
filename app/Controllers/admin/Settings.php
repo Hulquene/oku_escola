@@ -11,8 +11,6 @@ use App\Models\GradeLevelModel;
 use App\Models\DisciplineModel;
 use App\Models\FeeTypeModel;
 use App\Models\CurrencyModel;
-use App\Models\RoleModel;
-use App\Models\PermissionModel;
 
 class Settings extends BaseController
 {
@@ -23,8 +21,6 @@ class Settings extends BaseController
     protected $disciplineModel;
     protected $feeTypeModel;
     protected $currencyModel;
-    protected $roleModel;
-    protected $permissionModel;
     
     public function __construct()
     {
@@ -35,139 +31,53 @@ class Settings extends BaseController
         $this->disciplineModel = new DisciplineModel();
         $this->feeTypeModel = new FeeTypeModel();
         $this->currencyModel = new CurrencyModel();
-        $this->roleModel = new RoleModel();
-        $this->permissionModel = new PermissionModel();
         
-        helper(['auth', 'settings']); // Carregar helpers
+        helper(['auth', 'settings', 'upload']); // Adicionar helpers necessários
     }
 
-/**
- * School settings page
- */
-public function index()
-{
-    $data['title'] = 'Configurações da Escola';
-    
-    // Get school settings
-    $data['settings'] = $this->settingsModel->getAll();
-    
-    // Dados para as estatísticas e selects
-    $data['gradeLevels'] = $this->gradeLevelModel
-        ->where('is_active', 1)
-        ->orderBy('sort_order', 'ASC')
-        ->findAll();
-    
-    $data['disciplines'] = $this->disciplineModel
-        ->where('is_active', 1)
-        ->orderBy('discipline_name', 'ASC')
-        ->findAll(10);
-    
-    $data['feeTypes'] = $this->feeTypeModel
-        ->where('is_active', 1)
-        ->orderBy('type_category', 'ASC')
-        ->findAll();
-    
-    $data['currencies'] = $this->currencyModel
-        ->orderBy('is_default', 'DESC')
-        ->orderBy('currency_name', 'ASC')
-        ->findAll();
-    
-    // Dados acadêmicos
-    $data['academicYears'] = $this->academicYearModel
-        ->where('is_active', 1)
-        ->orderBy('start_date', 'DESC')
-        ->findAll();
-    
-    $data['semesters'] = $this->semesterModel
-        ->whereIn('status', ['ativo', 'processado'])
-        ->orderBy('start_date', 'ASC')
-        ->findAll();
-    
-    return view('admin/settings/school', $data);
-}
-        
     /**
-     * General settings page
+     * School settings page (main settings page)
      */
-    public function general()
+    public function index()
     {
-        $data['title'] = 'Configurações Gerais';
+        $data['title'] = 'Configurações da Escola';
         
-        // Get settings
+        // Get school settings
         $data['settings'] = $this->settingsModel->getAll();
-        $data['timezones'] = $this->getTimezones();
-        $data['dateFormats'] = $this->getDateFormats();
         
-        return view('admin/settings/general', $data);
-    }
-    
-
-    
-    /**
-     * Payment settings page
-     */
-    public function payment()
-    {
-        $data['title'] = 'Configurações de Pagamento';
+        // Dados para as estatísticas e selects
+        $data['gradeLevels'] = $this->gradeLevelModel
+            ->where('is_active', 1)
+            ->orderBy('sort_order', 'ASC')
+            ->findAll();
         
-        $data['settings'] = $this->settingsModel->getAll();
+        $data['disciplines'] = $this->disciplineModel
+            ->where('is_active', 1)
+            ->orderBy('discipline_name', 'ASC')
+            ->findAll(10);
+        
+        $data['feeTypes'] = $this->feeTypeModel
+            ->where('is_active', 1)
+            ->orderBy('type_category', 'ASC')
+            ->findAll();
+        
         $data['currencies'] = $this->currencyModel
             ->orderBy('is_default', 'DESC')
             ->orderBy('currency_name', 'ASC')
             ->findAll();
         
-        return view('admin/settings/payment', $data);
-    }
-    
-    /**
-     * Email settings page
-     */
-    public function email()
-    {
-        $data['title'] = 'Configurações de Email';
+        // Dados acadêmicos
+        $data['academicYears'] = $this->academicYearModel
+            ->where('is_active', 1)
+            ->orderBy('start_date', 'DESC')
+            ->findAll();
         
-        $data['settings'] = $this->settingsModel->getAll();
+        $data['semesters'] = $this->semesterModel
+            ->whereIn('status', ['ativo', 'processado'])
+            ->orderBy('start_date', 'ASC')
+            ->findAll();
         
-        return view('admin/settings/email', $data);
-    }
-    
-    /**
-     * Save general settings
-     */
-    public function saveGeneral()
-    {
-        $rules = [
-            'app_name' => 'required',
-            'app_timezone' => 'required',
-            'app_date_format' => 'required'
-        ];
-        
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()
-                ->with('errors', $this->validator->getErrors());
-        }
-        
-        $settings = [
-            'app_name' => $this->request->getPost('app_name'),
-            'app_timezone' => $this->request->getPost('app_timezone'),
-            'app_date_format' => $this->request->getPost('app_date_format'),
-            'app_time_format' => $this->request->getPost('app_time_format') ?: 'H:i',
-            'app_locale' => $this->request->getPost('app_locale') ?: 'pt',
-            'app_theme' => $this->request->getPost('app_theme') ?: 'light',
-            'items_per_page' => $this->request->getPost('items_per_page') ?: 15,
-            'enable_debug' => $this->request->getPost('enable_debug') ? 1 : 0,
-            'maintenance_mode' => $this->request->getPost('maintenance_mode') ? 1 : 0
-        ];
-        
-        if ($this->settingsModel->saveSettings($settings)) {
-             // Limpar cache do logo
-            cache()->delete('school_logo');
-        
-            return redirect()->to('/admin/settings/general')
-                ->with('success', 'Configurações gerais salvas com sucesso');
-        } else {
-            return redirect()->back()->with('error', 'Erro ao salvar configurações');
-        }
+        return view('admin/settings/school', $data);
     }
     
     /**
@@ -200,30 +110,147 @@ public function index()
             'school_founding_year' => $this->request->getPost('school_founding_year')
         ];
         
-        // Handle logo upload
-        $logo = $this->request->getFile('school_logo');
-        if ($logo && $logo->isValid() && !$logo->hasMoved()) {
-            $newName = $logo->getRandomName();
-            $logo->move('uploads/school', $newName);
-            
-            // Delete old logo
-            $oldLogo = $this->settingsModel->get('school_logo');
-            if ($oldLogo && file_exists('uploads/school/' . $oldLogo)) {
-                unlink('uploads/school/' . $oldLogo);
-            }
-            
-            $settings['school_logo'] = $newName;
-        }
-        
         if ($this->settingsModel->saveSettings($settings)) {
-             // Limpar cache do logo
-            cache()->delete('school_logo');
-        
             return redirect()->to('/admin/settings')
                 ->with('success', 'Configurações da escola salvas com sucesso');
         } else {
             return redirect()->back()->with('error', 'Erro ao salvar configurações');
         }
+    }
+    
+    /**
+     * Save branding settings (logos and favicon)
+     */
+    public function saveBranding()
+    {
+        $settings = [];
+        $uploadErrors = [];
+        
+        // Handle logo upload
+        $logo = $this->request->getFile('school_logo');
+        if ($logo && $logo->isValid() && !$logo->hasMoved()) {
+            $uploadResult = upload_media($logo, 'school', [
+                'allowed_types' => ['jpg', 'jpeg', 'png', 'svg', 'gif', 'webp'],
+                'max_size' => 3072, // 3MB
+                'width' => 512,
+                'height' => 512,
+                'create_thumb' => false,
+                'quality' => 90
+            ]);
+            
+            if ($uploadResult['success']) {
+                // Delete old logo
+                $oldLogo = $this->settingsModel->get('school_logo');
+                if ($oldLogo) {
+                    delete_media('school/' . $oldLogo);
+                }
+                $settings['school_logo'] = $uploadResult['file_name'];
+            } else {
+                $uploadErrors[] = 'Logo principal: ' . $uploadResult['error'];
+            }
+        }
+        
+        // Handle dark logo upload
+        $logoDark = $this->request->getFile('school_logo_dark');
+        if ($logoDark && $logoDark->isValid() && !$logoDark->hasMoved()) {
+            $uploadResult = upload_media($logoDark, 'school', [
+                'allowed_types' => ['jpg', 'jpeg', 'png', 'svg', 'gif', 'webp'],
+                'max_size' => 3072,
+                'width' => 512,
+                'height' => 512,
+                'create_thumb' => false,
+                'quality' => 90
+            ]);
+            
+            if ($uploadResult['success']) {
+                // Delete old dark logo
+                $oldLogoDark = $this->settingsModel->get('school_logo_dark');
+                if ($oldLogoDark) {
+                    delete_media('school/' . $oldLogoDark);
+                }
+                $settings['school_logo_dark'] = $uploadResult['file_name'];
+            } else {
+                $uploadErrors[] = 'Logo dark: ' . $uploadResult['error'];
+            }
+        }
+        
+        // Handle favicon upload
+        $favicon = $this->request->getFile('school_favicon');
+        if ($favicon && $favicon->isValid() && !$favicon->hasMoved()) {
+            $uploadResult = upload_media($favicon, 'school', [
+                'allowed_types' => ['ico', 'png', 'jpg', 'jpeg', 'svg'],
+                'max_size' => 1024, // 1MB
+                'width' => 64,
+                'height' => 64,
+                'min_width' => 16,
+                'min_height' => 16,
+                'create_thumb' => false,
+                'is_favicon' => true
+            ]);
+            
+            if ($uploadResult['success']) {
+                // Delete old favicon
+                $oldFavicon = $this->settingsModel->get('school_favicon');
+                if ($oldFavicon) {
+                    delete_media('school/' . $oldFavicon);
+                }
+                $settings['school_favicon'] = $uploadResult['file_name'];
+            } else {
+                $uploadErrors[] = 'Favicon: ' . $uploadResult['error'];
+            }
+        }
+        
+        // Save color settings
+        $settings['branding_primary_color'] = $this->request->getPost('branding_primary_color') ?: '#1B2B4B';
+        $settings['branding_accent_color'] = $this->request->getPost('branding_accent_color') ?: '#3B7FE8';
+        
+        if (!empty($settings) && $this->settingsModel->saveSettings($settings)) {
+            // Clear logo cache
+            cache()->delete('school_logo');
+            cache()->delete('school_logo_dark');
+            cache()->delete('school_favicon');
+            
+            $message = 'Identidade visual salva com sucesso';
+            if (!empty($uploadErrors)) {
+                $message .= ' | Avisos: ' . implode('; ', $uploadErrors);
+                return redirect()->to('/admin/settings')
+                    ->with('warning', $message);
+            }
+            
+            return redirect()->to('/admin/settings')
+                ->with('success', $message);
+        }
+        
+        if (!empty($uploadErrors)) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Erros no upload: ' . implode('; ', $uploadErrors));
+        }
+        
+        return redirect()->back()->with('warning', 'Nenhuma alteração foi feita');
+    }
+    
+    /**
+     * Save management settings (directors)
+     */
+    public function saveManagement()
+    {
+        $settings = [
+            'director_name' => $this->request->getPost('director_name'),
+            'director_title' => $this->request->getPost('director_title'),
+            'director_degree' => $this->request->getPost('director_degree'),
+            'pedagogical_director_name' => $this->request->getPost('pedagogical_director_name'),
+            'pedagogical_title' => $this->request->getPost('pedagogical_title'),
+            'pedagogical_degree' => $this->request->getPost('pedagogical_degree'),
+            'document_city' => $this->request->getPost('document_city'),
+            'signature_title' => $this->request->getPost('signature_title')
+        ];
+        
+        if ($this->settingsModel->saveSettings($settings)) {
+            return redirect()->to('/admin/settings')
+                ->with('success', 'Informações de gestão salvas com sucesso');
+        }
+        
+        return redirect()->back()->with('error', 'Erro ao salvar informações de gestão');
     }
     
     /**
@@ -265,7 +292,7 @@ public function index()
             // Guardar na sessão
             session()->set([
                 'academic_year_id' => $academicYearId,
-                'academic_year_name' => $academicYear ? $academicYear->year_name : null,
+                'academic_year_name' => $academicYear ? $academicYear['year_name'] : null,
                 'semester_id' => $semesterId
             ]);
             
@@ -311,10 +338,7 @@ public function index()
         ];
         
         if ($this->settingsModel->saveSettings($settings)) {
-             // Limpar cache do logo
-            cache()->delete('school_logo');
-        
-            return redirect()->to('/admin/settings/payment')
+            return redirect()->to('/admin/settings')
                 ->with('success', 'Configurações de pagamento salvas com sucesso');
         } else {
             return redirect()->back()->with('error', 'Erro ao salvar configurações');
@@ -337,8 +361,24 @@ public function index()
                 ->with('errors', $this->validator->getErrors());
         }
         
+        // Se for SMTP, validar campos obrigatórios
+        $protocol = $this->request->getPost('email_protocol');
+        if ($protocol === 'smtp') {
+            $rules = [
+                'email_smtp_host' => 'required',
+                'email_smtp_port' => 'required|numeric',
+                'email_smtp_user' => 'required',
+                'email_smtp_pass' => 'required'
+            ];
+            
+            if (!$this->validate($rules)) {
+                return redirect()->back()->withInput()
+                    ->with('errors', $this->validator->getErrors());
+            }
+        }
+        
         $settings = [
-            'email_protocol' => $this->request->getPost('email_protocol'),
+            'email_protocol' => $protocol,
             'email_from' => $this->request->getPost('email_from'),
             'email_from_name' => $this->request->getPost('email_from_name'),
             'email_smtp_host' => $this->request->getPost('email_smtp_host'),
@@ -350,90 +390,199 @@ public function index()
         ];
         
         if ($this->settingsModel->saveSettings($settings)) {
-             // Limpar cache do logo
-            cache()->delete('school_logo');
-        
-            return redirect()->to('/admin/settings/email')
+            return redirect()->to('/admin/settings')
                 ->with('success', 'Configurações de email salvas com sucesso');
         } else {
-            return redirect()->back()->with('error', 'Erro ao salvar configurações');
+            return redirect()->back()->with('error', 'Erro ao salvar configurações de email');
         }
     }
     
     /**
-     * Remove school logo
-     */
-    public function removeLogo()
-    {
-        $oldLogo = $this->settingsModel->get('school_logo');
-        if ($oldLogo && file_exists('uploads/school/' . $oldLogo)) {
-            unlink('uploads/school/' . $oldLogo);
-        }
-        
-        $this->settingsModel->saveSetting('school_logo', '');
-        
-        return redirect()->back()->with('success', 'Logo removido com sucesso');
-    }
-    
-    /**
-     * Test email connection
+     * Test email configuration
      */
     public function testEmail()
     {
+        // Verificar se é uma requisição AJAX
         if (!$this->request->isAJAX()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Requisição inválida'
+            ]);
         }
         
-        $to = $this->request->getPost('test_email');
-        if (!$to) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Email de teste não fornecido']);
+        $testEmail = $this->request->getPost('test_email');
+        if (!$testEmail) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Email de teste não fornecido'
+            ]);
         }
         
-        // Here you would implement email sending test
-        // For now, just return success
+        // Carregar configurações atuais
+        $settings = $this->settingsModel->getAll();
         
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Email de teste enviado com sucesso'
-        ]);
+        // Configurar email
+        $email = \Config\Services::email();
+        
+        // Configurar protocolo
+        switch ($settings['email_protocol'] ?? 'smtp') {
+            case 'smtp':
+                $config['protocol'] = 'smtp';
+                $config['SMTPHost'] = $settings['email_smtp_host'] ?? '';
+                $config['SMTPPort'] = $settings['email_smtp_port'] ?? 587;
+                $config['SMTPUser'] = $settings['email_smtp_user'] ?? '';
+                $config['SMTPPass'] = $settings['email_smtp_pass'] ?? '';
+                $config['SMTPCrypto'] = $settings['email_smtp_crypto'] ?? 'tls';
+                break;
+                
+            case 'sendmail':
+                $config['protocol'] = 'sendmail';
+                $config['mailPath'] = $settings['email_sendmail_path'] ?? '/usr/sbin/sendmail';
+                break;
+                
+            default:
+                $config['protocol'] = 'mail';
+                break;
+        }
+        
+        // Configurações comuns
+        $config['mailType'] = 'html';
+        $config['charset'] = 'utf-8';
+        $config['wordWrap'] = true;
+        $config['validate'] = true;
+        
+        $email->initialize($config);
+        
+        // Configurar remetente e destinatário
+        $email->setFrom($settings['email_from'] ?? 'noreply@escola.ao', $settings['email_from_name'] ?? 'Sistema Escolar');
+        $email->setTo($testEmail);
+        
+        // Assunto e mensagem
+        $email->setSubject('Teste de Configuração de Email - Sistema Escolar');
+        $email->setMessage('
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Teste de Email</title>
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1B2B4B; color: white; padding: 10px; text-align: center; }
+                    .content { padding: 20px; background: #f9f9f9; }
+                    .footer { text-align: center; padding: 10px; font-size: 12px; color: #666; }
+                    .success { color: #16A87D; font-weight: bold; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h2>Teste de Configuração de Email</h2>
+                    </div>
+                    <div class="content">
+                        <p>Olá,</p>
+                        <p>Este é um email de teste enviado pelo Sistema de Gestão Escolar.</p>
+                        <p>Se você está recebendo este email, significa que as configurações de email estão funcionando corretamente!</p>
+                        <p class="success">✓ Configuração testada com sucesso</p>
+                        <p><strong>Informações do teste:</strong></p>
+                        <ul>
+                            <li>Data: ' . date('d/m/Y H:i:s') . '</li>
+                            <li>Protocolo: ' . strtoupper($settings['email_protocol'] ?? 'smtp') . '</li>
+                            <li>Servidor: ' . ($settings['email_smtp_host'] ?? 'N/A') . '</li>
+                        </ul>
+                    </div>
+                    <div class="footer">
+                        <p>Este é um email automático, por favor não responda.</p>
+                        <p>&copy; ' . date('Y') . ' ' . ($settings['school_name'] ?? 'Sistema Escolar') . '</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ');
+        
+        // Enviar email
+        if ($email->send()) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Email de teste enviado com sucesso para ' . $testEmail
+            ]);
+        } else {
+            // Obter erro detalhado
+            $error = $email->printDebugger(['headers']);
+            if (is_array($error)) {
+                $error = implode(' ', $error);
+            }
+            
+            log_message('error', 'Falha no teste de email: ' . $error);
+            
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Falha ao enviar email de teste. Verifique as configurações e tente novamente.'
+            ]);
+        }
     }
     
     /**
-     * Clear cache
+     * Remove school logo by type
+     * 
+     * @param string $type Logo type: logo, dark, favicon
+     */
+    public function removeLogo($type = 'logo')
+    {
+        $key = '';
+        $displayName = '';
+        
+        switch ($type) {
+            case 'dark':
+                $key = 'school_logo_dark';
+                $displayName = 'Logo dark';
+                break;
+            case 'favicon':
+                $key = 'school_favicon';
+                $displayName = 'Favicon';
+                break;
+            default:
+                $key = 'school_logo';
+                $displayName = 'Logo principal';
+                break;
+        }
+        
+        $oldFile = $this->settingsModel->get($key);
+        if ($oldFile) {
+            delete_media('school/' . $oldFile);
+        }
+        
+        $this->settingsModel->saveSetting($key, '');
+        
+        // Clear cache
+        cache()->delete($key);
+        
+        return redirect()->back()->with('success', $displayName . ' removido com sucesso');
+    }
+    
+    /**
+     * Clear system cache
      */
     public function clearCache()
     {
         $cache = service('cache');
         $cache->clean();
         
+        // Clear specific setting caches
+        $cache->delete('school_logo');
+        $cache->delete('school_logo_dark');
+        $cache->delete('school_favicon');
+        $cache->delete('current_academic_year');
+        
         return redirect()->back()->with('success', 'Cache limpo com sucesso');
     }
     
     /**
-     * Helper: Get timezones list
+     * Backup database (simplified)
      */
-    private function getTimezones()
+    public function backup()
     {
-        return [
-            'Africa/Luanda' => 'Luanda, Angola',
-            'Africa/Lagos' => 'Lagos, Nigéria',
-            'Africa/Johannesburg' => 'Joanesburgo, África do Sul',
-            'Europe/Lisbon' => 'Lisboa, Portugal',
-            'UTC' => 'UTC',
-            'America/Sao_Paulo' => 'São Paulo, Brasil'
-        ];
-    }
-    
-    /**
-     * Helper: Get date formats
-     */
-    private function getDateFormats()
-    {
-        return [
-            'd/m/Y' => date('d/m/Y') . ' (dia/mês/ano)',
-            'd-m-Y' => date('d-m-Y'),
-            'Y-m-d' => date('Y-m-d'),
-            'm/d/Y' => date('m/d/Y')
-        ];
+        // This would be implemented with actual DB backup logic
+        // For now, just show a message
+        return redirect()->back()->with('info', 'Funcionalidade de backup em desenvolvimento');
     }
 }

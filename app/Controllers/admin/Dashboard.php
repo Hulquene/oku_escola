@@ -596,7 +596,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
     {
         if (!$academicYearId) {
             $currentYear = $this->academicYearModel->getCurrent();
-            $academicYearId = $currentYear ? $currentYear->id : null;
+            $academicYearId = $currentYear ? $currentYear['id'] : null;
         }
         
         if (!$academicYearId) {

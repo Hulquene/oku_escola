@@ -65,7 +65,7 @@ class Reports extends BaseController
         
         // Get current year statistics
         $currentYear = $this->academicYearModel->getCurrent();
-        $yearId = $currentYear ? $currentYear->id : null;
+        $yearId = $currentYear ? $currentYear['id'] : null;
         
         // Student statistics
         $data['totalStudents'] = $this->studentModel->where('is_active', 1)->countAllResults();

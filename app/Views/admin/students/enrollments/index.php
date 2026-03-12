@@ -529,8 +529,8 @@ div.dataTables_wrapper {
                     <option value="">Todos os anos</option>
                     <?php if (!empty($academicYears)): ?>
                         <?php foreach ($academicYears as $year): ?>
-                        <option value="<?= $year->id ?>" <?= current_academic_year() == $year->id ? 'selected' : '' ?>>
-                            <?= $year->year_name ?> <?= current_academic_year() == $year->id ? '(Atual)' : '' ?>
+                        <option value="<?= $year['id'] ?>" <?= current_academic_year() == $year['id'] ? 'selected' : '' ?>>
+                            <?= $year['year_name'] ?> <?= current_academic_year() == $year['id'] ? '(Atual)' : '' ?>
                         </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

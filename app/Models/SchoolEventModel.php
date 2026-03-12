@@ -62,7 +62,7 @@ class SchoolEventModel extends BaseModel
         $academicYearModel = new AcademicYearModel();
         $currentYear = $academicYearModel->getCurrent();
         
-        return $this->where('academic_year_id', $currentYear->id)
+        return $this->where('academic_year_id', $currentYear['id'])
             ->where('start_date >=', date('Y-m-d'))
             ->orderBy('start_date', 'ASC')
             ->orderBy('start_time', 'ASC')

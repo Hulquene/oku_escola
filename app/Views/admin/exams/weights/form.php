@@ -55,9 +55,9 @@
                                         name="academic_year_id" required>
                                     <option value="">Selecione</option>
                                     <?php foreach ($academicYears as $year): ?>
-                                        <option value="<?= $year->id ?>" 
-                                            <?= (old('academic_year_id') ?: ($weight->academic_year_id ?? '')) == $year->id ? 'selected' : '' ?>>
-                                            <?= $year->year_name ?> <?= $year->is_current ? '(Atual)' : '' ?>
+                                        <option value="<?= $year['id'] ?>" 
+                                            <?= (old('academic_year_id') ?: ($weight->academic_year_id ?? '')) == $year['id'] ? 'selected' : '' ?>>
+                                            <?= $year['year_name'] ?> <?= $year['id'] == current_academic_year() ? '(Atual)' : '' ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

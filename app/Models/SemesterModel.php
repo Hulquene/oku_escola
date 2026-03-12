@@ -105,7 +105,7 @@ class SemesterModel extends BaseModel
             return [];
         }
         
-        return $this->where('academic_year_id', $currentYear->id)
+        return $this->where('academic_year_id', $currentYear['id'])
             ->where('status', 'ativo')
             ->orderBy('start_date', 'ASC')
             ->findAll();

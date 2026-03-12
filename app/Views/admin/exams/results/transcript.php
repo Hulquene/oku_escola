@@ -68,7 +68,7 @@
             <div class="card-header bg-white py-3">
                 <h5 class="mb-0 fw-semibold">
                     <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                    Ano Letivo: <?= $year->year_name ?> • <?= $year->class_name ?>
+                    Ano Letivo: <?= $year['year_name'] ?> • <?= $year->class_name ?>
                 </h5>
             </div>
             <div class="card-body p-0">

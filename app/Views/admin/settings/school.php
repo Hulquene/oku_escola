@@ -268,6 +268,12 @@ input[type="file"].media-file { display:none; }
     .media-upload-grid { grid-template-columns:1fr; }
     .stat-mini-grid { grid-template-columns:1fr 1fr; }
 }
+
+/* Email settings specific */
+.smtp-settings { transition: all 0.3s ease; }
+.test-result { font-size: .8rem; padding: .5rem; border-radius: var(--radius-sm); }
+.test-result.success { background: rgba(22,168,125,.1); color: #0E7A5A; }
+.test-result.error { background: rgba(232,70,70,.08); color: #B03030; }
 </style>
 
 <!-- ── PAGE HEADER ─────────────────────────────────────── -->
@@ -326,9 +332,15 @@ input[type="file"].media-file { display:none; }
                 </button>
             </li>
             <li>
-                <button class="settings-nav-item" data-tab="fees">
+                <button class="settings-nav-item" data-tab="payment">
                     <span class="nav-ico"><i class="fas fa-coins"></i></span>
                     Propinas e Taxas
+                </button>
+            </li>
+            <li>
+                <button class="settings-nav-item" data-tab="email">
+                    <span class="nav-ico"><i class="fas fa-envelope"></i></span>
+                    Configurações de Email
                 </button>
             </li>
             <div class="settings-nav-divider"></div>
@@ -462,8 +474,8 @@ input[type="file"].media-file { display:none; }
                         <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
                         <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Alterações</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div><!-- /tab-general -->
 
         <!-- ══════════ TAB: BRANDING ══════════ -->
@@ -503,7 +515,7 @@ input[type="file"].media-file { display:none; }
                                             <i class="fas fa-upload"></i> Upload
                                         </button>
                                         <?php if (!empty($settings['school_logo'])): ?>
-                                        <a href="<?= site_url('admin/settings/remove-logo?type=logo') ?>"
+                                        <a href="<?= site_url('admin/settings/remove-logo/logo') ?>"
                                            class="media-btn danger"
                                            onclick="return confirm('Remover logo principal?')">
                                             <i class="fas fa-trash"></i>
@@ -534,7 +546,7 @@ input[type="file"].media-file { display:none; }
                                             <i class="fas fa-upload"></i> Upload
                                         </button>
                                         <?php if (!empty($settings['school_logo_dark'])): ?>
-                                        <a href="<?= site_url('admin/settings/remove-logo?type=dark') ?>"
+                                        <a href="<?= site_url('admin/settings/remove-logo/dark') ?>"
                                            class="media-btn danger"
                                            onclick="return confirm('Remover logo dark?')">
                                             <i class="fas fa-trash"></i>
@@ -565,7 +577,7 @@ input[type="file"].media-file { display:none; }
                                             <i class="fas fa-upload"></i> Upload
                                         </button>
                                         <?php if (!empty($settings['school_favicon'])): ?>
-                                        <a href="<?= site_url('admin/settings/remove-logo?type=favicon') ?>"
+                                        <a href="<?= site_url('admin/settings/remove-logo/favicon') ?>"
                                            class="media-btn danger"
                                            onclick="return confirm('Remover favicon?')">
                                             <i class="fas fa-trash"></i>
@@ -584,8 +596,8 @@ input[type="file"].media-file { display:none; }
                         <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
                         <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Identidade Visual</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div><!-- /tab-branding -->
 
         <!-- ══════════ TAB: MANAGEMENT ══════════ -->
@@ -736,8 +748,8 @@ input[type="file"].media-file { display:none; }
                         <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
                         <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Gestão</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div><!-- /tab-management -->
 
         <!-- ══════════ TAB: ACADEMIC ══════════ -->
@@ -757,7 +769,7 @@ input[type="file"].media-file { display:none; }
                                     <select class="f-select <?= session('errors.academic_year_id') ? 'is-invalid' : '' ?>" name="academic_year_id" required>
                                         <option value="">Selecione...</option>
                                         <?php foreach ($academicYears ?? [] as $y): ?>
-                                        <option value="<?= $y->id ?>" <?= (old('academic_year_id', $settings['current_academic_year'] ?? '') == $y->id) ? 'selected' : '' ?>>
+                                        <option value="<?= $y->id ?>" <?= (old('academic_year_id'), $settings['current_academic_year'] ?? '') == $y->id) ? 'selected' : '' ?>>
                                             <?= esc($y->year_name) ?>
                                         </option>
                                         <?php endforeach; ?>
@@ -840,12 +852,12 @@ input[type="file"].media-file { display:none; }
                         <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
                         <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Configurações Académicas</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div><!-- /tab-academic -->
 
-        <!-- ══════════ TAB: FEES ══════════ -->
-        <div class="tab-pane" id="tab-fees">
+        <!-- ══════════ TAB: PAYMENT ══════════ -->
+        <div class="tab-pane" id="tab-payment">
             <form action="<?= site_url('admin/settings/save-payment') ?>" method="post">
                 <?= csrf_field() ?>
 
@@ -939,9 +951,149 @@ input[type="file"].media-file { display:none; }
                         <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
                         <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Propinas</button>
                     </div>
-                </form>
-            </div>
-        </div><!-- /tab-fees -->
+                </div>
+            </form>
+        </div><!-- /tab-payment -->
+
+        <!-- ══════════ TAB: EMAIL ══════════ -->
+        <div class="tab-pane" id="tab-email">
+            <form action="<?= site_url('admin/settings/save-email') ?>" method="post" id="emailForm">
+                <?= csrf_field() ?>
+
+                <div class="ci-card">
+                    <div class="ci-card-header">
+                        <div class="ci-card-title"><i class="fas fa-envelope"></i> Configurações do Servidor de Email</div>
+                    </div>
+                    <div class="ci-card-body">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="f-label">Protocolo <span class="req">*</span></label>
+                                    <select class="f-select" name="email_protocol" id="email_protocol" required>
+                                        <option value="smtp" <?= ($settings['email_protocol'] ?? 'smtp') == 'smtp' ? 'selected' : '' ?>>SMTP</option>
+                                        <option value="sendmail" <?= ($settings['email_protocol'] ?? '') == 'sendmail' ? 'selected' : '' ?>>Sendmail</option>
+                                        <option value="mail" <?= ($settings['email_protocol'] ?? '') == 'mail' ? 'selected' : '' ?>>PHP Mail</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="f-label">Criptografia</label>
+                                    <select class="f-select" name="email_smtp_crypto" id="email_smtp_crypto">
+                                        <option value="">Nenhuma</option>
+                                        <option value="ssl" <?= ($settings['email_smtp_crypto'] ?? '') == 'ssl' ? 'selected' : '' ?>>SSL</option>
+                                        <option value="tls" <?= ($settings['email_smtp_crypto'] ?? '') == 'tls' ? 'selected' : '' ?>>TLS</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="smtp-settings" id="smtpSettings">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="f-label">Servidor SMTP</label>
+                                        <input type="text" class="f-input" name="email_smtp_host" 
+                                               value="<?= $settings['email_smtp_host'] ?? '' ?>" placeholder="smtp.gmail.com">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="f-label">Porta SMTP</label>
+                                        <input type="number" class="f-input" name="email_smtp_port" 
+                                               value="<?= $settings['email_smtp_port'] ?? '587' ?>" placeholder="587">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="f-label">Usuário SMTP</label>
+                                        <input type="text" class="f-input" name="email_smtp_user" 
+                                               value="<?= $settings['email_smtp_user'] ?? '' ?>" placeholder="seu@email.com">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="f-label">Senha SMTP</label>
+                                        <div class="f-input-group">
+                                            <input type="password" class="f-input" id="email_smtp_pass" name="email_smtp_pass" 
+                                                   value="<?= $settings['email_smtp_pass'] ?? '' ?>">
+                                            <button type="button" class="f-addon" onclick="togglePassword()" style="cursor:pointer;">
+                                                <i class="fas fa-eye" id="toggleIcon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sendmail-settings" id="sendmailSettings" style="display: none;">
+                            <div class="mb-3">
+                                <label class="f-label">Caminho do Sendmail</label>
+                                <input type="text" class="f-input" name="email_sendmail_path" 
+                                       value="<?= $settings['email_sendmail_path'] ?? '/usr/sbin/sendmail' ?>">
+                                <p class="f-hint">Caminho completo para o executável do Sendmail</p>
+                            </div>
+                        </div>
+                        
+                        <div class="sec-divider">
+                            <span class="sec-divider-label"><i class="fas fa-user"></i>Remetente</span>
+                            <div class="sec-divider-line"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="f-label">Email do Remetente <span class="req">*</span></label>
+                                    <input type="email" class="f-input" name="email_from" 
+                                           value="<?= $settings['email_from'] ?? '' ?>" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="f-label">Nome do Remetente <span class="req">*</span></label>
+                                    <input type="text" class="f-input" name="email_from_name" 
+                                           value="<?= $settings['email_from_name'] ?? '' ?>" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sec-divider">
+                            <span class="sec-divider-label"><i class="fas fa-envelope-open-text"></i>Teste</span>
+                            <div class="sec-divider-line"></div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="f-label">Email para Teste</label>
+                                    <div class="f-input-group">
+                                        <input type="email" class="f-input" id="test_email" placeholder="teste@exemplo.com">
+                                        <button type="button" class="f-addon" onclick="sendTestEmail()" style="cursor:pointer; background:var(--accent); color:#fff;">
+                                            <i class="fas fa-paper-plane"></i> Enviar Teste
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="testResult" class="info-banner" style="display: none;"></div>
+                        
+                    </div>
+                    <div class="save-bar">
+                        <a href="<?= site_url('admin/settings') ?>" class="btn-cancel"><i class="fas fa-times"></i> Cancelar</a>
+                        <button type="submit" class="btn-save"><i class="fas fa-save"></i> Guardar Configurações de Email</button>
+                    </div>
+                </div>
+            </form>
+        </div><!-- /tab-email -->
 
         <!-- ══════════ TAB: SYSTEM ══════════ -->
         <div class="tab-pane" id="tab-system">
@@ -1098,10 +1250,119 @@ function updateSigPreview() {
     if (pn) pn.textContent = pTitle + ' ' + pName;
 }
 
+// ── Email Settings ────────────────────────────────────────
+function togglePassword() {
+    const password = document.getElementById('email_smtp_pass');
+    const icon = document.getElementById('toggleIcon');
+    
+    if (password.type === 'password') {
+        password.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        password.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Show/hide email settings based on protocol
+document.getElementById('email_protocol')?.addEventListener('change', function() {
+    const smtpSettings = document.getElementById('smtpSettings');
+    const sendmailSettings = document.getElementById('sendmailSettings');
+    
+    if (this.value === 'smtp') {
+        smtpSettings.style.display = 'block';
+        sendmailSettings.style.display = 'none';
+    } else if (this.value === 'sendmail') {
+        smtpSettings.style.display = 'none';
+        sendmailSettings.style.display = 'block';
+    } else {
+        smtpSettings.style.display = 'none';
+        sendmailSettings.style.display = 'none';
+    }
+});
+
+// Send test email
+function sendTestEmail() {
+    const email = document.getElementById('test_email').value;
+    if (!email) {
+        showTestResult('Por favor, insira um email para teste', 'error');
+        return;
+    }
+    
+    const form = document.getElementById('emailForm');
+    const formData = new FormData(form);
+    formData.append('test_email', email);
+    
+    showTestResult('Enviando...', 'info');
+    
+    fetch('<?= site_url('admin/settings/test-email') ?>', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showTestResult('Email de teste enviado com sucesso!', 'success');
+        } else {
+            showTestResult('Erro: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showTestResult('Erro ao enviar email de teste', 'error');
+    });
+}
+
+function showTestResult(message, type) {
+    const resultDiv = document.getElementById('testResult');
+    resultDiv.style.display = 'flex';
+    resultDiv.innerHTML = '<i class="fas fa-' + 
+        (type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle') + 
+        '"></i> ' + message;
+    
+    resultDiv.className = 'info-banner';
+    if (type === 'success') {
+        resultDiv.style.background = 'rgba(22,168,125,.06)';
+        resultDiv.style.borderColor = 'rgba(22,168,125,.15)';
+    } else if (type === 'error') {
+        resultDiv.style.background = 'rgba(232,70,70,.06)';
+        resultDiv.style.borderColor = 'rgba(232,70,70,.15)';
+    }
+}
+
+// Add event listeners for signature preview
 ['director_name','director_title','pedagogical_director_name','pedagogical_title','signature_title']
     .forEach(n => document.querySelector(`[name="${n}"]`)?.addEventListener('input', updateSigPreview));
+    
 ['director_title','pedagogical_title']
     .forEach(n => document.querySelector(`[name="${n}"]`)?.addEventListener('change', updateSigPreview));
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateSigPreview();
+    
+    // Initialize email protocol display
+    const protocol = document.getElementById('email_protocol');
+    if (protocol) {
+        const smtpSettings = document.getElementById('smtpSettings');
+        const sendmailSettings = document.getElementById('sendmailSettings');
+        
+        if (protocol.value === 'smtp') {
+            smtpSettings.style.display = 'block';
+            sendmailSettings.style.display = 'none';
+        } else if (protocol.value === 'sendmail') {
+            smtpSettings.style.display = 'none';
+            sendmailSettings.style.display = 'block';
+        } else {
+            smtpSettings.style.display = 'none';
+            sendmailSettings.style.display = 'none';
+        }
+    }
+});
 
 // ── Unsaved changes warning ───────────────────────────────
 let _dirty = false;
