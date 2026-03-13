@@ -299,15 +299,11 @@
                 <?php endif; ?>
                 
                 <?php if (has_permission('exams.view_results') || has_permission('grades.view_averages') || is_admin()): ?>
-                <li><a href="<?= site_url('admin/academic-records/trimestral') ?>" class="<?= uri_string() == 'admin/academic-records/trimestral' ? 'active' : '' ?>">
-                    <i class="fas fa-calendar-alt"></i> Pauta Trimestral
-                </a></li>
+               
                 <?php endif; ?>
                 
                 <?php if (has_permission('grades.view_averages') || is_admin()): ?>
-                <li><a href="<?= site_url('admin/academic-records/disciplina') ?>" class="<?= uri_string() == 'admin/academic-records/disciplina' ? 'active' : '' ?>">
-                    <i class="fas fa-book-open"></i> Pauta por Disciplina
-                </a></li>
+               
                 <?php endif; ?>
                 
                 <!-- NOVOS LINKS PARA APROVAÇÃO E PROGRESSÃO -->
@@ -322,6 +318,34 @@
                     <i class="fas fa-arrow-up"></i> Resultados da Progressão
                 </a></li>
                 <?php endif; ?>
+            </ul>
+        </li>
+        <?php endif; ?>
+
+          <!-- Mini Pautas -->
+        <?php
+        $miniUris = ['admin/mini-grade-sheet','admin/mini-grade-sheet/trimestral','admin/mini-grade-sheet/disciplina'];
+        $miniActive = in_array(uri_string(), $miniUris);
+        if (has_permission('exams.view') || has_permission('grades.view_averages')):
+        ?>
+        <li class="nav-item">
+            <a href="#miniPautasSubmenu" data-bs-toggle="collapse"
+               class="nav-link dropdown-toggle <?= $miniActive ? 'active' : '' ?>"
+               aria-expanded="<?= $miniActive ? 'true' : 'false' ?>">
+                <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
+                <span class="nav-label">Mini Pautas</span>
+                <i class="fas fa-chevron-right nav-arrow"></i>
+            </a>
+            <ul class="collapse submenu <?= $miniActive ? 'show' : '' ?>" id="miniPautasSubmenu">
+                <li><a href="<?= site_url('admin/mini-grade-sheet') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet' ? 'active' : '' ?>">
+                    <i class="fas fa-list"></i> Todas as Mini Pautas
+                </a></li>
+                <li><a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/trimestral' ? 'active' : '' ?>">
+                    <i class="fas fa-calendar-alt"></i> Pautas Trimestrais
+                </a></li>
+                <li><a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
+                    <i class="fas fa-book-open"></i> Pautas por Disciplina
+                </a></li>
             </ul>
         </li>
         <?php endif; ?>

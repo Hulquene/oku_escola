@@ -28,8 +28,8 @@
                     <select name="ano_letivo" class="form-select" id="anoLetivo">
                         <option value="">Todos</option>
                         <?php foreach ($anosLetivos as $ano): ?>
-                            <option value="<?= $ano->id ?>" <?= ($filters['ano_letivo'] ?? '') == $ano->id ? 'selected' : '' ?>>
-                                <?= $ano->year_name ?>
+                            <option value="<?= $ano['id'] ?>" <?= ($filters['ano_letivo'] ?? '') == $ano['id'] ? 'selected' : '' ?>>
+                                <?= $ano['year_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

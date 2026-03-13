@@ -123,7 +123,7 @@
                         <?php foreach ($academicYears as $year): ?>
                             <?php 
                             $isSelected = ($selectedYear == $year['id']) || 
-                                         (empty($selectedYear) && !empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year() == 1);
+                                         (empty($selectedYear) && !empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year());
                             ?>
                             <option value="<?= $year['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
                                 <?= $year['year_name'] ?> <?= !empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year() ? '(Atual)' : '' ?>

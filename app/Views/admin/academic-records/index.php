@@ -132,7 +132,7 @@
                         <?php foreach ($academicYears as $year): ?>
                             <?php 
                             $isSelected = ($selectedYear == $year['id']) || 
-                                         (empty($selectedYear) && $year['id'] == current_academic_year() == 1);
+                                         (empty($selectedYear) && $year['id'] == current_academic_year());
                             ?>
                             <option value="<?= $year['id'] ?>" <?= $isSelected ? 'selected' : '' ?> 
                                     data-current="<?= $year['id'] == current_academic_year() ?>">

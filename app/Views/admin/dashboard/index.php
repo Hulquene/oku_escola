@@ -125,8 +125,8 @@ $this->section('content');
                 <select name="academic_year" class="filter-select" style="min-width:130px"
                         onchange="document.getElementById('yearFilterForm').submit()">
                     <?php foreach ($academicYears as $ay): ?>
-                        <option value="<?= $ay->id ?>" <?= ($selectedYear == $ay->id) ? 'selected' : '' ?>>
-                            <?= esc($ay->year_name ?? $ay->academic_year) ?>
+                        <option value="<?= $ay['id'] ?>" <?= ($selectedYear == $ay['id']) ? 'selected' : '' ?>>
+                            <?= esc($ay['year_name'] ?? $ay['academic_year']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

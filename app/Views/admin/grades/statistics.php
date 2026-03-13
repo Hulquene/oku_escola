@@ -235,7 +235,7 @@
                         // Encontrar o ID do ano atual
                         $currentYearId = null;
                         foreach ($academicYears as $year) {
-                            if (!empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year() == 1) {
+                            if (!empty($year['id'] == current_academic_year()) && $year['id'] == current_academic_year()) {
                                 $currentYearId = $year['id'];
                                 break;
                             }
