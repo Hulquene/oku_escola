@@ -769,8 +769,8 @@ input[type="file"].media-file { display:none; }
                                     <select class="f-select <?= session('errors.academic_year_id') ? 'is-invalid' : '' ?>" name="academic_year_id" required>
                                         <option value="">Selecione...</option>
                                         <?php foreach ($academicYears ?? [] as $y): ?>
-                                        <option value="<?= $y->id ?>" <?= (old('academic_year_id'), $settings['current_academic_year'] ?? '') == $y->id) ? 'selected' : '' ?>>
-                                            <?= esc($y->year_name) ?>
+                                        <option value="<?= $y['id'] ?>" <?= (old('academic_year_id') == $settings['current_academic_year'] ?? '') == $y['id'] ? 'selected' : '' ?>>
+                                            <?= esc($y['year_name']) ?>
                                         </option>
                                         <?php endforeach; ?>
                                     </select>

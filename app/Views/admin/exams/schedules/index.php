@@ -12,6 +12,7 @@
                 Visualize e gerencie todos os exames agendados
             </p>
         </div>
+        
         <div class="d-flex gap-2">
             <a href="<?= site_url('admin/exams/schedules/create') ?>" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i> Novo Agendamento
@@ -25,6 +26,11 @@
             <li class="breadcrumb-item active">Agendamentos</li>
         </ol>
     </nav>
+    <!-- Mostrar o ano atual -->
+<div class="alert alert-info">
+    <i class="fas fa-calendar-alt me-2"></i>
+    Mostrando exames do ano letivo: <strong><?= $currentYearId ?></strong>
+</div>
 </div>
 
 <!-- Alertas -->

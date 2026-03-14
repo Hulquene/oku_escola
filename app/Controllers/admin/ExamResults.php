@@ -41,12 +41,21 @@ class ExamResults extends BaseController
         $this->academicHistoryModel = new AcademicHistoryModel();
     }
     
-   /**
+/**
  * List results (exam results view)
  */
 public function index()
 {
+     // Verificar permissão
+    if (!can('exams.view_results')) {
+        return redirect()->to('/admin/dashboard')
+            ->with('error', 'Não tem permissão para visualizar resultados de exames.');
+    }
+    
     $data['title'] = 'Resultados de Exames';
+    
+    // Obter ano letivo atual
+    $currentYearId = current_academic_year();
     
     $examId = $this->request->getGet('exam');
     $classId = $this->request->getGet('class');
@@ -68,16 +77,21 @@ public function index()
             tbl_users.last_name,
             tbl_students.student_number,
             tbl_students.id as student_id,
-            tbl_exam_periods.semester_id
+            tbl_exam_periods.semester_id,
+            tbl_academic_years.year_name,
+            tbl_academic_years.id as academic_year_id
         ')
         ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
-        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id') // NOVO JOIN
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_exam_periods.academic_year_id') // NOVO JOIN
         ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
         ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
         ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
-        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id');
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        // FILTRO PRINCIPAL: Ano letivo atual
+        ->where('tbl_academic_years.id', $currentYearId);
     
     if ($examId) {
         $builder->where('tbl_exam_schedules.id', $examId);
@@ -102,7 +116,7 @@ public function index()
     
     $data['pager'] = $this->examResultModel->pager;
     
-    // Filters
+    // Filters - APENAS do ano letivo atual
     $data['exams'] = $this->examScheduleModel
         ->select('
             tbl_exam_schedules.id, 
@@ -110,10 +124,13 @@ public function index()
             tbl_disciplines.discipline_name
         ')
         ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+        ->where('tbl_exam_periods.academic_year_id', $currentYearId)
         ->orderBy('tbl_exam_schedules.exam_date', 'DESC')
         ->findAll(50);
     
     $data['classes'] = $this->classModel
+        ->where('academic_year_id', $currentYearId) // FILTRO POR ANO ATUAL
         ->where('is_active', 1)
         ->orderBy('class_name', 'ASC')
         ->findAll();
@@ -123,12 +140,17 @@ public function index()
         ->orderBy('discipline_name', 'ASC')
         ->findAll();
     
-    $data['semesters'] = $this->semesterModel->getActive();
+    $data['semesters'] = $this->semesterModel
+        ->where('academic_year_id', $currentYearId) // FILTRO POR ANO ATUAL
+        ->whereIn('status', ['ativo', 'processado'])
+        ->orderBy('start_date', 'ASC')
+        ->findAll();
     
     $data['selectedExam'] = $examId;
     $data['selectedClass'] = $classId;
     $data['selectedDiscipline'] = $disciplineId;
     $data['selectedSemester'] = $semesterId;
+    $data['currentYearId'] = $currentYearId;
     
     return view('admin/exams/results/index', $data);
 }

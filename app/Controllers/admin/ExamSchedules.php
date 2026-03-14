@@ -41,60 +41,80 @@ class ExamSchedules extends BaseController
     /**
      * List all exam schedules
      */
-    public function index()
-    {
-        // Verificar permissão
-        if (!can('exam_schedules.list')) {
-            return redirect()->to('/admin/dashboard')
-                ->with('error', 'Não tem permissão para ver a lista de calendários de exames.');
-        }
-        
-        $data['title'] = 'Calendário de Exames';
-        
-        $periodId = $this->request->getGet('period_id');
-        $classId = $this->request->getGet('class_id');
-        $date = $this->request->getGet('date');
-        
-        $builder = $this->examScheduleModel
-            ->select('
-                tbl_exam_schedules.*,
-                tbl_exam_periods.period_name,
-                tbl_classes.class_name,
-                tbl_disciplines.discipline_name,
-                tbl_exam_boards.board_name,
-                tbl_exam_boards.board_type,
-                tbl_exam_boards.board_code
-            ')
-            ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-            ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
-            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id');
-        
-        if ($periodId) {
-            $builder->where('tbl_exam_schedules.exam_period_id', $periodId);
-        }
-        
-        if ($classId) {
-            $builder->where('tbl_exam_schedules.class_id', $classId);
-        }
-        
-        if ($date) {
-            $builder->where('tbl_exam_schedules.exam_date', $date);
-        }
-        
-        $data['schedules'] = $builder->orderBy('exam_date', 'ASC')
-            ->orderBy('exam_time', 'ASC')
-            ->paginate(20);
-        
-        $data['pager'] = $this->examScheduleModel->pager;
-        $data['periods'] = $this->examPeriodModel->findAll();
-        $data['classes'] = $this->classModel->where('is_active', 1)->findAll();
-        
-        // Log de visualização
-        log_view('exam_schedules', null, 'Visualizou lista de calendários de exames');
-        
-        return view('admin/exams/schedules/index', $data);
+   public function index()
+{
+    // Verificar permissão
+    if (!can('exam_schedules.list')) {
+        return redirect()->to('/admin/dashboard')
+            ->with('error', 'Não tem permissão para ver a lista de calendários de exames.');
     }
+    
+    $data['title'] = 'Calendário de Exames';
+    
+    // Obter ano letivo atual
+    $currentYearId = current_academic_year();
+    
+    // Filtros opcionais
+    $periodId = $this->request->getGet('period_id');
+    $classId = $this->request->getGet('class_id');
+    $date = $this->request->getGet('date');
+    
+    $builder = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.*,
+            tbl_exam_periods.period_name,
+            tbl_exam_periods.academic_year_id,
+            tbl_classes.class_name,
+            tbl_disciplines.discipline_name,
+            tbl_exam_boards.board_name,
+            tbl_exam_boards.board_type,
+            tbl_exam_boards.board_code
+        ')
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+        // FILTRO PRINCIPAL: Ano letivo atual
+        ->where('tbl_exam_periods.academic_year_id', $currentYearId);
+    
+    // FILTROS OPCIONAIS
+    if ($periodId) {
+        $builder->where('tbl_exam_schedules.exam_period_id', $periodId);
+    }
+    
+    if ($classId) {
+        $builder->where('tbl_exam_schedules.class_id', $classId);
+    }
+    
+    if ($date) {
+        $builder->where('tbl_exam_schedules.exam_date', $date);
+    }
+    
+    $data['schedules'] = $builder->orderBy('exam_date', 'ASC')
+        ->orderBy('exam_time', 'ASC')
+        ->paginate(20);
+    
+    $data['pager'] = $this->examScheduleModel->pager;
+    
+    // Buscar períodos APENAS do ano letivo atual
+    $data['periods'] = $this->examPeriodModel
+        ->where('academic_year_id', $currentYearId)
+        ->findAll();
+    
+    // Buscar turmas do ano letivo atual
+    $data['classes'] = $this->classModel
+        ->where('academic_year_id', $currentYearId)
+        ->where('is_active', 1)
+        ->findAll();
+    
+    // Passar o ano atual para a view
+    $data['currentYearId'] = $currentYearId;
+    
+    // Log de visualização
+    log_view('exam_schedules', null, 'Visualizou lista de calendários de exames');
+    
+    return view('admin/exams/schedules/index', $data);
+}
     
     /**
      * Create new exam schedule
@@ -661,69 +681,147 @@ public function saveResults($id)
     /**
      * View exam schedule details
      */
-    public function view($id)
-    {
-        // Verificar permissão
-        if (!can('exam_schedules.view')) {
-            return redirect()->to('/admin/exams/schedules')
-                ->with('error', 'Não tem permissão para ver detalhes de calendários de exames.');
-        }
-        
-        $data['schedule'] = $this->examScheduleModel
-            ->select('
-                tbl_exam_schedules.*,
-                tbl_classes.class_name,
-                tbl_classes.class_code,
-                tbl_disciplines.discipline_name,
-                tbl_disciplines.discipline_code,
-                tbl_exam_boards.board_name,
-                tbl_exam_boards.board_type,
-                tbl_exam_boards.board_code,
-                tbl_exam_boards.weight,
-                tbl_exam_periods.period_name,
-                tbl_exam_periods.period_type,
-                tbl_academic_years.year_name,
-                tbl_semesters.semester_name
-            ')
-            ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
-            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
-            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
-            ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_exam_periods.academic_year_id')
-            ->join('tbl_semesters', 'tbl_semesters.id = tbl_exam_periods.semester_id')
-            ->find($id);
-        
-        if (!$data['schedule']) {
-            return redirect()->to('/admin/exams/schedules')
-                ->with('error', 'Agendamento não encontrado.');
-        }
-        
-        $data['title'] = 'Detalhes do Exame';
-        
-        // Get attendance
-        $data['attendance'] = $this->examAttendanceModel->getByExam($id);
-        $data['attendanceStats'] = $this->examAttendanceModel->getStats($id);
-        
-        // Get results
-        $data['results'] = $this->examResultModel
-            ->select('
-                tbl_exam_results.*,
-                tbl_enrollments.student_id,
-                tbl_students.student_number,
-                tbl_users.first_name,
-                tbl_users.last_name
-            ')
-            ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
-            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-            ->where('tbl_exam_results.exam_schedule_id', $id)
-            ->findAll();
-        
-        // Log de visualização
-        log_view('exam_schedule', $id, 'Visualizou detalhes do exame');
-        
-        return view('admin/exams/schedules/view', $data);
+/**
+ * View exam schedule details
+ */
+public function view($id)
+{
+    // Verificar permissão
+    if (!can('exam_schedules.view')) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Não tem permissão para ver detalhes de calendários de exames.');
     }
+    
+    $data['schedule'] = $this->examScheduleModel
+        ->select('
+            tbl_exam_schedules.*,
+            tbl_classes.class_name,
+            tbl_classes.class_code,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.discipline_code,
+            tbl_exam_boards.board_name,
+            tbl_exam_boards.board_type,
+            tbl_exam_boards.board_code,
+            tbl_exam_boards.weight,
+            tbl_exam_periods.period_name,
+            tbl_exam_periods.period_type,
+            tbl_academic_years.year_name,
+            tbl_semesters.semester_name
+        ')
+        ->join('tbl_classes', 'tbl_classes.id = tbl_exam_schedules.class_id')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
+        ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_exam_periods.academic_year_id')
+        ->join('tbl_semesters', 'tbl_semesters.id = tbl_exam_periods.semester_id')
+        ->find($id);
+    
+    if (!$data['schedule']) {
+        return redirect()->to('/admin/exams/schedules')
+            ->with('error', 'Agendamento não encontrado.');
+    }
+    
+    $data['title'] = 'Detalhes do Exame';
+    
+    // Get attendance
+    $data['attendance'] = $this->examAttendanceModel->getByExam($id);
+    $data['attendanceStats'] = $this->examAttendanceModel->getStats($id);
+    
+    // Get results
+    $data['results'] = $this->examResultModel
+        ->select('
+            tbl_exam_results.*,
+            tbl_enrollments.student_id,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name
+        ')
+        ->join('tbl_enrollments', 'tbl_enrollments.id = tbl_exam_results.enrollment_id')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_exam_results.exam_schedule_id', $id)
+        ->findAll();
+    
+    // ========================================================
+    // CRIAR combinedData PARA MOSTRAR ALUNOS NA TABELA
+    // ========================================================
+    
+    // Buscar TODOS os alunos da turma (mesmo sem presença)
+    $alunos = $this->enrollmentModel
+        ->select('
+            tbl_enrollments.id as enrollment_id,
+            tbl_students.id as student_id,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_enrollments.class_id', $data['schedule']->class_id)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    // Mapear presenças por enrollment_id
+    $attendanceMap = [];
+    foreach ($data['attendance'] as $att) {
+        $attendanceMap[$att->enrollment_id] = $att;
+    }
+    
+    // Mapear resultados por enrollment_id
+    $resultsMap = [];
+    foreach ($data['results'] as $res) {
+        $resultsMap[$res->enrollment_id] = $res;
+    }
+    
+    // Combinar dados
+    $combinedData = [];
+    foreach ($alunos as $aluno) {
+        $enrollmentId = $aluno->enrollment_id;
+        
+        $item = new \stdClass();
+        $item->enrollment_id = $enrollmentId;
+        $item->student_id = $aluno->student_id;
+        $item->student_number = $aluno->student_number;
+        $item->first_name = $aluno->first_name;
+        $item->last_name = $aluno->last_name;
+        $item->full_name = $aluno->full_name;
+        
+        // Dados de presença
+        if (isset($attendanceMap[$enrollmentId])) {
+            $att = $attendanceMap[$enrollmentId];
+            $item->attended = $att->attended;
+            $item->check_in_time = $att->check_in_time;
+            $item->attendance_id = $att->id;
+        } else {
+            $item->attended = 0;
+            $item->check_in_time = null;
+            $item->attendance_id = null;
+        }
+        
+        // Dados de nota
+        if (isset($resultsMap[$enrollmentId])) {
+            $res = $resultsMap[$enrollmentId];
+            $item->score = $res->score;
+            $item->result_id = $res->id;
+            $item->assessment_type = $res->assessment_type;
+        } else {
+            $item->score = null;
+            $item->result_id = null;
+            $item->assessment_type = null;
+        }
+        
+        $combinedData[] = $item;
+    }
+    
+    $data['combinedData'] = $combinedData;
+    
+    // Log de visualização
+    log_view('exam_schedule', $id, 'Visualizou detalhes do exame');
+    
+    return view('admin/exams/schedules/view', $data);
+}
     
     /**
      * Delete exam schedule
@@ -1189,5 +1287,31 @@ private function notifyStudents($scheduleId, $message)
     ];
     
     return notify_user_type('student', $notificationData, $userIds);
+}
+public function updateStatus($id)
+{
+    if (!$this->request->is('post')) {
+        return redirect()->back();
+    }
+    
+    $status = $this->request->getPost('status');
+    $observations = $this->request->getPost('observations');
+    
+    $updateData = [
+        'status' => $status,
+        'observations' => $observations ?: null
+    ];
+    
+    if ($status == 'Realizado') {
+        $updateData['completed_at'] = date('Y-m-d H:i:s');
+    }
+    
+    if ($this->examScheduleModel->update($id, $updateData)) {
+        return redirect()->to('/admin/exams/schedules/view/' . $id)
+            ->with('success', 'Status atualizado com sucesso');
+    }
+    
+    return redirect()->back()
+        ->with('error', 'Erro ao atualizar status');
 }
 }

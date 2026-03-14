@@ -133,102 +133,97 @@ class Users extends BaseController
         return view('admin/users/form', $data);
     }
     
-    /**
-     * Save user
-     */
-    public function save()
-    {
-        $id = $this->request->getPost('id');
-        
-        // Verificar permissões
-        if ($id) {
-            if (!$this->hasPermission('users.edit')) {
-                return redirect()->to('/admin/users')->with('error', 'Não tem permissão para editar utilizadores');
-            }
-            
-            // Não permitir editar admin (ID 1) a não ser que seja root
-            if ($id == 1 && !$this->isRoot()) {
-                return redirect()->to('/admin/users')->with('error', 'Não tem permissão para editar o administrador principal');
-            }
-        } else {
-            if (!$this->hasPermission('users.create')) {
-                return redirect()->to('/admin/users')->with('error', 'Não tem permissão para criar utilizadores');
-            }
+/**
+ * Save user
+ */
+public function save()
+{
+    $id = $this->request->getPost('id');
+    
+    // Verificar permissões
+    if ($id) {
+        if (!$this->hasPermission('users.edit')) {
+            return redirect()->to('/admin/users')->with('error', 'Não tem permissão para editar utilizadores');
         }
         
-        $rules = [
-            'username' => 'required|min_length[3]|is_unique[tbl_users.username,id,{id}]',
-            'email' => 'required|valid_email|is_unique[tbl_users.email,id,{id}]',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'role_id' => 'required|numeric'
-        ];
-        
-        // Password required for new users
-        if (!$id) {
-            $rules['password'] = 'required|min_length[6]';
+        // Não permitir editar admin (ID 1) a não ser que seja root
+        if ($id == 1 && !$this->isRoot()) {
+            return redirect()->to('/admin/users')->with('error', 'Não tem permissão para editar o administrador principal');
         }
-        
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()
-                ->with('errors', $this->validator->getErrors());
+    } else {
+        if (!$this->hasPermission('users.create')) {
+            return redirect()->to('/admin/users')->with('error', 'Não tem permissão para criar utilizadores');
         }
-        
-        $data = [
-            'username' => $this->request->getPost('username'),
-            'email' => $this->request->getPost('email'),
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name' => $this->request->getPost('last_name'),
-            'phone' => $this->request->getPost('phone'),
-            'address' => $this->request->getPost('address'),
-            'role_id' => $this->request->getPost('role_id'),
-            'user_type' => $this->request->getPost('user_type') ?? 'staff',
-            'is_active' => $this->request->getPost('is_active') ? 1 : 0
-        ];
-        
-        // Set password if provided
-        $password = $this->request->getPost('password');
-        if (!empty($password)) {
-            $data['password'] = password_hash($password, PASSWORD_DEFAULT);
-        }
-        
-        // Buscar role para obter o role_type
-        $role = $this->roleModel->find($data['role_id']);
-        if ($role) {
-            // Se a role é admin, definir user_type como admin
-            if ($role->role_type == 'admin') {
-                $data['user_type'] = 'admin';
-            }
-        }
-        
-        if ($id) {
-            // Verificar se está tentando desativar o próprio usuário
-            if ($id == $this->session->get('user_id') && isset($data['is_active']) && $data['is_active'] == 0) {
-                return redirect()->back()->withInput()
-                    ->with('error', 'Não é possível desativar o próprio utilizador');
-            }
-            
-            $oldData = $this->userModel->find($id);
-            $this->userModel->update($id, $data);
-            
-            // Log de atualização
-            log_update('user', $id, "Utilizador '{$data['username']}' atualizado", [
-                'old' => $oldData,
-                'new' => $data
-            ]);
-            
-            $message = 'Utilizador atualizado com sucesso';
-        } else {
-            $newId = $this->userModel->insert($data);
-            
-            // Log de inserção
-            log_insert('user', $newId, "Novo utilizador criado: {$data['username']}", $data);
-            
-            $message = 'Utilizador criado com sucesso';
-        }
-        
-        return redirect()->to('/admin/users')->with('success', $message);
     }
+    
+    $data = [
+        'username' => $this->request->getPost('username'),
+        'email' => $this->request->getPost('email'),
+        'first_name' => $this->request->getPost('first_name'),
+        'last_name' => $this->request->getPost('last_name'),
+        'phone' => $this->request->getPost('phone'),
+        'address' => $this->request->getPost('address'),
+        'role_id' => $this->request->getPost('role_id'),
+        'user_type' => $this->request->getPost('user_type') ?? 'staff',
+        'is_active' => $this->request->getPost('is_active') ? 1 : 0
+    ];
+    
+    // Password only for new users or when provided
+    $password = $this->request->getPost('password');
+    if (!empty($password)) {
+        $data['password'] = $password;
+    } elseif (!$id) {
+        // New user must have password
+        return redirect()->back()->withInput()
+            ->with('error', 'A palavra-passe é obrigatória para novos utilizadores');
+    }
+    
+    // Buscar role para obter o role_type
+    $role = $this->roleModel->find($data['role_id']);
+    if ($role && $role->role_type == 'admin') {
+        $data['user_type'] = 'admin';
+    }
+    
+    if ($id) {
+        // Verificar se está tentando desativar o próprio usuário
+        if ($id == $this->session->get('user_id') && isset($data['is_active']) && $data['is_active'] == 0) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Não é possível desativar o próprio utilizador');
+        }
+        
+        // VALIDAÇÃO VIA MODEL
+        if (!$this->userModel->validate($data)) {
+            return redirect()->back()->withInput()
+                ->with('errors', $this->userModel->errors());
+        }
+        
+        $oldData = $this->userModel->find($id);
+        $this->userModel->update($id, $data);
+        
+        // Log de atualização
+        log_update('user', $id, "Utilizador '{$data['username']}' atualizado", [
+            'old' => $oldData,
+            'new' => $data
+        ]);
+        
+        $message = 'Utilizador atualizado com sucesso';
+    } else {
+        // VALIDAÇÃO VIA MODEL
+        if (!$this->userModel->validate($data)) {
+            return redirect()->back()->withInput()
+                ->with('errors', $this->userModel->errors());
+        }
+        
+        $newId = $this->userModel->insert($data);
+        
+        // Log de inserção
+        log_insert('user', $newId, "Novo utilizador criado: {$data['username']}", $data);
+        
+        $message = 'Utilizador criado com sucesso';
+    }
+    
+    return redirect()->to('/admin/users')->with('success', $message);
+}
     
     /**
      * Delete user
@@ -285,65 +280,59 @@ class Users extends BaseController
         return view('admin/users/profile', $data);
     }
     
-    /**
-     * Update profile
-     */
-    public function updateProfile()
-    {
-        $userId = $this->session->get('user_id');
-        
-        $rules = [
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => "required|valid_email|is_unique[tbl_users.email,id,{$userId}]",
-            'phone' => 'permit_empty'
-        ];
-        
-        if (!$this->validate($rules)) {
+/**
+ * Update profile
+ */
+public function updateProfile()
+{
+    $userId = $this->session->get('user_id');
+    
+    $data = [
+        'first_name' => $this->request->getPost('first_name'),
+        'last_name' => $this->request->getPost('last_name'),
+        'email' => $this->request->getPost('email'),
+        'phone' => $this->request->getPost('phone'),
+        'address' => $this->request->getPost('address')
+    ];
+    
+    // Update password if provided
+    $password = $this->request->getPost('password');
+    $passwordConfirm = $this->request->getPost('password_confirm');
+    
+    if (!empty($password)) {
+        if ($password != $passwordConfirm) {
             return redirect()->back()->withInput()
-                ->with('errors', $this->validator->getErrors());
+                ->with('error', 'As palavras-passe não coincidem');
         }
         
-        $data = [
-            'first_name' => $this->request->getPost('first_name'),
-            'last_name' => $this->request->getPost('last_name'),
-            'email' => $this->request->getPost('email'),
-            'phone' => $this->request->getPost('phone'),
-            'address' => $this->request->getPost('address')
-        ];
-        
-        // Update password if provided
-        $password = $this->request->getPost('password');
-        $passwordConfirm = $this->request->getPost('password_confirm');
-        
-        if (!empty($password)) {
-            if ($password != $passwordConfirm) {
-                return redirect()->back()->withInput()
-                    ->with('error', 'As palavras-passe não coincidem');
-            }
-            
-            if (strlen($password) < 6) {
-                return redirect()->back()->withInput()
-                    ->with('error', 'A palavra-passe deve ter pelo menos 6 caracteres');
-            }
-            
-            $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+        if (strlen($password) < 6) {
+            return redirect()->back()->withInput()
+                ->with('error', 'A palavra-passe deve ter pelo menos 6 caracteres');
         }
         
-        $oldData = $this->userModel->find($userId);
-        $this->userModel->update($userId, $data);
-        
-        // Log de atualização do perfil
-        log_update('user', $userId, 'Perfil atualizado', [
-            'old' => $oldData,
-            'new' => $data
-        ]);
-        
-        // Atualizar sessão com novo nome
-        $this->session->set('name', $data['first_name'] . ' ' . $data['last_name']);
-        
-        return redirect()->to('/admin/users/profile')->with('success', 'Perfil atualizado com sucesso');
+        $data['password'] = $password;
     }
+    
+    // VALIDAÇÃO VIA MODEL
+    if (!$this->userModel->validate($data)) {
+        return redirect()->back()->withInput()
+            ->with('errors', $this->userModel->errors());
+    }
+    
+    $oldData = $this->userModel->find($userId);
+    $this->userModel->update($userId, $data);
+    
+    // Log de atualização do perfil
+    log_update('user', $userId, 'Perfil atualizado', [
+        'old' => $oldData,
+        'new' => $data
+    ]);
+    
+    // Atualizar sessão com novo nome
+    $this->session->set('name', $data['first_name'] . ' ' . $data['last_name']);
+    
+    return redirect()->to('/admin/users/profile')->with('success', 'Perfil atualizado com sucesso');
+}
     
     /**
      * View user details

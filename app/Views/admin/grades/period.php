@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="mb-2">Relatório por Período</h1>
-            <p class="text-muted mb-0"><?= $semester->semester_name ?> - <?= $academicYear->year_name ?></p>
+            <p class="text-muted mb-0"><?= $semester->semester_name ?> - <?= $academicYear['year_name'] ?></p>
         </div>
         <div>
             <a href="<?= site_url('admin/grades/report') ?>" class="btn btn-secondary">

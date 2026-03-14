@@ -194,7 +194,7 @@ class Auth extends BaseController
 
             // Dados acadêmicos
             'academic_year_id' => $academicYearId,
-            'academic_year_name' => $academicYear ? $academicYear->year_name : null,
+            'academic_year_name' => $academicYear ? $academicYear['year_name'] : null,
             'semester_id' => setting('current_semester')
         ], $additionalData);
         

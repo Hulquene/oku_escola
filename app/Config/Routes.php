@@ -319,7 +319,8 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('assign', [ClassSubjects::class, 'assign'], ["as" => 'classes.class-subjects.assign']);
         $routes->post('assign', [ClassSubjects::class, 'assignSave'], ["as" => 'classes.class-subjects.assign.save']);
 
-        $routes->get('get-by-class/(:num)', [ClassSubjects::class, 'getByClass'], ["as" => 'classes.class-subjects.get/$1']);
+        //$routes->get('get-by-class/(:num)', [ClassSubjects::class, 'getByClass'], ["as" => 'classes.class-subjects.get/$1']);
+        $routes->get('get-by-class/(:num)', [ClassSubjects::class, 'getByClass'], ["as" => 'classes.class-subjects.get-by-class']);
         
             // ROTA DE DELETE 
         $routes->get('delete/(:num)', [ClassSubjects::class, 'delete/$1'], ["as" => 'classes.class-subjects.delete']);
@@ -404,6 +405,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('view/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'view/$1'], ['as' => 'exams.schedules.view']);
         $routes->post('save', [\App\Controllers\admin\ExamSchedules::class, 'save'], ['as' => 'exams.schedules.save']);
         $routes->post('update/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'update/$1'], ['as' => 'exams.schedules.update']);
+        $routes->post('update-status/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'updateStatus/$1'], ['as' => 'exams.schedules.update-status']);
         $routes->get('delete/(:num)', [\App\Controllers\admin\ExamSchedules::class, 'delete/$1'], ['as' => 'exams.schedules.delete']);
 
          // Rotas para calendário

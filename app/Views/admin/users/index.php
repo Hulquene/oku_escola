@@ -46,24 +46,24 @@
                 <?php if (!empty($users)): ?>
                     <?php foreach ($users as $user): ?>
                         <tr>
-                            <td><?= $user->id ?></td>
+                            <td><?= $user['id'] ?></td>
                             <td>
-                                <?php if ($user->photo): ?>
-                                    <img src="<?= base_url('uploads/users/' . $user->photo) ?>" 
+                                <?php if ($user['photo']): ?>
+                                    <img src="<?= base_url('uploads/users/' . $user['photo']) ?>" 
                                          alt="Foto" 
                                          class="rounded-circle"
                                          style="width: 40px; height: 40px; object-fit: cover;">
                                 <?php else: ?>
                                     <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center text-white"
                                          style="width: 40px; height: 40px;">
-                                        <?= strtoupper(substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1)) ?>
+                                        <?= strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)) ?>
                                     </div>
                                 <?php endif; ?>
                             </td>
-                            <td><?= $user->first_name ?> <?= $user->last_name ?></td>
-                            <td><?= $user->username ?></td>
-                            <td><?= $user->email ?></td>
-                            <td><span class="badge bg-info"><?= $user->role_name ?></span></td>
+                            <td><?= $user['first_name'] ?> <?= $user['last_name'] ?></td>
+                            <td><?= $user['username'] ?></td>
+                            <td><?= $user['email'] ?></td>
+                            <td><span class="badge bg-info"><?= $user['role_name'] ?></span></td>
                             <td>
                                 <?php
                                 $typeClass = [
@@ -72,29 +72,29 @@
                                     'student' => 'primary',
                                     'guardian' => 'warning',
                                     'staff' => 'secondary'
-                                ][$user->user_type] ?? 'secondary';
+                                ][$user['user_type']] ?? 'secondary';
                                 ?>
-                                <span class="badge bg-<?= $typeClass ?>"><?= ucfirst($user->user_type) ?></span>
+                                <span class="badge bg-<?= $typeClass ?>"><?= ucfirst($user['user_type']) ?></span>
                             </td>
-                            <td><?= $user->last_login ? date('d/m/Y H:i', strtotime($user->last_login)) : '-' ?></td>
+                            <td><?= $user['last_login'] ? date('d/m/Y H:i', strtotime($user['last_login'])) : '-' ?></td>
                             <td>
-                                <?php if ($user->is_active): ?>
+                                <?php if ($user['is_active']): ?>
                                     <span class="badge bg-success">Ativo</span>
                                 <?php else: ?>
                                     <span class="badge bg-danger">Inativo</span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <a href="<?= site_url('admin/users/view/' . $user->id) ?>" 
+                                <a href="<?= site_url('admin/users/view/' . $user['id']) ?>" 
                                    class="btn btn-sm btn-success" title="Ver Detalhes">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="<?= site_url('admin/users/form-edit/' . $user->id) ?>" 
+                                <a href="<?= site_url('admin/users/form-edit/' . $user['id']) ?>" 
                                    class="btn btn-sm btn-info" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <?php if ($user->id != session()->get('user_id')): ?>
-                                    <a href="<?= site_url('admin/users/delete/' . $user->id) ?>" 
+                                <?php if ($user['id'] != session()->get('user_id')): ?>
+                                    <a href="<?= site_url('admin/users/delete/' . $user['id']) ?>" 
                                        class="btn btn-sm btn-danger" 
                                        onclick="return confirm('Tem certeza que deseja eliminar este utilizador?')"
                                        title="Eliminar">

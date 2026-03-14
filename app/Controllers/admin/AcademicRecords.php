@@ -82,9 +82,11 @@ class AcademicRecords extends BaseController
         // Obter ano letivo atual
         $currentYear = current_academic_year();
         
+        //$academicYearId = $academicYearId ?: current_academic_year();
+        
         // Se não selecionou ano, usa o atual como padrão
         if (!$academicYearId && $currentYear) {
-            $academicYearId = $currentYear['id'];
+            $academicYearId = $currentYear;
         }
         
         // Dados para filtros

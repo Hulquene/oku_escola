@@ -20,6 +20,11 @@
             <li class="breadcrumb-item active">Resultados</li>
         </ol>
     </nav>
+    <!-- Mostrar o ano atual -->
+<div class="alert alert-info mb-3">
+    <i class="fas fa-calendar-alt me-2"></i>
+    Mostrando resultados do ano letivo: <strong><?= $currentYearId ?></strong>
+</div>
 </div>
 
 <!-- Alertas -->

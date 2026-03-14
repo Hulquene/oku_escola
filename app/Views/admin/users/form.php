@@ -24,7 +24,7 @@
             <?= csrf_field() ?>
             
             <?php if ($user): ?>
-                <input type="hidden" name="id" value="<?= $user->id ?>">
+                <input type="hidden" name="id" value="<?= $user['id'] ?>">
             <?php endif; ?>
             
             <div class="row">
@@ -35,7 +35,7 @@
                                class="form-control <?= session('errors.first_name') ? 'is-invalid' : '' ?>" 
                                id="first_name" 
                                name="first_name" 
-                               value="<?= old('first_name', $user->first_name ?? '') ?>"
+                               value="<?= old('first_name', $user['first_name'] ?? '') ?>"
                                required>
                         <?php if (session('errors.first_name')): ?>
                             <div class="invalid-feedback"><?= session('errors.first_name') ?></div>
@@ -50,7 +50,7 @@
                                class="form-control <?= session('errors.last_name') ? 'is-invalid' : '' ?>" 
                                id="last_name" 
                                name="last_name" 
-                               value="<?= old('last_name', $user->last_name ?? '') ?>"
+                               value="<?= old('last_name', $user['last_name'] ?? '') ?>"
                                required>
                         <?php if (session('errors.last_name')): ?>
                             <div class="invalid-feedback"><?= session('errors.last_name') ?></div>
@@ -67,7 +67,7 @@
                                class="form-control <?= session('errors.username') ? 'is-invalid' : '' ?>" 
                                id="username" 
                                name="username" 
-                               value="<?= old('username', $user->username ?? '') ?>"
+                               value="<?= old('username', $user['username'] ?? '') ?>"
                                <?= $user ? 'readonly' : '' ?>
                                required>
                         <?php if (session('errors.username')): ?>
@@ -83,7 +83,7 @@
                                class="form-control <?= session('errors.email') ? 'is-invalid' : '' ?>" 
                                id="email" 
                                name="email" 
-                               value="<?= old('email', $user->email ?? '') ?>"
+                               value="<?= old('email', $user['email'] ?? '') ?>"
                                required>
                         <?php if (session('errors.email')): ?>
                             <div class="invalid-feedback"><?= session('errors.email') ?></div>
@@ -118,7 +118,7 @@
                                class="form-control" 
                                id="phone" 
                                name="phone" 
-                               value="<?= old('phone', $user->phone ?? '') ?>">
+                               value="<?= old('phone', $user['phone'] ?? '') ?>">
                     </div>
                 </div>
             </div>
@@ -189,12 +189,12 @@
                 </div>
             </div>
             
-            <?php if ($user && $user->photo): ?>
+            <?php if ($user && $user['photo']): ?>
                 <div class="row mt-2">
                     <div class="col-md-12">
                         <label class="form-label">Foto Atual</label>
                         <div>
-                            <img src="<?= base_url('uploads/users/' . $user->photo) ?>" 
+                            <img src="<?= base_url('uploads/users/' . $user['photo']) ?>" 
                                  alt="Foto" 
                                  class="img-thumbnail" 
                                  style="max-width: 100px;">

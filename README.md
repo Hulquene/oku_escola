@@ -305,7 +305,7 @@ div.dt-container .dt-search input {
     <div class="active-filters">
         <span class="af-label"><i class="fas fa-filter me-1"></i>Activos:</span>
         <?php if (!empty($selectedYear)): ?>
-            <?php foreach ($academicYears as $y): if ($y->id == $selectedYear): ?>
+            <?php foreach ($academicYears as $y): if ($y['id'] == $selectedYear): ?>
                 <span class="af-badge blue"><i class="fas fa-calendar"></i><?= esc($y->year_name) ?><a href="<?= site_url('admin/classes/classes?remove=year') ?>"><i class="fas fa-times"></i></a></span>
             <?php endif; endforeach; ?>
         <?php endif; ?>

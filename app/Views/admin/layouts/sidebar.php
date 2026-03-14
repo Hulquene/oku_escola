@@ -631,15 +631,15 @@
     <!-- Footer do Sidebar -->
     <div class="sidebar-footer">
         <div class="sidebar-footer-info">
-            <?php if (session()->get('academic_year')): ?>
+            <?php if (current_academic_year_name()): ?>
             <div class="footer-chip">
                 <i class="fas fa-database"></i>
-                <span><?= session()->get('academic_year') ?></span>
+                <span><?= current_academic_year_name() ?></span>
             </div>
             <?php endif; ?>
             <div class="footer-chip">
                 <i class="fas fa-calendar-alt"></i>
-                <span><?= date('Y') ?></span>
+                <span><?= date("d/m/Y") ?></span>
             </div>
         </div>
         <a href="<?= site_url('auth/logout') ?>" class="btn-logout"

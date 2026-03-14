@@ -536,7 +536,7 @@ class MiniGradeSheet extends BaseController
     /**
      * Página principal de pautas trimestrais
      */
-    public function trimestral()
+  /*   public function trimestral()
     {
         $data['title'] = 'Pautas Trimestrais';
         
@@ -571,12 +571,66 @@ class MiniGradeSheet extends BaseController
         $data['selectedClass'] = $classId;
         
         return view('admin/mini_grade_sheet/trimestral', $data);
+    } */
+    /**
+ * Página principal de pautas trimestrais
+ */
+public function trimestral()
+{
+    $data['title'] = 'Pautas Trimestrais';
+    
+    // Filtros
+    $academicYearId = $this->request->getGet('academic_year');
+    $semesterId = $this->request->getGet('semester');
+    $classId = $this->request->getGet('class');
+    
+    $currentYear = $this->academicYearModel->getCurrent();
+    
+    // Se não selecionou ano letivo, usar o atual
+    if (!$academicYearId && $currentYear) {
+        $academicYearId = $currentYear['id'] ?? null;
     }
     
+    // Dados para filtros
+    $data['academicYears'] = $this->academicYearModel
+        ->where('is_active', 1)
+        ->orderBy('year_name', 'DESC')
+        ->findAll();
+    
+    // Buscar semestres do ano letivo selecionado
+    if ($academicYearId) {
+        $data['semesters'] = $this->semesterModel
+            ->where('academic_year_id', $academicYearId)
+            ->whereIn('status', ['ativo', 'processado'])
+            ->orderBy('start_date', 'ASC')
+            ->findAll();
+    } else {
+        $data['semesters'] = [];
+    }
+    
+    // Buscar todas as turmas ativas
+    $data['classes'] = $this->classModel
+        ->select('tbl_classes.*, tbl_academic_years.year_name')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->where('tbl_classes.is_active', 1)
+        ->orderBy('tbl_classes.class_name', 'ASC')
+        ->findAll();
+    
+    // Se tiver turma e semestre selecionados, buscar os dados
+    if ($classId && $semesterId) {
+        return $this->trimestralClass($classId, $semesterId);
+    }
+    
+    $data['selectedYear'] = $academicYearId;
+    $data['selectedSemester'] = $semesterId;
+    $data['selectedClass'] = $classId;
+    
+    return view('admin/mini_grade_sheet/trimestral', $data);
+}
     /**
      * Visualizar pauta trimestral de uma turma
      */
-    public function trimestralClass($classId)
+/*     public function trimestralClass($classId)
     {
         $data['title'] = 'Pauta Trimestral da Turma';
         
@@ -663,12 +717,112 @@ class MiniGradeSheet extends BaseController
         }
         
         return view('admin/mini_grade_sheet/trimestral_class', $data);
+    } */
+    /**
+ * Visualizar pauta trimestral de uma turma
+ */
+public function trimestralClass($classId, $semesterId = null)
+{
+    // Se não veio pela URL, pegar do GET
+    if (!$semesterId) {
+        $semesterId = $this->request->getGet('semester');
     }
     
+    if (!$semesterId) {
+        return redirect()->to('/admin/mini-grade-sheet/trimestral')
+            ->with('error', 'Selecione um trimestre/semestre');
+    }
+    
+    $data['title'] = 'Pauta Trimestral da Turma';
+    
+    // Buscar informações da turma
+    $data['class'] = $this->classModel
+        ->select('tbl_classes.*, tbl_academic_years.year_name, tbl_grade_levels.level_name')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->find($classId);
+    
+    if (!$data['class']) {
+        return redirect()->to('/admin/mini-grade-sheet/trimestral')
+            ->with('error', 'Turma não encontrada');
+    }
+    
+    $data['semester'] = $this->semesterModel->find($semesterId);
+    
+    // Buscar alunos da turma
+    $data['alunos'] = $this->enrollmentModel
+        ->select('
+            tbl_enrollments.id as enrollment_id,
+            tbl_students.id as student_id,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_enrollments.class_id', $classId)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    // Buscar disciplinas da turma
+    $data['disciplinas'] = $this->classDisciplineModel
+        ->select('
+            tbl_class_disciplines.*,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.discipline_code,
+            tbl_users.first_name as teacher_first_name,
+            tbl_users.last_name as teacher_last_name
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.is_active', 1)
+        ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+        ->findAll();
+    
+    // Para cada aluno, buscar notas das disciplinas
+    foreach ($data['alunos'] as $aluno) {
+        $aluno->notas = [];
+        $somaNotas = 0;
+        $disciplinasCount = 0;
+        
+        foreach ($data['disciplinas'] as $disciplina) {
+            // Buscar notas para esta disciplina no trimestre selecionado
+            $resultados = $this->examResultModel
+                ->select('tbl_exam_results.*')
+                ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
+                ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+                ->where('tbl_exam_results.enrollment_id', $aluno->enrollment_id)
+                ->where('tbl_exam_schedules.discipline_id', $disciplina->discipline_id)
+                ->where('tbl_exam_periods.semester_id', $semesterId)
+                ->findAll();
+            
+            // Calcular média das notas
+            if (!empty($resultados)) {
+                $soma = 0;
+                foreach ($resultados as $r) {
+                    $soma += $r->score;
+                }
+                $nota = round($soma / count($resultados), 1);
+                $aluno->notas[$disciplina->discipline_id] = $nota;
+                $somaNotas += $nota;
+                $disciplinasCount++;
+            } else {
+                $aluno->notas[$disciplina->discipline_id] = '—';
+            }
+        }
+        
+        $aluno->media_geral = $disciplinasCount > 0 ? round($somaNotas / $disciplinasCount, 1) : '—';
+    }
+    
+    return view('admin/mini_grade_sheet/trimestral_class', $data);
+}
     /**
      * Página principal de pautas por disciplina
      */
-    public function disciplina()
+/*     public function disciplina()
     {
         $data['title'] = 'Pautas por Disciplina';
         
@@ -714,12 +868,67 @@ class MiniGradeSheet extends BaseController
         $data['selectedDiscipline'] = $disciplineId;
         
         return view('admin/mini_grade_sheet/disciplina', $data);
+    } */
+    /**
+ * Página principal de pautas por disciplina
+ */
+public function disciplina()
+{
+    $data['title'] = 'Pautas por Disciplina';
+    
+    // Filtros
+    $academicYearId = $this->request->getGet('academic_year');
+    $classId = $this->request->getGet('class');
+    $disciplineId = $this->request->getGet('discipline');
+    
+    $currentYear = $this->academicYearModel->getCurrent();
+    
+    // Dados para filtros
+    $data['academicYears'] = $this->academicYearModel
+        ->where('is_active', 1)
+        ->orderBy('year_name', 'DESC')
+        ->findAll();
+    
+    $data['classes'] = $this->classModel
+        ->select('tbl_classes.*, tbl_academic_years.year_name')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->where('tbl_classes.is_active', 1)
+        ->orderBy('tbl_classes.class_name', 'ASC')
+        ->findAll();
+    
+    // Se uma turma foi selecionada, buscar disciplinas disponíveis
+    if ($classId) {
+        $data['disciplines'] = $this->classDisciplineModel
+            ->select('
+                tbl_disciplines.id,
+                tbl_disciplines.discipline_name,
+                tbl_disciplines.discipline_code
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.is_active', 1)
+            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+            ->findAll();
+    } else {
+        $data['disciplines'] = [];
     }
     
+    $data['selectedYear'] = $academicYearId;
+    $data['selectedClass'] = $classId;
+    $data['selectedDiscipline'] = $disciplineId;
+    
+    // SE TODOS OS FILTROS ESTIVEREM SELECIONADOS, REDIRECIONAR PARA A VIEW DE VISUALIZAÇÃO
+    if ($classId && $disciplineId) {
+        return $this->disciplinaView($classId, $disciplineId);
+    }
+    
+    // CASO CONTRÁRIO, MOSTRAR A PÁGINA DE FILTROS
+    return view('admin/mini_grade_sheet/disciplina', $data);
+}
     /**
      * Visualizar pauta de uma disciplina específica
      */
-    public function disciplinaView($classId, $disciplineId)
+ /*    public function disciplinaView($classId, $disciplineId)
     {
         $data['title'] = 'Pauta da Disciplina';
         
@@ -868,8 +1077,165 @@ class MiniGradeSheet extends BaseController
         }
         
         return view('admin/mini_grade_sheet/disciplina_view', $data);
+    } */
+    /**
+ * Visualizar pauta de uma disciplina específica
+ */
+public function disciplinaView($classId, $disciplineId)
+{
+    $data['title'] = 'Pauta da Disciplina';
+    
+    // Buscar informações da turma
+    $data['class'] = $this->classModel
+        ->select('tbl_classes.*, tbl_academic_years.year_name, tbl_grade_levels.level_name')
+        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+        ->find($classId);
+    
+    // Buscar informações da disciplina pelo ID da class_disciplines
+    $data['discipline'] = $this->classDisciplineModel
+        ->select('
+            tbl_class_disciplines.*,
+            tbl_disciplines.discipline_name,
+            tbl_disciplines.discipline_code,
+            tbl_users.first_name as teacher_first_name,
+            tbl_users.last_name as teacher_last_name
+        ')
+        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
+        ->where('tbl_class_disciplines.id', $disciplineId)
+        ->where('tbl_class_disciplines.class_id', $classId)
+        ->where('tbl_class_disciplines.is_active', 1)
+        ->first();  // Use first() em vez de findAll() para um único registro
+    
+    if (!$data['class'] || !$data['discipline']) {
+        return redirect()->to('/admin/mini-grade-sheet/disciplina')
+            ->with('error', 'Turma ou disciplina não encontrada');
     }
     
+    // Buscar alunos da turma
+    $data['alunos'] = $this->enrollmentModel
+        ->select('
+            tbl_enrollments.id as enrollment_id,
+            tbl_students.id as student_id,
+            tbl_students.student_number,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+        ')
+        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->where('tbl_enrollments.class_id', $classId)
+        ->where('tbl_enrollments.status', 'Ativo')
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->findAll();
+    
+    // Buscar resultados da disciplina usando discipline_id da class_disciplines
+    $resultados = $this->examResultModel
+        ->select('
+            tbl_exam_results.*,
+            tbl_exam_schedules.exam_date,
+            tbl_exam_schedules.exam_period_id,
+            tbl_exam_periods.period_name,
+            tbl_exam_periods.semester_id,
+            tbl_semesters.semester_type
+        ')
+        ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
+        ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+        ->join('tbl_semesters', 'tbl_semesters.id = tbl_exam_periods.semester_id')
+        ->where('tbl_exam_schedules.class_id', $classId)
+        ->where('tbl_exam_schedules.discipline_id', $data['discipline']->discipline_id)  // Usa o discipline_id da class_disciplines
+        ->orderBy('tbl_semesters.start_date', 'ASC')
+        ->findAll();
+    
+    // Organizar resultados por aluno e trimestre
+    $data['resultados'] = [];
+    $semesterMap = [
+        '1º Trimestre' => 1,
+        '2º Trimestre' => 2,
+        '3º Trimestre' => 3
+    ];
+    
+    foreach ($resultados as $result) {
+        $enrollmentId = $result->enrollment_id;
+        $trimestre = $semesterMap[$result->semester_type] ?? 1;
+        
+        if (!isset($data['resultados'][$enrollmentId])) {
+            $data['resultados'][$enrollmentId] = [
+                1 => ['AC' => null, 'NPP' => null, 'NPT' => null],
+                2 => ['AC' => null, 'NPP' => null, 'NPT' => null],
+                3 => ['AC' => null, 'NPP' => null, 'NPT' => null]
+            ];
+        }
+        
+        $tipo = $result->assessment_type;
+        if (in_array($tipo, ['AC', 'NPP', 'NPT'])) {
+            $data['resultados'][$enrollmentId][$trimestre][$tipo] = $result->score;
+        }
+    }
+    
+    // Calcular médias
+    $data['medias'] = [];
+    foreach ($data['alunos'] as $aluno) {
+        $enrollmentId = $aluno->enrollment_id;
+        $alunoMedias = [
+            'aluno' => $aluno,
+            'trimestres' => []
+        ];
+        
+        $somaMT = 0;
+        $trimestresCompletos = 0;
+        
+        for ($t = 1; $t <= 3; $t++) {
+            $notas = $data['resultados'][$enrollmentId][$t] ?? [];
+            
+            $ac = $notas['AC'] ?? '—';
+            $npp = $notas['NPP'] ?? '—';
+            $npt = $notas['NPT'] ?? '—';
+            
+            $notasValidas = [];
+            if ($ac !== '—') $notasValidas[] = $ac;
+            if ($npp !== '—') $notasValidas[] = $npp;
+            if ($npt !== '—') $notasValidas[] = $npt;
+            
+            $mt = count($notasValidas) == 3 ? round(array_sum($notasValidas) / 3, 1) : '—';
+            
+            if ($mt !== '—') {
+                $somaMT += $mt;
+                $trimestresCompletos++;
+            }
+            
+            $alunoMedias['trimestres'][$t] = [
+                'AC' => $ac,
+                'NPP' => $npp,
+                'NPT' => $npt,
+                'MT' => $mt
+            ];
+        }
+        
+        $alunoMedias['MDF'] = $trimestresCompletos == 3 ? round($somaMT / 3, 1) : '—';
+        
+        if ($alunoMedias['MDF'] !== '—') {
+            if ($alunoMedias['MDF'] >= 10) {
+                $alunoMedias['situacao'] = 'Aprovado';
+                $alunoMedias['situacaoClass'] = 'success';
+            } elseif ($alunoMedias['MDF'] >= 7) {
+                $alunoMedias['situacao'] = 'Recurso';
+                $alunoMedias['situacaoClass'] = 'warning';
+            } else {
+                $alunoMedias['situacao'] = 'Reprovado';
+                $alunoMedias['situacaoClass'] = 'danger';
+            }
+        } else {
+            $alunoMedias['situacao'] = 'Pendente';
+            $alunoMedias['situacaoClass'] = 'secondary';
+        }
+        
+        $data['medias'][$enrollmentId] = $alunoMedias;
+    }
+    
+    return view('admin/mini_grade_sheet/disciplina_view', $data);
+}
     /**
      * Exportar pauta trimestral para Excel
      */

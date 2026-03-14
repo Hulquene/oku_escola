@@ -110,7 +110,7 @@ $this->section('content');
                 <?php if (!empty($academicYear)): ?>
                     <span class="sep">|</span>
                     <i class="fa-solid fa-book-open"></i>
-                    <span><?= esc($academicYear->year_name ?? $academicYear->academic_year) ?></span>
+                    <span><?= esc($academicYear['year_name'] ?? $academicYear['academic_year']) ?></span>
                 <?php endif; ?>
             </div>
         </div>
@@ -751,7 +751,7 @@ $this->section('content');
         <div class="ci-card-title">
             <i class="fa-solid fa-table text-accent"></i>Estatística Geral da Escola
         </div>
-        <span class="ci-card-badge blue"><?= $academicYear->year_name ?? ($academicYear->academic_year ?? '') ?></span>
+        <span class="ci-card-badge blue"><?= $academicYear['year_name'] ?? ($academicYear['academic_year'] ?? '') ?></span>
     </div>
     <div class="ci-card-body p0">
         <div class="table-scroll-wrap">

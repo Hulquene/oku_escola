@@ -54,17 +54,12 @@
                     <label class="form-label">Disciplina</label>
                     <select name="discipline" class="form-select" id="discipline" required>
                         <option value="">Selecione uma disciplina</option>
-                        <?php foreach ($disciplines as $disc): ?>
-                            <option value="<?= $disc->id ?>" <?= ($selectedDiscipline ?? '') == $disc->id ? 'selected' : '' ?>>
-                                <?= $disc->discipline_name ?>
-                            </option>
-                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
             
             <div class="text-end">
-                <button type="submit" class="btn btn-primary" <?= empty($disciplines) ? 'disabled' : '' ?>>
+                <button type="submit" class="btn btn-primary" id="btnVisualizar">
                     <i class="fas fa-search"></i> Visualizar Pauta
                 </button>
             </div>
@@ -79,28 +74,70 @@
 <?php endif; ?>
 
 <script>
-document.getElementById('class').addEventListener('change', function() {
-    const classId = this.value;
+document.addEventListener('DOMContentLoaded', function() {
+    const classSelect = document.getElementById('class');
     const disciplineSelect = document.getElementById('discipline');
+    const btnVisualizar = document.getElementById('btnVisualizar');
+    const academicYearSelect = document.getElementById('academicYear');
     
-    if (classId) {
-        disciplineSelect.innerHTML = '<option value="">Carregando...</option>';
-        
-        fetch('<?= site_url('admin/class-subjects/getByClass/') ?>' + classId)
-            .then(response => response.json())
-            .then(data => {
-                disciplineSelect.innerHTML = '<option value="">Selecione uma disciplina</option>';
-                data.forEach(disc => {
-                    disciplineSelect.innerHTML += `<option value="${disc.id}">${disc.discipline_name}</option>`;
-                });
-            })
-            .catch(error => {
-                disciplineSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-                console.error('Erro:', error);
-            });
-    } else {
-        disciplineSelect.innerHTML = '<option value="">Selecione uma disciplina</option>';
+    // Função para verificar se pode habilitar o botão
+    function checkButtonStatus() {
+        const hasClass = classSelect.value !== '';
+        const hasDiscipline = disciplineSelect.value !== '';
+        btnVisualizar.disabled = !(hasClass && hasDiscipline);
     }
+    
+    // Quando a turma mudar
+    classSelect.addEventListener('change', function() {
+        const classId = this.value;
+        
+        if (classId) {
+            disciplineSelect.innerHTML = '<option value="">Carregando...</option>';
+            btnVisualizar.disabled = true;
+            
+            fetch('<?= site_url('admin/classes/class-subjects/get-by-class/') ?>' + classId)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na resposta do servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    disciplineSelect.innerHTML = '<option value="">Selecione uma disciplina</option>';
+                    
+                    if (data.length === 0) {
+                        disciplineSelect.innerHTML += '<option value="" disabled>Nenhuma disciplina encontrada</option>';
+                    } else {
+                        data.forEach(disc => {
+                            disciplineSelect.innerHTML += `<option value="${disc.id}">${disc.discipline_name}</option>`;
+                        });
+                    }
+                    
+                    checkButtonStatus();
+                })
+                .catch(error => {
+                    disciplineSelect.innerHTML = '<option value="">Erro ao carregar disciplinas</option>';
+                    console.error('Erro:', error);
+                    btnVisualizar.disabled = true;
+                });
+        } else {
+            disciplineSelect.innerHTML = '<option value="">Selecione uma disciplina</option>';
+            checkButtonStatus();
+        }
+    });
+    
+    // Quando a disciplina mudar
+    disciplineSelect.addEventListener('change', checkButtonStatus);
+    
+    // Verificar estado inicial
+    checkButtonStatus();
+    
+    // Se já tiver turma selecionada (quando a página carrega com parâmetros)
+    <?php if ($selectedClass): ?>
+    // Disparar o evento change para carregar as disciplinas
+    const event = new Event('change');
+    classSelect.dispatchEvent(event);
+    <?php endif; ?>
 });
 </script>
 
