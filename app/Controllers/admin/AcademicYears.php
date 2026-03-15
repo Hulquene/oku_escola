@@ -67,8 +67,8 @@ class AcademicYears extends BaseController
             if (!$year) {
                 return redirect()->to('/admin/academic/years')->with('error', 'Ano letivo não encontrado');
             }
-            // Converter para objeto para manter compatibilidade com a view
-            $data['year'] = (object)$year;
+     
+            $data['year'] = $year;
         } else {
             $data['year'] = null;
         }
@@ -358,19 +358,14 @@ class AcademicYears extends BaseController
             ->countAllResults();
         
         // Buscar turmas do ano letivo
-        $classes = $this->classModel
+        $data['classes'] = $this->classModel
             ->select('tbl_classes.*, COUNT(tbl_enrollments.id) as student_count')
             ->join('tbl_enrollments', 'tbl_enrollments.class_id = tbl_classes.id AND tbl_enrollments.academic_year_id = ' . $id, 'left')
             ->where('tbl_classes.academic_year_id', $id)
             ->groupBy('tbl_classes.id')
             ->orderBy('tbl_classes.class_name', 'ASC')
             ->findAll();
-        
-        // Converter turmas para objetos
-        $data['classes'] = array_map(function($class) {
-            return (object)$class;
-        }, $classes);
-        
+                
         $data['title'] = 'Detalhes do Ano Letivo: ' . $year['year_name'];
         
         return view('admin/academic/years/view', $data);

@@ -2,95 +2,6 @@
 
 <?= $this->section('content') ?>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-:root {
-    --primary:       #1B2B4B;
-    --primary-light: #243761;
-    --accent:        #3B7FE8;
-    --accent-hover:  #2C6FD4;
-    --success:       #16A87D;
-    --danger:        #E84646;
-    --warning:       #E8A020;
-    --surface:       #F5F7FC;
-    --surface-card:  #FFFFFF;
-    --border:        #E2E8F4;
-    --text-primary:  #1A2238;
-    --text-secondary:#6B7A99;
-    --text-muted:    #9AA5BE;
-    --shadow-sm:     0 1px 4px rgba(27,43,75,.07);
-    --shadow-md:     0 4px 16px rgba(27,43,75,.10);
-    --shadow-lg:     0 8px 32px rgba(27,43,75,.14);
-    --radius:        12px;
-    --radius-sm:     8px;
-}
-* { font-family:'Sora',sans-serif; box-sizing:border-box; }
-body { background:var(--surface); color:var(--text-primary); }
-
-.ci-page-header { background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 60%,#2D4A7A 100%); border-radius:var(--radius); padding:1.5rem 2rem; margin-bottom:1.5rem; position:relative; overflow:hidden; box-shadow:var(--shadow-lg); }
-.ci-page-header::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none; }
-.ci-page-header::after  { content:''; position:absolute; bottom:-40px; right:100px; width:130px; height:130px; border-radius:50%; background:rgba(59,127,232,.15); pointer-events:none; }
-.ci-page-header-inner   { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:.75rem; position:relative; z-index:1; }
-.ci-page-header h1 { font-size:1.4rem; font-weight:700; color:#fff; margin:0 0 .2rem; letter-spacing:-.3px; }
-.ci-page-header .breadcrumb { margin:0; padding:0; background:transparent; position:relative; z-index:1; }
-.ci-page-header .breadcrumb-item a { color:rgba(255,255,255,.6); text-decoration:none; font-size:.8rem; transition:color .2s; }
-.ci-page-header .breadcrumb-item a:hover { color:#fff; }
-.ci-page-header .breadcrumb-item.active,
-.ci-page-header .breadcrumb-item + .breadcrumb-item::before { color:rgba(255,255,255,.4); font-size:.8rem; }
-
-.hdr-btn { display:inline-flex; align-items:center; gap:.45rem; border-radius:var(--radius-sm); padding:.45rem 1rem; font-size:.82rem; font-weight:600; text-decoration:none; transition:all .18s; cursor:pointer; border:none; font-family:'Sora',sans-serif; white-space:nowrap; }
-.hdr-btn.primary { background:var(--accent); color:#fff; box-shadow:0 3px 10px rgba(59,127,232,.28); }
-.hdr-btn.primary:hover { background:var(--accent-hover); color:#fff; transform:translateY(-1px); }
-
-.ci-card { background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; margin-bottom:1.25rem; }
-.ci-card-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; padding:.85rem 1.25rem; background:var(--surface); border-bottom:1px solid var(--border); }
-.ci-card-title  { display:flex; align-items:center; gap:.55rem; font-size:.82rem; font-weight:700; color:var(--text-primary); }
-.ci-card-title i { color:var(--accent); font-size:.8rem; }
-
-.ci-table { width:100%; border-collapse:separate; border-spacing:0; }
-.ci-table thead tr th { background:var(--surface); color:var(--text-secondary); font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em; padding:.65rem 1rem; border-bottom:1.5px solid var(--border); white-space:nowrap; }
-.ci-table tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
-.ci-table tbody tr:last-child { border-bottom:none; }
-.ci-table tbody tr:hover { background:#F5F8FF; }
-.ci-table tbody td { padding:.7rem 1rem; vertical-align:middle; font-size:.83rem; border:none; }
-.ci-table tbody td.center { text-align:center; }
-
-.id-chip { font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; background:rgba(27,43,75,.07); color:var(--primary); padding:.15rem .45rem; border-radius:5px; }
-.year-name { font-weight:700; color:var(--text-primary); }
-.period-text { font-family:'JetBrains Mono',monospace; font-size:.73rem; color:var(--text-secondary); }
-
-.status-dot { display:inline-flex; align-items:center; gap:.3rem; font-size:.72rem; font-weight:700; }
-.sd { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-.sd-active   { background:var(--success); box-shadow:0 0 0 2px rgba(22,168,125,.2); }
-.sd-inactive { background:var(--text-muted); }
-.st-active   { color:var(--success); }
-.st-inactive { color:var(--text-muted); }
-
-.current-badge { font-size:.65rem; font-weight:700; padding:.22rem .6rem; border-radius:50px; background:rgba(59,127,232,.12); color:var(--accent); display:inline-flex; align-items:center; gap:.25rem; }
-.btn-set-current { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .7rem; font-size:.72rem; font-weight:600; border-radius:6px; border:1.5px solid var(--border); background:#fff; color:var(--text-muted); text-decoration:none; cursor:pointer; transition:all .18s; white-space:nowrap; }
-.btn-set-current:hover { border-color:var(--accent); background:rgba(59,127,232,.08); color:var(--accent); }
-
-.row-btn { width:28px; height:28px; border-radius:7px; border:1.5px solid var(--border); background:#fff; color:var(--text-secondary); display:inline-flex; align-items:center; justify-content:center; font-size:.72rem; text-decoration:none; cursor:pointer; transition:all .18s; }
-.row-btn:hover { color:#fff; border-color:transparent; }
-.row-btn.edit:hover { background:var(--accent); }
-.row-btn.view:hover { background:var(--success); }
-.row-btn.del:hover  { background:var(--danger); }
-
-.ci-empty { text-align:center; padding:3rem; color:var(--text-muted); }
-.ci-empty i { font-size:2rem; opacity:.15; display:block; margin-bottom:.6rem; }
-.ci-empty p { font-size:.82rem; margin:0; }
-
-.alert { border-radius:var(--radius-sm); border:none; font-size:.875rem; }
-.alert-success { background:rgba(22,168,125,.1); color:#0E7A5A; border-left:3px solid var(--success); }
-.alert-danger  { background:rgba(232,70,70,.08); color:#B03030; border-left:3px solid var(--danger); }
-
-@media (max-width:767px) {
-    .ci-page-header { padding:1.1rem 1.2rem; }
-    .ci-page-header h1 { font-size:1.1rem; }
-}
-</style>
-
 <!-- ── PAGE HEADER ─────────────────────────────────────── -->
 <div class="ci-page-header mb-4">
     <div class="ci-page-header-inner">
@@ -103,9 +14,11 @@ body { background:var(--surface); color:var(--text-primary); }
                 </ol>
             </nav>
         </div>
-        <a href="<?= site_url('admin/academic/years/form-add') ?>" class="hdr-btn primary">
-            <i class="fas fa-plus-circle"></i> Novo Ano Letivo
-        </a>
+        <div class="hdr-actions">
+            <a href="<?= site_url('admin/academic/years/form-add') ?>" class="hdr-btn primary">
+                <i class="fas fa-plus-circle"></i> Novo Ano Letivo
+            </a>
+        </div>
     </div>
 </div>
 
@@ -114,7 +27,20 @@ body { background:var(--surface); color:var(--text-primary); }
 <!-- ── TABLE ───────────────────────────────────────────── -->
 <div class="ci-card">
     <div class="ci-card-header">
-        <div class="ci-card-title"><i class="fas fa-list"></i> Lista de Anos Letivos</div>
+        <div class="ci-card-title">
+            <i class="fas fa-list"></i> Lista de Anos Letivos
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="hdr-btn success" id="exportExcel">
+                <i class="fas fa-file-excel"></i> Excel
+            </button>
+            <button type="button" class="hdr-btn warning" id="exportPDF">
+                <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button type="button" class="hdr-btn primary" id="exportPrint">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+        </div>
     </div>
     <div style="overflow-x:auto;">
         <table id="yearsTable" class="ci-table">
@@ -156,12 +82,21 @@ body { background:var(--surface); color:var(--text-primary); }
                             <?php endif; ?>
                         </td>
                         <td class="center">
-                            <div class="d-flex justify-content-center gap-1">
-                                <a href="<?= site_url('admin/academic/years/form-edit/' . $year['id']) ?>" class="row-btn edit" title="Editar"><i class="fas fa-edit"></i></a>
-                                <a href="<?= site_url('admin/academic/years/view/' . $year['id']) ?>"    class="row-btn view" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
-                                <?php if (!$year['id'] == current_academic_year()): ?>
+                            <div class="action-group">
+                                <a href="<?= site_url('admin/academic/years/form-edit/' . $year['id']) ?>" 
+                                   class="row-btn edit" 
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="<?= site_url('admin/academic/years/view/' . $year['id']) ?>"    
+                                   class="row-btn view" 
+                                   title="Ver Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <?php if ($year['id'] != current_academic_year()): ?>
                                     <a href="<?= site_url('admin/academic/years/delete/' . $year['id']) ?>"
-                                       class="row-btn del" title="Eliminar"
+                                       class="row-btn del" 
+                                       title="Eliminar"
                                        onclick="return confirm('Tem certeza que deseja eliminar este ano letivo?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
@@ -183,10 +118,288 @@ body { background:var(--surface); color:var(--text-primary); }
 <?= $this->section('scripts') ?>
 <script>
 $(document).ready(function () {
-    $('#yearsTable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json' },
-        order: [[1, 'desc']]
+    // Inicializar DataTable com botões de exportação
+    var table = $('#yearsTable').DataTable({
+        language: { 
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json',
+            decimal: ",",
+            thousands: "."
+        },
+        order: [[1, 'desc']],
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"]],
+        responsive: true,
+        dom: '<"d-flex justify-content-between align-items-center mb-3"<"d-flex gap-3"B><"d-flex"f>>rt<"d-flex justify-content-between align-items-center mt-3"<"d-flex"i><"d-flex"p>>',
+        buttons: [
+            {
+                extend: 'excel',
+                text: '<i class="fas fa-file-excel me-1"></i> Excel',
+                className: 'hdr-btn success',
+                title: 'Anos Letivos',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5],
+                    format: {
+                        body: function(data, row, column, node) {
+                            // Limpar dados para exportação
+                            if (column === 4) {
+                                // Para a coluna de estado, extrair apenas o texto
+                                return $(data).text().trim();
+                            }
+                            if (column === 5) {
+                                // Para a coluna "Atual", extrair apenas o texto
+                                return $(data).text().trim();
+                            }
+                            return data;
+                        }
+                    }
+                }
+            },
+            {
+                extend: 'pdf',
+                text: '<i class="fas fa-file-pdf me-1"></i> PDF',
+                className: 'hdr-btn warning',
+                title: 'Anos Letivos',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5],
+                    format: {
+                        body: function(data, row, column, node) {
+                            if (column === 4) {
+                                return $(data).text().trim();
+                            }
+                            if (column === 5) {
+                                return $(data).text().trim();
+                            }
+                            return data;
+                        }
+                    }
+                },
+                customize: function(doc) {
+                    // Customizar o PDF
+                    doc.styles.title = {
+                        color: '#1B2B4B',
+                        fontSize: '18',
+                        alignment: 'center'
+                    };
+                    doc.styles.tableHeader = {
+                        fillColor: '#3B7FE8',
+                        color: '#FFFFFF',
+                        alignment: 'center'
+                    };
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="fas fa-print me-1"></i> Imprimir',
+                className: 'hdr-btn primary',
+                title: 'Anos Letivos',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5],
+                    format: {
+                        body: function(data, row, column, node) {
+                            if (column === 4) {
+                                return $(data).text().trim();
+                            }
+                            if (column === 5) {
+                                return $(data).text().trim();
+                            }
+                            return data;
+                        }
+                    }
+                },
+                customize: function(win) {
+                    // Customizar a impressão
+                    $(win.document.body).css('font-family', 'Sora, sans-serif');
+                    $(win.document.body).find('h1').css('color', '#1B2B4B');
+                }
+            }
+        ],
+        columnDefs: [
+            { targets: 6, orderable: false, searchable: false }, // Coluna de ações não ordenável
+            { targets: 0, width: '5%' }, // ID
+            { targets: 1, width: '25%' }, // Ano Letivo
+            { targets: 2, width: '15%' }, // Início
+            { targets: 3, width: '15%' }, // Fim
+            { targets: 4, width: '10%' }, // Estado
+            { targets: 5, width: '10%' }, // Atual
+            { targets: 6, width: '20%' }  // Ações
+        ],
+        initComplete: function() {
+            // Aplicar estilos após inicialização
+            $('.dataTables_filter input').attr('placeholder', 'Pesquisar...');
+            $('.dataTables_length select').addClass('form-select-ci');
+        },
+        drawCallback: function() {
+            // Reaplicar tooltips após redraw
+            $('[title]').tooltip();
+        }
     });
+
+    // Atalhos para os botões de exportação (caso os botões padrão não funcionem)
+    $('#exportExcel').click(function() {
+        table.button(0).trigger();
+    });
+
+    $('#exportPDF').click(function() {
+        table.button(1).trigger();
+    });
+
+    $('#exportPrint').click(function() {
+        table.button(2).trigger();
+    });
+
+    // Adicionar informações de total de registros
+    table.on('draw', function() {
+        var info = table.page.info();
+        $('.dataTables_info').html(
+            'Mostrando ' + (info.start + 1) + ' a ' + info.end + 
+            ' de ' + info.recordsTotal + ' registros'
+        );
+    });
+
+    // Filtro personalizado (opcional - se quiser adicionar um filtro global melhorado)
+    $('.dataTables_filter input').unbind().bind('input', function(e) {
+        if(this.value.length >= 2 || this.value.length === 0) {
+            table.search(this.value).draw();
+        }
+    });
+
+    // Inicializar tooltips
+    $('[title]').tooltip();
+});
+
+// Garantir que os tooltips funcionem após qualquer atualização AJAX
+$(document).ajaxComplete(function() {
+    $('[title]').tooltip();
 });
 </script>
+
+<!-- Estilos adicionais específicos para esta página -->
+<style>
+/* Ajustes para os botões de exportação */
+.hdr-btn.success {
+    background: var(--success);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(22,168,125,0.25);
+}
+.hdr-btn.success:hover {
+    background: #0E8A64;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* Ajustes para o DataTables */
+.dataTables_filter {
+    margin-bottom: 0;
+}
+
+.dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.dataTables_filter input {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: var(--surface);
+    transition: all 0.18s;
+    min-width: 250px;
+}
+
+.dataTables_filter input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59,127,232,0.12);
+    background: #fff;
+}
+
+.dataTables_length {
+    margin-right: 1rem;
+}
+
+.dataTables_length select {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 1.8rem 0.4rem 0.6rem;
+    font-size: 0.85rem;
+    font-family: var(--font);
+    color: var(--text-primary);
+    background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7A99' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 0.6rem center;
+    appearance: none;
+    cursor: pointer;
+}
+
+.dataTables_length select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59,127,232,0.12);
+    background-color: #fff;
+}
+
+.dataTables_info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 0.5rem 0;
+}
+
+.dataTables_paginate {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.dataTables_paginate .paginate_button {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-decoration: none;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background: rgba(59,127,232,0.08);
+    border-color: var(--accent);
+    color: var(--accent) !important;
+}
+
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button.current:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff !important;
+}
+
+.dataTables_paginate .paginate_button.disabled,
+.dataTables_paginate .paginate_button.disabled:hover {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #fff;
+    border-color: var(--border);
+    color: var(--text-muted) !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .dt-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .dataTables_filter input {
+        min-width: 150px;
+    }
+}
+</style>
 <?= $this->endSection() ?>

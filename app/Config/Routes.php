@@ -147,7 +147,9 @@ $routes->group('printpdf', function ($routes) {
 $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
 
   // app/Config/Routes.php
-  // $routes->get('download-assets', 'DownloadAssets::index');
+   $routes->get('download-assets', 'DownloadAssets::index');
+
+
   // Dashboard
   $routes->get('', [Dashboard::class, 'index'], ["as" => 'admin.dashboard']);
   $routes->get('dashboard', [Dashboard::class, 'index'], ["as" => 'dashboard']);

@@ -1,456 +1,298 @@
-/* assets/js/app.js */
+(() => {
 
-(function() {
-    'use strict';
+'use strict';
 
-    // ============================================================================
-    // VARIÁVEIS GLOBAIS E CONFIGURAÇÕES
-    // ============================================================================
-    const CONFIG = {
-        siteUrl: window.location.origin,
-        csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        toastrOptions: {
-            closeButton: true,
-            progressBar: true,
-            positionClass: 'toast-top-right',
-            timeOut: 5000,
-            extendedTimeOut: 2000,
-            preventDuplicates: true
-        },
-        swalOptions: {
-            confirmButtonColor: '#3B7FE8',
-            cancelButtonColor: '#E84646',
-            confirmButtonText: 'Sim',
-            cancelButtonText: 'Cancelar',
-            reverseButtons: true
-        },
-        datepickerOptions: {
-            format: 'dd/mm/yyyy',
-            language: 'pt-BR',
-            autoclose: true,
-            todayHighlight: true,
-            orientation: 'bottom'
-        },
-        timepickerOptions: {
-            showMeridian: false,
-            defaultTime: '07:00',
-            minuteStep: 5,
-            showInputs: true,
-            disableFocus: true
-        }
-    };
+/* CONFIG GLOBAL */
+window.CONFIG = {
+    siteUrl: window.location.origin,
+    csrfToken: document.querySelector('meta[name="csrf-token"]')?.content || ''
+};
 
-    // ============================================================================
-    // INICIALIZAÇÃO GLOBAL
-    // ============================================================================
-    function initApp() {
-        initSidebar();
-        initTooltips();
-        initSelect2();
-        initDatepickers();
-        initTimepickers();
-        initMasks();
-        initFormValidation();
-        initAutoHideAlerts();
-        initNotificationCounter();
-        initDataTables();
-    }
+/* UTIL */
+const $ = (s,scope=document)=>scope.querySelector(s);
+const $$ = (s,scope=document)=>[...scope.querySelectorAll(s)];
 
-    // ============================================================================
-    // SIDEBAR
-    // ============================================================================
-    function initSidebar() {
-        const sidebar = document.getElementById('mainSidebar');
-        const content = document.getElementById('mainContent');
-        const overlay = document.getElementById('sidebarOverlay');
-        const toggleBtn = document.getElementById('sidebarCollapse');
+/* LOADER */
+window.loader={
+    show(){ $('#spinnerOverlay')?.classList.add('active') },
+    hide(){ $('#spinnerOverlay')?.classList.remove('active') }
+};
 
-        if (!sidebar || !content || !toggleBtn) return;
+/* SIDEBAR */
+function initSidebar(){
 
-        const isMobile = () => window.innerWidth <= 768;
+const sidebar=$('#mainSidebar');
+const content=$('#mainContent');
+const toggle=$('#sidebarCollapse');
+const overlay=$('#sidebarOverlay');
 
-        // Restore desktop state
-        if (!isMobile() && localStorage.getItem('sidebarCollapsed') === 'true') {
-            sidebar.classList.add('collapsed');
-            content.classList.add('expanded');
-        }
+if(!sidebar||!toggle) return;
 
-        toggleBtn.addEventListener('click', function() {
-            if (isMobile()) {
-                sidebar.classList.toggle('mobile-open');
-                if (overlay) overlay.classList.toggle('show');
-            } else {
-                const collapsed = sidebar.classList.toggle('collapsed');
-                content.classList.toggle('expanded', collapsed);
-                localStorage.setItem('sidebarCollapsed', collapsed);
-            }
-        });
+const mobile=()=>window.innerWidth<=768;
 
-        if (overlay) {
-            overlay.addEventListener('click', function() {
-                sidebar.classList.remove('mobile-open');
-                overlay.classList.remove('show');
-            });
-        }
+toggle.addEventListener('click',()=>{
 
-        window.addEventListener('resize', function() {
-            if (!isMobile()) {
-                sidebar.classList.remove('mobile-open');
-                if (overlay) overlay.classList.remove('show');
-            }
-        });
-    }
+if(mobile()){
+sidebar.classList.toggle('mobile-open');
+overlay?.classList.toggle('show');
+}else{
 
-    // ============================================================================
-    // TOOLTIPS
-    // ============================================================================
-    function initTooltips() {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    }
+const collapsed=sidebar.classList.toggle('collapsed');
+content?.classList.toggle('expanded',collapsed);
+localStorage.sidebarCollapsed=collapsed;
 
-    // ============================================================================
-    // SELECT2
-    // ============================================================================
-    function initSelect2() {
-        if (typeof $.fn.select2 === 'undefined') return;
+}
 
-        $('.select2').select2({
-            theme: 'bootstrap-5',
-            language: 'pt-BR',
-            width: '100%',
-            dropdownParent: $('body')
-        });
+});
 
-        $('.select2-tags').select2({
-            theme: 'bootstrap-5',
-            language: 'pt-BR',
-            tags: true,
-            width: '100%'
-        });
-    }
+overlay?.addEventListener('click',()=>{
+sidebar.classList.remove('mobile-open');
+overlay.classList.remove('show');
+});
 
-    // ============================================================================
-    // DATEPICKERS
-    // ============================================================================
-    function initDatepickers() {
-        if (typeof $.fn.datepicker === 'undefined') return;
+}
 
-        $('.datepicker').datepicker(CONFIG.datepickerOptions);
+/* TOOLTIPS */
+function initTooltips(){
+$$('[data-bs-toggle="tooltip"]').forEach(el=>{
+new bootstrap.Tooltip(el)
+});
+}
 
-        $('.datepicker-month').datepicker({
-            format: 'mm/yyyy',
-            language: 'pt-BR',
-            autoclose: true,
-            minViewMode: 1,
-            todayHighlight: true
-        });
+/* SELECT2 */
+function initSelect2(){
+if(!window.jQuery||!$.fn.select2) return;
+$('.select2').select2({theme:'bootstrap-5',width:'100%'});
+}
 
-        $('.datepicker-year').datepicker({
-            format: 'yyyy',
-            language: 'pt-BR',
-            autoclose: true,
-            minViewMode: 2,
-            todayHighlight: true
-        });
-    }
+/* DATEPICKER */
+function initDatepickers(){
+if(!$.fn.datepicker) return;
 
-    // ============================================================================
-    // TIMEPICKERS
-    // ============================================================================
-    function initTimepickers() {
-        if (typeof $.fn.timepicker === 'undefined') return;
-        $('.timepicker').timepicker(CONFIG.timepickerOptions);
-    }
+$('.datepicker').datepicker({
+format:'dd/mm/yyyy',
+language:'pt-BR',
+autoclose:true,
+todayHighlight:true
+});
+}
 
-    // ============================================================================
-    // MASKS
-    // ============================================================================
-    function initMasks() {
-        if (typeof $.fn.mask === 'undefined' && typeof $.fn.inputmask === 'undefined') return;
+/* TIMEPICKER */
+function initTimepickers(){
+if(!$.fn.timepicker) return;
+$('.timepicker').timepicker();
+}
 
-        if ($.fn.mask) {
-            // jQuery Mask
-            $('.mask-cpf').mask('000.000.000-00');
-            $('.mask-cnpj').mask('00.000.000/0000-00');
-            $('.mask-phone').mask('(00) 00000-0000');
-            $('.mask-phone-fixed').mask('(00) 0000-0000');
-            $('.mask-cep').mask('00000-000');
-            $('.mask-date').mask('00/00/0000');
-            $('.mask-time').mask('00:00');
-            $('.mask-money').mask('#.##0,00', { reverse: true });
-            $('.mask-percent').mask('##0,00%', { reverse: true });
-        } else if ($.fn.inputmask) {
-            // Inputmask
-            $('.mask-cpf').inputmask('999.999.999-99');
-            $('.mask-cnpj').inputmask('99.999.999/9999-99');
-            $('.mask-phone').inputmask('(99) 99999-9999');
-            $('.mask-phone-fixed').inputmask('(99) 9999-9999');
-            $('.mask-cep').inputmask('99999-999');
-            $('.mask-date').inputmask('99/99/9999');
-            $('.mask-time').inputmask('99:99');
-            $('.mask-money').inputmask('currency', {
-                prefix: 'R$ ',
-                groupSeparator: '.',
-                radixPoint: ',',
-                digits: 2,
-                autoGroup: true
-            });
-        }
-    }
+/* MASKS */
+function initMasks(){
+if($.fn.inputmask){
+$('.mask-cpf').inputmask('999.999.999-99');
+$('.mask-phone').inputmask('(99) 99999-9999');
+$('.mask-date').inputmask('99/99/9999');
+}
+}
 
-    // ============================================================================
-    // FORM VALIDATION
-    // ============================================================================
-    function initFormValidation() {
-        if (typeof $.validator === 'undefined') return;
+/* DATATABLES */
+function initDataTables(){
 
-        $.validator.setDefaults({
-            errorClass: 'is-invalid',
-            validClass: 'is-valid',
-            errorElement: 'div',
-            errorPlacement: function(error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.form-group, .mb-3, .col').append(error);
-            },
-            highlight: function(element) {
-                $(element).addClass('is-invalid').removeClass('is-valid');
-            },
-            unhighlight: function(element) {
-                $(element).removeClass('is-invalid').addClass('is-valid');
-            }
-        });
+if(typeof DataTable==='undefined') return;
 
-        // Portuguese messages
-        if ($.validator) {
-            $.extend($.validator.messages, {
-                required: "Este campo é obrigatório.",
-                remote: "Por favor, corrija este campo.",
-                email: "Por favor, insira um endereço de email válido.",
-                url: "Por favor, insira uma URL válida.",
-                date: "Por favor, insira uma data válida.",
-                dateISO: "Por favor, insira uma data válida (ISO).",
-                number: "Por favor, insira um número válido.",
-                digits: "Por favor, insira apenas dígitos.",
-                creditcard: "Por favor, insira um número de cartão de crédito válido.",
-                equalTo: "Por favor, insira o mesmo valor novamente.",
-                accept: "Por favor, insira um arquivo com uma extensão válida.",
-                maxlength: $.validator.format("Por favor, não insira mais de {0} caracteres."),
-                minlength: $.validator.format("Por favor, insira pelo menos {0} caracteres."),
-                rangelength: $.validator.format("Por favor, insira entre {0} e {1} caracteres."),
-                range: $.validator.format("Por favor, insira um valor entre {0} e {1}."),
-                max: $.validator.format("Por favor, insira um valor menor ou igual a {0}."),
-                min: $.validator.format("Por favor, insira um valor maior ou igual a {0}.")
-            });
-        }
-    }
+DataTable.defaults={
 
-    // ============================================================================
-    // AUTO-HIDE ALERTS
-    // ============================================================================
-    function initAutoHideAlerts() {
-        setTimeout(() => {
-            document.querySelectorAll('.alert:not(.alert-permanent)').forEach(el => {
-                el.style.transition = 'opacity .5s';
-                el.style.opacity = '0';
-                setTimeout(() => el.remove(), 500);
-            });
-        }, 5000);
-    }
+...DataTable.defaults,
 
-    // ============================================================================
-    // NOTIFICATION COUNTER
-    // ============================================================================
-    function initNotificationCounter() {
-        setInterval(function() {
-            const url = CONFIG.siteUrl + '/admin/notifications/getUnreadCount';
-            fetch(url)
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.success) return;
-                    const dot = document.querySelector('.notif-dot');
-                    const btn = document.querySelector('.notif-btn');
-                    
-                    if (data.count > 0) {
-                        if (dot) {
-                            dot.textContent = data.count > 9 ? '9+' : data.count;
-                        } else {
-                            const d = document.createElement('span');
-                            d.className = 'notif-dot';
-                            d.textContent = data.count > 9 ? '9+' : data.count;
-                            btn.appendChild(d);
-                        }
-                    } else {
-                        if (dot) dot.remove();
-                    }
-                })
-                .catch(() => {});
-        }, 60000);
-    }
+language:{url:'/assets/js/vendor/dataTables.pt-BR.json'},
 
-    // ============================================================================
-    // DATATABLES
-    // ============================================================================
-    function initDataTables() {
-        if (typeof $.fn.DataTable === 'undefined') return;
+responsive:true,
+pageLength:25,
 
-        $.extend(true, $.fn.DataTable.defaults, {
-            language: {
-                url: CONFIG.siteUrl + '/assets/js/vendor/dataTables.pt-BR.json'
-            },
-            pageLength: 25,
-            lengthMenu: [10, 25, 50, 100],
-            responsive: true,
-            processing: true,
-            serverSide: false,
-            stateSave: true,
-            stateDuration: 0,
-            dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                 "<'row'<'col-sm-12'tr>>" +
-                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
-        });
-    }
+layout:{
+topStart:'buttons',
+topEnd:'search',
+bottomStart:'info',
+bottomEnd:'paging'
+},
 
-    // ============================================================================
-    // TOASTR
-    // ============================================================================
-    window.toast = {
-        success: function(message, title) {
-            toastr.success(message, title || 'Sucesso!', CONFIG.toastrOptions);
-        },
-        error: function(message, title) {
-            toastr.error(message, title || 'Erro!', CONFIG.toastrOptions);
-        },
-        warning: function(message, title) {
-            toastr.warning(message, title || 'Aviso!', CONFIG.toastrOptions);
-        },
-        info: function(message, title) {
-            toastr.info(message, title || 'Informação', CONFIG.toastrOptions);
-        }
-    };
+buttons:[
+{extend:'excel',className:'btn btn-success btn-sm'},
+{extend:'pdf',className:'btn btn-danger btn-sm'},
+{extend:'print',className:'btn btn-secondary btn-sm'}
+]
 
-    // ============================================================================
-    // SWEETALERT2
-    // ============================================================================
-    window.swal = {
-        confirm: function(options) {
-            return Swal.fire({
-                icon: 'warning',
-                title: options.title || 'Tem certeza?',
-                text: options.text || 'Esta ação não poderá ser desfeita!',
-                showCancelButton: true,
-                confirmButtonColor: CONFIG.swalOptions.confirmButtonColor,
-                cancelButtonColor: CONFIG.swalOptions.cancelButtonColor,
-                confirmButtonText: options.confirmText || 'Sim, confirmar!',
-                cancelButtonText: 'Cancelar',
-                reverseButtons: CONFIG.swalOptions.reverseButtons
-            }).then((result) => {
-                if (result.isConfirmed && options.callback) {
-                    options.callback();
-                }
-                return result;
-            });
-        },
-        success: function(message) {
-            return Swal.fire({
-                icon: 'success',
-                title: 'Sucesso!',
-                text: message || 'Operação realizada com sucesso!',
-                confirmButtonColor: CONFIG.swalOptions.confirmButtonColor
-            });
-        },
-        error: function(message) {
-            return Swal.fire({
-                icon: 'error',
-                title: 'Erro!',
-                text: message || 'Ocorreu um erro ao processar a requisição.',
-                confirmButtonColor: CONFIG.swalOptions.confirmButtonColor
-            });
-        },
-        warning: function(message) {
-            return Swal.fire({
-                icon: 'warning',
-                title: 'Atenção!',
-                text: message || 'Verifique os dados antes de prosseguir.',
-                confirmButtonColor: CONFIG.swalOptions.confirmButtonColor
-            });
-        },
-        info: function(message) {
-            return Swal.fire({
-                icon: 'info',
-                title: 'Informação',
-                text: message || '',
-                confirmButtonColor: CONFIG.swalOptions.confirmButtonColor
-            });
-        }
-    };
+};
 
-    // ============================================================================
-    // AJAX SETUP
-    // ============================================================================
-    function initAjaxSetup() {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': CONFIG.csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            beforeSend: function() {
-                $('#spinnerOverlay').addClass('active');
-            },
-            complete: function() {
-                $('#spinnerOverlay').removeClass('active');
-            },
-            error: function(xhr, status, error) {
-                if (xhr.status === 403) {
-                    window.toast.error('Sessão expirada. Recarregue a página.');
-                    setTimeout(() => location.reload(), 2000);
-                } else if (xhr.status === 500) {
-                    window.toast.error('Erro interno do servidor.');
-                } else {
-                    window.toast.error('Erro na requisição: ' + error);
-                }
-                console.error('AJAX Error:', xhr.responseText);
-            }
-        });
-    }
+}
 
-    // ============================================================================
-    // LOADER UTILITY
-    // ============================================================================
-    window.loader = {
-        show: function() {
-            $('#spinnerOverlay').addClass('active');
-        },
-        hide: function() {
-            $('#spinnerOverlay').removeClass('active');
-        },
-        with: async function(callback) {
-            try {
-                this.show();
-                return await callback();
-            } finally {
-                this.hide();
-            }
-        }
-    };
+/* ALERT AUTO HIDE */
+function initAlerts(){
+setTimeout(()=>{
+$$('.alert:not(.alert-permanent)').forEach(el=>{
+el.style.opacity='0';
+setTimeout(()=>el.remove(),500);
+});
+},5000);
+}
 
-    // ============================================================================
-    // INICIALIZAÇÃO
-    // ============================================================================
-    $(document).ready(function() {
-        initApp();
-        initAjaxSetup();
-        
-        // Re-initialize components after AJAX content load
-        $(document).ajaxComplete(function() {
-            initTooltips();
-            initSelect2();
-            initDatepickers();
-            initTimepickers();
-            initMasks();
-        });
-    });
+/* NOTIFICATIONS */
+function initNotificationCounter(){
+
+setInterval(async()=>{
+
+try{
+
+const r=await fetch(CONFIG.siteUrl+'/admin/notifications/getUnreadCount');
+const data=await r.json();
+
+if(!data.success) return;
+
+const btn=$('.notif-btn');
+let dot=$('.notif-dot');
+
+if(data.count>0){
+
+if(!dot){
+dot=document.createElement('span');
+dot.className='notif-dot';
+btn.appendChild(dot);
+}
+
+dot.textContent=data.count>9?'9+':data.count;
+
+}else{
+dot?.remove();
+}
+
+}catch(e){}
+
+},60000);
+
+}
+
+/* TOAST */
+window.toast={
+success:(m)=>toastr.success(m),
+error:(m)=>toastr.error(m),
+warning:(m)=>toastr.warning(m),
+info:(m)=>toastr.info(m)
+};
+
+/* SWEETALERT */
+window.swal={
+
+confirm:async(opts={})=>{
+
+const res=await Swal.fire({
+icon:'warning',
+title:opts.title||'Tem certeza?',
+text:opts.text||'Esta ação não pode ser desfeita',
+showCancelButton:true
+});
+
+if(res.isConfirmed&&opts.callback) opts.callback();
+
+}
+
+};
+
+/* API */
+window.api={
+
+async get(url){
+
+loader.show();
+
+try{
+
+const r=await fetch(url,{
+headers:{
+'X-CSRF-TOKEN':CONFIG.csrfToken
+}
+});
+
+return await r.json();
+
+}finally{
+loader.hide();
+}
+
+},
+
+async post(url,data){
+
+loader.show();
+
+try{
+
+const r=await fetch(url,{
+method:'POST',
+headers:{
+'Content-Type':'application/json',
+'X-CSRF-TOKEN':CONFIG.csrfToken
+},
+body:JSON.stringify(data)
+});
+
+return await r.json();
+
+}finally{
+loader.hide();
+}
+
+}
+
+};
+
+/* CRUD MODAL */
+window.crud={
+
+modal:null,
+
+init(){
+this.modal=new bootstrap.Modal('#crudModal');
+},
+
+async open(url){
+
+loader.show();
+
+try{
+
+const r=await fetch(url);
+const html=await r.text();
+
+$('#crudModal .modal-content').innerHTML=html;
+
+this.modal.show();
+
+}finally{
+loader.hide();
+}
+
+},
+
+close(){
+this.modal.hide();
+}
+
+};
+
+/* INIT */
+function init(){
+
+initSidebar();
+initTooltips();
+initSelect2();
+initDatepickers();
+initTimepickers();
+initMasks();
+initDataTables();
+initAlerts();
+initNotificationCounter();
+
+crud.init();
+
+}
+
+document.addEventListener('DOMContentLoaded',init);
 
 })();

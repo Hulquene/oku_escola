@@ -252,7 +252,7 @@ body { background: var(--surface); color: var(--text-primary); }
                                 <option value="<?= $year['id'] ?>"
                                         data-start="<?= $year['start_date'] ?>"
                                         data-end="<?= $year['end_date'] ?>"
-                                        <?= old('academic_year_id'), $semester->academic_year_id ?? '') == $year['id'] ? 'selected' : '' ?>>
+                                        <?= old('academic_year_id', $semester->academic_year_id ?? '') == $year['id'] ? 'selected' : '' ?>>
                                     <?= esc($year['year_name']) ?>
                                     (<?= date('d/m/Y', strtotime($year['start_date'])) ?> –
                                      <?= date('d/m/Y', strtotime($year['end_date'])) ?>)
