@@ -31,6 +31,121 @@
         -webkit-print-color-adjust: exact; 
     }
 }
+
+/* Estilo para badges de tipo */
+.type-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.22rem 0.6rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.type-badge.primary { background: rgba(27,43,75,0.1); color: var(--primary); }
+.type-badge.success { background: rgba(22,168,125,0.1); color: var(--success); }
+.type-badge.warning { background: rgba(232,160,32,0.1); color: var(--warning); }
+.type-badge.info { background: rgba(59,127,232,0.1); color: var(--accent); }
+.type-badge.secondary { background: rgba(107,122,153,0.1); color: var(--text-secondary); }
+.type-badge.dark { background: rgba(27,43,75,0.15); color: #2D3748; }
+
+/* Estilo para chips de duração e disciplinas */
+.num-chip {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 0.2rem 0.5rem;
+    display: inline-block;
+}
+
+.num-chip.blue {
+    background: rgba(59,127,232,0.08);
+    border-color: rgba(59,127,232,0.2);
+    color: var(--accent);
+}
+
+.num-chip.green {
+    background: rgba(22,168,125,0.08);
+    border-color: rgba(22,168,125,0.2);
+    color: var(--success);
+}
+
+/* Estilo para código do curso */
+.code-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(27,43,75,0.07);
+    color: var(--primary);
+    padding: 0.15rem 0.45rem;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+/* Status badges */
+.status-active {
+    color: var(--success);
+    background: rgba(22,168,125,0.1);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.22rem 0.6rem;
+    border-radius: 50px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+}
+
+.status-inactive {
+    color: var(--danger);
+    background: rgba(232,70,70,0.08);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.22rem 0.6rem;
+    border-radius: 50px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Row ID */
+.row-id {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Níveis */
+.level-range {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.level-sub {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
 </style>
 
 <!-- Page Header -->
@@ -40,14 +155,14 @@
             <h1><i class="fas fa-layer-group me-2"></i><?= $title ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= site_url('admin/academic/years') ?>">Académico</a></li>
+                    <li class="breadcrumb-item"><a href="<?= route_to('admin.dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= route_to('academic.years') ?>">Académico</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Cursos</li>
                 </ol>
             </nav>
         </div>
         <div class="hdr-actions">
-            <a href="<?= site_url('admin/courses/form-add') ?>" class="hdr-btn primary">
+            <a href="<?= route_to('admin.courses.form') ?>" class="hdr-btn primary">
                 <i class="fas fa-plus-circle"></i> Novo Curso
             </a>
         </div>
@@ -132,20 +247,8 @@
                 </select>
             </div>
             
-            <!-- Ano Letivo (opcional) -->
-            <div>
-                <label class="filter-label">Ano Letivo</label>
-                <select class="filter-select" id="academic_year">
-                    <option value="">Todos</option>
-                    <?php if (!empty($academicYears)): ?>
-                        <?php foreach ($academicYears as $year): ?>
-                            <option value="<?= $year['id'] ?>" <?= current_academic_year() == $year['id'] ? 'selected' : '' ?>>
-                                <?= $year['year_name'] ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
-            </div>
+            <!-- Campo vazio para manter layout (removido ano letivo) -->
+            <div></div>
         </div>
         
         <div class="filter-actions">
@@ -234,7 +337,7 @@
 <?= $this->section('scripts') ?>
 
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
     // Carregar estatísticas iniciais
     loadStats();
     
@@ -243,12 +346,11 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         ajax: {
-             url: '<?= route_to('admin.courses.get-table-data') ?>', 
+            url: '<?= route_to('admin.courses.get-table-data') ?>', 
             type: 'POST',
             data: function(d) {
                 d.filter_type = $('#filterType').val();
                 d.filter_status = $('#filterStatus').val();
-                d.academic_year = $('#academic_year').val();
                 d['<?= csrf_token() ?>'] = '<?= csrf_hash() ?>';
             },
             error: function(xhr, error, thrown) {
@@ -291,7 +393,7 @@ $(document).ready(function() {
     });
     
     // Filtrar ao mudar selects
-    $('#filterType, #filterStatus, #academic_year').on('change', function() {
+    $('#filterType, #filterStatus').on('change', function() {
         table.ajax.reload();
     });
     
@@ -299,14 +401,13 @@ $(document).ready(function() {
     $('#btnClear').on('click', function() {
         $('#filterType').val('');
         $('#filterStatus').val('');
-        $('#academic_year').val('');
         table.ajax.reload();
     });
     
     // Função para carregar estatísticas
     function loadStats() {
         $.ajax({
-             url: '<?= route_to('admin.courses.get-stats') ?>',
+            url: '<?= route_to('admin.courses.get-stats') ?>',
             method: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -325,9 +426,10 @@ $(document).ready(function() {
     setInterval(loadStats, 30000);
 });
 
-// Função para confirmar eliminação
+// Função para confirmar eliminação - CORRIGIDA
 function confirmDelete(id, name) {
     $('#deleteCourseName').text(name);
+    // Usar site_url é mais seguro para URLs com parâmetros dinâmicos
     $('#confirmDeleteBtn').attr('href', '<?= site_url('admin/courses/delete/') ?>' + id);
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }

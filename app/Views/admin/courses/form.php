@@ -3,100 +3,7 @@
 <?= $this->section('content') ?>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-:root {
-    --primary:        #1B2B4B;
-    --primary-light:  #243761;
-    --accent:         #3B7FE8;
-    --accent-hover:   #2C6FD4;
-    --success:        #16A87D;
-    --danger:         #E84646;
-    --warning:        #E8A020;
-    --surface:        #F5F7FC;
-    --surface-card:   #FFFFFF;
-    --border:         #E2E8F4;
-    --text-primary:   #1A2238;
-    --text-secondary: #6B7A99;
-    --text-muted:     #9AA5BE;
-    --shadow-sm:      0 1px 4px rgba(27,43,75,0.07);
-    --shadow-md:      0 4px 16px rgba(27,43,75,0.10);
-    --shadow-lg:      0 8px 32px rgba(27,43,75,0.14);
-    --radius:         12px;
-    --radius-sm:      8px;
-}
-
-* { font-family: 'Sora', sans-serif; box-sizing: border-box; }
-body { background: var(--surface); color: var(--text-primary); }
-
-/* ── PAGE HEADER ─────────────────────────────────────── */
-.ci-page-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 60%, #2D4A7A 100%);
-    border-radius: var(--radius);
-    padding: 2rem 2.5rem;
-    margin-bottom: 1.75rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-}
-.ci-page-header::before {
-    content: '';
-    position: absolute;
-    top: -60px; right: -60px;
-    width: 220px; height: 220px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-}
-.ci-page-header::after {
-    content: '';
-    position: absolute;
-    bottom: -40px; right: 120px;
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    background: rgba(59,127,232,0.15);
-}
-.ci-page-header h1 {
-    font-size: 1.65rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0 0 0.25rem;
-    letter-spacing: -0.3px;
-}
-.ci-page-header .breadcrumb { margin: 0; padding: 0; background: transparent; }
-.ci-page-header .breadcrumb-item a {
-    color: rgba(255,255,255,0.6);
-    text-decoration: none;
-    font-size: 0.82rem;
-    transition: color .2s;
-}
-.ci-page-header .breadcrumb-item a:hover { color: #fff; }
-.ci-page-header .breadcrumb-item.active,
-.ci-page-header .breadcrumb-item + .breadcrumb-item::before {
-    color: rgba(255,255,255,0.45);
-    font-size: 0.82rem;
-}
-
-/* ── FORM CARD ───────────────────────────────────────── */
-.form-card {
-    background: var(--surface-card);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-}
-.form-card-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-.form-card-header i { color: var(--accent); }
-.form-card-body { padding: 2rem; }
 
 /* ── SECTION DIVIDER ─────────────────────────────────── */
 .form-section {
@@ -350,8 +257,8 @@ body { background: var(--surface); color: var(--text-primary); }
         </h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="<?= site_url('admin/courses') ?>">Cursos</a></li>
+                <li class="breadcrumb-item"><a href="<?= route_to('admin.dashboard') ?>">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="<?= route_to('admin.courses') ?>">Cursos</a></li>
                 <li class="breadcrumb-item active" aria-current="page"><?= $title ?></li>
             </ol>
         </nav>
@@ -368,7 +275,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <?= $title ?>
     </div>
     <div class="form-card-body">
-        <form action="<?= site_url('admin/courses/save') ?>" method="post">
+        <form action="<?=  site_url('admin/academic/courses/save') ?>" method="post">
             <?= csrf_field() ?>
             <?php if ($course): ?>
                 <input type="hidden" name="id" value="<?= $course->id ?>">
@@ -525,7 +432,7 @@ body { background: var(--surface); color: var(--text-primary); }
 
             <!-- Footer -->
             <div class="form-footer">
-                <a href="<?= site_url('admin/courses') ?>" class="btn-back">
+                <a href="<?= route_to('admin.courses') ?>" class="btn-back">
                     <i class="fas fa-arrow-left"></i> Voltar
                 </a>
                 <button type="submit" class="btn-save">

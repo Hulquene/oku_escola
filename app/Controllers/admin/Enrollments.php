@@ -30,9 +30,7 @@ class Enrollments extends BaseController
         $this->academicYearModel = new AcademicYearModel();
         $this->feeStructureModel = new FeeStructureModel();
         $this->gradeLevelModel = new GradeLevelModel();
-        $this->courseModel = new CourseModel();
-        
-        helper(['form', 'url']);
+        $this->courseModel = new CourseModel();        
     }
     
     /**
@@ -61,10 +59,10 @@ class Enrollments extends BaseController
         $data['courses'] = $this->courseModel->getHighSchoolCourses();
         
         // Buscar ano letivo atual para o filtro padrão
-        $currentYear = $this->academicYearModel
+       /*  $currentYear = $this->academicYearModel
             ->where('id', current_academic_year())
             ->where('is_active', 1)
-            ->first();
+            ->first(); */
         
         // Se não houver ano selecionado na URL, usar o ano atual
         $selectedYear = $this->request->getGet('academic_year') ?? current_academic_year();
