@@ -104,7 +104,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 
 <!-- App -->
 <script src="<?= base_url('assets/js/app.js') ?>"></script>
-
+<!-- No final do seu arquivo de layout, antes do </body> -->
+<script src="<?= base_url('assets/js/dataTables.config.js') ?>"></script>
 <?= $this->renderSection('scripts') ?>
 
 </body>
