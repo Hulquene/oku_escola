@@ -454,6 +454,9 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('activate/(:num)', [Teachers::class, 'activate/$1'], ["as" => 'teachers.activate']);
         $routes->get('get-disciplines/(:num)', [Teachers::class, 'getDisciplines/$1'], ["as" => 'teachers.get-disciplines']);
         $routes->get('remove-assignment/(:num)', [Teachers::class, 'removeAssignment/$1'], ["as" => 'teachers.remove-assignment']);
+        
+        $routes->get('assign-class/(:num)', [Teachers::class, 'assignClass'], ["as" => 'teachers.assign-class/$1']);
+        $routes->post('save-assignment', [Teachers::class, 'saveAssignment'], ["as" => 'teachers.save-assignment']);
     });
 
     /**
@@ -606,6 +609,46 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->post('get-table-data', [Notifications::class, 'getTableData'], ['as' => 'admin.notifications.get-table-data']); // ✅ DATATABLE
         $routes->get('unread-count', [Notifications::class, 'getUnreadCount'], ['as' => 'admin.notifications.unreadCount']);
     });
+
+     /**
+   * Configurações do Sistema
+   */
+//   $routes->group('settings', ['filter' => 'auth:admin'], function ($routes) {
+//     // Main settings page (school settings)
+//     $routes->get('/', [Settings::class, 'index'], ['as' => 'settings.index']);
+//     $routes->get('school', [Settings::class, 'index'], ['as' => 'settings.school']);
+
+//     // Save routes
+//     $routes->post('save-school', [Settings::class, 'saveSchool'], ['as' => 'settings.save_school']);
+//     $routes->post('save-branding', [Settings::class, 'saveBranding'], ['as' => 'settings.save_branding']);
+//     $routes->post('save-management', [Settings::class, 'saveManagement'], ['as' => 'settings.save_management']);
+//     $routes->post('save-academic', [Settings::class, 'saveAcademic'], ['as' => 'settings.save_academic']);
+//     $routes->post('save-payment', [Settings::class, 'savePayment'], ['as' => 'settings.save_payment']);
+
+//     // Remove logo routes
+//     $routes->get('remove-logo/(:any)', [Settings::class, 'removeLogo/$1'], ['as' => 'settings.remove_logo']);
+
+//     // Utility routes
+//     $routes->get('clear-cache', [Settings::class, 'clearCache'], ['as' => 'settings.clear_cache']);
+//     $routes->get('backup', [Settings::class, 'backup'], ['as' => 'settings.backup']);
+//     // Configurações de Pagamento
+//     $routes->post('save-payment', [Settings::class, 'savePayment'], ['as' => 'settings.save_payment']);
+
+//     // Configurações de Email
+//     $routes->post('save-email', [Settings::class, 'saveEmail'], ['as' => 'settings.save_email']);
+//     $routes->post('test-email', [Settings::class, 'testEmail'], ['as' => 'settings.test_email']);
+//   });
+
+  /**
+   * Ferramentas
+   */
+//   $routes->group('tools', function ($routes) {
+//     $routes->get('logs', [Logs::class, 'index'], ["as" => 'tools.logs']);
+//     $routes->get('logs/view/(:num)', [Logs::class, 'view'], ["as" => 'tools.logs.view/$1']);
+//     $routes->get('logs/clear', [Logs::class, 'clear'], ["as" => 'tools.logs.clear']);
+//     $routes->get('logs/export', [Logs::class, 'export'], ["as" => 'tools.logs.export']);
+//     $routes->post('logs/delete', [Logs::class, 'delete'], ["as" => 'tools.logs.delete']);
+//   });
 
     // Download Assets (dev only)
     $routes->get('download-assets', 'DownloadAssets::index');
