@@ -201,7 +201,7 @@ body { background:var(--surface); color:var(--text-primary); }
 /* ── Pre-compute values ── */
 $enrolled      = count($students ?? []);
 $totalDisc     = count($disciplines ?? []);
-$capacity      = (int)($class->capacity ?? 0);
+$capacity      = (int)($class['capacity']  ?? 0);
 $capPct        = $capacity > 0 ? min(100, round($enrolled / $capacity * 100)) : 0;
 $capColor      = $capPct >= 100 ? 'var(--danger)' : ($capPct >= 75 ? 'var(--warning)' : 'var(--success)');
 

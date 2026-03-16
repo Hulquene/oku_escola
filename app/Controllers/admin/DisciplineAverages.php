@@ -133,7 +133,7 @@ class DisciplineAverages extends BaseController
         // Calculate statistics
         $stats = $this->calculateStudentStats($averages);
 
-        $data['title'] = 'Médias Disciplinares - ' . $enrollment->first_name . ' ' . $enrollment->last_name;
+        $data['title'] = 'Médias Disciplinares - ' . $enrollment['first_name'] . ' ' . $enrollment['last_name'];
         $data['enrollment'] = $enrollment;
         $data['semester'] = $semester;
         $data['averages'] = $averages;
@@ -205,7 +205,7 @@ class DisciplineAverages extends BaseController
             $studentData = [
                 'enrollment_id' => $student->enrollment_id,
                 'student_name' => $student['first_name'] . ' ' . $student['last_name'],
-                'student_number' => $student->student_number,
+                'student_number' => $student['student_number'],
                 'averages' => []
             ];
 
@@ -467,7 +467,7 @@ class DisciplineAverages extends BaseController
         $row = 5;
         foreach ($students as $index => $student) {
             $sheet->setCellValue('A' . $row, $index + 1);
-            $sheet->setCellValue('B' . $row, $student->student_number);
+            $sheet->setCellValue('B' . $row, $student['student_number']);
             $sheet->setCellValue('C' . $row, $student['first_name'] . ' ' . $student['last_name']);
 
             $col = 'D';
@@ -569,7 +569,7 @@ class DisciplineAverages extends BaseController
         foreach ($students as $index => $student) {
             $html .= '<tr>
                 <td>' . ($index + 1) . '</td>
-                <td>' . $student->student_number . '</td>
+                <td>' . $student['student_number'] . '</td>
                 <td>' . $student['first_name'] . ' ' . $student['last_name'] . '</td>';
 
             $totalScore = 0;

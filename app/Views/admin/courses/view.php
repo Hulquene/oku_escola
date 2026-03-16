@@ -360,7 +360,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/courses') ?>">Cursos</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $course->course_name ?></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $course['course_name'] ?></li>
         </ol>
     </nav>
 </div>
@@ -393,7 +393,7 @@ body { background: var(--surface); color: var(--text-primary); }
                         <table class="info-table">
                             <tr>
                                 <th>Nome</th>
-                                <td><strong style="font-size:.9rem;"><?= $course->course_name ?></strong></td>
+                                <td><strong style="font-size:.9rem;"><?= $course['course_name'] ?></strong></td>
                             </tr>
                             <tr>
                                 <th>Código</th>
@@ -510,7 +510,7 @@ body { background: var(--surface); color: var(--text-primary); }
                     Editar Curso
                 </a>
                 <button type="button" class="qa-btn danger-outline"
-                        onclick="confirmDelete(<?= $course->id ?>, '<?= esc($course->course_name, 'js') ?>')">
+                        onclick="confirmDelete(<?= $course->id ?>, '<?= esc($course['course_name'], 'js') ?>')">
                     <span class="qa-icon"><i class="fas fa-trash"></i></span>
                     Eliminar Curso
                 </button>

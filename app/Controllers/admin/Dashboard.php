@@ -330,7 +330,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
                 $avaliadosFemale = $totalFemale - $desistentesFemale;
                 
                 $stats[] = [
-                    'course_name' => $course->course_name,
+                    'course_name' => $course['course_name'],
                     'course_code' => $course->course_code,
                     'level_name' => $level->level_name,
                     'grade_number' => $level->grade_number,

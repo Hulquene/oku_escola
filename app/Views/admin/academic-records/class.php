@@ -103,7 +103,7 @@
                                 <td>
                                     <strong><?= $student->full_name ?></strong>
                                     <br>
-                                    <small class="text-muted">Nº: <?= $student->student_number ?></small>
+                                    <small class="text-muted">Nº: <?= $student['student_number'] ?></small>
                                 </td>
                                 
                                 <?php foreach ($disciplines as $disc): ?>

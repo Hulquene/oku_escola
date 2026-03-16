@@ -152,7 +152,7 @@ public function index()
             ->orderBy('tbl_disciplines.discipline_name', 'ASC')
             ->findAll();
 
-        $data['title'] = 'Resultado Semestral - ' . $enrollment->first_name . ' ' . $enrollment->last_name;
+        $data['title'] = 'Resultado Semestral - ' . $enrollment['first_name'] . ' ' . $enrollment['last_name'];
         $data['enrollment'] = $enrollment;
         $data['semester'] = $semester;
         $data['result'] = $result;
@@ -220,7 +220,7 @@ public function index()
             if ($result) {
                 $results[] = [
                     'enrollment_id' => $student->enrollment_id,
-                    'student_number' => $student->student_number,
+                    'student_number' => $student['student_number'],
                     'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                     'overall_average' => $result->overall_average,
                     'total_disciplines' => $result->total_disciplines,
@@ -331,7 +331,7 @@ public function index()
 
             if ($result) {
                 $results[] = [
-                    'student_number' => $student->student_number,
+                    'student_number' => $student['student_number'],
                     'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                     'overall_average' => $result->overall_average,
                     'total_disciplines' => $result->total_disciplines,
@@ -606,7 +606,7 @@ public function index()
                         <td width="20%"><strong>Aluno:</strong></td>
                         <td width="50%">' . $student['first_name'] . ' ' . $student['last_name'] . '</td>
                         <td width="15%"><strong>Nº:</strong></td>
-                        <td width="15%">' . $student->student_number . '</td>
+                        <td width="15%">' . $student['student_number'] . '</td>
                     </tr>
                 </table>
             </div>

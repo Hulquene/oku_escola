@@ -121,7 +121,7 @@
                                     <tr class="student-row" data-enrollment-id="<?= $student->enrollment_id ?>">
                                         <td><?= $i++ ?></td>
                                         <td>
-                                            <span class="fw-semibold"><?= $student->student_number ?></span>
+                                            <span class="fw-semibold"><?= $student['student_number'] ?></span>
                                             <?php if (isset($student->enrollment_status) && $student->enrollment_status == 'Pendente'): ?>
                                                 <span class="badge bg-warning d-block mt-1">Pendente</span>
                                             <?php endif; ?>

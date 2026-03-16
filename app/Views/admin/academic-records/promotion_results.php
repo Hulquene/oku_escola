@@ -269,10 +269,10 @@
             <tbody>
                 <?php foreach ($promoted as $index => $student): ?>
                 <tr>
-                    <td><?= $student->student_number ?></td>
+                    <td><?= $student['student_number'] ?></td>
                     <td>
                         <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
-                        <div class="student-number"><?= $student->student_number ?></div>
+                        <div class="student-number"><?= $student['student_number'] ?></div>
                     </td>
                     <td>
                         <span class="class-tag">
@@ -320,10 +320,10 @@
             <tbody>
                 <?php foreach ($graduated as $student): ?>
                 <tr>
-                    <td><?= $student->student_number ?></td>
+                    <td><?= $student['student_number'] ?></td>
                     <td>
                         <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
-                        <div class="student-number"><?= $student->student_number ?></div>
+                        <div class="student-number"><?= $student['student_number'] ?></div>
                     </td>
                     <td>
                         <span class="class-tag">
@@ -360,10 +360,10 @@
             <tbody>
                 <?php foreach ($retained as $student): ?>
                 <tr>
-                    <td><?= $student->student_number ?></td>
+                    <td><?= $student['student_number'] ?></td>
                     <td>
                         <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
-                        <div class="student-number"><?= $student->student_number ?></div>
+                        <div class="student-number"><?= $student['student_number'] ?></div>
                     </td>
                     <td>
                         <span class="class-tag">
@@ -401,10 +401,10 @@
             <tbody>
                 <?php foreach ($pending as $student): ?>
                 <tr>
-                    <td><?= $student->student_number ?></td>
+                    <td><?= $student['student_number'] ?></td>
                     <td>
                         <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
-                        <div class="student-number"><?= $student->student_number ?></div>
+                        <div class="student-number"><?= $student['student_number'] ?></div>
                     </td>
                     <td>
                         <span class="class-tag">

@@ -231,7 +231,7 @@
                                         <div class="mt-3 pt-2 border-top">
                                             <small class="text-muted">
                                                 <i class="fas fa-calendar me-1"></i> Ano Letivo: <strong><?= $class->year_name ?? $currentYear->year_name ?? 'N/A' ?></strong> |
-                                                <i class="fas fa-users ms-2 me-1"></i> Capacidade: <?= $class->capacity ?> alunos |
+                                                <i class="fas fa-users ms-2 me-1"></i> Capacidade: <?= $class['capacity']  ?> alunos |
                                                 <i class="fas fa-door-open ms-2 me-1"></i> Sala: <?= $class->class_room ?: 'Não definida' ?>
                                             </small>
                                         </div>

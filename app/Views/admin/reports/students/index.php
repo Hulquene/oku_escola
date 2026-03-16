@@ -142,7 +142,7 @@
                     <?php if (!empty($students)): ?>
                         <?php foreach ($students as $student): ?>
                             <tr>
-                                <td><?= $student->student_number ?></td>
+                                <td><?= $student['student_number'] ?></td>
                                 <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                 <td><?= $student->email ?></td>
                                 <td><?= $student->phone ?: '-' ?></td>

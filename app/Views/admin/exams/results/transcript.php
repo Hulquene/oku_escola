@@ -47,7 +47,7 @@
                         <p class="mb-1"><strong>BI/Passaporte:</strong></p>
                     </div>
                     <div class="col-md-8">
-                        <p class="mb-1"><?= $student->student_number ?></p>
+                        <p class="mb-1"><?= $student['student_number'] ?></p>
                         <p class="mb-1"><?= date('d/m/Y', strtotime($student->birth_date)) ?></p>
                         <p class="mb-1"><?= $student['id']['entity_type'] ?></p>
                     </div>

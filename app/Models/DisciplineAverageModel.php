@@ -67,7 +67,7 @@ class DisciplineAverageModel extends BaseModel
         }
         
         // Get weight configuration
-        $weights = $gradeWeightModel->getByGradeLevel($enrollment->grade_level_id);
+        $weights = $gradeWeightModel->getByGradeLevel($enrollment['grade_level_id']);
         
         // Group results by exam board
         $grouped = [];

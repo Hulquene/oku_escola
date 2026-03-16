@@ -36,7 +36,7 @@
             <h5 class="alert-heading mb-1">Matrícula Ativa</h5>
             <p class="mb-0">
                 <span class="fw-bold">Turma:</span> <?= $enrollment->class_name ?? 'N/A' ?> | 
-                <span class="fw-bold">Ano Letivo:</span> <?= $enrollment->year_name ?? date('Y') ?>
+                <span class="fw-bold">Ano Letivo:</span> <?= $enrollment['year_name'] ?? date('Y') ?>
             </p>
         </div>
     </div>

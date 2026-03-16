@@ -583,7 +583,7 @@
                                                 </div>
                                             </td>
                                             <td><?= $student->class_name ?? '-' ?></td>
-                                            <td><span class="code-badge"><?= $student->student_number ?></span></td>
+                                            <td><span class="code-badge"><?= $student['student_number'] ?></span></td>
                                             <td>
                                                 <?php if ($student->is_active): ?>
                                                     <span class="status-badge active">Ativo</span>

@@ -250,7 +250,7 @@
                                         <strong><?= $student['first_name'] ?> <?= $student['last_name'] ?></strong>
                                     </td>
                                     <td>
-                                        <span class="badge bg-info"><?= $student->student_number ?></span>
+                                        <span class="badge bg-info"><?= $student['student_number'] ?></span>
                                     </td>
                                     
                                     <?php if ($selectedDiscipline): ?>

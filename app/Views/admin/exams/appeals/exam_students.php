@@ -105,7 +105,7 @@
                                 <td class="ps-3"><?= $i++ ?></td>
                                 <td>
                                     <span class="badge bg-info bg-opacity-10 text-info p-2">
-                                        <?= $student->student_number ?>
+                                        <?= $student['student_number'] ?>
                                     </span>
                                 </td>
                                 <td class="fw-semibold"><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>

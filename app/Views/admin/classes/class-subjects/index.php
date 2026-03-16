@@ -155,7 +155,7 @@
                     <?php if (!empty($courses)): ?>
                         <?php foreach ($courses as $course): ?>
                             <option value="<?= $course->id ?>" <?= ($selectedCourse == $course->id) ? 'selected' : '' ?>>
-                                <?= $course->course_name ?> (<?= $course->course_code ?>)
+                                <?= $course['course_name'] ?> (<?= $course->course_code ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -243,7 +243,7 @@
                         <?php foreach ($courses as $course): ?>
                             <?php if ($course->id == $selectedCourse): ?>
                                 <span class="badge bg-info p-2">
-                                    <i class="fas fa-graduation-cap me-1"></i>Curso: <?= $course->course_name ?>
+                                    <i class="fas fa-graduation-cap me-1"></i>Curso: <?= $course['course_name'] ?>
                                     <a href="<?= site_url('admin/classes/class-subjects?remove=course') ?>" class="text-white ms-1">
                                         <i class="fas fa-times"></i>
                                     </a>

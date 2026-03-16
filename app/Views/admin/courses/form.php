@@ -290,7 +290,7 @@
                         <input type="text"
                                class="form-input-ci <?= session('errors.course_name') ? 'is-invalid' : '' ?>"
                                id="course_name" name="course_name"
-                               value="<?= old('course_name', $course->course_name ?? '') ?>"
+                               value="<?= old('course_name', $course['course_name'] ?? '') ?>"
                                required maxlength="100"
                                placeholder="Ex: Ciências Físico-Biológicas">
                         <?php if (session('errors.course_name')): ?>

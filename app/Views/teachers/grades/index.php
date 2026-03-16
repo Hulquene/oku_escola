@@ -92,7 +92,7 @@
                                 $average = !empty($scores) ? round(array_sum($scores) / count($scores), 1) : 0;
                             ?>
                                 <tr>
-                                    <td><?= $student->student_number ?></td>
+                                    <td><?= $student['student_number'] ?></td>
                                     <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                     <td class="text-center">
                                         <input type="number" class="form-control form-control-sm text-center" 

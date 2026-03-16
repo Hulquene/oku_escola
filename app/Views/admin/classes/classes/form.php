@@ -140,7 +140,7 @@
                                 <?php foreach ($courses as $course): ?>
                                     <option value="<?= $course->id ?>" 
                                         <?= (old('course_id', $class->course_id ?? '') == $course->id) ? 'selected' : '' ?>>
-                                        <?= $course->course_name ?> (<?= $course->course_code ?>)
+                                        <?= $course['course_name'] ?> (<?= $course->course_code ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -168,7 +168,7 @@
                                class="form-control" 
                                id="capacity" 
                                name="capacity" 
-                               value="<?= old('capacity', $class->capacity ?? 30) ?>"
+                               value="<?= old('capacity', $class['capacity']  ?? 30) ?>"
                                min="1"
                                max="100">
                     </div>

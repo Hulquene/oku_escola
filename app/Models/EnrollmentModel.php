@@ -416,7 +416,7 @@ public function getForView($id)
         
         // Find next grade level
         $gradeLevelModel = new GradeLevelModel();
-        $nextLevel = $gradeLevelModel->getNextLevel($currentClass->grade_level_id);
+        $nextLevel = $gradeLevelModel->getNextLevel($currentClass['grade_level_id']);
         
         if (!$nextLevel) {
             return null; // No next level (graduated)
@@ -424,11 +424,11 @@ public function getForView($id)
         
         // Find class for next level in new academic year
         $nextClass = $classModel
-            ->where('grade_level_id', $nextLevel->id)
-            ->where('class_shift', $currentClass->class_shift)
+            ->where('grade_level_id', $nextLevel['id'])
+            ->where('class_shift', $currentClass['class_shift'])
             ->first();
         
-        return $nextClass ? $nextClass->id : null;
+        return $nextClass ? $nextClass['id'] : null;
     }
     /**
      * Get current enrollment by user ID (para alunos)

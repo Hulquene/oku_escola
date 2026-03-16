@@ -59,7 +59,7 @@
                             </tr>
                             <tr>
                                 <th>Matrícula:</th>
-                                <td><?= $student->student_number ?></td>
+                                <td><?= $student['student_number'] ?></td>
                             </tr>
                             <tr>
                                 <th>Turma:</th>

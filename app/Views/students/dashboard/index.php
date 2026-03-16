@@ -61,7 +61,7 @@
                         <h3 class="mb-1">Bem-vindo(a), <?= session()->get('first_name') ?? 'Aluno' ?>!</h3>
                         <p class="mb-0">
                             <i class="fas fa-id-card"></i> 
-                            Nº Aluno: <?= $student->student_number ?? 'N/A' ?> | 
+                            Nº Aluno: <?= $student['student_number'] ?? 'N/A' ?> | 
                             <i class="fas fa-calendar"></i> <?= date('d/m/Y') ?>
                         </p>
                     </div>
@@ -78,7 +78,7 @@
     <div class="col-md-12">
         <div class="card border-info">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-graduation-cap"></i> Matrícula Atual - Ano Letivo <?= $enrollment->year_name ?? date('Y') ?></span>
+                <span><i class="fas fa-graduation-cap"></i> Matrícula Atual - Ano Letivo <?= $enrollment['year_name'] ?? date('Y') ?></span>
                 <span class="badge bg-<?php 
                     switch($enrollment['status'] ?? '') {
                         case 'Ativo': echo 'success'; break;
@@ -112,9 +112,9 @@
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Curso:</strong></p>
                         <h5>
-                            <?php if (isset($enrollment->course_name) && $enrollment->course_name): ?>
-                                <?= $enrollment->course_name ?>
-                                <small class="text-white-50">(<?= $enrollment->course_code ?? '' ?>)</small>
+                            <?php if (isset($enrollment['course_name']) && $enrollment['course_name']): ?>
+                                <?= $enrollment['course_name'] ?>
+                                <small class="text-white-50">(<?= $enrollment['course_code'] ?? '' ?>)</small>
                             <?php else: ?>
                                 Ensino Geral
                             <?php endif; ?>
@@ -123,7 +123,7 @@
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Nível/Classe:</strong></p>
                         <h5><?= $enrollment->level_name ?? 'N/A' ?></h5>
-                        <small class="text-muted"><?= $enrollment->education_level ?? '' ?></small>
+                        <small class="text-muted"><?= $enrollment['education_level'] ?? '' ?></small>
                     </div>
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Turno:</strong></p>
@@ -141,11 +141,11 @@
                     </div>
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Sala:</strong></p>
-                        <h6><?= $enrollment->class_room ?? 'N/A' ?></h6>
+                        <h6><?= $enrollment['class_room'] ?? 'N/A' ?></h6>
                     </div>
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Professor Responsável:</strong></p>
-                        <h6><?= isset($enrollment->teacher_name) ? $enrollment->teacher_name : 'Não atribuído' ?></h6>
+                        <h6><?= isset($enrollment['teacher_name']) ? $enrollment['teacher_name'] : 'Não atribuído' ?></h6>
                     </div>
                 </div>
                 <?php if ($enrollment['status'] ?? '' == 'Pendente'): ?>

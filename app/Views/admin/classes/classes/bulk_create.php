@@ -620,7 +620,7 @@
                                 foreach ($courses as $course): 
                                     if ($course->start_grade_id <= $level->id && $course->end_grade_id >= $course->id):
                                 ?>
-                                    <option value="<?= $course->id ?>"><?= $course->course_name ?></option>
+                                    <option value="<?= $course->id ?>"><?= $course['course_name'] ?></option>
                                 <?php 
                                     endif;
                                 endforeach; 

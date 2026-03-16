@@ -422,7 +422,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/courses') ?>">Cursos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/courses/view/' . $course->id) ?>"><?= $course->course_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/courses/view/' . $course->id) ?>"><?= $course['course_name'] ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Currículo</li>
         </ol>
     </nav>
@@ -436,7 +436,7 @@ body { background: var(--surface); color: var(--text-primary); }
     <div class="course-banner-info">
         <div class="course-banner-icon"><i class="fas fa-layer-group"></i></div>
         <div>
-            <div class="course-banner-name"><?= $course->course_name ?></div>
+            <div class="course-banner-name"><?= $course['course_name'] ?></div>
             <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
                 <span class="course-banner-code"><?= $course->course_code ?></span>
                 <?php if ($course->is_active): ?>

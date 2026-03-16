@@ -235,7 +235,7 @@
                         <div class="info-label">Ano Letivo</div>
                         <div class="info-value">
                             <i class="fas fa-calendar-alt me-1"></i>
-                            <?= $enrollment->year_name ?? 'N/A' ?>
+                            <?= $enrollment['year_name'] ?? 'N/A' ?>
                         </div>
                     </div>
                     
@@ -262,11 +262,11 @@
                         <div class="info-label">Data de Registro</div>
                         <div class="info-value">
                             <i class="fas fa-clock me-1"></i>
-                            <?= isset($enrollment->created_at) ? date('d/m/Y H:i', strtotime($enrollment->created_at)) : '-' ?>
+                            <?= isset($enrollment['created_at']) ? date('d/m/Y H:i', strtotime($enrollment['created_at'])) : '-' ?>
                         </div>
                     </div>
                     
-                    <?php if (isset($enrollment->updated_at) && $enrollment->updated_at != $enrollment->created_at): ?>
+                    <?php if (isset($enrollment->updated_at) && $enrollment->updated_at != $enrollment['created_at']): ?>
                     <div class="info-item">
                         <div class="info-label">Última Atualização</div>
                         <div class="info-value">
@@ -337,7 +337,7 @@
                             <div class="info-label">Sala</div>
                             <div class="info-value">
                                 <i class="fas fa-door-open me-1"></i>
-                                <?= $enrollment->class_room ?: '-' ?>
+                                <?= $enrollment['class_room'] ?: '-' ?>
                             </div>
                         </div>
                         
@@ -399,9 +399,9 @@
                         <div class="info-value">
                             <div class="d-flex align-items-center">
                                 <div class="teacher-initials me-2" style="width: 35px; height: 35px;">
-                                    <?= strtoupper(substr($enrollment->first_name ?? '', 0, 1)) ?>
+                                    <?= strtoupper(substr($enrollment['first_name'] ?? '', 0, 1)) ?>
                                 </div>
-                                <strong><?= $enrollment->first_name ?? '' ?> <?= $enrollment->last_name ?? '' ?></strong>
+                                <strong><?= $enrollment['first_name'] ?? '' ?> <?= $enrollment['last_name'] ?? '' ?></strong>
                             </div>
                         </div>
                     </div>
@@ -409,7 +409,7 @@
                     <div class="info-item">
                         <div class="info-label">Nº Estudante</div>
                         <div class="info-value">
-                            <span class="student-number"><?= $enrollment->student_number ?? '-' ?></span>
+                            <span class="student-number"><?= $enrollment['student_number'] ?? '-' ?></span>
                         </div>
                     </div>
                     
@@ -457,14 +457,14 @@
         </div>
         
         <!-- Informações do Curso -->
-        <?php if (isset($enrollment->course_id) && $enrollment->course_id): ?>
+        <?php if (isset($enrollment['course_id']) && $enrollment['course_id']): ?>
         <div class="ci-card mb-4">
             <div class="ci-card-header">
                 <div class="ci-card-title">
                     <i class="fas fa-graduation-cap"></i>
                     <span>Curso (Ensino Médio)</span>
                 </div>
-                <a href="<?= site_url('admin/courses/view/' . $enrollment->course_id) ?>" class="hdr-btn info">
+                <a href="<?= site_url('admin/courses/view/' . $enrollment['course_id']) ?>" class="hdr-btn info">
                     <i class="fas fa-external-link-alt"></i>
                 </a>
             </div>
@@ -473,14 +473,14 @@
                     <div class="info-item">
                         <div class="info-label">Curso</div>
                         <div class="info-value">
-                            <strong><?= $enrollment->course_name ?? 'N/A' ?></strong>
+                            <strong><?= $enrollment['course_name'] ?? 'N/A' ?></strong>
                         </div>
                     </div>
                     
                     <div class="info-item">
                         <div class="info-label">Código</div>
                         <div class="info-value">
-                            <span class="code-badge"><?= $enrollment->course_code ?? 'N/A' ?></span>
+                            <span class="code-badge"><?= $enrollment['course_code'] ?? 'N/A' ?></span>
                         </div>
                     </div>
                     

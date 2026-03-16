@@ -63,7 +63,7 @@
                     </tr>
                     <tr>
                         <th>Nº Matrícula:</th>
-                        <td><?= $student->student_number ?></td>
+                        <td><?= $student['student_number'] ?></td>
                     </tr>
                 </table>
             </div>
@@ -75,7 +75,7 @@
                     </tr>
                     <tr>
                         <th>Ano Letivo:</th>
-                        <td><?= $enrollment->year_name ?? date('Y') ?></td>
+                        <td><?= $enrollment['year_name'] ?? date('Y') ?></td>
                     </tr>
                 </table>
             </div>

@@ -115,7 +115,7 @@
                     <?php if (!empty($courses)): ?>
                         <?php foreach ($courses as $course): ?>
                             <option value="<?= $course->id ?>" <?= ($selectedCourse ?? '') == $course->id ? 'selected' : '' ?>>
-                                <?= esc($course->course_name) ?>
+                                <?= esc($course['course_name']) ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

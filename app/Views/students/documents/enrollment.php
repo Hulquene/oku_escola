@@ -28,7 +28,7 @@
                     <h5 class="mb-2">Matrícula Atual</h5>
                     <p class="mb-1">
                         <strong>Turma:</strong> <?= $enrollment->class_name ?><br>
-                        <strong>Ano Letivo:</strong> <?= $enrollment->year_name ?><br>
+                        <strong>Ano Letivo:</strong> <?= $enrollment['year_name'] ?><br>
                         <strong>Nº Matrícula:</strong> <?= $enrollment['enrollment_number'] ?>
                     </p>
                 </div>

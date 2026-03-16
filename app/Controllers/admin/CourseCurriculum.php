@@ -35,7 +35,7 @@ class CourseCurriculum extends BaseController
             return redirect()->to('/admin/courses')->with('error', 'Curso não encontrado');
         }
         
-        $data['title'] = 'Currículo - ' . $course->course_name;
+        $data['title'] = 'Currículo - ' . $course['course_name'];
         $data['course'] = $course;
         
         // Buscar níveis do curso

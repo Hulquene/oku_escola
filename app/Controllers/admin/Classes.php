@@ -742,8 +742,8 @@ public function getByLevelAndYear($levelId, $yearId)
     
     // Calcular vagas disponíveis para cada turma
     foreach ($classes as $class) {
-        $class->enrolled_count = $class->enrolled_count ?? 0;
-        $class->available_seats = $class->capacity - $class->enrolled_count;
+        $class['enrolled_count']  = $class['enrolled_count']  ?? 0;
+        $class['available_seats']  = $class['capacity']  - $class['enrolled_count'] ;
         
         // Garantir que level_name esteja presente
         if (!isset($class->level_name)) {

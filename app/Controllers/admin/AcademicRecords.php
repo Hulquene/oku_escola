@@ -733,7 +733,7 @@ public function exportFinal($classId)
     foreach ($enrollments as $student) {
         $row = [
             'nome' => $student['first_name'] . ' ' . $student['last_name'],
-            'numero' => $student->student_number
+            'numero' => $student['student_number']
         ];
         
         foreach ($disciplines as $disc) {
@@ -1186,7 +1186,7 @@ public function export()
     $data = [];
     foreach ($students as $student) {
         $row = [
-            'student_number' => $student->student_number,
+            'student_number' => $student['student_number'],
             'student_name' => $student['first_name'] . ' ' . $student['last_name']
         ];
         
@@ -1774,7 +1774,7 @@ public function export()
         
         foreach ($approvedStudents as $enrollment) {
             // Buscar próximo nível
-            $nextLevel = $this->gradeLevelModel->getNextLevel($enrollment->grade_level_id);
+            $nextLevel = $this->gradeLevelModel->getNextLevel($enrollment['grade_level_id']);
             
             // Se não há próximo nível (aluno concluiu o ciclo)
             if (!$nextLevel) {
@@ -1816,7 +1816,7 @@ public function export()
                 $this->enrollmentModel->update($enrollment['id'], [
                     'promotion_status' => 'pending'
                 ]);
-                $errors[] = "Aluno {$enrollment->first_name} {$enrollment->last_name}: Nenhuma turma encontrada para o próximo nível";
+                $errors[] = "Aluno {$enrollment['first_name']} {$enrollment['last_name']}: Nenhuma turma encontrada para o próximo nível";
                 $retainedCount++;
                 continue;
             }
@@ -1827,7 +1827,7 @@ public function export()
                 $this->enrollmentModel->update($enrollment['id'], [
                     'promotion_status' => 'pending'
                 ]);
-                $errors[] = "Aluno {$enrollment->first_name} {$enrollment->last_name}: Turma sem vagas";
+                $errors[] = "Aluno {$enrollment['first_name']} {$enrollment['last_name']}: Turma sem vagas";
                 $retainedCount++;
                 continue;
             }
@@ -1838,13 +1838,13 @@ public function export()
                 'class_id' => $nextClass->id,
                 'academic_year_id' => $nextAcademicYearId,
                 'grade_level_id' => $nextLevel->id,
-                'course_id' => $isCourseLevel ? $enrollment->course_id : null,
+                'course_id' => $isCourseLevel ? $enrollment['course_id'] : null,
                 'enrollment_date' => date('Y-m-d'),
                 'enrollment_number' => $this->enrollmentModel->generateEnrollmentNumber(),
                 'enrollment_type' => 'Renovação',
                 'status' => 'Pendente', // Pendente para aprovação manual
                 'previous_class_id' => $enrollment->class_id,
-                'previous_grade_id' => $enrollment->grade_level_id,
+                'previous_grade_id' => $enrollment['grade_level_id'],
                 'created_by' => session()->get('user_id')
             ];
             
@@ -1860,7 +1860,7 @@ public function export()
                 
                 $promotedCount++;
             } else {
-                $errors[] = "Erro ao criar matrícula para aluno {$enrollment->first_name} {$enrollment->last_name}";
+                $errors[] = "Erro ao criar matrícula para aluno {$enrollment['first_name']} {$enrollment['last_name']}";
                 $retainedCount++;
             }
         }

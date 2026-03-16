@@ -204,8 +204,8 @@ class GradeCalculator extends BaseController
         // Process each student
         foreach ($enrollments as $enrollment) {
             $studentResults = [
-                'student' => $enrollment->first_name . ' ' . $enrollment->last_name,
-                'student_number' => $enrollment->student_number,
+                'student' => $enrollment['first_name'] . ' ' . $enrollment['last_name'],
+                'student_number' => $enrollment['student_number'],
                 'disciplines_calculated' => 0,
                 'disciplines_failed' => 0,
                 'semester_result' => false

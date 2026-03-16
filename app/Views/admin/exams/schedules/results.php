@@ -78,7 +78,7 @@
                                             <td><?= $i++ ?></td>
                                             <td>
                                                 <span class="badge bg-info bg-opacity-10 text-info p-2">
-                                                    <?= $student->student_number ?>
+                                                    <?= $student['student_number'] ?>
                                                 </span>
                                             </td>
                                             <td>

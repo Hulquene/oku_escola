@@ -7,6 +7,8 @@ class CourseModel extends BaseModel
 {
     protected $table = 'tbl_courses';
     protected $primaryKey = 'id';
+
+      protected $returnType = 'array';
     
     protected $allowedFields = [
         'course_name',

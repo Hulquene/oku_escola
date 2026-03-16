@@ -107,7 +107,7 @@
                             $statusClass = $average >= 10 ? 'success' : ($average > 0 ? 'danger' : 'secondary');
                         ?>
                             <tr>
-                                <td><?= $student->student_number ?></td>
+                                <td><?= $student['student_number'] ?></td>
                                 <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                 
                                 <?php for ($i = 1; $i <= 6; $i++): 

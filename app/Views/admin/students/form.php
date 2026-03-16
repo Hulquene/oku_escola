@@ -4,6 +4,11 @@
 
 <style>
 /* Estilos específicos para o formulário */
+
+/* Form Card */
+.form-card { 
+    max-width: 100% !important; 
+}
 .form-section {
     margin-bottom: 2rem;
 }
@@ -597,7 +602,7 @@
                                         <?php foreach ($courses as $course): ?>
                                             <option value="<?= $course->id ?>" 
                                                 <?= (old('course_id', $selectedCourse ?? '') == $course->id) ? 'selected' : '' ?>>
-                                                <?= esc($course->course_name) ?> (<?= esc($course->course_code) ?>) - <?= esc($course->course_type) ?>
+                                                <?= esc($course['course_name']) ?> (<?= esc($course->course_code) ?>) - <?= esc($course->course_type) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>

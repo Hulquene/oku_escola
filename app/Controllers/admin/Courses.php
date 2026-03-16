@@ -259,7 +259,7 @@ class Courses extends BaseController
                 $row['code_html'] = '<span class="code-badge">' . esc($course->course_code) . '</span>';
 
                 // Nome do Curso
-                $nameHtml = '<div class="course-name">' . esc($course->course_name) . '</div>';
+                $nameHtml = '<div class="course-name">' . esc($course['course_name']) . '</div>';
                 if ($course->description) {
                     $nameHtml .= '<div class="course-desc">' . character_limiter(esc($course->description), 50) . '</div>';
                 }
@@ -292,7 +292,7 @@ class Courses extends BaseController
                 $actions .= '<a href="' . route_to('admin.courses.view', $course->id) . '" class="row-btn view" title="Ver Detalhes" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></a>';
                 $actions .= '<a href="' . route_to('admin.courses.form.edit', $course->id) . '" class="row-btn edit" title="Editar" data-bs-toggle="tooltip"><i class="fas fa-edit"></i></a>';
                 $actions .= '<a href="' . route_to('admin.courses.curriculum', $course->id) . '" class="row-btn curr" title="Currículo" data-bs-toggle="tooltip"><i class="fas fa-book-open"></i></a>';
-                $actions .= '<button type="button" class="row-btn del" onclick="confirmDelete(' . $course->id . ', \'' . esc($course->course_name, 'js') . '\')" title="Eliminar" data-bs-toggle="tooltip"><i class="fas fa-trash"></i></button>';
+                $actions .= '<button type="button" class="row-btn del" onclick="confirmDelete(' . $course->id . ', \'' . esc($course['course_name'], 'js') . '\')" title="Eliminar" data-bs-toggle="tooltip"><i class="fas fa-trash"></i></button>';
                 $actions .= '</div>';
 
                 $row['actions'] = $actions;

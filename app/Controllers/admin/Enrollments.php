@@ -374,6 +374,7 @@ public function form($id = null)
     $data['title'] = $id ? 'Editar Matrícula' : 'Nova Matrícula';
     $data['enrollment'] = $id ? $this->enrollmentModel->getWithDetails($id) : null;
     
+    
     $currentYear = $this->academicYearModel->getCurrent();
     
     // Verificar se existe ano letivo atual
@@ -388,7 +389,7 @@ public function form($id = null)
             ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
             ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
             ->where('tbl_students.is_active', 1)
-            ->where('tbl_students.id', $data['enrollment']->student_id)
+            ->where('tbl_students.id', $data['enrollment']['student_id'])
             ->first();
     } else {
         // Buscar alunos ativos
@@ -439,8 +440,8 @@ public function form($id = null)
     
     // Calcular vagas disponíveis para cada turma
     foreach ($classes as $class) {
-        $class->enrolled_count = $class->enrolled_count ?? 0;
-        $class->available_seats = $class->capacity - $class->enrolled_count;
+        $class['enrolled_count']  = $class['enrolled_count']  ?? 0;
+        $class['available_seats']  = $class['capacity']  - $class['enrolled_count'] ;
     }
     
     $data['classes_enrolled_count'] = $classes;

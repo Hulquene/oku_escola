@@ -43,7 +43,7 @@
                     </tr>
                     <tr>
                         <td><strong>Nº Matrícula:</strong></td>
-                        <td><?= $student->student_number ?></td>
+                        <td><?= $student['student_number'] ?></td>
                     </tr>
                     <tr>
                         <td><strong>Email:</strong></td>
@@ -83,7 +83,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                        <?= $enrollment->year_name ?> • <?= $enrollment->class_name ?> (<?= $enrollment->level_name ?>)
+                        <?= $enrollment['year_name'] ?> • <?= $enrollment->class_name ?> (<?= $enrollment->level_name ?>)
                     </h5>
                     <?php if ($enrollment->yearly): ?>
                         <span class="badge bg-<?= $enrollment->yearly->final_status == 'Aprovado' ? 'success' : 'danger' ?> p-3">

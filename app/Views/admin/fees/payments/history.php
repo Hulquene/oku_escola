@@ -38,7 +38,7 @@
         <?php endif; ?>
         <div>
             <h5 class="mb-0"><?= $student['first_name'] ?> <?= $student['last_name'] ?></h5>
-            <small><?= $student->student_number ?> | <?= $student->email ?></small>
+            <small><?= $student['student_number'] ?> | <?= $student->email ?></small>
         </div>
     </div>
 </div>

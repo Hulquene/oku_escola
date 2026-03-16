@@ -49,7 +49,7 @@
                     <div>
                         <h3 class="mb-1"><?= $student['first_name'] ?> <?= $student['last_name'] ?></h3>
                         <p class="mb-1">
-                            <span class="badge bg-info">Nº: <?= $student->student_number ?></span>
+                            <span class="badge bg-info">Nº: <?= $student['student_number'] ?></span>
                             <span class="badge bg-secondary ms-2"><?= $student->email ?></span>
                         </p>
                         <p class="mb-0 text-muted">
@@ -107,7 +107,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-calendar me-2"></i>
-                        <?= $enrollment->year_name ?> - <?= $enrollment->level_name ?>
+                        <?= $enrollment['year_name'] ?> - <?= $enrollment->level_name ?>
                         <span class="badge bg-light text-primary ms-2"><?= $enrollment->class_name ?></span>
                     </h5>
                     <span class="badge bg-<?= $enrollment['status'] == 'Ativo' ? 'success' : 'secondary' ?>">

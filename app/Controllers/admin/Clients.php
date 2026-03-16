@@ -486,8 +486,8 @@ public function studentForm($id = null)
         if ($enrollment) {
             // Se tem pendente, usar dados da pendente
             $data['selectedYear'] = $enrollment->academic_year_id;
-            $data['selectedLevel'] = $enrollment->grade_level_id;
-            $data['selectedCourse'] = $enrollment->course_id; // NOVO
+            $data['selectedLevel'] = $enrollment['grade_level_id'];
+            $data['selectedCourse'] = $enrollment['course_id']; // NOVO
             $data['selectedEnrollmentType'] = $enrollment['enrollment_type'];
             $data['selectedPreviousGrade'] = $enrollment->previous_grade_id;
         } else {

@@ -30,7 +30,7 @@
     <strong>Turma:</strong> <?= $class->class_name ?> (<?= $class->class_code ?>) | 
     <strong>Ano Letivo:</strong> <?= $class->year_name ?> | 
     <strong>Turno:</strong> <?= $class->class_shift ?> | 
-    <strong>Vagas:</strong> <?= count($students) ?>/<?= $class->capacity ?>
+    <strong>Vagas:</strong> <?= count($students) ?>/<?= $class['capacity']  ?>
 </div>
 
 <!-- Students List -->
@@ -55,7 +55,7 @@
                 <?php if (!empty($students)): ?>
                     <?php foreach ($students as $student): ?>
                         <tr>
-                            <td><span class="badge bg-secondary"><?= $student->student_number ?></span></td>
+                            <td><span class="badge bg-secondary"><?= $student['student_number'] ?></span></td>
                             <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                             <td><?= $student->email ?></td>
                             <td><?= $student->phone ?: '-' ?></td>

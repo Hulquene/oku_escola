@@ -115,7 +115,7 @@
         <div class="content">
             <p>Certificamos que</p>
             <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
-            <p>com o número de matrícula <strong><?= $student->student_number ?></strong>,</p>
+            <p>com o número de matrícula <strong><?= $student['student_number'] ?></strong>,</p>
             <p>concluiu com êxito o ano letivo</p>
             <div class="course-info">
                 <strong><?= $history->year_name ?></strong><br>

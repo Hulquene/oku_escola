@@ -50,7 +50,7 @@
 <div class="alert alert-info mb-4">
     <i class="fas fa-graduation-cap"></i> 
     <strong>Turma:</strong> <?= $enrollment->class_name ?? 'N/A' ?> | 
-    <strong>Ano Letivo:</strong> <?= $enrollment->year_name ?? date('Y') ?>
+    <strong>Ano Letivo:</strong> <?= $enrollment['year_name'] ?? date('Y') ?>
 </div>
 <?php endif; ?>
 

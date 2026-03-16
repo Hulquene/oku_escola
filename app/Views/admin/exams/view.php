@@ -125,7 +125,7 @@
                                         $score = $result ? $result->score : '';
                                         ?>
                                         <tr>
-                                            <td><?= $student->student_number ?></td>
+                                            <td><?= $student['student_number'] ?></td>
                                             <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                             <td style="width: 150px;">
                                                 <input type="number" 

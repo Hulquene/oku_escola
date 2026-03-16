@@ -9,7 +9,7 @@
             <h1 class="mb-2">Resultado Semestral</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-graduation-cap me-1"></i>
-                <?= $enrollment->first_name ?> <?= $enrollment->last_name ?> • <?= $enrollment->class_name ?>
+                <?= $enrollment['first_name'] ?> <?= $enrollment['last_name'] ?> • <?= $enrollment->class_name ?>
             </p>
         </div>
         <div>
@@ -25,7 +25,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/students') ?>">Alunos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $enrollment['student_id']) ?>"><?= $enrollment->first_name ?> <?= $enrollment->last_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $enrollment['student_id']) ?>"><?= $enrollment['first_name'] ?> <?= $enrollment['last_name'] ?></a></li>
             <li class="breadcrumb-item active">Resultado - <?= $semester->semester_name ?></li>
         </ol>
     </nav>

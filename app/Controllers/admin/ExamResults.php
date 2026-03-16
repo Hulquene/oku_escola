@@ -240,7 +240,7 @@ public function index()
             $studentData = [
                 'enrollment_id' => $student->enrollment_id,
                 'student_name' => $student['first_name'] . ' ' . $student['last_name'],
-                'student_number' => $student->student_number,
+                'student_number' => $student['student_number'],
                 'averages' => []
             ];
             
@@ -614,7 +614,7 @@ public function save()
                 ->findAll();
             
             $studentData = [
-                'student_number' => $student->student_number,
+                'student_number' => $student['student_number'],
                 'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                 'averages' => []
             ];

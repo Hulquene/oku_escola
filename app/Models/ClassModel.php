@@ -7,6 +7,8 @@ class ClassModel extends BaseModel
     protected $table = 'tbl_classes';
     protected $primaryKey = 'id';
     
+    protected $returnType = 'array';
+    
     protected $allowedFields = [
         'class_name',
         'class_code',
@@ -126,7 +128,7 @@ class ClassModel extends BaseModel
             ->where('status', 'Ativo')
             ->countAllResults();
         
-        return $class->capacity - $enrolled;
+        return $class['capacity']  - $enrolled;
     }
     
     /**

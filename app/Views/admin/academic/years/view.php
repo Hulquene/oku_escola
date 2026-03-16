@@ -318,7 +318,7 @@ body { background:var(--surface); color:var(--text-primary); }
                             <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text-secondary);"><?= esc($class->class_code) ?></td>
                             <td><span class="shift-badge"><?= esc($class->class_shift) ?></span></td>
                             <td class="center"><span class="count-chip"><?= $class->student_count ?? 0 ?></span></td>
-                            <td class="center" style="font-size:.8rem;color:var(--text-secondary);"><?= $class->capacity ?? '—' ?></td>
+                            <td class="center" style="font-size:.8rem;color:var(--text-secondary);"><?= $class['capacity']  ?? '—' ?></td>
                             <td>
                                 <?php if ($class->is_active): ?>
                                     <span class="status-badge sb-active">Ativo</span>

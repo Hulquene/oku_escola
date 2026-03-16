@@ -119,7 +119,7 @@ class Auth extends BaseController
             
             if ($student) {
                 $additionalData['student_id'] = $student['id'];
-                $additionalData['student_number'] = $student->student_number;
+                $additionalData['student_number'] = $student['student_number'];
                 
                 // Buscar matrícula atual
                 $enrollment = $db->table('tbl_enrollments')
@@ -137,7 +137,7 @@ class Auth extends BaseController
                     $additionalData['enrollment_id'] = $enrollment['id'];
                     $additionalData['class_id'] = $enrollment->class_id;
                     $additionalData['class_name'] = $enrollment->class_name;
-                    $additionalData['academic_year'] = $enrollment->year_name;
+                    $additionalData['academic_year'] = $enrollment['year_name'];
                 }
             }
         }

@@ -180,7 +180,7 @@
                                 <?php foreach ($students as $student): ?>
                                     <?php $attendance = $attendances[$student->enrollment_id] ?? null; ?>
                                     <tr>
-                                        <td><span class="badge bg-secondary"><?= $student->student_number ?></span></td>
+                                        <td><span class="badge bg-secondary"><?= $student['student_number'] ?></span></td>
                                         <td>
                                             <strong><?= $student['first_name'] ?> <?= $student['last_name'] ?></strong>
                                         </td>

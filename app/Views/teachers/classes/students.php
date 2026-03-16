@@ -101,7 +101,7 @@
                                     <td>
                                         <strong><?= $student['first_name'] ?> <?= $student['last_name'] ?></strong>
                                     </td>
-                                    <td><span class="badge bg-info"><?= $student->student_number ?></span></td>
+                                    <td><span class="badge bg-info"><?= $student['student_number'] ?></span></td>
                                     <td><?= $student->email ?? '-' ?></td>
                                     <td><?= $student->phone ?? '-' ?></td>
                                     <td>
