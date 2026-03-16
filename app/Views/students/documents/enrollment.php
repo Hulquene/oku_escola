@@ -29,7 +29,7 @@
                     <p class="mb-1">
                         <strong>Turma:</strong> <?= $enrollment->class_name ?><br>
                         <strong>Ano Letivo:</strong> <?= $enrollment->year_name ?><br>
-                        <strong>Nº Matrícula:</strong> <?= $enrollment->enrollment_number ?>
+                        <strong>Nº Matrícula:</strong> <?= $enrollment['enrollment_number'] ?>
                     </p>
                 </div>
                 <div class="col-md-4 text-end">

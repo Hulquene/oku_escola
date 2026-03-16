@@ -13,10 +13,10 @@
             </p>
         </div>
         <div>
-            <a href="<?= site_url('admin/discipline-averages/student/' . $enrollment->id . '/' . $semester->id) ?>" class="btn btn-outline-info me-2">
+            <a href="<?= site_url('admin/discipline-averages/student/' . $enrollment['id'] . '/' . $semester->id) ?>" class="btn btn-outline-info me-2">
                 <i class="fas fa-chart-line me-1"></i> Ver Médias
             </a>
-            <a href="<?= site_url('admin/students/view/' . $enrollment->student_id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/students/view/' . $enrollment['student_id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
@@ -25,7 +25,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/students') ?>">Alunos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $enrollment->student_id) ?>"><?= $enrollment->first_name ?> <?= $enrollment->last_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $enrollment['student_id']) ?>"><?= $enrollment->first_name ?> <?= $enrollment->last_name ?></a></li>
             <li class="breadcrumb-item active">Resultado - <?= $semester->semester_name ?></li>
         </ol>
     </nav>
@@ -348,7 +348,7 @@ new Chart(ctx2, {
 
 function calculateResult() {
     $.ajax({
-        url: '<?= site_url('admin/semester-results/calculate/' . $enrollment->id . '/' . $semester->id) ?>',
+        url: '<?= site_url('admin/semester-results/calculate/' . $enrollment['id'] . '/' . $semester->id) ?>',
         method: 'POST',
         data: {
             <?= csrf_token() ?>: '<?= csrf_hash() ?>'

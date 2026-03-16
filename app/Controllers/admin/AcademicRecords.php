@@ -732,7 +732,7 @@ public function exportFinal($classId)
     $dados = [];
     foreach ($enrollments as $student) {
         $row = [
-            'nome' => $student->first_name . ' ' . $student->last_name,
+            'nome' => $student['first_name'] . ' ' . $student['last_name'],
             'numero' => $student->student_number
         ];
         
@@ -888,7 +888,7 @@ private function getNextColumn($col)
                     tbl_semesters.semester_type
                 ')
                 ->join('tbl_semesters', 'tbl_semesters.id = tbl_semester_results.semester_id')
-                ->where('tbl_semester_results.enrollment_id', $enrollment->id)
+                ->where('tbl_semester_results.enrollment_id', $enrollment['id'])
                 ->orderBy('tbl_semesters.start_date', 'ASC')
                 ->findAll();
             
@@ -939,7 +939,7 @@ private function getNextColumn($col)
             try {
                 // Calcular resultados semestrais para cada aluno
                 $resultId = $this->semesterResultModel->calculate(
-                    $enrollment->id,
+                    $enrollment['id'],
                     $semesterId,
                     session()->get('user_id')
                 );
@@ -958,17 +958,17 @@ private function getNextColumn($col)
                     
                     // Buscar semestres já calculados para este aluno
                     $calculatedSemesters = $this->semesterResultModel
-                        ->where('enrollment_id', $enrollment->id)
+                        ->where('enrollment_id', $enrollment['id'])
                         ->where('semester_id IN (SELECT id FROM tbl_semesters WHERE academic_year_id = ?)', [$academicyear['id']])
                         ->countAllResults();
                     
                     // Se todos os semestres foram calculados, gerar histórico anual
                     if ($calculatedSemesters == $totalSemesters) {
-                        $this->generateYearlyHistory($enrollment->id, $enrollment->student_id, $academicYear->id);
+                        $this->generateYearlyHistory($enrollment['id'], $enrollment['student_id'], $academicYear->id);
                     }
                 }
             } catch (\Exception $e) {
-                $errors[] = "Erro ao processar aluno ID: {$enrollment->id} - " . $e->getMessage();
+                $errors[] = "Erro ao processar aluno ID: {$enrollment['id']} - " . $e->getMessage();
             }
         }
         
@@ -1187,7 +1187,7 @@ public function export()
     foreach ($students as $student) {
         $row = [
             'student_number' => $student->student_number,
-            'student_name' => $student->first_name . ' ' . $student->last_name
+            'student_name' => $student['first_name'] . ' ' . $student['last_name']
         ];
         
         foreach ($disciplines as $disc) {
@@ -1693,7 +1693,7 @@ public function export()
         
         // Verificar se já existe histórico para este ano
         $existing = $this->academicHistoryModel
-            ->where('student_id', $enrollment->student_id)
+            ->where('student_id', $enrollment['student_id'])
             ->where('academic_year_id', $enrollment->academic_year_id)
             ->first();
         
@@ -1702,7 +1702,7 @@ public function export()
         }
         
         $historyData = [
-            'student_id' => $enrollment->student_id,
+            'student_id' => $enrollment['student_id'],
             'academic_year_id' => $enrollment->academic_year_id,
             'class_id' => $enrollment->class_id,
             'final_status' => $enrollment->final_result ?? 'Aprovado',
@@ -1779,7 +1779,7 @@ public function export()
             // Se não há próximo nível (aluno concluiu o ciclo)
             if (!$nextLevel) {
                 // Marcar como graduado
-                $this->enrollmentModel->update($enrollment->id, [
+                $this->enrollmentModel->update($enrollment['id'], [
                     'status' => 'Concluído',
                     'final_result' => 'Aprovado',
                     'promotion_status' => 'graduated'
@@ -1813,7 +1813,7 @@ public function export()
             
             // Se ainda não encontrou turma, marcar como pendente
             if (!$nextClass) {
-                $this->enrollmentModel->update($enrollment->id, [
+                $this->enrollmentModel->update($enrollment['id'], [
                     'promotion_status' => 'pending'
                 ]);
                 $errors[] = "Aluno {$enrollment->first_name} {$enrollment->last_name}: Nenhuma turma encontrada para o próximo nível";
@@ -1824,7 +1824,7 @@ public function export()
             // Verificar vagas
             $availableSeats = $this->classModel->getAvailableSeats($nextClass->id);
             if ($availableSeats <= 0) {
-                $this->enrollmentModel->update($enrollment->id, [
+                $this->enrollmentModel->update($enrollment['id'], [
                     'promotion_status' => 'pending'
                 ]);
                 $errors[] = "Aluno {$enrollment->first_name} {$enrollment->last_name}: Turma sem vagas";
@@ -1834,7 +1834,7 @@ public function export()
             
             // Criar nova matrícula para o próximo ano
             $newEnrollmentData = [
-                'student_id' => $enrollment->student_id,
+                'student_id' => $enrollment['student_id'],
                 'class_id' => $nextClass->id,
                 'academic_year_id' => $nextAcademicYearId,
                 'grade_level_id' => $nextLevel->id,
@@ -1852,7 +1852,7 @@ public function export()
             
             if ($newEnrollmentId) {
                 // Atualizar matrícula antiga
-                $this->enrollmentModel->update($enrollment->id, [
+                $this->enrollmentModel->update($enrollment['id'], [
                     'status' => 'Concluído',
                     'promoted_to_enrollment_id' => $newEnrollmentId,
                     'promotion_status' => 'promoted'

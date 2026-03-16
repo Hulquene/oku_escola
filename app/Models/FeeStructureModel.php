@@ -98,7 +98,7 @@ class FeeStructureModel extends BaseModel
             
             foreach ($feeStructures as $fee) {
                 // Check if already generated
-                $exists = $studentFeeModel->where('enrollment_id', $enrollment->id)
+                $exists = $studentFeeModel->where('enrollment_id', $enrollment['id'])
                     ->where('fee_structure_id', $fee->id)
                     ->first();
                 
@@ -107,13 +107,13 @@ class FeeStructureModel extends BaseModel
                 }
                 
                 // Generate reference number
-                $referenceNumber = 'FEE-' . $enrollment->id . '-' . $fee->id . '-' . date('Ym');
+                $referenceNumber = 'FEE-' . $enrollment['id'] . '-' . $fee->id . '-' . date('Ym');
                 
                 // Calculate due date
                 $dueDate = date('Y-m-d', strtotime("+{$fee->due_day} days"));
                 
                 $studentFeeModel->insert([
-                    'enrollment_id' => $enrollment->id,
+                    'enrollment_id' => $enrollment['id'],
                     'fee_structure_id' => $fee->id,
                     'reference_number' => $referenceNumber,
                     'due_date' => $dueDate,

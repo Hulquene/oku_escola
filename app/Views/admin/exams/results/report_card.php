@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-            <a href="<?= site_url('admin/students/view/' . $student->id) ?>" class="btn btn-info">
+            <a href="<?= site_url('admin/students/view/' . $student['id']) ?>" class="btn btn-info">
                 <i class="fas fa-user-graduate"></i> Ver Aluno
             </a>
             <button onclick="window.print()" class="btn btn-success">
@@ -59,7 +59,7 @@
                 <table class="table table-sm table-borderless">
                     <tr>
                         <th style="width: 150px;">Nome:</th>
-                        <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                        <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                     </tr>
                     <tr>
                         <th>Nº Matrícula:</th>

@@ -182,7 +182,7 @@
                                     <tr>
                                         <td><span class="badge bg-secondary"><?= $student->student_number ?></span></td>
                                         <td>
-                                            <strong><?= $student->first_name ?> <?= $student->last_name ?></strong>
+                                            <strong><?= $student['first_name'] ?> <?= $student['last_name'] ?></strong>
                                         </td>
                                         <td>
                                             <select class="form-select status-select" 

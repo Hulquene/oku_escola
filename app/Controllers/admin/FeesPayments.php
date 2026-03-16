@@ -286,7 +286,7 @@ class FeesPayments extends BaseController
             return redirect()->to('/admin/students')->with('error', 'Aluno não encontrado');
         }
         
-        $data['title'] = 'Histórico de Pagamentos - ' . $student->first_name . ' ' . $student->last_name;
+        $data['title'] = 'Histórico de Pagamentos - ' . $student['first_name'] . ' ' . $student['last_name'];
         $data['student'] = $student;
         
         $data['payments'] = $this->feePaymentModel

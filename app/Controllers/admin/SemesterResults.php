@@ -221,7 +221,7 @@ public function index()
                 $results[] = [
                     'enrollment_id' => $student->enrollment_id,
                     'student_number' => $student->student_number,
-                    'student_name' => $student->first_name . ' ' . $student->last_name,
+                    'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                     'overall_average' => $result->overall_average,
                     'total_disciplines' => $result->total_disciplines,
                     'approved' => $result->approved_disciplines,
@@ -332,7 +332,7 @@ public function index()
             if ($result) {
                 $results[] = [
                     'student_number' => $student->student_number,
-                    'student_name' => $student->first_name . ' ' . $student->last_name,
+                    'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                     'overall_average' => $result->overall_average,
                     'total_disciplines' => $result->total_disciplines,
                     'approved' => $result->approved_disciplines,
@@ -604,7 +604,7 @@ public function index()
                 <table>
                     <tr>
                         <td width="20%"><strong>Aluno:</strong></td>
-                        <td width="50%">' . $student->first_name . ' ' . $student->last_name . '</td>
+                        <td width="50%">' . $student['first_name'] . ' ' . $student['last_name'] . '</td>
                         <td width="15%"><strong>Nº:</strong></td>
                         <td width="15%">' . $student->student_number . '</td>
                     </tr>

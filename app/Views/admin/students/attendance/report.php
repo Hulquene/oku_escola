@@ -24,8 +24,8 @@
                     <option value="">Todos</option>
                     <?php if (!empty($students)): ?>
                         <?php foreach ($students as $student): ?>
-                            <option value="<?= $student->id ?>" <?= $selectedStudent == $student->id ? 'selected' : '' ?>>
-                                <?= $student->first_name ?> <?= $student->last_name ?> (<?= $student->student_number ?>)
+                            <option value="<?= $student['id'] ?>" <?= $selectedStudent == $student['id'] ? 'selected' : '' ?>>
+                                <?= $student['first_name'] ?> <?= $student['last_name'] ?> (<?= $student->student_number ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

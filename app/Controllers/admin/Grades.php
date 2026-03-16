@@ -213,7 +213,7 @@ class Grades extends BaseController
                 
                 foreach ($semesters as $semester) {
                     $assessments = $this->continuousModel
-                        ->where('enrollment_id', $enrollment->id)
+                        ->where('enrollment_id', $enrollment['id'])
                         ->where('discipline_id', $discipline->id)
                         ->where('semester_id', $semester->id)
                         ->findAll();

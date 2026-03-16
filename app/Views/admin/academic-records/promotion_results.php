@@ -271,7 +271,7 @@
                 <tr>
                     <td><?= $student->student_number ?></td>
                     <td>
-                        <div class="student-name"><?= $student->first_name ?> <?= $student->last_name ?></div>
+                        <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
                         <div class="student-number"><?= $student->student_number ?></div>
                     </td>
                     <td>
@@ -322,7 +322,7 @@
                 <tr>
                     <td><?= $student->student_number ?></td>
                     <td>
-                        <div class="student-name"><?= $student->first_name ?> <?= $student->last_name ?></div>
+                        <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
                         <div class="student-number"><?= $student->student_number ?></div>
                     </td>
                     <td>
@@ -362,7 +362,7 @@
                 <tr>
                     <td><?= $student->student_number ?></td>
                     <td>
-                        <div class="student-name"><?= $student->first_name ?> <?= $student->last_name ?></div>
+                        <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
                         <div class="student-number"><?= $student->student_number ?></div>
                     </td>
                     <td>
@@ -403,7 +403,7 @@
                 <tr>
                     <td><?= $student->student_number ?></td>
                     <td>
-                        <div class="student-name"><?= $student->first_name ?> <?= $student->last_name ?></div>
+                        <div class="student-name"><?= $student['first_name'] ?> <?= $student['last_name'] ?></div>
                         <div class="student-number"><?= $student->student_number ?></div>
                     </td>
                     <td>

@@ -8,7 +8,7 @@ class EnrollmentModel extends BaseModel
 {
     protected $table = 'tbl_enrollments';
     protected $primaryKey = 'id';
-    
+        protected $returnType = 'array';
     protected $allowedFields = [
         'student_id',
         'class_id',
@@ -374,12 +374,12 @@ public function getForView($id)
         
         foreach ($enrollments as $enrollment) {
             // Mark old enrollment as completed
-            $this->update($enrollment->id, ['status' => 'Concluído']);
+            $this->update($enrollment['id'], ['status' => 'Concluído']);
             
             // Create new enrollment for next academic year
             // This logic depends on your promotion rules
             $newEnrollment = [
-                'student_id' => $enrollment->student_id,
+                'student_id' => $enrollment['student_id'],
                 'class_id' => $this->getNextClass($enrollment->class_id), // You need to implement this
                 'academic_year_id' => $newAcademicYearId,
                 'enrollment_date' => date('Y-m-d'),
@@ -393,7 +393,7 @@ public function getForView($id)
                 $results['promoted']++;
             } else {
                 $results['retained']++;
-                $results['errors'][] = "Failed to promote student ID: {$enrollment->student_id}";
+                $results['errors'][] = "Failed to promote student ID: {$enrollment['student_id']}";
             }
         }
         

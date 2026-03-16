@@ -289,6 +289,13 @@ CREATE TABLE `tbl_guardians` (
     CONSTRAINT `fk_guardians_user` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Adicionar colunas faltantes na tabela tbl_guardians
+ALTER TABLE `tbl_guardians` 
+ADD COLUMN `phone2` VARCHAR(20) NULL AFTER `phone`,
+ADD COLUMN `birth_date` DATE NULL AFTER `email`,
+ADD COLUMN `notes` TEXT NULL AFTER `province`;
+
+
 CREATE TABLE `tbl_student_guardians` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `student_id` INT(11) NOT NULL,

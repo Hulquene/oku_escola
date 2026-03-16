@@ -100,7 +100,7 @@
                                 ?>
                                 <tr class="<?= $isAbsent ? 'table-danger' : '' ?>" id="row-<?= $student->enrollment_id ?>">
                                     <td><span class="badge bg-secondary"><?= $student->student_number ?></span></td>
-                                    <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                                    <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                     <td class="text-center">
                                         <div class="form-check form-switch">
                                             <input class="form-check-input attendance-checkbox" 

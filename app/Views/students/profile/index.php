@@ -54,15 +54,15 @@
                     <div class="col-md-3 text-center">
                         <div class="profile-photo mb-3">
                             <div class="position-relative d-inline-block">
-                                <?php if ($student->photo): ?>
-                                    <img src="<?= base_url('uploads/students/' . $student->photo) ?>" 
+                                <?php if ($student['photo']): ?>
+                                    <img src="<?= base_url('uploads/students/' . $student['photo']) ?>" 
                                          alt="Foto do Aluno" 
                                          class="rounded-circle border border-4 border-white shadow" 
                                          style="width: 150px; height: 150px; object-fit: cover;">
                                 <?php else: ?>
                                     <div class="bg-gradient-primary rounded-circle d-flex align-items-center justify-content-center text-white border border-4 border-white shadow"
                                          style="width: 150px; height: 150px; font-size: 4rem;">
-                                        <?= strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) ?>
+                                        <?= strtoupper(substr($student['first_name'], 0, 1) . substr($student['last_name'], 0, 1)) ?>
                                     </div>
                                 <?php endif; ?>
                                 
@@ -77,7 +77,7 @@
                     </div>
                     
                     <div class="col-md-5">
-                        <h2 class="mb-2"><?= $student->full_name ?? $student->first_name . ' ' . $student->last_name ?></h2>
+                        <h2 class="mb-2"><?= $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'] ?></h2>
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             <span class="badge bg-primary-soft text-primary px-3 py-2">
                                 <i class="fas fa-id-card me-1"></i> Nº: <?= $student->student_number ?>
@@ -338,10 +338,10 @@
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-id-card text-muted"></i></span>
                                         <select class="form-select border-start-0" id="identity_type" name="identity_type">
                                             <option value="">Selecione...</option>
-                                            <option value="BI" <?= old('identity_type', $student->identity_type) == 'BI' ? 'selected' : '' ?>>BI</option>
-                                            <option value="Passaporte" <?= old('identity_type', $student->identity_type) == 'Passaporte' ? 'selected' : '' ?>>Passaporte</option>
-                                            <option value="Cédula" <?= old('identity_type', $student->identity_type) == 'Cédula' ? 'selected' : '' ?>>Cédula</option>
-                                            <option value="Outro" <?= old('identity_type', $student->identity_type) == 'Outro' ? 'selected' : '' ?>>Outro</option>
+                                            <option value="BI" <?= old('identity_type', $student['id']['entity_type']) == 'BI' ? 'selected' : '' ?>>BI</option>
+                                            <option value="Passaporte" <?= old('identity_type', $student['id']['entity_type']) == 'Passaporte' ? 'selected' : '' ?>>Passaporte</option>
+                                            <option value="Cédula" <?= old('identity_type', $student['id']['entity_type']) == 'Cédula' ? 'selected' : '' ?>>Cédula</option>
+                                            <option value="Outro" <?= old('identity_type', $student['id']['entity_type']) == 'Outro' ? 'selected' : '' ?>>Outro</option>
                                         </select>
                                     </div>
                                 </div>
@@ -350,7 +350,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-hashtag text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="identity_document" name="identity_document" 
-                                               value="<?= old('identity_document', $student->identity_document) ?>">
+                                               value="<?= old('identity_document', $student['id']['entity_type']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -641,10 +641,10 @@
                                                         </div>
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
-                                                        <h5 class="mb-1"><?= $guardian->full_name ?></h5>
+                                                        <h5 class="mb-1"><?= $guardian['full_name'] ?></h5>
                                                         <span class="badge bg-primary-soft text-primary"><?= $guardian->guardian_type ?></span>
-                                                        <?php if ($guardian->relationship): ?>
-                                                            <span class="badge bg-secondary-soft text-secondary ms-1"><?= $guardian->relationship ?></span>
+                                                        <?php if ( $guardian['relationship']): ?>
+                                                            <span class="badge bg-secondary-soft text-secondary ms-1"><?=  $guardian['relationship'] ?></span>
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>
@@ -652,7 +652,7 @@
                                                 <div class="row g-2">
                                                     <div class="col-6">
                                                         <small class="text-muted d-block"><i class="fas fa-phone me-1"></i> Telefone</small>
-                                                        <strong><?= $guardian->phone ?></strong>
+                                                        <strong><?=  $guardian['phone'] ?></strong>
                                                     </div>
                                                     <?php if ($guardian->email): ?>
                                                     <div class="col-6">
@@ -722,13 +722,13 @@
                 <div class="modal-body">
                     <div class="text-center mb-4">
                         <div class="current-photo mb-3">
-                            <?php if ($student->photo): ?>
-                                <img src="<?= base_url('uploads/students/' . $student->photo) ?>" 
+                            <?php if ($student['photo']): ?>
+                                <img src="<?= base_url('uploads/students/' . $student['photo']) ?>" 
                                      alt="Foto Atual" class="rounded-circle border" style="width: 100px; height: 100px; object-fit: cover;">
                             <?php else: ?>
                                 <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center text-white"
                                      style="width: 100px; height: 100px; font-size: 2.5rem;">
-                                    <?= strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) ?>
+                                    <?= strtoupper(substr($student['first_name'], 0, 1) . substr($student['last_name'], 0, 1)) ?>
                                 </div>
                             <?php endif; ?>
                         </div>

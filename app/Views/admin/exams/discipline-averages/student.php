@@ -13,7 +13,7 @@
             </p>
         </div>
         <div>
-            <a href="<?= site_url('admin/students/view/' . $enrollment->student_id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/students/view/' . $enrollment['student_id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar ao Aluno
             </a>
         </div>
@@ -22,7 +22,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/students') ?>">Alunos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $enrollment->student_id) ?>"><?= $enrollment->first_name ?> <?= $enrollment->last_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $enrollment['student_id']) ?>"><?= $enrollment->first_name ?> <?= $enrollment->last_name ?></a></li>
             <li class="breadcrumb-item active">Médias - <?= $semester->semester_name ?></li>
         </ol>
     </nav>
@@ -356,7 +356,7 @@ function recalculateAverages() {
     }
     
     $.ajax({
-        url: '<?= site_url('admin/discipline-averages/recalculate/' . $enrollment->id . '/' . $semester->id) ?>',
+        url: '<?= site_url('admin/discipline-averages/recalculate/' . $enrollment['id'] . '/' . $semester->id) ?>',
         method: 'POST',
         data: {
             <?= csrf_token() ?>: '<?= csrf_hash() ?>'
@@ -382,7 +382,7 @@ function viewDetails(disciplineId) {
     $('#detailsModal').modal('show');
     
     $.get('<?= site_url('admin/discipline-averages/get-details') ?>/' + 
-          <?= $enrollment->id ?> + '/' + <?= $semester->id ?> + '/' + disciplineId,
+          <?= $enrollment['id'] ?> + '/' + <?= $semester->id ?> + '/' + disciplineId,
         function(data) {
             $('#detailsContent').html(data);
         }

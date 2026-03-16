@@ -60,7 +60,7 @@ class Attendance extends BaseController
                 DATE_FORMAT(attendance_date, "%d/%m/%Y") as formatted_date
             ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_attendance.discipline_id', 'left')
-            ->where('tbl_attendance.enrollment_id', $enrollment->id)
+            ->where('tbl_attendance.enrollment_id', $enrollment['id'])
             ->where('tbl_attendance.attendance_date >=', $startDate)
             ->where('tbl_attendance.attendance_date <=', $endDate)
             ->orderBy('tbl_attendance.attendance_date', 'DESC')
@@ -136,7 +136,7 @@ class Attendance extends BaseController
                 DATE_FORMAT(attendance_date, "%d/%m/%Y") as formatted_date
             ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_attendance.discipline_id', 'left')
-            ->where('tbl_attendance.enrollment_id', $enrollment->id);
+            ->where('tbl_attendance.enrollment_id', $enrollment['id']);
         
         // Aplicar filtros
         if ($semesterId) {

@@ -84,9 +84,9 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="avatar-circle bg-primary bg-opacity-10 text-primary me-2">
-                                                        <?= strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) ?>
+                                                        <?= strtoupper(substr($student['first_name'], 0, 1) . substr($student['last_name'], 0, 1)) ?>
                                                     </div>
-                                                    <span class="fw-semibold"><?= $student->first_name ?> <?= $student->last_name ?></span>
+                                                    <span class="fw-semibold"><?= $student['first_name'] ?> <?= $student['last_name'] ?></span>
                                                 </div>
                                             </td>
                                             <td class="text-center">

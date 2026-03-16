@@ -55,7 +55,7 @@
                         <table class="table table-sm">
                             <tr>
                                 <th>Aluno:</th>
-                                <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                                <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                             </tr>
                             <tr>
                                 <th>Matrícula:</th>

@@ -93,7 +93,7 @@
                             ?>
                                 <tr>
                                     <td><?= $student->student_number ?></td>
-                                    <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                                    <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                     <td class="text-center">
                                         <input type="number" class="form-control form-control-sm text-center" 
                                                name="ac1[<?= $student->enrollment_id ?>]" 

@@ -56,7 +56,7 @@
                     <?php foreach ($students as $student): ?>
                         <tr>
                             <td><span class="badge bg-secondary"><?= $student->student_number ?></span></td>
-                            <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                            <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                             <td><?= $student->email ?></td>
                             <td><?= $student->phone ?: '-' ?></td>
                             <td><?= date('d/m/Y', strtotime($student->enrollment_date)) ?></td>
@@ -68,7 +68,7 @@
                                    class="btn btn-sm btn-info" title="Ver Aluno">
                                     <i class="fas fa-user-graduate me-1"></i>
                                 </a>
-                                <a href="<?= site_url('admin/students/enrollments/view/' . $student->id) ?>" 
+                                <a href="<?= site_url('admin/students/enrollments/view/' . $student['id']) ?>" 
                                    class="btn btn-sm btn-info" title="Ver Matricula">
                                     <i class="fas fa-file-signature"></i>
                                 </a>

@@ -108,7 +108,7 @@
                                         <?= $student->student_number ?>
                                     </span>
                                 </td>
-                                <td class="fw-semibold"><?= $student->first_name ?> <?= $student->last_name ?></td>
+                                <td class="fw-semibold"><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                 <td class="text-center">
                                     <span class="fw-bold text-warning">
                                         <?= number_format($student->previous_score, 1) ?>

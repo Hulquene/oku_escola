@@ -371,10 +371,10 @@ class DocumentGenerator extends BaseController
             return false;
         }
         
-        $enrollment = $this->enrollmentModel->getCurrentForStudent($student->id);
+        $enrollment = $this->enrollmentModel->getCurrentForStudent($student['id']);
         
         if (!$enrollment) {
-            log_message('error', 'Matrícula atual não encontrada para o student_id: ' . $student->id);
+            log_message('error', 'Matrícula atual não encontrada para o student_id: ' . $student['id']);
             return false;
         }
         
@@ -384,15 +384,15 @@ class DocumentGenerator extends BaseController
             'subtitulo' => 'CERTIFICADO DE MATRÍCULA',
             'numero' => $request->request_number,
             'data' => date('d/m/Y'),
-            'aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'nome_aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'bi' => $student->identity_document ?? 'N/A',
+            'aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'nome_aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'bi' => $student['id']['entity_type'] ?? 'N/A',
             'nif' => $student->nif ?? 'N/A',
             'classe' => $enrollment->class_name,
             'ano_letivo' => $enrollment->year_name,
             'turno' => $enrollment->class_shift,
-            'data_matricula' => date('d/m/Y', strtotime($enrollment->enrollment_date)),
-            'numero_matricula' => $enrollment->enrollment_number,
+            'data_matricula' => date('d/m/Y', strtotime($enrollment['enrollment_date'])),
+            'numero_matricula' => $enrollment['enrollment_number'],
             'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A',
             'naturalidade' => $student->birth_place ?? 'N/A',
             'filiacao' => 'A confirmar', // Buscar dos encarregados
@@ -416,10 +416,10 @@ class DocumentGenerator extends BaseController
             return false;
         }
         
-        $enrollment = $this->enrollmentModel->getCurrentForStudent($student->id);
+        $enrollment = $this->enrollmentModel->getCurrentForStudent($student['id']);
         
         if (!$enrollment) {
-            log_message('error', 'Matrícula atual não encontrada para o student_id: ' . $student->id);
+            log_message('error', 'Matrícula atual não encontrada para o student_id: ' . $student['id']);
             return false;
         }
         
@@ -428,9 +428,9 @@ class DocumentGenerator extends BaseController
             'subtitulo' => 'DECLARAÇÃO DE FREQUÊNCIA',
             'numero' => $request->request_number,
             'data' => date('d/m/Y'),
-            'aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'nome_aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'bi' => $student->identity_document ?? 'N/A',
+            'aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'nome_aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'bi' => $student['id']['entity_type'] ?? 'N/A',
             'classe' => $enrollment->class_name,
             'ano_letivo' => $enrollment->year_name,
             'turno' => $enrollment->class_shift,
@@ -454,7 +454,7 @@ class DocumentGenerator extends BaseController
         }
         
         // Buscar histórico acadêmico completo usando SemesterResultModel
-        $historico = $this->semesterResultModel->getStudentHistory($student->id);
+        $historico = $this->semesterResultModel->getStudentHistory($student['id']);
         
         // Para cada período, buscar também as médias por disciplina
         foreach ($historico as $periodo) {
@@ -477,9 +477,9 @@ class DocumentGenerator extends BaseController
             'subtitulo' => 'HISTÓRICO DE NOTAS',
             'numero' => $request->request_number,
             'data' => date('d/m/Y'),
-            'aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'nome_aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'bi' => $student->identity_document ?? 'N/A',
+            'aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'nome_aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'bi' => $student['id']['entity_type'] ?? 'N/A',
             'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A',
             'historico' => $historico
         ];
@@ -499,7 +499,7 @@ class DocumentGenerator extends BaseController
         }
         
         // Buscar histórico para verificar conclusão
-        $historico = $this->semesterResultModel->getStudentHistory($student->id);
+        $historico = $this->semesterResultModel->getStudentHistory($student['id']);
         
         // Verificar se tem resultados concluídos
         $concluded = false;
@@ -517,9 +517,9 @@ class DocumentGenerator extends BaseController
             'subtitulo' => 'CERTIFICADO DE CONCLUSÃO',
             'numero' => $request->request_number,
             'data' => date('d/m/Y'),
-            'aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'nome_aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
-            'bi' => $student->identity_document ?? 'N/A',
+            'aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'nome_aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
+            'bi' => $student['id']['entity_type'] ?? 'N/A',
             'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A',
             'ano_conclusao' => $lastYear ?? 'N/A',
             'concluido' => $concluded
@@ -539,7 +539,7 @@ class DocumentGenerator extends BaseController
             return false;
         }
         
-        $enrollment = $this->enrollmentModel->getCurrentForStudent($student->id);
+        $enrollment = $this->enrollmentModel->getCurrentForStudent($student['id']);
         
         if (!$enrollment) {
             return false;
@@ -549,7 +549,7 @@ class DocumentGenerator extends BaseController
         $currentSemester = $this->semesterResultModel
             ->select('tbl_semester_results.*, tbl_semesters.semester_name')
             ->join('tbl_semesters', 'tbl_semesters.id = tbl_semester_results.semester_id')
-            ->where('tbl_semester_results.enrollment_id', $enrollment->id)
+            ->where('tbl_semester_results.enrollment_id', $enrollment['id'])
             ->where('tbl_semesters.is_current', 1)
             ->first();
         
@@ -558,7 +558,7 @@ class DocumentGenerator extends BaseController
             'subtitulo' => 'DECLARAÇÃO DE APROVEITAMENTO',
             'numero' => $request->request_number,
             'data' => date('d/m/Y'),
-            'aluno' => $student->full_name ?? $student->first_name . ' ' . $student->last_name,
+            'aluno' => $student->full_name ?? $student['first_name'] . ' ' . $student['last_name'],
             'classe' => $enrollment->class_name,
             'ano_letivo' => $enrollment->year_name,
             'periodo' => $currentSemester->semester_name ?? 'Período Atual',

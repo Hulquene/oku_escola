@@ -9,7 +9,7 @@
             <h1 class="mb-2">Boletim de Notas</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-graduation-cap me-1"></i>
-                <?= $student->first_name ?> <?= $student->last_name ?> • <?= $enrollment->class_name ?? '' ?>
+                <?= $student['first_name'] ?> <?= $student['last_name'] ?> • <?= $enrollment->class_name ?? '' ?>
             </p>
         </div>
         <div class="d-flex gap-2">
@@ -23,7 +23,7 @@
             <button class="btn btn-outline-primary" onclick="window.print()">
                 <i class="fas fa-print me-1"></i> Imprimir
             </button>
-            <a href="<?= site_url('admin/students/view/' . $student->id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/students/view/' . $student['id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
@@ -32,7 +32,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/students') ?>">Alunos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $student->id) ?>"><?= $student->first_name ?> <?= $student->last_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $student['id']) ?>"><?= $student['first_name'] ?> <?= $student['last_name'] ?></a></li>
             <li class="breadcrumb-item active">Boletim - <?= $semester->semester_name ?? '' ?></li>
         </ol>
     </nav>
@@ -49,7 +49,7 @@
                 <table class="table table-borderless">
                     <tr>
                         <td width="120"><strong>Aluno:</strong></td>
-                        <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                        <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                     </tr>
                     <tr>
                         <td><strong>Nº Matrícula:</strong></td>
@@ -231,7 +231,7 @@
 
 <script>
 function changeSemester(semesterId) {
-    window.location.href = '<?= site_url('admin/exams/results/report-card/' . $student->id) ?>?semester=' + semesterId;
+    window.location.href = '<?= site_url('admin/exams/results/report-card/' . $student['id']) ?>?semester=' + semesterId;
 }
 
 // Gráfico de Distribuição

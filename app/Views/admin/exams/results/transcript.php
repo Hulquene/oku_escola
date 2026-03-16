@@ -9,14 +9,14 @@
             <h1 class="mb-2">Histórico Escolar</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-history me-1"></i>
-                <?= $student->first_name ?> <?= $student->last_name ?>
+                <?= $student['first_name'] ?> <?= $student['last_name'] ?>
             </p>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-primary" onclick="window.print()">
                 <i class="fas fa-print me-1"></i> Imprimir
             </button>
-            <a href="<?= site_url('admin/students/view/' . $student->id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/students/view/' . $student['id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
@@ -25,7 +25,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/students') ?>">Alunos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $student->id) ?>"><?= $student->first_name ?> <?= $student->last_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $student['id']) ?>"><?= $student['first_name'] ?> <?= $student['last_name'] ?></a></li>
             <li class="breadcrumb-item active">Histórico Escolar</li>
         </ol>
     </nav>
@@ -39,7 +39,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-8">
-                <h4 class="mb-3"><?= $student->first_name ?> <?= $student->last_name ?></h4>
+                <h4 class="mb-3"><?= $student['first_name'] ?> <?= $student['last_name'] ?></h4>
                 <div class="row">
                     <div class="col-md-4">
                         <p class="mb-1"><strong>Nº de Matrícula:</strong></p>
@@ -49,7 +49,7 @@
                     <div class="col-md-8">
                         <p class="mb-1"><?= $student->student_number ?></p>
                         <p class="mb-1"><?= date('d/m/Y', strtotime($student->birth_date)) ?></p>
-                        <p class="mb-1"><?= $student->identity_document ?></p>
+                        <p class="mb-1"><?= $student['id']['entity_type'] ?></p>
                     </div>
                 </div>
             </div>

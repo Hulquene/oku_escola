@@ -119,7 +119,7 @@ class SemesterResultModel extends BaseModel
         
         $results = [];
         foreach ($enrollments as $enrollment) {
-            $resultId = $this->calculate($enrollment->id, $semesterId, $calculatedBy);
+            $resultId = $this->calculate($enrollment['id'], $semesterId, $calculatedBy);
             if ($resultId) {
                 $results[] = $resultId;
             }

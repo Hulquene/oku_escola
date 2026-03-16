@@ -46,7 +46,7 @@ class Fees extends BaseController
         }
         
         // Get current enrollment
-        $enrollment = $this->studentModel->getCurrentEnrollment($student->id);
+        $enrollment = $this->studentModel->getCurrentEnrollment($student['id']);
         
         if (!$enrollment) {
             return redirect()->to('/students/dashboard')->with('error', 'Nenhuma matrícula ativa encontrada');
@@ -62,7 +62,7 @@ class Fees extends BaseController
             ')
             ->join('tbl_fee_structure', 'tbl_fee_structure.id = tbl_student_fees.fee_structure_id')
             ->join('tbl_fee_types', 'tbl_fee_types.id = tbl_fee_structure.fee_type_id')
-            ->where('tbl_student_fees.enrollment_id', $enrollment->id)
+            ->where('tbl_student_fees.enrollment_id', $enrollment['id'])
             ->orderBy('tbl_student_fees.due_date', 'ASC')
             ->findAll();
         
@@ -116,7 +116,7 @@ class Fees extends BaseController
             ->join('tbl_fee_structure', 'tbl_fee_structure.id = tbl_student_fees.fee_structure_id')
             ->join('tbl_fee_types', 'tbl_fee_types.id = tbl_fee_structure.fee_type_id')
             ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
-            ->where('tbl_enrollments.student_id', $student->id)
+            ->where('tbl_enrollments.student_id', $student['id'])
             ->orderBy('tbl_fee_payments.payment_date', 'DESC')
             ->findAll();
         
@@ -186,7 +186,7 @@ class Fees extends BaseController
             ->join('tbl_fee_structure', 'tbl_fee_structure.id = tbl_student_fees.fee_structure_id')
             ->join('tbl_fee_types', 'tbl_fee_types.id = tbl_fee_structure.fee_type_id')
             ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
-            ->where('tbl_enrollments.student_id', $student->id)
+            ->where('tbl_enrollments.student_id', $student['id'])
             ->where('tbl_fee_payments.receipt_number IS NOT NULL')
             ->orderBy('tbl_fee_payments.payment_date', 'DESC')
             ->findAll();

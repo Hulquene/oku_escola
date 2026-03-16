@@ -15,7 +15,7 @@
 
         <!-- Dashboard -->
         <li class="nav-item">
-            <a href="<?= route_to('admin.dashboard') ?>" class="nav-link <?= uri_string() == 'admin/dashboard' ? 'active' : '' ?>">
+            <a href="<?= site_url('admin/dashboard') ?>" class="nav-link <?= uri_string() == 'admin/dashboard' ? 'active' : '' ?>">
                 <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span>
                 <span class="nav-label">Dashboard</span>
             </a>
@@ -43,28 +43,28 @@
             <ul class="collapse submenu <?= $academicActive ? 'show' : '' ?>" id="academicSubmenu">
                 <?php if (has_permission('settings.academic_years')): ?>
                 <li>
-                    <a href="<?= route_to('academic.years') ?>" class="<?= uri_string() == 'admin/academic/years' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/years') ?>" class="<?= uri_string() == 'admin/academic/years' ? 'active' : '' ?>">
                         <i class="fas fa-calendar"></i> Anos Letivos
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('settings.semesters')): ?>
                 <li>
-                    <a href="<?= route_to('academic.semesters') ?>" class="<?= uri_string() == 'admin/academic/semesters' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/semesters') ?>" class="<?= uri_string() == 'admin/academic/semesters' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-alt"></i> Semestres
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('calendar.view')): ?>
                 <li>
-                    <a href="<?= route_to('academic.calendar') ?>" class="<?= uri_string() == 'admin/academic/calendar' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/calendar') ?>" class="<?= uri_string() == 'admin/academic/calendar' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-check"></i> Calendário
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('academic_documents.view')): ?>
                 <li>
-                    <a href="<?= route_to('academic.documents.index') ?>" class="<?= uri_string() == 'admin/academic/documents' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/documents') ?>" class="<?= uri_string() == 'admin/academic/documents' ? 'active' : '' ?>">
                         <i class="fas fa-file-alt"></i> Documentos
                     </a>
                 </li>
@@ -76,7 +76,7 @@
         <!-- Cursos -->
         <?php if (has_permission('courses.list') || has_permission('courses.create')): ?>
         <?php
-            $coursesUris = ['admin/courses'];
+            $coursesUris = ['admin/academic/courses', 'admin/academic/curriculum'];
             $coursesActive = in_array(uri_string(), $coursesUris);
             $courseModel = new \App\Models\CourseModel();
             $totalCourses = $courseModel->where('is_active', 1)->countAllResults();
@@ -95,15 +95,22 @@
             <ul class="collapse submenu <?= $coursesActive ? 'show' : '' ?>" id="coursesSubmenu">
                 <?php if (has_permission('courses.list')): ?>
                 <li>
-                    <a href="<?= route_to('admin.courses') ?>" class="<?= uri_string() == 'admin/courses' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/courses') ?>" class="<?= uri_string() == 'admin/academic/courses' ? 'active' : '' ?>">
                         <i class="fas fa-list"></i> Lista de Cursos
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('courses.create')): ?>
                 <li>
-                    <a href="<?= route_to('admin.courses.form') ?>" class="<?= uri_string() == 'admin/courses/form-add' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/courses/form-add') ?>" class="<?= uri_string() == 'admin/academic/courses/form-add' ? 'active' : '' ?>">
                         <i class="fas fa-plus-circle"></i> Novo Curso
+                    </a>
+                </li>
+                <?php endif; ?>
+                <?php if (has_permission('courses.curriculum')): ?>
+                <li>
+                    <a href="<?= site_url('admin/academic/courses/curriculum') ?>" class="<?= uri_string() == 'admin/academic/courses/curriculum' ? 'active' : '' ?>">
+                        <i class="fas fa-book-open"></i> Currículo
                     </a>
                 </li>
                 <?php endif; ?>
@@ -135,40 +142,40 @@
             <ul class="collapse submenu <?= $classesActive ? 'show' : '' ?>" id="classesSubmenu">
                 <?php if (has_permission('settings.grade_levels')): ?>
                 <li>
-                    <a href="<?= route_to('classes.levels') ?>" class="<?= uri_string() == 'admin/classes/levels' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/classes/levels') ?>" class="<?= uri_string() == 'admin/classes/levels' ? 'active' : '' ?>">
                         <i class="fas fa-layer-group"></i> Níveis de Ensino
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('classes.list')): ?>
                 <li>
-                    <a href="<?= route_to('classes.index') ?>" class="<?= uri_string() == 'admin/classes/classes' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/classes/classes') ?>" class="<?= uri_string() == 'admin/classes/classes' ? 'active' : '' ?>">
                         <i class="fas fa-users"></i> Turmas
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('admin.classes.bulk') ?>" class="<?= uri_string() == 'admin/classes/bulk-create' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/classes/bulk-create') ?>" class="<?= uri_string() == 'admin/classes/bulk-create' ? 'active' : '' ?>">
                         <i class="fas fa-layer-group"></i> Criação em Lote
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('classes.schedule')): ?>
                 <li>
-                    <a href="<?= route_to('schedule.index') ?>" class="<?= uri_string() == 'admin/classes/schedule' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/classes/schedule') ?>" class="<?= uri_string() == 'admin/classes/schedule' ? 'active' : '' ?>">
                         <i class="fas fa-clock"></i> Horários
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('subjects.list')): ?>
                 <li>
-                    <a href="<?= route_to('classes.subjects') ?>" class="<?= uri_string() == 'admin/classes/subjects' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/classes/subjects') ?>" class="<?= uri_string() == 'admin/classes/subjects' ? 'active' : '' ?>">
                         <i class="fas fa-book"></i> Disciplinas
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('subjects.assign_to_classes')): ?>
                 <li>
-                    <a href="<?= route_to('classes.class-subjects') ?>" class="<?= uri_string() == 'admin/classes/class-subjects' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/classes/class-subjects') ?>" class="<?= uri_string() == 'admin/classes/class-subjects' ? 'active' : '' ?>">
                         <i class="fas fa-link"></i> Alocação de Disciplinas
                     </a>
                 </li>
@@ -194,35 +201,35 @@
             <ul class="collapse submenu <?= $studentsActive ? 'show' : '' ?>" id="studentsSubmenu">
                 <?php if (has_permission('students.list')): ?>
                 <li>
-                    <a href="<?= route_to('students.index') ?>" class="<?= uri_string() == 'admin/students' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/students') ?>" class="<?= uri_string() == 'admin/students' ? 'active' : '' ?>">
                         <i class="fas fa-list"></i> Lista de Alunos
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('students.create')): ?>
                 <li>
-                    <a href="<?= route_to('students.form') ?>" class="<?= uri_string() == 'admin/students/form-add' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/students/form-add') ?>" class="<?= uri_string() == 'admin/students/form-add' ? 'active' : '' ?>">
                         <i class="fas fa-plus-circle"></i> Novo Aluno
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('enrollments.list')): ?>
                 <li>
-                    <a href="<?= route_to('students.enrollments') ?>" class="<?= uri_string() == 'admin/students/enrollments' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/students/enrollments') ?>" class="<?= uri_string() == 'admin/students/enrollments' ? 'active' : '' ?>">
                         <i class="fas fa-file-signature"></i> Matrículas
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('guardians.list')): ?>
                 <li>
-                    <a href="<?= route_to('students.guardians') ?>" class="<?= uri_string() == 'admin/students/guardians' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/students/guardians') ?>" class="<?= uri_string() == 'admin/students/guardians' ? 'active' : '' ?>">
                         <i class="fas fa-users"></i> Encarregados
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('attendance.list')): ?>
                 <li>
-                    <a href="<?= route_to('students.attendance') ?>" class="<?= uri_string() == 'admin/students/attendance' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/students/attendance') ?>" class="<?= uri_string() == 'admin/students/attendance' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-check"></i> Presenças
                     </a>
                 </li>
@@ -248,21 +255,21 @@
             <ul class="collapse submenu <?= $teachersActive ? 'show' : '' ?>" id="teachersSubmenu">
                 <?php if (has_permission('teachers.list')): ?>
                 <li>
-                    <a href="<?= route_to('teachers.index') ?>" class="<?= uri_string() == 'admin/teachers' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/teachers') ?>" class="<?= uri_string() == 'admin/teachers' ? 'active' : '' ?>">
                         <i class="fas fa-list"></i> Lista de Professores
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('teachers.create')): ?>
                 <li>
-                    <a href="<?= route_to('teachers.form') ?>" class="<?= uri_string() == 'admin/teachers/form-add' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/teachers/form-add') ?>" class="<?= uri_string() == 'admin/teachers/form-add' ? 'active' : '' ?>">
                         <i class="fas fa-plus-circle"></i> Novo Professor
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('teachers.assign_subjects')): ?>
                 <li>
-                    <a href="<?= route_to('teachers.assign-class') ?>" class="<?= uri_string() == 'admin/teachers/assign-class' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/teachers/assign-class') ?>" class="<?= uri_string() == 'admin/teachers/assign-class' ? 'active' : '' ?>">
                         <i class="fas fa-tasks"></i> Atribuir Turmas
                     </a>
                 </li>
@@ -303,54 +310,54 @@
             <ul class="collapse submenu <?= $examsActive ? 'show' : '' ?>" id="examsMainSubmenu">
                 <?php if (has_permission('exam_periods.list')): ?>
                 <li>
-                    <a href="<?= route_to('exams.periods') ?>" class="<?= uri_string() == 'admin/exams/periods' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/exams/periods') ?>" class="<?= uri_string() == 'admin/exams/periods' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-alt"></i> Períodos de Exame
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('exam_schedules.list')): ?>
                 <li>
-                    <a href="<?= route_to('exams.schedules') ?>" class="<?= uri_string() == 'admin/exams/schedules' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/exams/schedules') ?>" class="<?= uri_string() == 'admin/exams/schedules' ? 'active' : '' ?>">
                         <i class="fas fa-clock"></i> Agendamentos
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('exams.list')): ?>
                 <li>
-                    <a href="<?= route_to('exams.boards') ?>" class="<?= uri_string() == 'admin/exams/boards' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/exams/boards') ?>" class="<?= uri_string() == 'admin/exams/boards' ? 'active' : '' ?>">
                         <i class="fas fa-clipboard-list"></i> Tipos de Exames
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('exams.weights') ?>" class="<?= uri_string() == 'admin/exams/weights' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/exams/weights') ?>" class="<?= uri_string() == 'admin/exams/weights' ? 'active' : '' ?>">
                         <i class="fas fa-weight-hanging"></i> Pesos das Avaliações
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('exams.view_grades')): ?>
                 <li>
-                    <a href="<?= route_to('exams.results') ?>" class="<?= uri_string() == 'admin/exams/results' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/exams/results') ?>" class="<?= uri_string() == 'admin/exams/results' ? 'active' : '' ?>">
                         <i class="fas fa-star"></i> Resultados de Exames
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('discipline_averages.view')): ?>
                 <li>
-                    <a href="<?= route_to('discipline-averages.index') ?>" class="<?= uri_string() == 'admin/discipline-averages' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/discipline-averages') ?>" class="<?= uri_string() == 'admin/discipline-averages' ? 'active' : '' ?>">
                         <i class="fas fa-chart-line"></i> Médias Disciplinares
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('results.view')): ?>
                 <li>
-                    <a href="<?= route_to('semester-results.index') ?>" class="<?= uri_string() == 'admin/semester-results' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/semester-results') ?>" class="<?= uri_string() == 'admin/semester-results' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-check"></i> Resultados Semestrais
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('discipline_averages.calculate')): ?>
                 <li>
-                    <a href="<?= route_to('exams.calculate.run') ?>" class="<?= uri_string() == 'admin/exams/calculate' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/exams/calculate') ?>" class="<?= uri_string() == 'admin/exams/calculate' ? 'active' : '' ?>">
                         <i class="fas fa-calculator"></i> Calculadora de Médias
                     </a>
                 </li>
@@ -360,7 +367,7 @@
                     $appealStudents = $disciplineAvgModel->where('status', 'Recurso')->countAllResults();
                 ?>
                 <li>
-                    <a href="<?= route_to('exams.appeals') ?>" class="<?= uri_string() == 'admin/exams/appeals' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/exams/appeals') ?>" class="<?= uri_string() == 'admin/exams/appeals' ? 'active' : '' ?>">
                         <i class="fas fa-exclamation-triangle"></i> Exames de Recurso
                         <?php if ($appealStudents > 0): ?>
                             <span class="sub-badge warning"><?= $appealStudents ?></span>
@@ -401,7 +408,7 @@
             <ul class="collapse submenu <?= $pautasActive ? 'show' : '' ?>" id="pautasSubmenu">
                 <?php if (has_permission('reports.academic') || is_admin()): ?>
                 <li>
-                    <a href="<?= route_to('academic.records') ?>" class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic-records') ?>" class="<?= uri_string() == 'admin/academic-records' ? 'active' : '' ?>">
                         <i class="fas fa-list"></i> Pautas por Turma
                     </a>
                 </li>
@@ -410,17 +417,17 @@
                 <!-- Mini Pautas -->
                 <?php if (has_permission('exams.view') || has_permission('grades.view_averages')): ?>
                 <li>
-                    <a href="<?= route_to('mini-grade-sheet.index') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/mini-grade-sheet') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet' ? 'active' : '' ?>">
                         <i class="fas fa-file-alt"></i> Mini Pautas
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('mini-grade-sheet.trimestral') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/trimestral' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/trimestral' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-alt"></i> Pautas Trimestrais
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('mini-grade-sheet.disciplina') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
                         <i class="fas fa-book-open"></i> Pautas por Disciplina
                     </a>
                 </li>
@@ -430,7 +437,7 @@
                 <?php if (has_permission('results.approve') || is_admin()): ?>
                 <li class="submenu-divider"></li>
                 <li>
-                    <a href="<?= route_to('academic.approvals.list') ?>" class="<?= uri_string() == 'admin/academic-records/approvals' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic-records/approvals') ?>" class="<?= uri_string() == 'admin/academic-records/approvals' ? 'active' : '' ?>">
                         <i class="fas fa-check-circle"></i> Processar Aprovações
                         <?php if ($pendingApprovals > 0): ?>
                             <span class="sub-badge warning"><?= $pendingApprovals ?></span>
@@ -463,17 +470,17 @@
             </a>
             <ul class="collapse submenu <?= $docActive ? 'show' : '' ?>" id="academicDocsSubmenu">
                 <li>
-                    <a href="<?= route_to('academic.documents.certificates') ?>" class="<?= uri_string() == 'admin/academic/documents/eligible-certificates' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/documents/eligible-certificates') ?>" class="<?= uri_string() == 'admin/academic/documents/eligible-certificates' ? 'active' : '' ?>">
                         <i class="fas fa-certificate"></i> Certificados (Fim de Ciclo)
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('academic.documents.declarations') ?>" class="<?= uri_string() == 'admin/academic/documents/eligible-declarations' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/documents/eligible-declarations') ?>" class="<?= uri_string() == 'admin/academic/documents/eligible-declarations' ? 'active' : '' ?>">
                         <i class="fas fa-file-signature"></i> Declarações (Fim de Ano)
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('academic.documents.history') ?>" class="<?= uri_string() == 'admin/academic/documents/history' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/academic/documents/history') ?>" class="<?= uri_string() == 'admin/academic/documents/history' ? 'active' : '' ?>">
                         <i class="fas fa-history"></i> Histórico de Documentos
                     </a>
                 </li>
@@ -498,19 +505,19 @@
             <ul class="collapse submenu <?= $feesActive ? 'show' : '' ?>" id="feesSubmenu">
                 <?php if (has_permission('fee_types.list')): ?>
                 <li>
-                    <a href="<?= route_to('financial.fee-types') ?>" class="<?= uri_string() == 'admin/financial/fee-types' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/fee-types') ?>" class="<?= uri_string() == 'admin/financial/fee-types' ? 'active' : '' ?>">
                         <i class="fas fa-tag"></i> Tipos de Taxas
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('fees.list')): ?>
                 <li>
-                    <a href="<?= route_to('financial.fee-structure') ?>" class="<?= uri_string() == 'admin/financial/fee-structure' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/fee-structure') ?>" class="<?= uri_string() == 'admin/financial/fee-structure' ? 'active' : '' ?>">
                         <i class="fas fa-table"></i> Estrutura de Taxas
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('financial.payments') ?>" class="<?= uri_string() == 'admin/financial/payments' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/payments') ?>" class="<?= uri_string() == 'admin/financial/payments' ? 'active' : '' ?>">
                         <i class="fas fa-credit-card"></i> Pagamentos
                     </a>
                 </li>
@@ -542,31 +549,31 @@
             <ul class="collapse submenu <?= $financialActive ? 'show' : '' ?>" id="financialSubmenu">
                 <?php if (has_permission('invoices.list')): ?>
                 <li>
-                    <a href="<?= route_to('financial.invoices') ?>" class="<?= uri_string() == 'admin/financial/invoices' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/invoices') ?>" class="<?= uri_string() == 'admin/financial/invoices' ? 'active' : '' ?>">
                         <i class="fas fa-file-invoice"></i> Faturas
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('expenses.list')): ?>
                 <li>
-                    <a href="<?= route_to('financial.expenses') ?>" class="<?= uri_string() == 'admin/financial/expenses' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/expenses') ?>" class="<?= uri_string() == 'admin/financial/expenses' ? 'active' : '' ?>">
                         <i class="fas fa-chart-pie"></i> Despesas
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('settings.financial')): ?>
                 <li>
-                    <a href="<?= route_to('financial.currencies') ?>" class="<?= uri_string() == 'admin/financial/currencies' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/currencies') ?>" class="<?= uri_string() == 'admin/financial/currencies' ? 'active' : '' ?>">
                         <i class="fas fa-coins"></i> Moedas
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('financial.taxes') ?>" class="<?= uri_string() == 'admin/financial/taxes' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/taxes') ?>" class="<?= uri_string() == 'admin/financial/taxes' ? 'active' : '' ?>">
                         <i class="fas fa-percent"></i> Taxas
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('financial.payment-modes') ?>" class="<?= uri_string() == 'admin/financial/payment-modes' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/financial/payment-modes') ?>" class="<?= uri_string() == 'admin/financial/payment-modes' ? 'active' : '' ?>">
                         <i class="fas fa-money-bill"></i> Modos de Pagamento
                     </a>
                 </li>
@@ -580,12 +587,12 @@
             $documentModel = new \App\Models\DocumentModel();
             $pendingDocs = $documentModel->where('is_verified', 0)->countAllResults();
             $docsUris = [
-                'admin/document-management',
-                'admin/document-management/pending',
-                'admin/document-management/verified',
-                'admin/document-management/requests',
-                'admin/document-management/types',
-                'admin/document-management/requestable'
+                'admin/documents',
+                'admin/documents/pending',
+                'admin/documents/verified',
+                'admin/documents/requests',
+                'admin/documents/types',
+                'admin/documents/requestable'
             ];
             $docsActive = in_array(uri_string(), $docsUris);
         ?>
@@ -603,42 +610,42 @@
             <ul class="collapse submenu <?= $docsActive ? 'show' : '' ?>" id="adminDocumentsSubmenu">
                 <?php if (has_permission('documents.list')): ?>
                 <li>
-                    <a href="<?= route_to('admin.documents') ?>" class="<?= uri_string() == 'admin/document-management' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/documents') ?>" class="<?= uri_string() == 'admin/documents' ? 'active' : '' ?>">
                         <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('admin.documents.pending') ?>" class="<?= uri_string() == 'admin/document-management/pending' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/documents/pending') ?>" class="<?= uri_string() == 'admin/documents/pending' ? 'active' : '' ?>">
                         <i class="fas fa-clock"></i> Pendentes
                         <?php if ($pendingDocs > 0): ?><span class="sub-badge warning"><?= $pendingDocs ?></span><?php endif; ?>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('admin.documents.verified') ?>" class="<?= uri_string() == 'admin/document-management/verified' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/documents/verified') ?>" class="<?= uri_string() == 'admin/documents/verified' ? 'active' : '' ?>">
                         <i class="fas fa-check-circle"></i> Verificados
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('documents.verify')): ?>
                 <li>
-                    <a href="<?= route_to('admin.documents.types') ?>" class="<?= uri_string() == 'admin/document-management/types' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/documents/types') ?>" class="<?= uri_string() == 'admin/documents/types' ? 'active' : '' ?>">
                         <i class="fas fa-tags"></i> Tipos de Documentos
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('admin.documents.requestable') ?>" class="<?= uri_string() == 'admin/document-management/requestable' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/documents/requestable') ?>" class="<?= uri_string() == 'admin/documents/requestable' ? 'active' : '' ?>">
                         <i class="fas fa-file-invoice"></i> Documentos Solicitáveis
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('document_requests.list')): ?>
                 <li>
-                    <a href="<?= route_to('admin.documents.requests') ?>" class="<?= uri_string() == 'admin/document-management/requests' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/documents/requests') ?>" class="<?= uri_string() == 'admin/documents/requests' ? 'active' : '' ?>">
                         <i class="fas fa-file-signature"></i> Solicitações
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('admin.documents.reports') ?>" class="<?= uri_string() == 'admin/document-management/reports' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/documents/reports') ?>" class="<?= uri_string() == 'admin/documents/reports' ? 'active' : '' ?>">
                         <i class="fas fa-chart-bar"></i> Relatórios
                     </a>
                 </li>
@@ -673,25 +680,25 @@
             <ul class="collapse submenu <?= $genActive ? 'show' : '' ?>" id="documentGeneratorSubmenu">
                 <?php if (has_permission('document_requests.list')): ?>
                 <li>
-                    <a href="<?= route_to('admin.document-generator') ?>" class="<?= uri_string() == 'admin/document-generator' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/document-generator') ?>" class="<?= uri_string() == 'admin/document-generator' ? 'active' : '' ?>">
                         <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('admin.document-generator.pending') ?>" class="<?= uri_string() == 'admin/document-generator/pending' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/document-generator/pending') ?>" class="<?= uri_string() == 'admin/document-generator/pending' ? 'active' : '' ?>">
                         <i class="fas fa-clock"></i> Pendentes
                         <?php if ($pendingRequests > 0): ?><span class="sub-badge warning"><?= $pendingRequests ?></span><?php endif; ?>
                     </a>
                 </li>
                 <li>
-                    <a href="<?= route_to('admin.document-generator.generated') ?>" class="<?= uri_string() == 'admin/document-generator/generated' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/document-generator/generated') ?>" class="<?= uri_string() == 'admin/document-generator/generated' ? 'active' : '' ?>">
                         <i class="fas fa-check-circle"></i> Documentos Gerados
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('report_cards.generate')): ?>
                 <li>
-                    <a href="<?= route_to('admin.document-generator.templates') ?>" class="<?= uri_string() == 'admin/document-generator/templates' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/document-generator/templates') ?>" class="<?= uri_string() == 'admin/document-generator/templates' ? 'active' : '' ?>">
                         <i class="fas fa-file-alt"></i> Modelos
                     </a>
                 </li>
@@ -724,42 +731,42 @@
             <ul class="collapse submenu <?= $reportsActive ? 'show' : '' ?>" id="reportsSubmenu">
                 <?php if (has_permission('reports.academic')): ?>
                 <li>
-                    <a href="<?= route_to('reports.academic') ?>" class="<?= uri_string() == 'admin/reports/academic' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/reports/academic') ?>" class="<?= uri_string() == 'admin/reports/academic' ? 'active' : '' ?>">
                         <i class="fas fa-graduation-cap"></i> Académico
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('reports.financial')): ?>
                 <li>
-                    <a href="<?= route_to('reports.financial') ?>" class="<?= uri_string() == 'admin/reports/financial' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/reports/financial') ?>" class="<?= uri_string() == 'admin/reports/financial' ? 'active' : '' ?>">
                         <i class="fas fa-chart-line"></i> Financeiro
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('reports.students')): ?>
                 <li>
-                    <a href="<?= route_to('reports.students') ?>" class="<?= uri_string() == 'admin/reports/students' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/reports/students') ?>" class="<?= uri_string() == 'admin/reports/students' ? 'active' : '' ?>">
                         <i class="fas fa-users"></i> Alunos
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('reports.attendance')): ?>
                 <li>
-                    <a href="<?= route_to('reports.attendance') ?>" class="<?= uri_string() == 'admin/reports/attendance' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/reports/attendance') ?>" class="<?= uri_string() == 'admin/reports/attendance' ? 'active' : '' ?>">
                         <i class="fas fa-calendar-check"></i> Presenças
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('reports.exams')): ?>
                 <li>
-                    <a href="<?= route_to('reports.exams') ?>" class="<?= uri_string() == 'admin/reports/exams' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/reports/exams') ?>" class="<?= uri_string() == 'admin/reports/exams' ? 'active' : '' ?>">
                         <i class="fas fa-pencil-alt"></i> Exames
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('reports.fees')): ?>
                 <li>
-                    <a href="<?= route_to('reports.fees') ?>" class="<?= uri_string() == 'admin/reports/fees' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/reports/fees') ?>" class="<?= uri_string() == 'admin/reports/fees' ? 'active' : '' ?>">
                         <i class="fas fa-money-bill"></i> Propinas
                     </a>
                 </li>
@@ -772,7 +779,7 @@
         <?php if (has_permission('emails')): ?>
         <?php $emailUris = ['admin/emails', 'admin/emails/compose', 'admin/emails/bulk', 'admin/emails/templates']; ?>
         <li class="nav-item">
-            <a href="<?= route_to('emails.index') ?>" class="nav-link <?= in_array(uri_string(), $emailUris) ? 'active' : '' ?>">
+            <a href="<?= site_url('admin/emails') ?>" class="nav-link <?= in_array(uri_string(), $emailUris) ? 'active' : '' ?>">
                 <span class="nav-icon"><i class="fas fa-envelope"></i></span>
                 <span class="nav-label">E-mails</span>
             </a>
@@ -799,27 +806,27 @@
             </a>
             <ul class="collapse submenu <?= $settingsActive ? 'show' : '' ?>" id="settingsSubmenu">
                 <li>
-                    <a href="<?= route_to('settings.index') ?>" class="<?= uri_string() == 'admin/settings' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/settings') ?>" class="<?= uri_string() == 'admin/settings' ? 'active' : '' ?>">
                         <i class="fas fa-tachometer-alt"></i> Gerais
                     </a>
                 </li>
                 <?php if (has_permission('emails')): ?>
                 <li>
-                    <a href="<?= route_to('settings.save_email') ?>" class="<?= uri_string() == 'admin/settings/email' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/settings/email') ?>" class="<?= uri_string() == 'admin/settings/email' ? 'active' : '' ?>">
                         <i class="fas fa-envelope"></i> Email
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('users.list')): ?>
                 <li>
-                    <a href="<?= route_to('users.index') ?>" class="<?= uri_string() == 'admin/users' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/users') ?>" class="<?= uri_string() == 'admin/users' ? 'active' : '' ?>">
                         <i class="fas fa-users-cog"></i> Utilizadores
                     </a>
                 </li>
                 <?php endif; ?>
                 <?php if (has_permission('roles.list')): ?>
                 <li>
-                    <a href="<?= route_to('roles.index') ?>" class="<?= uri_string() == 'admin/roles' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/roles') ?>" class="<?= uri_string() == 'admin/roles' ? 'active' : '' ?>">
                         <i class="fas fa-shield-alt"></i> Perfis de Acesso
                     </a>
                 </li>
@@ -835,7 +842,7 @@
             $unreadCount = $notificationModel->where('is_read', 0)->countAllResults();
         ?>
         <li class="nav-item">
-            <a href="<?= route_to('admin.notifications') ?>" class="nav-link <?= uri_string() == 'admin/notifications' ? 'active' : '' ?>">
+            <a href="<?= site_url('admin/notifications') ?>" class="nav-link <?= uri_string() == 'admin/notifications' ? 'active' : '' ?>">
                 <span class="nav-icon"><i class="fas fa-bell"></i></span>
                 <span class="nav-label">Notificações</span>
                 <?php if ($unreadCount > 0): ?>
@@ -859,7 +866,7 @@
             <ul class="collapse submenu <?= in_array(uri_string(), $toolsUris) ? 'show' : '' ?>" id="toolsSubmenu">
                 <?php if (has_permission('logs.view')): ?>
                 <li>
-                    <a href="<?= route_to('tools.logs') ?>" class="<?= uri_string() == 'admin/tools/logs' ? 'active' : '' ?>">
+                    <a href="<?= site_url('admin/tools/logs') ?>" class="<?= uri_string() == 'admin/tools/logs' ? 'active' : '' ?>">
                         <i class="fas fa-history"></i> Logs do Sistema
                     </a>
                 </li>

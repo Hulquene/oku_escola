@@ -172,16 +172,16 @@
                     <?php if (!empty($guardians)): ?>
                         <?php foreach ($guardians as $i => $guardian): ?>
                             <tr>
-                                <td><span class="id-chip">#<?= str_pad($guardian->id, 4, '0', STR_PAD_LEFT) ?></span></td>
+                                <td><span class="id-chip">#<?= str_pad( $guardian['id'], 4, '0', STR_PAD_LEFT) ?></span></td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="teacher-initials me-2" style="width: 35px; height: 35px; font-size: 0.9rem;">
                                             <?= strtoupper(substr($guardian->full_name, 0, 1)) ?>
                                         </div>
                                         <div>
-                                            <strong><?= $guardian->full_name ?></strong>
-                                            <?php if ($guardian->identity_document): ?>
-                                                <br><small class="text-muted">Doc: <?= $guardian->identity_document ?></small>
+                                            <strong><?= $guardian['full_name'] ?></strong>
+                                            <?php if ( $guardian['id']entity_document): ?>
+                                                <br><small class="text-muted">Doc: <?=  $guardian['id']entity_document ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -201,9 +201,9 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if ($guardian->phone): ?>
-                                        <a href="tel:<?= $guardian->phone ?>" class="text-decoration-none">
-                                            <i class="fas fa-phone-alt text-primary me-1"></i><?= $guardian->phone ?>
+                                    <?php if ( $guardian['phone']): ?>
+                                        <a href="tel:<?=  $guardian['phone'] ?>" class="text-decoration-none">
+                                            <i class="fas fa-phone-alt text-primary me-1"></i><?=  $guardian['phone'] ?>
                                         </a>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
@@ -246,16 +246,16 @@
                                 <td class="center">
                                     <div class="action-group">
                                         <button type="button" class="row-btn edit edit-guardian" 
-                                                data-id="<?= $guardian->id ?>"
-                                                data-name="<?= $guardian->full_name ?>"
+                                                data-id="<?=  $guardian['id'] ?>"
+                                                data-name="<?= $guardian['full_name'] ?>"
                                                 data-type="<?= $guardian->guardian_type ?>"
-                                                data-phone="<?= $guardian->phone ?>"
-                                                data-phone2="<?= $guardian->phone2 ?>"
+                                                data-phone="<?=  $guardian['phone'] ?>"
+                                                data-phone2="<?=  $guardian['phone']2 ?>"
                                                 data-email="<?= $guardian->email ?>"
                                                 data-profession="<?= $guardian->profession ?>"
                                                 data-workplace="<?= $guardian->workplace ?>"
-                                                data-document-type="<?= $guardian->identity_type ?>"
-                                                data-document="<?= $guardian->identity_document ?>"
+                                                data-document-type="<?=  $guardian['id']entity_type ?>"
+                                                data-document="<?=  $guardian['id']entity_document ?>"
                                                 data-nif="<?= $guardian->nif ?>"
                                                 data-birth-date="<?= $guardian->birth_date ?>"
                                                 data-address="<?= $guardian->address ?>"
@@ -269,20 +269,20 @@
                                         </button>
                                         
                                         <button type="button" class="row-btn view" 
-                                                onclick="viewGuardian(<?= $guardian->id ?>)"
+                                                onclick="viewGuardian(<?=  $guardian['id'] ?>)"
                                                 title="Ver Detalhes">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         
                                         <button type="button" class="row-btn enroll" 
-                                                onclick="associateStudents(<?= $guardian->id ?>, '<?= $guardian->full_name ?>')"
+                                                onclick="associateStudents(<?=  $guardian['id'] ?>, '<?= $guardian['full_name'] ?>')"
                                                 title="Associar Alunos">
                                             <i class="fas fa-user-plus"></i>
                                         </button>
                                         
                                         <?php if (has_permission('students.delete')): ?>
                                         <button type="button" class="row-btn del" 
-                                                onclick="deleteGuardian(<?= $guardian->id ?>)"
+                                                onclick="deleteGuardian(<?=  $guardian['id'] ?>)"
                                                 title="Eliminar">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -511,7 +511,7 @@
 <div class="modal fade modal-custom" id="associateStudentsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="<?= site_url('admin/students/guardians/associateStudents') ?>" method="post">
+            <form action="<?= route_to('students.guardians.associate-students') ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" name="guardian_id" id="assocGuardianId">
                 
@@ -568,18 +568,18 @@
                             <tbody id="studentsList">
                                 <?php if (!empty($students)): ?>
                                     <?php foreach ($students as $student): ?>
-                                        <tr class="student-row" data-class-id="<?= $student->class_id ?>" data-name="<?= strtolower($student->name ?? $student->first_name . ' ' . $student->last_name) ?>">
+                                        <tr class="student-row" data-class-id="<?= $student->class_id ?>" data-name="<?= strtolower($student->name ?? $student['first_name'] . ' ' . $student['last_name']) ?>">
                                             <td>
-                                                <input type="checkbox" name="student_ids[]" value="<?= $student->id ?>" 
+                                                <input type="checkbox" name="student_ids[]" value="<?= $student['id'] ?>" 
                                                        class="form-check-input student-checkbox"
-                                                       <?= isset($guardianStudents[$assocGuardianId ?? 0]) && in_array($student->id, $guardianStudents[$assocGuardianId ?? 0]) ? 'checked' : '' ?>>
+                                                       <?= isset($guardianStudents[$assocGuardianId ?? 0]) && in_array($student['id'], $guardianStudents[$assocGuardianId ?? 0]) ? 'checked' : '' ?>>
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="teacher-initials me-2" style="width: 30px; height: 30px; font-size: 0.8rem;">
-                                                        <?= strtoupper(substr($student->name ?? $student->first_name, 0, 1)) ?>
+                                                        <?= strtoupper(substr($student->name ?? $student['first_name'], 0, 1)) ?>
                                                     </div>
-                                                    <?= $student->name ?? $student->first_name . ' ' . $student->last_name ?>
+                                                    <?= $student->name ?? $student['first_name'] . ' ' . $student['last_name'] ?>
                                                 </div>
                                             </td>
                                             <td><?= $student->class_name ?? '-' ?></td>
@@ -728,6 +728,66 @@ $(document).ready(function() {
     $('#is_active').change(function() {
         $('.ci-switch-track').toggleClass('checked', $(this).is(':checked'));
     });
+
+
+    // No seu arquivo de script, adicione:
+
+$('#associateStudentsModal form').on('submit', function(e) {
+    e.preventDefault();
+    
+    var form = $(this);
+    var url = form.attr('action');
+    var data = form.serialize();
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        beforeSend: function() {
+            // Mostrar loading
+            $('#associateStudentsModal .btn-filter.apply').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processando...');
+        },
+        success: function(response) {
+            if (response.success) {
+                // Fechar modal
+                $('#associateStudentsModal').modal('hide');
+                
+                // Mostrar mensagem de sucesso
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: response.message,
+                    timer: 2000
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: response.message
+                });
+            }
+        },
+        error: function(xhr) {
+            var message = 'Erro ao processar requisição';
+            try {
+                var response = JSON.parse(xhr.responseText);
+                message = response.message || message;
+            } catch(e) {}
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: message
+            });
+        },
+        complete: function() {
+            $('#associateStudentsModal .btn-filter.apply').prop('disabled', false).html('<i class="fas fa-save me-2"></i>Salvar Associações');
+        }
+    });
+});
 });
 
 function viewGuardian(id) {
@@ -735,6 +795,8 @@ function viewGuardian(id) {
 }
 
 function associateStudents(guardianId, guardianName) {
+    console.log('associateStudents chamado:', guardianId, guardianName);
+    
     $('#assocGuardianId').val(guardianId);
     $('#guardianNameDisplay').text(guardianName);
     $('#assocModalTitle').text('Associar Alunos - ' + guardianName);
@@ -744,8 +806,42 @@ function associateStudents(guardianId, guardianName) {
     $('#searchStudent').val('');
     $('.student-row').show();
     
-    // Update selected count
-    updateSelectedCount();
+    // Buscar alunos já associados para este guardião - CORRIGIDO
+    var url = '<?= site_url('admin/students/guardians/get-by-student/') ?>' + guardianId;
+    console.log('URL da requisição:', url);
+    
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'json',
+        success: function(associados) {
+            console.log('Associados recebidos:', associados);
+            
+            // Limpar todas as seleções
+            $('.student-checkbox').prop('checked', false);
+            
+            // Marcar checkboxes dos alunos já associados
+            if (associados && associados.length > 0) {
+                var associadosIds = associados.map(function(g) { 
+                    return g.student_id ? g.student_id : g.id; 
+                });
+                
+                $('.student-checkbox').each(function() {
+                    var studentId = parseInt($(this).val());
+                    if (associadosIds.includes(studentId)) {
+                        $(this).prop('checked', true);
+                    }
+                });
+            }
+            
+            updateSelectedCount();
+            updateSelectAllState();
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao buscar associações:', error);
+            console.error('Resposta:', xhr.responseText);
+        }
+    });
     
     $('#associateStudentsModal').modal('show');
 }

@@ -46,7 +46,7 @@ class Grades extends BaseController
             ($this->semesterModel->where('is_current', 1)->first()->id ?? null);
         
         // Buscar notas agrupadas por disciplina
-        $data['disciplines'] = getStudentGradesByDiscipline($enrollment->id, $semesterId);
+        $data['disciplines'] = getStudentGradesByDiscipline($enrollment['id'], $semesterId);
         
         // Buscar médias por disciplina (resultados finais)
         $data['averages'] = $this->disciplineAverageModel
@@ -55,7 +55,7 @@ class Grades extends BaseController
                 tbl_disciplines.discipline_name
             ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
-            ->where('tbl_discipline_averages.enrollment_id', $enrollment->id)
+            ->where('tbl_discipline_averages.enrollment_id', $enrollment['id'])
             ->where('tbl_discipline_averages.semester_id', $semesterId)
             ->findAll();
         
@@ -115,14 +115,14 @@ class Grades extends BaseController
             ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-            ->where('tbl_exam_results.enrollment_id', $enrollment->id)
+            ->where('tbl_exam_results.enrollment_id', $enrollment['id'])
             ->where('tbl_exam_schedules.discipline_id', $disciplineId)
             ->orderBy('tbl_exam_schedules.exam_date', 'DESC')
             ->findAll();
         
         // Buscar média final da disciplina
         $data['average'] = $this->disciplineAverageModel
-            ->where('enrollment_id', $enrollment->id)
+            ->where('enrollment_id', $enrollment['id'])
             ->where('discipline_id', $disciplineId)
             ->orderBy('semester_id', 'DESC')
             ->first();
@@ -173,7 +173,7 @@ public function reportCard()
     // Buscar relatório existente
     $reportCardModel = new \App\Models\ReportCardModel();
     $reportCard = $reportCardModel
-        ->where('enrollment_id', $enrollment->id)
+        ->where('enrollment_id', $enrollment['id'])
         ->where('semester_id', $semesterId)
         ->first();
     
@@ -187,7 +187,7 @@ public function reportCard()
     
     if (!$reportCard) {
         // Gerar novo relatório
-        $reportCardId = $reportCardModel->generateForStudent($enrollment->id, $semesterId);
+        $reportCardId = $reportCardModel->generateForStudent($enrollment['id'], $semesterId);
         $data['reportCard'] = $reportCardModel->getWithDetails($reportCardId);
     } else {
         $data['reportCard'] = $reportCardModel->getWithDetails($getId($reportCard));
@@ -200,7 +200,7 @@ public function reportCard()
             tbl_disciplines.discipline_name
         ')
         ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
-        ->where('tbl_discipline_averages.enrollment_id', $enrollment->id)
+        ->where('tbl_discipline_averages.enrollment_id', $enrollment['id'])
         ->where('tbl_discipline_averages.semester_id', $semesterId)
         ->findAll();
     

@@ -22,13 +22,13 @@
     <div class="card-header">
         <i class="fas fa-<?= $enrollment ? 'edit' : 'plus-circle' ?>"></i> <?= $title ?>
         <?php if ($enrollment): ?>
-            <?php if ($enrollment->status == 'Pendente'): ?>
+            <?php if ($enrollment['status'] == 'Pendente'): ?>
                 <span class="badge bg-warning ms-2">Passo 2 de 2 - Concluir Matrícula</span>
-            <?php elseif ($enrollment->status == 'Ativo'): ?>
+            <?php elseif ($enrollment['status'] == 'Ativo'): ?>
                 <span class="badge bg-success ms-2">Matrícula Ativa</span>
-            <?php elseif ($enrollment->status == 'Concluído'): ?>
+            <?php elseif ($enrollment['status'] == 'Concluído'): ?>
                 <span class="badge bg-info ms-2">Matrícula Concluída</span>
-            <?php elseif ($enrollment->status == 'Cancelado'): ?>
+            <?php elseif ($enrollment['status'] == 'Cancelado'): ?>
                 <span class="badge bg-danger ms-2">Matrícula Cancelada</span>
             <?php endif; ?>
         <?php else: ?>
@@ -40,11 +40,11 @@
             <?= csrf_field() ?>
             
             <?php if ($enrollment): ?>
-                <input type="hidden" name="id" value="<?= $enrollment->id ?>">
+                <input type="hidden" name="id" value="<?= $enrollment['id'] ?>">
             <?php endif; ?>
             
             <!-- Dados da Pré-Matrícula (se for pendente) -->
-            <?php if ($enrollment && $enrollment->status == 'Pendente' && isset($enrollment->grade_level_name)): ?>
+            <?php if ($enrollment && $enrollment['status'] == 'Pendente' && isset($enrollment->grade_level_name)): ?>
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
                     <strong>Matrícula Pendente</strong> - Complete os dados abaixo para ativar a matrícula.
@@ -71,7 +71,7 @@
                                 <p><strong>Ano Letivo:</strong><br> <?= $enrollment->year_name ?></p>
                             </div>
                             <div class="col-md-4">
-                                <p><strong>Tipo:</strong><br> <?= $enrollment->enrollment_type ?></p>
+                                <p><strong>Tipo:</strong><br> <?= $enrollment['enrollment_type'] ?></p>
                             </div>
                             <div class="col-md-4">
                                 <p><strong>Data Solicitação:</strong><br> <?= date('d/m/Y', strtotime($enrollment->created_at)) ?></p>
@@ -85,7 +85,7 @@
             <?php endif; ?>
             
             <!-- Dados da Matrícula para Edição -->
-            <?php if ($enrollment && $enrollment->status != 'Pendente'): ?>
+            <?php if ($enrollment && $enrollment['status'] != 'Pendente'): ?>
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
                     <strong>Modo Edição</strong> - Você está editando uma matrícula existente.
@@ -99,7 +99,7 @@
                         <select class="form-select <?= session('errors.student_id') ? 'is-invalid' : '' ?>" 
                                 id="student_id" 
                                 name="student_id" 
-                                <?= ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')) ? 'disabled' : 'required' ?>>
+                                <?= ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')) ? 'disabled' : 'required' ?>>
                             <option value="">Selecione o aluno...</option>
                             <?php if (!empty($students)): ?>
                                 <?php 
@@ -111,13 +111,13 @@
                                     // Verificar se este aluno deve ser selecionado
                                     $isSelected = false;
                                     if (old('student_id') !== null) {
-                                        $isSelected = (old('student_id') == $student->id);
-                                    } elseif ($enrollment && isset($enrollment->student_id)) {
-                                        $isSelected = ($enrollment->student_id == $student->id);
+                                        $isSelected = (old('student_id') == $student['id']);
+                                    } elseif ($enrollment && isset($enrollment['student_id'])) {
+                                        $isSelected = ($enrollment['student_id'] == $student['id']);
                                     }
                                     ?>
-                                    <option value="<?= $student->id ?>" <?= $isSelected ? 'selected' : '' ?>>
-                                        <?= $student->first_name ?> <?= $student->last_name ?> (<?= $student->student_number ?>)
+                                    <option value="<?= $student['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                        <?= $student['first_name'] ?> <?= $student['last_name'] ?> (<?= $student->student_number ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -125,8 +125,8 @@
                         <?php if (session('errors.student_id')): ?>
                             <div class="invalid-feedback"><?= session('errors.student_id') ?></div>
                         <?php endif; ?>
-                        <?php if ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')): ?>
-                            <input type="hidden" name="student_id" value="<?= $enrollment->student_id ?>">
+                        <?php if ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')): ?>
+                            <input type="hidden" name="student_id" value="<?= $enrollment['student_id'] ?>">
                         <?php endif; ?>
                     </div>
                 </div>
@@ -138,7 +138,7 @@
                                 id="grade_level_id" 
                                 name="grade_level_id" 
                                 required
-                                <?= ($enrollment && $enrollment->status == 'Ativo') ? 'disabled' : '' ?>>
+                                <?= ($enrollment && $enrollment['status'] == 'Ativo') ? 'disabled' : '' ?>>
                             <option value="">Selecione o nível...</option>
                             <?php if (!empty($gradeLevels)): ?>
                                 <?php foreach ($gradeLevels as $level): ?>
@@ -161,7 +161,7 @@
                         <?php if (session('errors.grade_level_id')): ?>
                             <div class="invalid-feedback"><?= session('errors.grade_level_id') ?></div>
                         <?php endif; ?>
-                        <?php if ($enrollment && $enrollment->status == 'Ativo'): ?>
+                        <?php if ($enrollment && $enrollment['status'] == 'Ativo'): ?>
                             <input type="hidden" name="grade_level_id" value="<?= $enrollment->grade_level_id ?>">
                         <?php endif; ?>
                     </div>
@@ -198,7 +198,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="class_id" class="form-label">Turma 
-                            <?php if ($enrollment && $enrollment->status == 'Pendente'): ?>
+                            <?php if ($enrollment && $enrollment['status'] == 'Pendente'): ?>
                                 <span class="text-danger">* (Obrigatório para concluir)</span>
                             <?php else: ?>
                                 <span class="text-danger">*</span>
@@ -267,14 +267,14 @@
                         <?php endif; ?>
                         <small class="text-muted" id="classInfo"></small>
                         
-                        <?php if (empty($classesList) && $enrollment && $enrollment->status == 'Pendente'): ?>
+                        <?php if (empty($classesList) && $enrollment && $enrollment['status'] == 'Pendente'): ?>
                             <div class="alert alert-warning mt-2">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 Não existem turmas disponíveis para esta matrícula. Selecione outro nível ou ano letivo.
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($enrollment && $enrollment->status == 'Pendente' && empty($currentSelectedClass)): ?>
+                        <?php if ($enrollment && $enrollment['status'] == 'Pendente' && empty($currentSelectedClass)): ?>
                             <div class="alert alert-warning mt-2">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 Esta matrícula está pendente. Selecione uma turma para ativá-la.
@@ -289,7 +289,7 @@
                         <select class="form-select <?= session('errors.academic_year_id') ? 'is-invalid' : '' ?>" 
                                 id="academic_year_id" 
                                 name="academic_year_id" 
-                                <?= ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')) ? 'disabled' : 'required' ?>>
+                                <?= ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')) ? 'disabled' : 'required' ?>>
                             <option value="">Selecione...</option>
                             <?php if (!empty($academicYears)): ?>
                                 <?php foreach ($academicYears as $year): ?>
@@ -313,7 +313,7 @@
                         <?php if (session('errors.academic_year_id')): ?>
                             <div class="invalid-feedback"><?= session('errors.academic_year_id') ?></div>
                         <?php endif; ?>
-                        <?php if ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')): ?>
+                        <?php if ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')): ?>
                             <input type="hidden" name="academic_year_id" value="<?= $enrollment->academic_year_id ?>">
                         <?php endif; ?>
                     </div>
@@ -328,7 +328,7 @@
                                class="form-control <?= session('errors.enrollment_date') ? 'is-invalid' : '' ?>" 
                                id="enrollment_date" 
                                name="enrollment_date" 
-                               value="<?= old('enrollment_date', $enrollment->enrollment_date ?? date('Y-m-d')) ?>"
+                               value="<?= old('enrollment_date', $enrollment['enrollment_date'] ?? date('Y-m-d')) ?>"
                                required>
                         <?php if (session('errors.enrollment_date')): ?>
                             <div class="invalid-feedback"><?= session('errors.enrollment_date') ?></div>
@@ -342,7 +342,7 @@
                         <select class="form-select <?= session('errors.enrollment_type') ? 'is-invalid' : '' ?>" 
                                 id="enrollment_type" 
                                 name="enrollment_type" 
-                                <?= ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')) ? 'disabled' : 'required' ?>>
+                                <?= ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')) ? 'disabled' : 'required' ?>>
                             <option value="">Selecione...</option>
                             <?php 
                             $enrollmentTypes = ['Nova', 'Renovação', 'Transferência'];
@@ -350,8 +350,8 @@
                                 $isSelected = false;
                                 if (old('enrollment_type') !== null) {
                                     $isSelected = (old('enrollment_type') == $type);
-                                } elseif ($enrollment && isset($enrollment->enrollment_type)) {
-                                    $isSelected = ($enrollment->enrollment_type == $type);
+                                } elseif ($enrollment && isset($enrollment['enrollment_type'])) {
+                                    $isSelected = ($enrollment['enrollment_type'] == $type);
                                 }
                             ?>
                                 <option value="<?= $type ?>" <?= $isSelected ? 'selected' : '' ?>>
@@ -362,8 +362,8 @@
                         <?php if (session('errors.enrollment_type')): ?>
                             <div class="invalid-feedback"><?= session('errors.enrollment_type') ?></div>
                         <?php endif; ?>
-                        <?php if ($enrollment && ($enrollment->status == 'Pendente' || $enrollment->status == 'Ativo')): ?>
-                            <input type="hidden" name="enrollment_type" value="<?= $enrollment->enrollment_type ?>">
+                        <?php if ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')): ?>
+                            <input type="hidden" name="enrollment_type" value="<?= $enrollment['enrollment_type'] ?>">
                         <?php endif; ?>
                     </div>
                 </div>
@@ -375,7 +375,7 @@
                                class="form-control" 
                                id="enrollment_number" 
                                name="enrollment_number" 
-                               value="<?= old('enrollment_number', $enrollment->enrollment_number ?? '(gerado automaticamente)') ?>"
+                               value="<?= old('enrollment_number', $enrollment['enrollment_number'] ?? '(gerado automaticamente)') ?>"
                                readonly>
                         <small class="text-muted">Gerado automaticamente pelo sistema</small>
                     </div>
@@ -418,8 +418,8 @@
                                 $isSelected = false;
                                 if (old('status') !== null) {
                                     $isSelected = (old('status') == $opt);
-                                } elseif ($enrollment && isset($enrollment->status)) {
-                                    $isSelected = ($enrollment->status == $opt);
+                                } elseif ($enrollment && isset($enrollment['status'])) {
+                                    $isSelected = ($enrollment['status'] == $opt);
                                 } elseif (!$enrollment && $opt == 'Pendente') {
                                     $isSelected = true;
                                 }
@@ -435,7 +435,7 @@
             </div>
             
             <!-- Campo hidden para o nível (se veio da pré-matrícula) -->
-            <?php if ($enrollment && $enrollment->status == 'Pendente' && !isset($enrollment->grade_level_name)): ?>
+            <?php if ($enrollment && $enrollment['status'] == 'Pendente' && !isset($enrollment->grade_level_name)): ?>
                 <input type="hidden" name="grade_level_id" value="<?= $enrollment->grade_level_id ?>">
             <?php endif; ?>
             
@@ -444,14 +444,14 @@
                 <textarea class="form-control" id="observations" name="observations" rows="3"><?= old('observations', $enrollment->observations ?? '') ?></textarea>
             </div>
             
-            <?php if ($enrollment && $enrollment->status == 'Pendente'): ?>
+            <?php if ($enrollment && $enrollment['status'] == 'Pendente'): ?>
                 <div class="alert alert-success mt-3">
                     <i class="fas fa-check-circle"></i>
                     <strong>Concluir Matrícula:</strong> Após selecionar a turma e salvar, a matrícula será ativada.
                 </div>
             <?php endif; ?>
             
-            <?php if ($enrollment && $enrollment->status == 'Ativo'): ?>
+            <?php if ($enrollment && $enrollment['status'] == 'Ativo'): ?>
                 <div class="alert alert-success mt-3">
                     <i class="fas fa-check-circle"></i>
                     <strong>Matrícula Ativa</strong> - Esta matrícula está ativa e o aluno está regularmente matriculado.
@@ -467,11 +467,11 @@
                     </a>
                 </div>
                 <div>
-                    <?php if ($enrollment && $enrollment->status == 'Pendente'): ?>
+                    <?php if ($enrollment && $enrollment['status'] == 'Pendente'): ?>
                         <button type="submit" class="btn btn-success btn-lg">
                             <i class="fas fa-check-circle"></i> Concluir e Ativar Matrícula
                         </button>
-                    <?php elseif ($enrollment && $enrollment->status == 'Ativo'): ?>
+                    <?php elseif ($enrollment && $enrollment['status'] == 'Ativo'): ?>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Atualizar Matrícula
                         </button>

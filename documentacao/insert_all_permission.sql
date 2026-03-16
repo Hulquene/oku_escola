@@ -394,3 +394,96 @@ INSERT INTO `tbl_permissions` (`permission_name`, `permission_key`, `module`, `c
 ('Gerir Templates de Email', 'emails.templates', 'email', NOW()),
 ('Testar Configuração de Email', 'emails.test', 'email', NOW()),
 ('Ver Logs de Email', 'emails.logs', 'email', NOW());
+
+
+-- --------------------------------------------------------
+-- PERMISSÕES PARA ENCARREGADOS DE EDUCAÇÃO (GUARDIANS)
+-- --------------------------------------------------------
+
+-- 3A. ENCARREGADOS DE EDUCAÇÃO (GUARDIANS)
+INSERT INTO `tbl_permissions` (`permission_name`, `permission_key`, `module`, `created_at`) VALUES
+('Listar Encarregados', 'guardians.list', 'guardians', NOW()),
+('Ver Encarregado', 'guardians.view', 'guardians', NOW()),
+('Criar Encarregado', 'guardians.create', 'guardians', NOW()),
+('Editar Encarregado', 'guardians.edit', 'guardians', NOW()),
+('Eliminar Encarregado', 'guardians.delete', 'guardians', NOW()),
+('Importar Encarregados', 'guardians.import', 'guardians', NOW()),
+('Exportar Encarregados', 'guardians.export', 'guardians', NOW()),
+('Ativar/Desativar Encarregado', 'guardians.toggle', 'guardians', NOW()),
+
+-- Associações com Alunos
+('Associar Alunos', 'guardians.assign_students', 'guardians', NOW()),
+('Remover Alunos', 'guardians.remove_students', 'guardians', NOW()),
+('Ver Alunos Associados', 'guardians.view_students', 'guardians', NOW()),
+
+-- Contactos e Documentos
+('Gerir Contactos', 'guardians.manage_contacts', 'guardians', NOW()),
+('Gerir Documentos', 'guardians.manage_documents', 'guardians', NOW());
+
+-- --------------------------------------------------------
+-- ATRIBUIR PERMISSÕES AOS PERFIS EXISTENTES
+-- --------------------------------------------------------
+
+-- Administrador (role_id = 1) - Todas as permissões
+INSERT INTO `tbl_role_permissions` (`role_id`, `permission_id`, `created_at`)
+SELECT 1, id, NOW() FROM `tbl_permissions` 
+WHERE permission_key LIKE 'guardians.%';
+
+-- Secretário (role_id = 3) - Permissões básicas de gestão
+INSERT INTO `tbl_role_permissions` (`role_id`, `permission_id`, `created_at`)
+SELECT 3, id, NOW() FROM `tbl_permissions` 
+WHERE permission_key IN (
+    'guardians.list',
+    'guardians.view',
+    'guardians.create',
+    'guardians.edit',
+    'guardians.assign_students',
+    'guardians.remove_students',
+    'guardians.view_students',
+    'guardians.manage_contacts'
+);
+
+-- Diretor (role_id = 2) - Permissões completas de visualização e gestão
+INSERT INTO `tbl_role_permissions` (`role_id`, `permission_id`, `created_at`)
+SELECT 2, id, NOW() FROM `tbl_permissions` 
+WHERE permission_key IN (
+    'guardians.list',
+    'guardians.view',
+    'guardians.create',
+    'guardians.edit',
+    'guardians.assign_students',
+    'guardians.remove_students',
+    'guardians.view_students',
+    'guardians.export'
+);
+
+-- Professor (role_id = 4) - Apenas visualização
+INSERT INTO `tbl_role_permissions` (`role_id`, `permission_id`, `created_at`)
+SELECT 4, id, NOW() FROM `tbl_permissions` 
+WHERE permission_key IN (
+    'guardians.list',
+    'guardians.view',
+    'guardians.view_students'
+);
+
+-- Tesoureiro (role_id = 7) - Visualização básica
+INSERT INTO `tbl_role_permissions` (`role_id`, `permission_id`, `created_at`)
+SELECT 7, id, NOW() FROM `tbl_permissions` 
+WHERE permission_key IN (
+    'guardians.list',
+    'guardians.view'
+);
+
+-- Encarregado (role_id = 6) - O próprio encarregado vê seus próprios dados
+-- Nota: Esta permissão é controlada por lógica no controller, não apenas pela permissão
+INSERT INTO `tbl_role_permissions` (`role_id`, `permission_id`, `created_at`)
+SELECT 6, id, NOW() FROM `tbl_permissions` 
+WHERE permission_key IN (
+    'guardians.view',
+    'guardians.view_students'
+);
+
+-- --------------------------------------------------------
+-- VERIFICAR PERMISSÕES INSERIDAS
+-- --------------------------------------------------------
+-- SELECT * FROM tbl_permissions WHERE module = 'guardians' ORDER BY id;

@@ -239,7 +239,7 @@ public function index()
             
             $studentData = [
                 'enrollment_id' => $student->enrollment_id,
-                'student_name' => $student->first_name . ' ' . $student->last_name,
+                'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                 'student_number' => $student->student_number,
                 'averages' => []
             ];
@@ -275,7 +275,7 @@ public function index()
         $semesterId = $this->request->getGet('semester') ?: 
             ($this->semesterModel->getCurrent()->id ?? null);
         
-        $data['title'] = 'Boletim de Notas - ' . $student->first_name . ' ' . $student->last_name;
+        $data['title'] = 'Boletim de Notas - ' . $student['first_name'] . ' ' . $student['last_name'];
         $data['student'] = $student;
         $data['semester'] = $this->semesterModel->find($semesterId);
         $data['semesters'] = $this->semesterModel->getActive();
@@ -307,14 +307,14 @@ public function index()
                     tbl_disciplines.discipline_code
                 ')
                 ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
-                ->where('tbl_discipline_averages.enrollment_id', $enrollment->id)
+                ->where('tbl_discipline_averages.enrollment_id', $enrollment['id'])
                 ->where('tbl_discipline_averages.semester_id', $semesterId)
                 ->orderBy('tbl_disciplines.discipline_name', 'ASC')
                 ->findAll();
             
             // Get semester result
             $data['semesterResult'] = $this->semesterResultModel
-                ->where('enrollment_id', $enrollment->id)
+                ->where('enrollment_id', $enrollment['id'])
                 ->where('semester_id', $semesterId)
                 ->first();
             
@@ -361,7 +361,7 @@ public function index()
             return redirect()->to('/admin/students')->with('error', 'Aluno não encontrado');
         }
         
-        $data['title'] = 'Histórico Escolar - ' . $student->first_name . ' ' . $student->last_name;
+        $data['title'] = 'Histórico Escolar - ' . $student['first_name'] . ' ' . $student['last_name'];
         $data['student'] = $student;
         
         // Get all enrollments
@@ -406,13 +406,13 @@ public function index()
                             tbl_disciplines.discipline_name
                         ')
                         ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
-                        ->where('tbl_discipline_averages.enrollment_id', $enrollment->id)
+                        ->where('tbl_discipline_averages.enrollment_id', $enrollment['id'])
                         ->where('tbl_discipline_averages.semester_id', $semester->id)
                         ->orderBy('tbl_disciplines.discipline_name', 'ASC')
                         ->findAll();
                     
                     $semesterResult = $this->semesterResultModel
-                        ->where('enrollment_id', $enrollment->id)
+                        ->where('enrollment_id', $enrollment['id'])
                         ->where('semester_id', $semester->id)
                         ->first();
                     
@@ -615,7 +615,7 @@ public function save()
             
             $studentData = [
                 'student_number' => $student->student_number,
-                'student_name' => $student->first_name . ' ' . $student->last_name,
+                'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                 'averages' => []
             ];
             

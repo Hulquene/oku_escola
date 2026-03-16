@@ -82,7 +82,7 @@ class Exams extends BaseController
         if (!empty($scheduleIds)) {
             $results = $this->examResultModel
                 ->whereIn('exam_schedule_id', $scheduleIds)
-                ->where('enrollment_id', $enrollment->id)
+                ->where('enrollment_id', $enrollment['id'])
                 ->findAll();
             
             $data['results'] = [];
@@ -166,7 +166,7 @@ class Exams extends BaseController
             ($this->semesterModel->where('is_current', 1)->first()->id ?? null);
         
         // Buscar resultados agrupados por disciplina
-        $data['disciplines'] = getStudentGradesByDiscipline($enrollment->id, $semesterId);
+        $data['disciplines'] = getStudentGradesByDiscipline($enrollment['id'], $semesterId);
         
         // Calcular estatísticas gerais
         $totalGrades = 0;
@@ -247,7 +247,7 @@ class Exams extends BaseController
         // Buscar resultado se existir
         $data['result'] = $this->examResultModel
             ->where('exam_schedule_id', $scheduleId)
-            ->where('enrollment_id', $enrollment->id)
+            ->where('enrollment_id', $enrollment['id'])
             ->first();
         
         return view('students/exams/view', $data);

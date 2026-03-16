@@ -130,7 +130,7 @@
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar-circle bg-<?= $isPresent ? 'success' : 'danger' ?> bg-opacity-10 me-2">
                                                     <span class="text-<?= $isPresent ? 'success' : 'danger' ?> fw-bold">
-                                                        <?= strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) ?>
+                                                        <?= strtoupper(substr($student['first_name'], 0, 1) . substr($student['last_name'], 0, 1)) ?>
                                                     </span>
                                                 </div>
                                                 <div>

@@ -48,16 +48,16 @@ class ExamAttendanceModel extends BaseModel
         
         $attendance = [];
         foreach ($students as $student) {
-            $attended = $attendanceData[$student->id]['attended'] ?? 1;
+            $attended = $attendanceData[$student['id']]['attended'] ?? 1;
             $checkInTime = $attended ? date('Y-m-d H:i:s') : null;
             
             $attendance[] = [
                 'exam_schedule_id' => $examScheduleId,
-                'enrollment_id' => $student->id,
+                'enrollment_id' => $student['id'],
                 'attended' => $attended,
                 'check_in_time' => $checkInTime,
                 'check_in_method' => 'Manual',
-                'observations' => $attendanceData[$student->id]['observations'] ?? null,
+                'observations' => $attendanceData[$student['id']]['observations'] ?? null,
                 'recorded_by' => $recordedBy
             ];
         }

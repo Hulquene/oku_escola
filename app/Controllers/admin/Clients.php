@@ -488,7 +488,7 @@ public function studentForm($id = null)
             $data['selectedYear'] = $enrollment->academic_year_id;
             $data['selectedLevel'] = $enrollment->grade_level_id;
             $data['selectedCourse'] = $enrollment->course_id; // NOVO
-            $data['selectedEnrollmentType'] = $enrollment->enrollment_type;
+            $data['selectedEnrollmentType'] = $enrollment['enrollment_type'];
             $data['selectedPreviousGrade'] = $enrollment->previous_grade_id;
         } else {
             // Se não tem pendente, buscar matrícula ativa
@@ -499,11 +499,11 @@ public function studentForm($id = null)
                 ->first();
             
             if ($activeEnrollment) {
-                $data['selectedYear'] = $activeEnrollment->academic_year_id;
-                $data['selectedLevel'] = $activeEnrollment->grade_level_id;
-                $data['selectedCourse'] = $activeEnrollment->course_id; // NOVO
-                $data['selectedEnrollmentType'] = $activeEnrollment->enrollment_type;
-                $data['selectedPreviousGrade'] = $activeEnrollment->previous_grade_id;
+                $data['selectedYear'] = $activeEnrollment['academic_year_id'];
+                $data['selectedLevel'] = $activeEnrollment['grade_level_id'];
+                $data['selectedCourse'] = $activeEnrollment['course_id']; // NOVO
+                $data['selectedEnrollmentType'] = $activeEnrollment['enrollment_type'];
+                $data['selectedPreviousGrade'] = $activeEnrollment['previous_grade_id'];
             }
         }
     }
@@ -731,9 +731,9 @@ public function viewStudent($id)
     
     // Se quiser garantir que o curso venha, pode buscar diretamente
     if ($data['currentEnrollment']) {
-        $enrollmentDetails = $this->enrollmentModel->getWithDetails($data['currentEnrollment']->id);
-        $data['currentEnrollment']->course_name = $enrollmentDetails->course_name ?? null;
-        $data['currentEnrollment']->course_code = $enrollmentDetails->course_code ?? null;
+        $enrollmentDetails = $this->enrollmentModel->getWithDetails($data['currentEnrollment']['id']);
+        $data['currentEnrollment']['course_name'] = $enrollmentDetails['course_name'] ?? null;
+        $data['currentEnrollment']['course_code'] = $enrollmentDetails['course_code'] ?? null;
     }
     
     // Academic history
@@ -789,7 +789,7 @@ public function viewStudent($id)
         $this->studentModel->delete($id);
         
         // Deactivate user (don't delete completely)
-        $this->userModel->update($student->user_id, ['is_active' => 0]);
+        $this->userModel->update($student['user_id'], ['is_active' => 0]);
         
         $db->transComplete();
         
@@ -815,7 +815,7 @@ public function viewStudent($id)
         $newStatus = $student->is_active ? 0 : 1;
         
         $this->studentModel->update($id, ['is_active' => $newStatus]);
-        $this->userModel->update($student->user_id, ['is_active' => $newStatus]);
+        $this->userModel->update($student['user_id'], ['is_active' => $newStatus]);
         
         return $this->respondWithSuccess(
             $newStatus ? 'Aluno ativado com sucesso' : 'Aluno desativado com sucesso'

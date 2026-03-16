@@ -9,11 +9,11 @@
             <h1 class="mb-2">Histórico Escolar</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-history me-1"></i>
-                <?= $student->first_name ?> <?= $student->last_name ?>
+                <?= $student['first_name'] ?> <?= $student['last_name'] ?>
             </p>
         </div>
         <div>
-            <a href="<?= site_url('admin/students/view/' . $student->id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/students/view/' . $student['id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
@@ -39,7 +39,7 @@
                 <table class="table table-borderless">
                     <tr>
                         <td width="120"><strong>Nome:</strong></td>
-                        <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                        <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                     </tr>
                     <tr>
                         <td><strong>Nº Matrícula:</strong></td>

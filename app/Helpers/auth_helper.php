@@ -130,7 +130,7 @@ if (!function_exists('getStudentIdFromUser')) {
             ->get()
             ->getRow();
         
-        return $student ? $student->id : null;
+        return $student ? $student['id'] : null;
     }
 }
 
@@ -176,7 +176,7 @@ if (!function_exists('getGuardianIdFromUser')) {
             ->get()
             ->getRow();
         
-        return $guardian ? $guardian->id : null;
+        return $guardian ?  $guardian['id'] : null;
     }
 }
 if (!function_exists('getUserName')) {

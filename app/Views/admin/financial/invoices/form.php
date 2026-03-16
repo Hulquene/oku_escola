@@ -61,8 +61,8 @@
                             <option value="">Selecione um aluno...</option>
                             <?php if (!empty($students)): ?>
                                 <?php foreach ($students as $student): ?>
-                                    <option value="<?= $student->id ?>" <?= old('student_id', $invoice->student_id ?? '') == $student->id ? 'selected' : '' ?>>
-                                        <?= $student->first_name ?> <?= $student->last_name ?> (<?= $student->student_number ?>)
+                                    <option value="<?= $student['id'] ?>" <?= old('student_id', $invoice->student_id ?? '') == $student['id'] ? 'selected' : '' ?>>
+                                        <?= $student['first_name'] ?> <?= $student['last_name'] ?> (<?= $student->student_number ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -77,8 +77,8 @@
                             <option value="">Selecione um encarregado...</option>
                             <?php if (!empty($guardians)): ?>
                                 <?php foreach ($guardians as $guardian): ?>
-                                    <option value="<?= $guardian->id ?>" <?= old('guardian_id', $invoice->guardian_id ?? '') == $guardian->id ? 'selected' : '' ?>>
-                                        <?= $guardian->full_name ?>
+                                    <option value="<?=  $guardian['id'] ?>" <?= old('guardian_id', $invoice->guardian_id ?? '') ==  $guardian['id'] ? 'selected' : '' ?>>
+                                        <?= $guardian['full_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

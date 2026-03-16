@@ -99,24 +99,24 @@
                                 <tr>
                                     <td><?= $index + 1 ?></td>
                                     <td>
-                                        <strong><?= $student->first_name ?> <?= $student->last_name ?></strong>
+                                        <strong><?= $student['first_name'] ?> <?= $student['last_name'] ?></strong>
                                     </td>
                                     <td><span class="badge bg-info"><?= $student->student_number ?></span></td>
                                     <td><?= $student->email ?? '-' ?></td>
                                     <td><?= $student->phone ?? '-' ?></td>
                                     <td>
                                         <div class="btn-group">
-                                            <a href="<?= site_url('teachers/attendance?class_id=' . $class->class_id . '&student=' . $student->id) ?>" 
+                                            <a href="<?= site_url('teachers/attendance?class_id=' . $class->class_id . '&student=' . $student['id']) ?>" 
                                                class="btn btn-sm btn-outline-info" 
                                                title="Ver Presenças">
                                                 <i class="fas fa-calendar-check"></i>
                                             </a>
-                                            <a href="<?= site_url('teachers/grades?class=' . $class->class_id . '&student=' . $student->id) ?>" 
+                                            <a href="<?= site_url('teachers/grades?class=' . $class->class_id . '&student=' . $student['id']) ?>" 
                                                class="btn btn-sm btn-outline-warning" 
                                                title="Ver Notas">
                                                 <i class="fas fa-star"></i>
                                             </a>
-                                            <a href="<?= site_url('teachers/students/profile/' . $student->id) ?>" 
+                                            <a href="<?= site_url('teachers/students/profile/' . $student['id']) ?>" 
                                                class="btn btn-sm btn-outline-secondary" 
                                                title="Perfil">
                                                 <i class="fas fa-user"></i>

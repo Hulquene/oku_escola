@@ -6,7 +6,9 @@ class StudentModel extends BaseModel
 {
     protected $table = 'tbl_students';
     protected $primaryKey = 'id';
-    
+
+        protected $returnType = 'array';
+        
     protected $allowedFields = [
         'user_id',
         'student_number',

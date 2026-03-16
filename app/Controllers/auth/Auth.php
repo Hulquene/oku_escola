@@ -118,7 +118,7 @@ class Auth extends BaseController
                 ->getRow();
             
             if ($student) {
-                $additionalData['student_id'] = $student->id;
+                $additionalData['student_id'] = $student['id'];
                 $additionalData['student_number'] = $student->student_number;
                 
                 // Buscar matrícula atual
@@ -126,7 +126,7 @@ class Auth extends BaseController
                     ->select('tbl_enrollments.*, tbl_classes.class_name, tbl_academic_years.year_name')
                     ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id')
                     ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
-                    ->where('tbl_enrollments.student_id', $student->id)
+                    ->where('tbl_enrollments.student_id', $student['id'])
                     ->where('tbl_enrollments.status', 'Ativo')
                     ->orderBy('tbl_enrollments.id', 'DESC')
                     ->limit(1)
@@ -134,7 +134,7 @@ class Auth extends BaseController
                     ->getRow();
                 
                 if ($enrollment) {
-                    $additionalData['enrollment_id'] = $enrollment->id;
+                    $additionalData['enrollment_id'] = $enrollment['id'];
                     $additionalData['class_id'] = $enrollment->class_id;
                     $additionalData['class_name'] = $enrollment->class_name;
                     $additionalData['academic_year'] = $enrollment->year_name;
@@ -150,7 +150,7 @@ class Auth extends BaseController
                 ->getRow();
             
             if ($guardian) {
-                $additionalData['guardian_id'] = $guardian->id;
+                $additionalData['guardian_id'] =  $guardian['id'];
                 $additionalData['guardian_type'] = $guardian->guardian_type;
                 
                 // Buscar alunos associados
@@ -158,7 +158,7 @@ class Auth extends BaseController
                     ->select('tbl_students.id, tbl_users.first_name, tbl_users.last_name, tbl_students.student_number')
                     ->join('tbl_students', 'tbl_students.id = tbl_student_guardians.student_id')
                     ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-                    ->where('tbl_student_guardians.guardian_id', $guardian->id)
+                    ->where('tbl_student_guardians.guardian_id',  $guardian['id'])
                     ->get()
                     ->getResult();
                 

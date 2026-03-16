@@ -611,7 +611,7 @@ public function history($studentId)
         return redirect()->to('/admin/students')->with('error', 'Aluno não encontrado');
     }
     
-    $data['title'] = 'Histórico do Aluno: ' . $student->first_name . ' ' . $student->last_name;
+    $data['title'] = 'Histórico do Aluno: ' . $student['first_name'] . ' ' . $student['last_name'];
     $data['student'] = $student;
     $data['history'] = $this->enrollmentModel->getStudentHistory($studentId);
     
@@ -692,7 +692,7 @@ public function approve($id)
         return redirect()->back()->with('error', 'Matrícula não encontrada');
     }
     
-   /*  if ($enrollment->status != 'Pendente') {
+   /*  if ($enrollment['status'] != 'Pendente') {
         return redirect()->back()->with('error', 'Esta matrícula não está pendente');
     } */
     

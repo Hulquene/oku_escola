@@ -49,7 +49,7 @@ class Subjects extends BaseController
         }
         
         // Buscar todas as disciplinas da turma
-        $data['subjects'] = $this->getStudentSubjects($enrollment->id, $enrollment->class_id);
+        $data['subjects'] = $this->getStudentSubjects($enrollment['id'], $enrollment->class_id);
         
         // Estatísticas
         $data['stats'] = $this->calculateStats($data['subjects']);
@@ -105,14 +105,14 @@ class Subjects extends BaseController
             ')
             ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
-            ->where('tbl_exam_results.enrollment_id', $enrollment->id)
+            ->where('tbl_exam_results.enrollment_id', $enrollment['id'])
             ->where('tbl_exam_schedules.discipline_id', $disciplineId)
             ->orderBy('tbl_exam_schedules.exam_date', 'DESC')
             ->findAll();
         
         // Média final
         $data['average'] = $this->disciplineAverageModel
-            ->where('enrollment_id', $enrollment->id)
+            ->where('enrollment_id', $enrollment['id'])
             ->where('discipline_id', $disciplineId)
             ->orderBy('semester_id', 'DESC')
             ->first();
@@ -123,7 +123,7 @@ class Subjects extends BaseController
                 tbl_attendance.*,
                 DATE_FORMAT(attendance_date, "%d/%m/%Y") as formatted_date
             ')
-            ->where('enrollment_id', $enrollment->id)
+            ->where('enrollment_id', $enrollment['id'])
             ->where('discipline_id', $disciplineId)
             ->orderBy('attendance_date', 'DESC')
             ->findAll();

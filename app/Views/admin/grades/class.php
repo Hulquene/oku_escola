@@ -247,7 +247,7 @@
                                 <tr>
                                     <td class="text-center"><?= $i++ ?></td>
                                     <td>
-                                        <strong><?= $student->first_name ?> <?= $student->last_name ?></strong>
+                                        <strong><?= $student['first_name'] ?> <?= $student['last_name'] ?></strong>
                                     </td>
                                     <td>
                                         <span class="badge bg-info"><?= $student->student_number ?></span>

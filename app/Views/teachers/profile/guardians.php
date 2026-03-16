@@ -20,7 +20,7 @@
                 <div class="card h-100">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <?= $guardian->full_name ?>
+                            <?= $guardian['full_name'] ?>
                             <?php if ($guardian->is_authorized): ?>
                                 <span class="badge bg-success float-end">Autorizado</span>
                             <?php endif; ?>
@@ -29,15 +29,15 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <span class="badge bg-info"><?= $guardian->guardian_type ?></span>
-                            <?php if ($guardian->relationship): ?>
-                                <span class="badge bg-secondary"><?= $guardian->relationship ?></span>
+                            <?php if ( $guardian['relationship']): ?>
+                                <span class="badge bg-secondary"><?=  $guardian['relationship'] ?></span>
                             <?php endif; ?>
                         </div>
                         
                         <table class="table table-sm table-borderless">
                             <tr>
                                 <th width="40%"><i class="fas fa-phone"></i> Telefone:</th>
-                                <td><?= $guardian->phone ?></td>
+                                <td><?=  $guardian['phone'] ?></td>
                             </tr>
                             <?php if ($guardian->email): ?>
                             <tr>

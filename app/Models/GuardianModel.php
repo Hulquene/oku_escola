@@ -7,6 +7,8 @@ class GuardianModel extends BaseModel
     protected $table = 'tbl_guardians';
     protected $primaryKey = 'id';
     
+    protected $returnType = 'array';
+
     protected $allowedFields = [
         'user_id',
         'guardian_type',
@@ -18,11 +20,14 @@ class GuardianModel extends BaseModel
         'workplace',
         'work_phone',
         'phone',
+        'phone2', 
         'email',
+        'birth_date',  
         'address',
         'city',
         'municipality',
         'province',
+        'notes', 
         'is_primary',
         'is_active'
     ];

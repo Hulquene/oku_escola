@@ -107,7 +107,7 @@
                                 <tr>
                                     <td><?= $index + 1 ?></td>
                                     <td><?= $student->student_number ?></td>
-                                    <td><?= $student->first_name ?> <?= $student->last_name ?></td>
+                                    <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                     <td style="width: 200px;">
                                         <select class="form-select status-select" 
                                                 name="attendance[<?= $student->enrollment_id ?>][status]"

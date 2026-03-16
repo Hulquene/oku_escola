@@ -76,7 +76,7 @@ class Dashboard extends BaseController
                 ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id', 'left')
                 ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id', 'left')
                 ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left')
-                ->where('tbl_enrollments.id', $enrollment->id)
+                ->where('tbl_enrollments.id', $enrollment['id'])
                 ->first();
         } else {
             $data['enrollment'] = null;

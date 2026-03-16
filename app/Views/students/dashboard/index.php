@@ -41,8 +41,8 @@
         <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
             <div class="card-body">
                 <div class="d-flex align-items-center">
-                    <?php if ($student->photo ?? false): ?>
-                        <img src="<?= base_url('uploads/students/' . $student->photo) ?>" 
+                    <?php if ($student['photo'] ?? false): ?>
+                        <img src="<?= base_url('uploads/students/' . $student['photo']) ?>" 
                              class="rounded-circle me-3 border border-white" 
                              style="width: 70px; height: 70px; object-fit: cover;"
                              alt="Foto do aluno">
@@ -80,7 +80,7 @@
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-graduation-cap"></i> Matrícula Atual - Ano Letivo <?= $enrollment->year_name ?? date('Y') ?></span>
                 <span class="badge bg-<?php 
-                    switch($enrollment->status ?? '') {
+                    switch($enrollment['status'] ?? '') {
                         case 'Ativo': echo 'success'; break;
                         case 'Pendente': echo 'warning'; break;
                         case 'Concluído': echo 'secondary'; break;
@@ -90,7 +90,7 @@
                     }
                 ?> p-2">
                     <i class="fas fa-<?php 
-                        switch($enrollment->status ?? '') {
+                        switch($enrollment['status'] ?? '') {
                             case 'Ativo': echo 'check-circle'; break;
                             case 'Pendente': echo 'clock'; break;
                             case 'Concluído': echo 'flag-checkered'; break;
@@ -99,7 +99,7 @@
                             default: echo 'question-circle';
                         }
                     ?> me-1"></i>
-                    <?= $enrollment->status ?? 'Não definido' ?>
+                    <?= $enrollment['status'] ?? 'Não definido' ?>
                 </span>
             </div>
             <div class="card-body">
@@ -133,11 +133,11 @@
                 <div class="row mt-3">
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Data Matrícula:</strong></p>
-                        <h6><?= isset($enrollment->enrollment_date) ? date('d/m/Y', strtotime($enrollment->enrollment_date)) : 'N/A' ?></h6>
+                        <h6><?= isset($enrollment['enrollment_date']) ? date('d/m/Y', strtotime($enrollment['enrollment_date'])) : 'N/A' ?></h6>
                     </div>
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Nº Matrícula:</strong></p>
-                        <h6><?= $enrollment->enrollment_number ?? 'N/A' ?></h6>
+                        <h6><?= $enrollment['enrollment_number'] ?? 'N/A' ?></h6>
                     </div>
                     <div class="col-md-3">
                         <p class="mb-1"><strong>Sala:</strong></p>
@@ -148,7 +148,7 @@
                         <h6><?= isset($enrollment->teacher_name) ? $enrollment->teacher_name : 'Não atribuído' ?></h6>
                     </div>
                 </div>
-                <?php if ($enrollment->status ?? '' == 'Pendente'): ?>
+                <?php if ($enrollment['status'] ?? '' == 'Pendente'): ?>
                 <div class="alert alert-warning mt-3 mb-0">
                     <i class="fas fa-exclamation-triangle"></i> 
                     Sua matrícula está pendente de confirmação pela secretaria.

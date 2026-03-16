@@ -218,8 +218,8 @@ class Profile extends BaseController
             
             // Remover foto antiga se existir
             $student = $this->studentModel->find($studentId);
-            if ($student && $student->photo && file_exists($uploadPath . '/' . $student->photo)) {
-                unlink($uploadPath . '/' . $student->photo);
+            if ($student && $student['photo'] && file_exists($uploadPath . '/' . $student['photo'])) {
+                unlink($uploadPath . '/' . $student['photo']);
             }
             
             // Atualizar na tabela de estudantes
@@ -322,7 +322,7 @@ class Profile extends BaseController
                         tbl_disciplines.discipline_name
                     ')
                     ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_final_grades.discipline_id')
-                    ->where('tbl_final_grades.enrollment_id', $enrollment->id)
+                    ->where('tbl_final_grades.enrollment_id', $enrollment['id'])
                     ->where('tbl_final_grades.semester_id', $semester->id)
                     ->findAll();
                 
@@ -373,11 +373,11 @@ class Profile extends BaseController
         
         if ($enrollment) {
             $totalAttendance = $attendanceModel
-                ->where('enrollment_id', $enrollment->id)
+                ->where('enrollment_id', $enrollment['id'])
                 ->countAllResults();
             
             $presentAttendance = $attendanceModel
-                ->where('enrollment_id', $enrollment->id)
+                ->where('enrollment_id', $enrollment['id'])
                 ->whereIn('status', ['Presente', 'Atrasado', 'Falta Justificada'])
                 ->countAllResults();
             
@@ -391,7 +391,7 @@ class Profile extends BaseController
         
         if ($enrollment) {
             $fees = $studentFeeModel
-                ->where('enrollment_id', $enrollment->id)
+                ->where('enrollment_id', $enrollment['id'])
                 ->whereIn('status', ['Pendente', 'Vencido'])
                 ->findAll();
             

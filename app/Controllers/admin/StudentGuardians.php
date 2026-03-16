@@ -22,10 +22,8 @@ class StudentGuardians extends BaseController
         $this->studentModel = new StudentModel();
         $this->classModel = new ClassModel();
         
-        // Verificar permissões
-        if (!has_permission('students.guardians')) {
-            return redirect()->to('/admin/dashboard')->with('error', 'Sem permissão para acessar esta página');
-        }
+        // O construtor não pode retornar redirect, então movemos a verificação para cada método
+        helper(['auth']);
     }
     
     /**
@@ -33,6 +31,11 @@ class StudentGuardians extends BaseController
      */
     public function index()
     {
+        // Verificar permissão
+        if (!has_permission('guardians.list') && !is_admin()) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para ver a lista de encarregados');
+        }
+        
         $data['title'] = 'Encarregados de Educação';
         
         // Get all guardians with student count
@@ -48,12 +51,22 @@ class StudentGuardians extends BaseController
         
         // Get all students for association modal
         $data['students'] = $this->studentModel
-            ->select('tbl_students.*, tbl_classes.class_name, tbl_enrollments.class_id')
+            ->select('
+                tbl_students.*, 
+                tbl_classes.class_name, 
+                tbl_enrollments.class_id,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                tbl_users.email,
+                CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+            ')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
             ->join('tbl_enrollments', 'tbl_enrollments.student_id = tbl_students.id AND tbl_enrollments.status = "Ativo"', 'left')
             ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id', 'left')
-            ->orderBy('tbl_students.first_name', 'ASC')
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->orderBy('tbl_users.last_name', 'ASC')
             ->findAll();
-        
+
         // Get all classes for filter
         $data['classes'] = $this->classModel
             ->where('is_active', 1)
@@ -63,8 +76,8 @@ class StudentGuardians extends BaseController
         // Get guardian-student associations for each guardian
         $guardianStudents = [];
         foreach ($guardians as $guardian) {
-            $guardianStudents[$guardian->id] = $this->studentGuardianModel
-                ->where('guardian_id', $guardian->id)
+            $guardianStudents[ $guardian['id']] = $this->studentGuardianModel
+                ->where('guardian_id',  $guardian['id'])
                 ->findColumn('student_id') ?? [];
         }
         $data['guardianStudents'] = $guardianStudents;
@@ -77,6 +90,19 @@ class StudentGuardians extends BaseController
      */
     public function save()
     {
+        $id = $this->request->getPost('id');
+        
+        // Verificar permissão
+        if ($id) {
+            if (!has_permission('guardians.edit') && !is_admin()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão para editar encarregados']);
+            }
+        } else {
+            if (!has_permission('guardians.create') && !is_admin()) {
+                return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão para criar encarregados']);
+            }
+        }
+        
         $rules = [
             'full_name' => 'required|min_length[3]|max_length[255]',
             'guardian_type' => 'required|in_list[Pai,Mãe,Tutor,Encarregado,Outro]',
@@ -134,8 +160,6 @@ class StudentGuardians extends BaseController
             'is_active' => $this->request->getPost('is_active') ? 1 : 0
         ];
         
-        $id = $this->request->getPost('id');
-        
         try {
             if ($id) {
                 $this->guardianModel->update($id, $data);
@@ -149,9 +173,12 @@ class StudentGuardians extends BaseController
             // If student_id is provided, link guardian to student
             $studentId = $this->request->getPost('student_id');
             if ($studentId) {
-                $this->associateGuardianToStudent($studentId, $id);
-                return redirect()->to('/admin/students/view/' . $studentId)
-                    ->with('success', 'Encarregado associado com sucesso');
+                // Verificar permissão para associar
+                if (has_permission('guardians.assign_students') || is_admin()) {
+                    $this->associateGuardianToStudent($studentId, $id);
+                    return redirect()->to('/admin/students/view/' . $studentId)
+                        ->with('success', 'Encarregado associado com sucesso');
+                }
             }
             
             if ($this->request->isAJAX()) {
@@ -185,6 +212,11 @@ class StudentGuardians extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
         }
         
+        // Verificar permissão
+        if (!has_permission('guardians.assign_students') && !is_admin()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão para associar alunos a encarregados']);
+        }
+        
         $guardianId = $this->request->getPost('guardian_id');
         $studentIds = $this->request->getPost('student_ids') ?? [];
         $relationship = $this->request->getPost('relationship') ?? 'Encarregado';
@@ -202,10 +234,13 @@ class StudentGuardians extends BaseController
             // Remove associations that are not in the new list
             $toRemove = array_diff($existing, $studentIds);
             if (!empty($toRemove)) {
-                $this->studentGuardianModel
-                    ->where('guardian_id', $guardianId)
-                    ->whereIn('student_id', $toRemove)
-                    ->delete();
+                // Verificar permissão para remover
+                if (has_permission('guardians.remove_students') || is_admin()) {
+                    $this->studentGuardianModel
+                        ->where('guardian_id', $guardianId)
+                        ->whereIn('student_id', $toRemove)
+                        ->delete();
+                }
             }
             
             // Add new associations
@@ -239,6 +274,15 @@ class StudentGuardians extends BaseController
      */
     public function getByStudent($studentId)
     {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([]);
+        }
+        
+        // Verificar permissão - qualquer um com acesso a alunos pode ver
+        if (!has_permission('students.view') && !is_admin()) {
+            return $this->response->setJSON([]);
+        }
+        
         $guardians = $this->guardianModel->getByStudent($studentId);
         
         return $this->response->setJSON($guardians);
@@ -249,6 +293,15 @@ class StudentGuardians extends BaseController
      */
     public function getAvailable($studentId)
     {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
+        }
+        
+        // Verificar permissão - apenas quem pode associar vê os disponíveis
+        if (!has_permission('guardians.assign_students') && !is_admin()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão']);
+        }
+        
         // Get guardians already linked to this student
         $linkedGuardians = $this->studentGuardianModel
             ->where('student_id', $studentId)
@@ -264,7 +317,7 @@ class StudentGuardians extends BaseController
         
         // Filter out linked guardians
         $available = array_filter($guardians, function($guardian) use ($linkedIds) {
-            return !in_array($guardian->id, $linkedIds);
+            return !in_array( $guardian['id'], $linkedIds);
         });
         
         return $this->response->setJSON(array_values($available));
@@ -277,6 +330,11 @@ class StudentGuardians extends BaseController
     {
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
+        }
+        
+        // Verificar permissão
+        if (!has_permission('guardians.assign_students') && !is_admin()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão para associar encarregados']);
         }
         
         $studentId = $this->request->getPost('student_id');
@@ -328,6 +386,11 @@ class StudentGuardians extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
         }
         
+        // Verificar permissão
+        if (!has_permission('guardians.remove_students') && !is_admin()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão para remover associações']);
+        }
+        
         $studentId = $this->request->getPost('student_id');
         $guardianId = $this->request->getPost('guardian_id');
         
@@ -347,6 +410,11 @@ class StudentGuardians extends BaseController
      */
     public function view($id)
     {
+        // Verificar permissão
+        if (!has_permission('guardians.view') && !is_admin()) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para ver detalhes do encarregado');
+        }
+        
         $data['title'] = 'Detalhes do Encarregado';
         $data['guardian'] = $this->guardianModel->find($id);
         
@@ -368,6 +436,11 @@ class StudentGuardians extends BaseController
      */
     public function delete($id)
     {
+        // Verificar permissão
+        if (!has_permission('guardians.delete') && !is_admin()) {
+            return redirect()->back()->with('error', 'Não tem permissão para eliminar encarregados');
+        }
+        
         try {
             // Check if guardian has students associated
             $hasStudents = $this->studentGuardianModel
@@ -396,6 +469,11 @@ class StudentGuardians extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
         }
         
+        // Verificar permissão
+        if (!has_permission('guardians.toggle') && !is_admin()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão para alterar status']);
+        }
+        
         $guardian = $this->guardianModel->find($id);
         if (!$guardian) {
             return $this->response->setJSON(['success' => false, 'message' => 'Encarregado não encontrado']);
@@ -416,6 +494,11 @@ class StudentGuardians extends BaseController
      */
     public function export()
     {
+        // Verificar permissão
+        if (!has_permission('guardians.export') && !is_admin()) {
+            return redirect()->back()->with('error', 'Não tem permissão para exportar dados');
+        }
+        
         $guardians = $this->guardianModel
             ->select('tbl_guardians.*, COUNT(tbl_student_guardians.student_id) as student_count')
             ->join('tbl_student_guardians', 'tbl_student_guardians.guardian_id = tbl_guardians.id', 'left')
@@ -503,6 +586,11 @@ class StudentGuardians extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
         }
         
+        // Verificar permissão
+        if (!has_permission('guardians.edit') && !is_admin()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão']);
+        }
+        
         $guardian = $this->guardianModel->find($id);
         
         if (!$guardian) {
@@ -518,19 +606,36 @@ class StudentGuardians extends BaseController
     /**
      * Get students by class (AJAX for filtering)
      */
-    public function getStudentsByClass($classId)
-    {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
-        }
-        
-        $students = $this->studentModel
-            ->select('tbl_students.*, tbl_enrollments.class_id')
-            ->join('tbl_enrollments', 'tbl_enrollments.student_id = tbl_students.id AND tbl_enrollments.status = "Ativo"', 'inner')
-            ->where('tbl_enrollments.class_id', $classId)
-            ->orderBy('tbl_students.first_name', 'ASC')
-            ->findAll();
-        
-        return $this->response->setJSON($students);
+    /**
+ * Get students by class (AJAX for filtering)
+ */
+public function getStudentsByClass($classId)
+{
+    if (!$this->request->isAJAX()) {
+        return $this->response->setJSON(['success' => false, 'message' => 'Requisição inválida']);
     }
+    
+    // Verificar permissão - qualquer um com acesso a alunos pode ver
+    if (!has_permission('students.view') && !is_admin()) {
+        return $this->response->setJSON(['success' => false, 'message' => 'Sem permissão']);
+    }
+    
+    $students = $this->studentModel
+        ->select('
+            tbl_students.*, 
+            tbl_enrollments.class_id,
+            tbl_users.first_name,
+            tbl_users.last_name,
+            tbl_users.email,
+            CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+        ')
+        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+        ->join('tbl_enrollments', 'tbl_enrollments.student_id = tbl_students.id AND tbl_enrollments.status = "Ativo"', 'inner')
+        ->where('tbl_enrollments.class_id', $classId)
+        ->orderBy('tbl_users.first_name', 'ASC')
+        ->orderBy('tbl_users.last_name', 'ASC')
+        ->findAll();
+    
+    return $this->response->setJSON($students);
+}
 }

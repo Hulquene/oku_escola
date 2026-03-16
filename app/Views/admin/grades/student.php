@@ -10,10 +10,10 @@
             <p class="text-muted mb-0">Histórico completo de notas do aluno</p>
         </div>
         <div>
-            <a href="<?= site_url('admin/students/view/' . $student->id) ?>" class="btn btn-info me-2">
+            <a href="<?= site_url('admin/students/view/' . $student['id']) ?>" class="btn btn-info me-2">
                 <i class="fas fa-user-graduate me-1"></i> Ver Aluno
             </a>
-            <a href="<?= site_url('admin/grades/report?student=' . $student->id) ?>" class="btn btn-primary me-2">
+            <a href="<?= site_url('admin/grades/report?student=' . $student['id']) ?>" class="btn btn-primary me-2">
                 <i class="fas fa-file-pdf me-1"></i> Boletim
             </a>
             <a href="<?= site_url('admin/grades') ?>" class="btn btn-secondary">
@@ -36,18 +36,18 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex">
-                    <?php if ($student->photo): ?>
-                        <img src="<?= base_url('uploads/students/' . $student->photo) ?>" 
+                    <?php if ($student['photo']): ?>
+                        <img src="<?= base_url('uploads/students/' . $student['photo']) ?>" 
                              alt="Foto" class="rounded-circle me-3" style="width: 80px; height: 80px; object-fit: cover;">
                     <?php else: ?>
                         <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white me-3"
                              style="width: 80px; height: 80px; font-size: 2rem;">
-                            <?= strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) ?>
+                            <?= strtoupper(substr($student['first_name'], 0, 1) . substr($student['last_name'], 0, 1)) ?>
                         </div>
                     <?php endif; ?>
                     
                     <div>
-                        <h3 class="mb-1"><?= $student->first_name ?> <?= $student->last_name ?></h3>
+                        <h3 class="mb-1"><?= $student['first_name'] ?> <?= $student['last_name'] ?></h3>
                         <p class="mb-1">
                             <span class="badge bg-info">Nº: <?= $student->student_number ?></span>
                             <span class="badge bg-secondary ms-2"><?= $student->email ?></span>
@@ -110,8 +110,8 @@
                         <?= $enrollment->year_name ?> - <?= $enrollment->level_name ?>
                         <span class="badge bg-light text-primary ms-2"><?= $enrollment->class_name ?></span>
                     </h5>
-                    <span class="badge bg-<?= $enrollment->status == 'Ativo' ? 'success' : 'secondary' ?>">
-                        <?= $enrollment->status ?>
+                    <span class="badge bg-<?= $enrollment['status'] == 'Ativo' ? 'success' : 'secondary' ?>">
+                        <?= $enrollment['status'] ?>
                     </span>
                 </div>
             </div>

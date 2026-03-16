@@ -6,7 +6,7 @@
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
-        <a href="<?= site_url('admin/students/view/' . $student->id) ?>" class="btn btn-info">
+        <a href="<?= site_url('admin/students/view/' . $student['id']) ?>" class="btn btn-info">
             <i class="fas fa-user-graduate"></i> Ver Aluno
         </a>
     </div>
@@ -25,19 +25,19 @@
 <!-- Student Info -->
 <div class="alert alert-info mb-4">
     <div class="d-flex align-items-center">
-        <?php if ($student->photo): ?>
-            <img src="<?= base_url('uploads/students/' . $student->photo) ?>" 
+        <?php if ($student['photo']): ?>
+            <img src="<?= base_url('uploads/students/' . $student['photo']) ?>" 
                  alt="Foto" 
                  class="rounded-circle me-3"
                  style="width: 50px; height: 50px; object-fit: cover;">
         <?php else: ?>
             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white me-3"
                  style="width: 50px; height: 50px;">
-                <?= strtoupper(substr($student->first_name, 0, 1) . substr($student->last_name, 0, 1)) ?>
+                <?= strtoupper(substr($student['first_name'], 0, 1) . substr($student['last_name'], 0, 1)) ?>
             </div>
         <?php endif; ?>
         <div>
-            <h5 class="mb-0"><?= $student->first_name ?> <?= $student->last_name ?></h5>
+            <h5 class="mb-0"><?= $student['first_name'] ?> <?= $student['last_name'] ?></h5>
             <small><?= $student->student_number ?> | <?= $student->email ?></small>
         </div>
     </div>
