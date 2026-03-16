@@ -19,43 +19,46 @@ class Semesters extends BaseController
         // Carregar helper de log (certifique-se que o arquivo existe)
         helper('log');
     }
-/**
- * List semesters - Versão simplificada (apenas carrega a view)
- */
-public function index()
-{
-    // Verificar permissão
-    if (!has_permission('settings.semesters')) {
-        return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+    
+    /**
+     * List semesters - Versão simplificada (apenas carrega a view)
+     */
+    public function index()
+    {
+        // Verificar permissão
+        if (!has_permission('settings.semesters')) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+        }
+        
+        $data['title'] = 'Semestres/Trimestres';
+        
+        // Buscar anos letivos ativos
+        $data['academicYears'] = $this->academicYearModel
+            ->where('is_active', 1)
+            ->orderBy('start_date', 'DESC')
+            ->findAll();
+        
+        // Buscar o ano letivo atual
+        $currentYear = $this->academicYearModel
+            ->where('id', current_academic_year())
+            ->where('is_active', 1)
+            ->first();
+        
+        // Se não houver ano selecionado na URL, usar o ano atual
+        $selectedYear = $this->request->getGet('academic_year');
+        if (empty($selectedYear) && $currentYear) {
+            $selectedYear = $currentYear['id'];
+        }
+        
+        $data['selectedYear'] = $selectedYear;
+        $data['selectedStatus'] = $this->request->getGet('status');
+        
+        return view('admin/academic/semesters/index', $data);
     }
     
-    $data['title'] = 'Semestres/Trimestres';
-    
-    // Buscar anos letivos ativos
-    $data['academicYears'] = $this->academicYearModel
-        ->where('is_active', 1)
-        ->orderBy('start_date', 'DESC')
-        ->findAll();
-    
-    // Buscar o ano letivo atual
-    $currentYear = $this->academicYearModel
-        ->where('id', current_academic_year())
-        ->where('is_active', 1)
-        ->first();
-    
-    // Se não houver ano selecionado na URL, usar o ano atual
-    $selectedYear = $this->request->getGet('academic_year');
-    if (empty($selectedYear) && $currentYear) {
-        $selectedYear = $currentYear['id'];
-    }
-    
-    $data['selectedYear'] = $selectedYear;
-    $data['selectedStatus'] = $this->request->getGet('status');
-    
-    return view('admin/academic/semesters/index', $data);
-}
-    // Adicione estes métodos no controller Semesters
-
+    /**
+     * Retorna dados para o DataTables (AJAX)
+     */
 /**
  * Retorna dados para o DataTables (AJAX)
  */
@@ -108,8 +111,7 @@ public function getTableData()
                  WHERE ep.semester_id = tbl_semesters.id) as total_exams,
                 (SELECT COUNT(*) FROM tbl_semester_results WHERE semester_id = tbl_semesters.id) as has_results
             ')
-            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_semesters.academic_year_id')
-            ->where('tbl_semesters.status', 'ativo');
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_semesters.academic_year_id');
         
         // Aplicar filtros
         if (!empty($academicYearId)) {
@@ -132,39 +134,84 @@ public function getTableData()
         // Contar total de registros filtrados
         $recordsFiltered = $builder->countAllResults(false);
         
+        // Total de registros sem filtros
+        $totalRecords = $this->semesterModel->countAll();
+        
         // Aplicar ordenação e paginação
-        $data = $builder->orderBy($orderColumn, $orderDir)
+        $semesters = $builder->orderBy($orderColumn, $orderDir)
             ->limit($length, $start)
             ->get()
             ->getResult();
         
         // Processar dados para o DataTables
-        foreach ($data as &$row) {
-            // Status badge
+        $data = [];
+        
+        foreach ($semesters as $row) {
+            $formattedRow = [];
+            
+            // ID HTML
+            $formattedRow['id_html'] = '<span class="row-id">' . $row->id . '</span>';
+            
+            // Ano Letivo HTML
+            $formattedRow['year_html'] = '<span class="badge bg-info">' . $row->year_name . '</span>';
+            
+            // Nome HTML
+            $formattedRow['name_html'] = '<strong>' . $row->semester_name . '</strong>';
+            
+            // Tipo HTML com badge colorido
+            $typeClass = '';
+            $typeText = $row->semester_type;
+            
+            if (strpos($row->semester_type, '1º') !== false) {
+                $typeClass = 'primeiro';
+            } elseif (strpos($row->semester_type, '2º') !== false) {
+                $typeClass = 'segundo';
+            } elseif (strpos($row->semester_type, '3º') !== false) {
+                $typeClass = 'terceiro';
+            }
+            
+            $formattedRow['type_html'] = '<span class="semester-badge ' . $typeClass . '">' . $typeText . '</span>';
+            
+            // Período HTML
+            $formattedRow['period_html'] = '<span class="period-text"><i class="fas fa-calendar-day"></i> ' . 
+                                           date('d/m/Y', strtotime($row->start_date)) . 
+                                           ' <i class="fas fa-arrow-right"></i> ' . 
+                                           date('d/m/Y', strtotime($row->end_date)) . '</span>';
+            
+            // Exames HTML
+            $examsCount = $row->total_exams ?? 0;
+            $formattedRow['exams_html'] = '<span class="count-chip neutral">' . $examsCount . '</span>';
+            
+            // Resultados HTML
+            $resultsCount = $row->has_results ?? 0;
+            $resultsClass = $resultsCount > 0 ? 'has' : 'zero';
+            $formattedRow['results_html'] = '<span class="count-chip ' . $resultsClass . '">' . $resultsCount . '</span>';
+            
+            // Status HTML
             $statusBadgeMap = [
-                'ativo'      => ['cls' => 'sb-ativo', 'icon' => 'fa-play', 'text' => 'Ativo'],
-                'inativo'    => ['cls' => 'sb-inativo', 'icon' => 'fa-stop', 'text' => 'Inativo'],
-                'processado' => ['cls' => 'sb-processado', 'icon' => 'fa-calculator', 'text' => 'Processado'],
-                'concluido'  => ['cls' => 'sb-concluido', 'icon' => 'fa-check-double', 'text' => 'Concluído'],
+                'ativo'      => 'ativo',
+                'inativo'    => 'inativo',
+                'processado' => 'processado',
+                'concluido'  => 'concluido',
             ];
             
             $status = $row->status ?? 'ativo';
-            $badge = $statusBadgeMap[$status] ?? ['cls' => 'sb-inativo', 'text' => $status];
+            $statusClass = $statusBadgeMap[$status] ?? 'inativo';
+            $statusText = ucfirst($status);
             
-            $row->status_badge = '<span class="status-badge ' . $badge['cls'] . '">' .
-                                  '<span class="sd"></span> ' . $badge['text'] . '</span>';
+            $formattedRow['status_html'] = '<span class="status-badge ' . $statusClass . '"><span class="status-dot"></span> ' . $statusText . '</span>';
             
-            // Current badge
+            // Current HTML
             if ($row->is_current) {
-                $row->current_badge = '<span class="current-badge"><i class="fas fa-star" style="font-size:.6rem;"></i> Atual</span>';
+                $formattedRow['current_html'] = '<span class="current-badge"><i class="fas fa-star" style="font-size:.6rem;"></i> Atual</span>';
             } else {
-                $row->current_badge = '<a href="' . site_url('admin/academic/semesters/set-current/' . $row->id) . '" ' .
-                                      'class="btn-set-current" title="Definir como atual" ' .
-                                      'onclick="return confirm(\'Definir este período como atual?\')">' .
-                                      '<i class="fas fa-check-circle"></i></a>';
+                $formattedRow['current_html'] = '<a href="' . route_to('academic.semesters.setCurrent', $row->id) . '" ' .
+                                              'class="btn-set-current" title="Definir como atual" ' .
+                                              'onclick="return confirm(\'Definir este período como atual?\')">' .
+                                              '<i class="fas fa-check-circle"></i></a>';
             }
             
-            // Actions
+            // Ações
             $canEdit = in_array($status, ['ativo', 'inativo']);
             $canDelete = !$row->is_current && in_array($status, ['ativo', 'inativo']);
             
@@ -172,19 +219,19 @@ public function getTableData()
             
             // Edit button
             if ($canEdit) {
-                $actions .= '<a href="' . site_url('admin/academic/semesters/form-edit/' . $row->id) . '" ' .
+                $actions .= '<a href="' . route_to('academic.semesters.form.edit', $row->id) . '" ' .
                            'class="row-btn edit" title="Editar"><i class="fas fa-edit"></i></a>';
             } else {
                 $actions .= '<span class="row-btn disabled-btn" title="Não pode editar"><i class="fas fa-edit"></i></span>';
             }
             
             // View button
-            $actions .= '<a href="' . site_url('admin/academic/semesters/view/' . $row->id) . '" ' .
+            $actions .= '<a href="' . route_to('academic.semesters.view', $row->id) . '" ' .
                        'class="row-btn view" title="Ver Detalhes"><i class="fas fa-eye"></i></a>';
             
             // Conclude button (only for processed)
             if ($status === 'processado') {
-                $actions .= '<a href="' . site_url('admin/academic/semesters/conclude/' . $row->id) . '" ' .
+                $actions .= '<a href="' . route_to('academic.semesters.conclude', $row->id) . '" ' .
                            'class="row-btn conclude" title="Concluir Período" ' .
                            'onclick="return confirm(\'Concluir este período? Esta ação irá fechar o semestre permanentemente.\')">' .
                            '<i class="fas fa-check-double"></i></a>';
@@ -192,7 +239,7 @@ public function getTableData()
             
             // Delete button
             if ($canDelete) {
-                $actions .= '<a href="' . site_url('admin/academic/semesters/delete/' . $row->id) . '" ' .
+                $actions .= '<a href="' . route_to('academic.semesters.delete', $row->id) . '" ' .
                            'class="row-btn del" title="Eliminar" ' .
                            'onclick="return confirm(\'Tem certeza que deseja eliminar este período?\')">' .
                            '<i class="fas fa-trash"></i></a>';
@@ -201,13 +248,10 @@ public function getTableData()
             }
             
             $actions .= '</div>';
-            $row->actions = $actions;
+            $formattedRow['actions'] = $actions;
+            
+            $data[] = $formattedRow;
         }
-        
-        // Total de registros sem filtros
-        $totalRecords = $this->semesterModel
-            ->where('status', 'ativo')
-            ->countAllResults();
         
         return $this->response->setJSON([
             'draw' => $draw,
@@ -228,30 +272,31 @@ public function getTableData()
         ]);
     }
 }
-
-/**
- * Retorna estatísticas para os cards (AJAX)
- */
-public function getStats()
-{
-    if (!$this->request->isAJAX()) {
-        return $this->response->setJSON([]);
+    
+    /**
+     * Retorna estatísticas para os cards (AJAX)
+     */
+    public function getStats()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([]);
+        }
+        
+        $db = db_connect();
+        
+        $total = $this->semesterModel->countAllResults();
+        $active = $this->semesterModel->where('status', 'ativo')->countAllResults();
+        $processed = $this->semesterModel->where('status', 'processado')->countAllResults();
+        $concluded = $this->semesterModel->where('status', 'concluido')->countAllResults();
+        
+        return $this->response->setJSON([
+            'total' => $total,
+            'active' => $active,
+            'processed' => $processed,
+            'concluded' => $concluded
+        ]);
     }
     
-    $db = db_connect();
-    
-    $total = $this->semesterModel->countAllResults();
-    $active = $this->semesterModel->where('status', 'ativo')->countAllResults();
-    $processed = $this->semesterModel->where('status', 'processado')->countAllResults();
-    $concluded = $this->semesterModel->where('status', 'concluido')->countAllResults();
-    
-    return $this->response->setJSON([
-        'total' => $total,
-        'active' => $active,
-        'processed' => $processed,
-        'concluded' => $concluded
-    ]);
-}
     /**
      * Semester form
      */

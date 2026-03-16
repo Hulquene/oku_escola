@@ -23,7 +23,7 @@
                     <i class="fas fa-graduation-cap me-1"></i> Notas
                 </a>
             <?php endif; ?>
-            
+             
             <!-- Botão para mudar status -->
             <?php if ($schedule->status != 'Realizado' && $schedule->status != 'Cancelado'): ?>
                 <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#statusModal">

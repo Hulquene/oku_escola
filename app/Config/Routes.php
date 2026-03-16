@@ -145,6 +145,8 @@ $routes->group('printpdf', function ($routes) {
   $routes->post('step4', [Install::class, 'step4'], ["as" => 'install.step4']);
   $routes->get('finish', [Install::class, 'finish'], ["as" => 'install.finish']);
 }); */
+
+
 /**
  * Área Administrativa - Gestão Escolar
  */

@@ -27,7 +27,7 @@ class AcademicYears extends BaseController
     }
     
     /**
-     * List academic years
+     * List academic years - Dados carregados diretamente no PHP
      */
     public function index()
     {
@@ -38,16 +38,256 @@ class AcademicYears extends BaseController
         
         $data['title'] = 'Anos Letivos';
         
-        // Buscar anos letivos ordenados por data de início (mais recente primeiro)
+        // Buscar todos os anos letivos ordenados por data de início (mais recente primeiro)
         $years = $this->academicYearModel
             ->orderBy('start_date', 'DESC')
             ->findAll();
         
-        // Converter para objetos para manter compatibilidade com a view
-        $data['years'] =$years;
+        // Para cada ano, adicionar contagens de semestres e matrículas
+        foreach ($years as &$year) {
+            // Contar semestres
+            $year['total_semesters'] = $this->semesterModel
+                ->where('academic_year_id', $year['id'])
+                ->countAllResults();
+            
+            // Contar matrículas
+            $year['total_enrollments'] = $this->enrollmentModel
+                ->where('academic_year_id', $year['id'])
+                ->countAllResults();
+        }
+        
+        $data['years'] = $years;
+        $data['currentYearId'] = current_academic_year();
         
         return view('admin/academic/years/index', $data);
     }
+    /**
+     * List academic years - Versão simplificada (apenas carrega a view)
+     */
+ /*    public function index()
+    {
+        // Verificar permissão
+        if (!has_permission('settings.academic_years') && !is_admin()) {
+            return redirect()->to('/admin/dashboard')->with('error', 'Não tem permissão para aceder a esta página');
+        }
+        
+        $data['title'] = 'Anos Letivos';
+        
+        return view('admin/academic/years/index', $data);
+    } */
+    
+public function getTableData()
+{
+    if (!$this->request->isAJAX()) {
+        return $this->response->setJSON(['error' => 'Requisição inválida']);
+    }
+
+    try {
+
+        $request = service('request');
+
+        $draw   = (int)($request->getPost('draw') ?? 0);
+        $start  = (int)($request->getPost('start') ?? 0);
+        $length = (int)($request->getPost('length') ?? 25);
+
+        // Search
+        $search = $request->getPost('search');
+        $searchValue = is_array($search) ? ($search['value'] ?? '') : '';
+
+        // Order
+        $order = $request->getPost('order');
+        $orderColumnIndex = 1;
+        $orderDir = 'asc';
+
+        if (is_array($order) && isset($order[0])) {
+            $orderColumnIndex = (int)($order[0]['column'] ?? 1);
+            $orderDir = $order[0]['dir'] ?? 'asc';
+        }
+
+        $columns = [
+            0 => 'id',
+            1 => 'year_name',
+            2 => 'start_date',
+            3 => 'end_date',
+            4 => 'is_active'
+        ];
+
+        $orderColumn = $columns[$orderColumnIndex] ?? 'year_name';
+
+        /*
+        ------------------------------------------
+        QUERY BASE
+        ------------------------------------------
+        */
+
+        $builder = $this->academicYearModel
+            ->select('
+                id,
+                year_name,
+                start_date,
+                end_date,
+                is_active,
+                (SELECT COUNT(*) FROM tbl_semesters WHERE academic_year_id = tbl_academic_years.id) as total_semesters,
+                (SELECT COUNT(*) FROM tbl_enrollments WHERE academic_year_id = tbl_academic_years.id) as total_enrollments
+            '); // ✅ Fechamento da string corrigido
+
+        /*
+        ------------------------------------------
+        BUSCA
+        ------------------------------------------
+        */
+
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('year_name', $searchValue)
+                ->groupEnd();
+        }
+
+        // Contar total de registros filtrados (ANTES da paginação)
+        $recordsFiltered = $builder->countAllResults(false);
+
+        // Total de registros sem filtros
+        $totalRecords = $this->academicYearModel->countAll();
+
+        // Aplicar ordenação e paginação NO BANCO (mais eficiente)
+        $years = $builder->orderBy($orderColumn, $orderDir)
+            ->limit($length, $start)
+            ->get()
+            ->getResult();
+
+        /*
+        ------------------------------------------
+        FORMATAR RESULTADOS
+        ------------------------------------------
+        */
+
+        $data = [];
+        $currentYearId = current_academic_year();
+
+        foreach ($years as $row) {
+
+            $formattedRow = [];
+
+            $formattedRow['id_html'] =
+                '<span class="row-id">'.$row->id.'</span>';
+
+            $formattedRow['year_html'] =
+                '<span class="year-name">'.$row->year_name.'</span>';
+
+            $formattedRow['start_html'] =
+                '<span class="period-text">'.date('d/m/Y', strtotime($row->start_date)).'</span>';
+
+            $formattedRow['end_html'] =
+                '<span class="period-text">'.date('d/m/Y', strtotime($row->end_date)).'</span>';
+
+            $semestersCount = $row->total_semesters ?? 0;
+            $formattedRow['semesters_html'] =
+                '<span class="count-chip neutral">'.$semestersCount.'</span>';
+
+            $enrollmentsCount = $row->total_enrollments ?? 0;
+            $formattedRow['enrollments_html'] =
+                '<span class="count-chip '.($enrollmentsCount > 0 ? 'has' : 'neutral').'">'.$enrollmentsCount.'</span>';
+
+            if ($row->is_active) {
+                $formattedRow['status_html'] =
+                    '<span class="status-badge ativo"><span class="status-dot"></span> Ativo</span>';
+            } else {
+                $formattedRow['status_html'] =
+                    '<span class="status-badge inativo"><span class="status-dot"></span> Inativo</span>';
+            }
+
+            if ($row->id == $currentYearId) {
+                $formattedRow['current_html'] =
+                    '<span class="current-badge"><i class="fas fa-star" style="font-size:.6rem;"></i> Atual</span>';
+            } else {
+                $formattedRow['current_html'] =
+                    '<a href="'.route_to('academic.years.setCurrent', $row->id).'" ' .
+                    'class="btn-set-current" title="Definir como atual" ' .
+                    'onclick="return confirm(\'Definir este ano como atual?\')">' .
+                    '<i class="fas fa-check-circle"></i></a>';
+            }
+
+            // AÇÕES - Verificar se a rota de edição existe
+            $editRoute = route_to('academic.years.form.edit', $row->id);
+            if (empty($editRoute)) {
+                // Fallback para URL direta se a rota não existir
+                $editRoute = site_url('admin/academic/years/form-edit/' . $row->id);
+            }
+
+            $actions = '<div class="action-group">';
+            $actions .= '<a href="'.route_to('academic.years.view', $row->id).'" ' .
+                       'class="row-btn view" title="Ver Detalhes" data-bs-toggle="tooltip">' .
+                       '<i class="fas fa-eye"></i></a>';
+            $actions .= '<a href="'.$editRoute.'" ' .
+                       'class="row-btn edit" title="Editar" data-bs-toggle="tooltip">' .
+                       '<i class="fas fa-edit"></i></a>';
+
+            if ($row->id != $currentYearId) {
+                $actions .= '<a href="'.route_to('academic.years.delete', $row->id).'" ' .
+                           'class="row-btn del" title="Eliminar" data-bs-toggle="tooltip" ' .
+                           'onclick="return confirm(\'Tem certeza que deseja eliminar este ano letivo?\')">' .
+                           '<i class="fas fa-trash"></i></a>';
+            } else {
+                $actions .= '<span class="row-btn disabled-btn" title="Não pode eliminar o ano atual" data-bs-toggle="tooltip">' .
+                           '<i class="fas fa-trash"></i></span>';
+            }
+
+            $actions .= '</div>';
+
+            $formattedRow['actions'] = $actions;
+
+            $data[] = $formattedRow;
+        }
+
+        /*
+        ------------------------------------------
+        RESPOSTA FINAL
+        ------------------------------------------
+        */
+
+        return $this->response->setJSON([
+            'draw' => $draw,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $data
+        ]);
+
+    } catch (\Exception $e) {
+
+        log_message('error', 'Erro no DataTables de anos letivos: '.$e->getMessage());
+        log_message('error', 'Stack trace: '.$e->getTraceAsString());
+
+        return $this->response->setStatusCode(500)->setJSON([
+            'error' => 'Erro interno: ' . $e->getMessage(),
+            'draw' => (int)($this->request->getPost('draw') ?? 0),
+            'recordsTotal' => 0,
+            'recordsFiltered' => 0,
+            'data' => []
+        ]);
+    }
+}
+
+/**
+ * Retorna estatísticas para os cards (AJAX)
+ */
+public function getStats()
+{
+    if (!$this->request->isAJAX()) {
+        return $this->response->setJSON([]);
+    }
+    
+    $total = $this->academicYearModel->countAll();
+    $active = $this->academicYearModel->where('is_active', 1)->countAll();
+    $inactive = $this->academicYearModel->where('is_active', 0)->countAll();
+    
+    return $this->response->setJSON([
+        'total' => $total,
+        'active' => $active,
+        'inactive' => $inactive
+    ]);
+}
+    
+
     
     /**
      * Academic year form
@@ -67,7 +307,7 @@ class AcademicYears extends BaseController
             if (!$year) {
                 return redirect()->to('/admin/academic/years')->with('error', 'Ano letivo não encontrado');
             }
-     
+            
             $data['year'] = $year;
         } else {
             $data['year'] = null;
@@ -77,7 +317,7 @@ class AcademicYears extends BaseController
     }
     
     /**
-     * Save academic year - VERSÃO COM MENSAGENS DETALHADAS
+     * Save academic year
      */
     public function save()
     {

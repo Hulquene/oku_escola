@@ -102,6 +102,12 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 <script src="<?= base_url('assets/js/vendor/highcharts-exporting.js') ?>"></script>
 <script src="<?= base_url('assets/js/vendor/highcharts-accessibility.js') ?>"></script>
 
+
+<script>
+    var base_url = '<?= base_url() ?>';
+    var csrf_token = '<?= csrf_token() ?>';
+    var csrf_hash = '<?= csrf_hash() ?>';
+</script>
 <!-- App -->
 <script src="<?= base_url('assets/js/app.js') ?>"></script>
 <!-- No final do seu arquivo de layout, antes do </body> -->

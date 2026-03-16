@@ -2,15 +2,172 @@
 
 <?= $this->section('content') ?>
 
-<!-- ── PAGE HEADER ─────────────────────────────────────── -->
+<style>
+/* Apenas ajustes específicos para esta página */
+@media (max-width: 767px) {
+    .header-row { 
+        flex-direction: column; 
+        align-items: flex-start !important; 
+        gap: 0.75rem !important; 
+    }
+    .stats-col-filter, .stats-col-card { 
+        width: 100% !important; 
+        flex: 0 0 100% !important; 
+        max-width: 100% !important; 
+    }
+    .filter-row > div { 
+        flex: 0 0 100%; 
+        max-width: 100%; 
+    }
+}
+
+@media print {
+    .btn-header-new, .filter-card, .btn-action-sm, .row-btn.del,
+    .dataTables_filter, .dataTables_length, .dt-buttons { 
+        display: none !important; 
+    }
+    .ci-page-header { 
+        background: #1B2B4B !important; 
+        -webkit-print-color-adjust: exact; 
+    }
+}
+
+/* Estilo específico para badges de semestre */
+.semester-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 50px;
+    display: inline-block;
+}
+
+.semester-badge.primeiro {
+    background: rgba(59,127,232,0.1);
+    color: var(--accent);
+}
+
+.semester-badge.segundo {
+    background: rgba(22,168,125,0.1);
+    color: var(--success);
+}
+
+.semester-badge.terceiro {
+    background: rgba(232,160,32,0.1);
+    color: var(--warning);
+}
+
+/* Estilo para período */
+.period-text {
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.period-text i {
+    font-size: 0.65rem;
+    margin: 0 0.2rem;
+    color: var(--text-muted);
+}
+
+/* Estilo para badges de status */
+.status-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.22rem 0.6rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.status-badge.ativo {
+    color: var(--success);
+    background: rgba(22,168,125,0.1);
+}
+
+.status-badge.inativo {
+    color: var(--text-muted);
+    background: rgba(107,122,153,0.1);
+}
+
+.status-badge.processado {
+    color: var(--accent);
+    background: rgba(59,127,232,0.1);
+}
+
+.status-badge.concluido {
+    color: #B07800;
+    background: rgba(232,160,32,0.1);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Estilo para current badge */
+.current-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.22rem 0.6rem;
+    border-radius: 50px;
+    background: rgba(59,127,232,0.12);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+/* Row ID */
+.row-id {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Count chips */
+.count-chip {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.18rem 0.5rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.count-chip.neutral {
+    background: rgba(107,122,153,0.1);
+    color: var(--text-secondary);
+}
+
+.count-chip.has {
+    background: rgba(22,168,125,0.1);
+    color: var(--success);
+}
+
+.count-chip.zero {
+    background: rgba(232,70,70,0.1);
+    color: var(--danger);
+}
+</style>
+
+<!-- Page Header -->
 <div class="ci-page-header mb-4">
     <div class="ci-page-header-inner">
         <div>
             <h1><i class="fas fa-calendar-week me-2" style="opacity:.7;font-size:1.1rem;"></i><?= $title ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="<?= site_url('admin/academic/years') ?>">Anos Letivos</a></li>
+                    <li class="breadcrumb-item"><a href="<?= route_to('admin.dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= route_to('academic.years') ?>">Anos Letivos</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Semestres/Trimestres</li>
                 </ol>
             </nav>
@@ -19,7 +176,7 @@
             <button type="button" class="hdr-btn success" data-bs-toggle="modal" data-bs-target="#processSemesterModal">
                 <i class="fas fa-calculator"></i> Processar Semestre
             </button>
-            <a href="<?= site_url('admin/academic/semesters/form-add') ?>" class="hdr-btn primary">
+            <a href="<?= route_to('academic.semesters.form') ?>" class="hdr-btn primary">
                 <i class="fas fa-plus-circle"></i> Novo Semestre
             </a>
         </div>
@@ -75,8 +232,8 @@
     </div>
 </div>
 
-<!-- ── FILTER CARD ──────────────────────────────────────── -->
-<div class="ci-card">
+<!-- Filtros Avançados -->
+<div class="ci-card mb-4">
     <div class="ci-card-header">
         <div class="ci-card-title"><i class="fas fa-filter"></i> Filtros</div>
     </div>
@@ -87,7 +244,7 @@
                 <select class="filter-select" id="academic_year">
                     <option value="">Todos</option>
                     <?php foreach ($academicYears as $year): ?>
-                          <option value="<?= $year['id'] ?>" <?= current_academic_year() == $year['id'] ? 'selected' : '' ?>>
+                        <option value="<?= $year['id'] ?>" <?= current_academic_year() == $year['id'] ? 'selected' : '' ?>>
                             <?= $year['year_name'] ?> <?= current_academic_year() == $year['id'] ? '(Atual)' : '' ?>
                         </option>
                     <?php endforeach; ?>
@@ -111,7 +268,7 @@
     </div>
 </div>
 
-<!-- ── TABLE ───────────────────────────────────────────── -->
+<!-- Data Table -->
 <div class="ci-card">
     <div class="ci-card-header">
         <div class="ci-card-title"><i class="fas fa-list"></i> Lista de Semestres/Trimestres</div>
@@ -126,11 +283,11 @@
                     <th>Nome</th>
                     <th>Tipo</th>
                     <th>Período</th>
-                    <th class="center">Exames</th>
-                    <th class="center">Resultados</th>
+                    <th class="text-center">Exames</th>
+                    <th class="text-center">Resultados</th>
                     <th>Status</th>
-                    <th class="center">Atual</th>
-                    <th class="center">Ações</th>
+                    <th class="text-center">Atual</th>
+                    <th class="text-center">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -140,7 +297,7 @@
     </div>
 </div>
 
-<!-- ── MODAL: PROCESSAR SEMESTRE ───────────────────────── -->
+<!-- Modal de Processamento de Semestre -->
 <div class="modal fade ci-modal" id="processSemesterModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -233,7 +390,7 @@
     </div>
 </div>
 
-<!-- ── MODAL: LOADING ──────────────────────────────────── -->
+<!-- Modal de Loading -->
 <div class="modal fade ci-modal" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
         <div class="modal-content">
@@ -261,7 +418,7 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '<?= site_url('admin/academic/semesters/get-table-data') ?>',
+            url: '<?= route_to('academic.semesters.get-table-data') ?>',
             type: 'POST',
             data: function(d) {
                 d.academic_year = $('#academic_year').val();
@@ -274,37 +431,19 @@ $(document).ready(function () {
             }
         },
         columns: [
-            { data: 'id' },
-            { data: 'year_name' },
-            { data: 'semester_name' },
-            { data: 'semester_type' },
-            { 
-                data: null,
-                render: function(data) {
-                    return '<span class="period-text">' +
-                           formatDate(data.start_date) + ' → ' + formatDate(data.end_date) +
-                           '</span>';
-                }
-            },
-            { 
-                data: 'total_exams',
-                render: function(data) {
-                    return '<span class="count-chip neutral">' + (data || 0) + '</span>';
-                }
-            },
-            { 
-                data: 'has_results',
-                render: function(data) {
-                    var cls = data > 0 ? 'has' : 'zero';
-                    return '<span class="count-chip ' + cls + '">' + (data || 0) + '</span>';
-                }
-            },
-            { data: 'status_badge' },
-            { data: 'current_badge' },
-            { data: 'actions' }
+            { data: 'id_html' },
+            { data: 'year_html' },
+            { data: 'name_html' },
+            { data: 'type_html' },
+            { data: 'period_html' },
+            { data: 'exams_html', className: 'text-center' },
+            { data: 'results_html', className: 'text-center' },
+            { data: 'status_html' },
+            { data: 'current_html', className: 'text-center' },
+            { data: 'actions', className: 'text-center' }
         ],
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
+            url: base_url + "assets/datatables/i18n/pt-BR.json",
         },
         order: [[1, 'asc'], [4, 'asc']],
         pageLength: 25,
@@ -373,7 +512,7 @@ $(document).ready(function () {
         }, 2000);
 
         $.ajax({
-            url: '<?= site_url('admin/academic/semesters/process') ?>',
+            url: '<?= route_to('admin.semesters.process') ?>',
             type: 'POST',
             data: {
                 semester_id: semesterId,
@@ -424,7 +563,7 @@ $(document).ready(function () {
     // Função para carregar estatísticas
     function loadStats() {
         $.ajax({
-            url: '<?= site_url('admin/academic/semesters/get-stats') ?>',
+            url: '<?= route_to('academic.semesters.get-stats') ?>',
             method: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -437,15 +576,6 @@ $(document).ready(function () {
                 console.error('Erro ao carregar estatísticas:', error);
             }
         });
-    }
-    
-    // Função para formatar data
-    function formatDate(dateString) {
-        if (!dateString) return '';
-        var date = new Date(dateString);
-        return ('0' + date.getDate()).slice(-2) + '/' +
-               ('0' + (date.getMonth() + 1)).slice(-2) + '/' +
-               date.getFullYear();
     }
 });
 
