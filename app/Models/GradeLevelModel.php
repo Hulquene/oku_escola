@@ -6,7 +6,7 @@ class GradeLevelModel extends BaseModel
 {
     protected $table = 'tbl_grade_levels';
     protected $primaryKey = 'id';
-    
+      protected $returnType = 'array';
     protected $allowedFields = [
         'level_name',
         'level_code',

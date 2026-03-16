@@ -152,8 +152,8 @@
                     </option>
                     <?php if (!empty($courses)): ?>
                         <?php foreach ($courses as $course): ?>
-                            <option value="<?= $course->id ?>" <?= $selectedCourse == $course->id ? 'selected' : '' ?>>
-                                <?= $course['course_name'] ?> (<?= $course->course_code ?>)
+                            <option value="<?= $course['id'] ?>" <?= $selectedCourse == $course['id'] ? 'selected' : '' ?>>
+                                <?= $course['course_name'] ?> (<?= $course['course_code'] ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -246,7 +246,7 @@
                         Curso: <?= $selectedCourse === '0' ? 'Ensino Geral' : '' ?>
                         <?php if ($selectedCourse !== '0'): ?>
                             <?php foreach ($courses as $course): ?>
-                                <?php if ($course->id == $selectedCourse): ?>
+                                <?php if ($course['id'] == $selectedCourse): ?>
                                     <?= $course['course_name'] ?>
                                 <?php endif; ?>
                             <?php endforeach; ?>

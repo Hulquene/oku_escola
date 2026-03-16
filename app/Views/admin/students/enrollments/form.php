@@ -4,6 +4,11 @@
 
 <style>
 /* Estilos específicos para o formulário de matrícula */
+
+/* Form Card */
+.form-card { 
+    max-width: 100% !important; 
+}
 .form-section {
     margin-bottom: 2rem;
 }
@@ -288,7 +293,7 @@
                                 <div class="prereg-info-label">Aluno</div>
                                 <div class="prereg-info-value">
                                     <i class="fas fa-user-graduate me-1"></i>
-                                    <?= $enrollment->student_name ?? $enrollment['first_name'] . ' ' . $enrollment['last_name'] ?>
+                                    <?= $enrollment['student_name'] ?? $enrollment['first_name'] . ' ' . $enrollment['last_name'] ?>
                                 </div>
                             </div>
                             
@@ -302,7 +307,7 @@
                             <div class="prereg-info-item">
                                 <div class="prereg-info-label">Nível Pretendido</div>
                                 <div class="prereg-info-value">
-                                    <span class="type-badge type-info"><?= $enrollment['grade_level_name'] ?? $enrollment->level_name ?></span>
+                                    <span class="type-badge type-info"><?= $enrollment['grade_level_name'] ?? $enrollment['level_name'] ?></span>
                                 </div>
                             </div>
                             
@@ -362,42 +367,42 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-label-ci" for="student_id">
-                                <i class="fas fa-user"></i> Aluno <span class="req">*</span>
-                            </label>
-                            <select class="form-select-ci <?= session('errors.student_id') ? 'is-invalid' : '' ?>" 
-                                    id="student_id" 
-                                    name="student_id" 
-                                    <?= ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')) ? 'disabled' : 'required' ?>>
-                                <option value="">Selecione o aluno...</option>
-                                <?php if (!empty($students)): ?>
-                                    <?php 
-                                    // Se students é um objeto único (edição) ou array (novo)
-                                    $studentList = is_array($students) ? $students : [$students];
-                                    ?>
-                                    <?php foreach ($studentList as $student): ?>
-                                        <?php 
-                                        // Verificar se este aluno deve ser selecionado
-                                        $isSelected = false;
-                                        if (old('student_id') !== null) {
-                                            $isSelected = (old('student_id') == $student['id']);
-                                        } elseif ($enrollment && isset($enrollment['student_id'])) {
-                                            $isSelected = ($enrollment['student_id'] == $student['id']);
-                                        }
-                                        ?>
-                                        <option value="<?= $student['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
-                                            <?= $student['first_name'] ?> <?= $student['last_name'] ?> (<?= $student['student_number'] ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                            <?php if (session('errors.student_id')): ?>
-                                <div class="form-error"><?= session('errors.student_id') ?></div>
-                            <?php endif; ?>
-                            <?php if ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')): ?>
-                                <input type="hidden" name="student_id" value="<?= $enrollment['student_id'] ?>">
-                            <?php endif; ?>
-                        </div>
+                <label class="form-label-ci" for="student_id">
+                    <i class="fas fa-user"></i> Aluno <span class="req">*</span>
+                </label>
+                <select class="form-select-ci <?= session('errors.student_id') ? 'is-invalid' : '' ?>" 
+                        id="student_id" 
+                        name="student_id" 
+                        <?= ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')) ? 'disabled' : 'required' ?>>
+                    <option value="">Selecione o aluno...</option>
+                    <?php if (!empty($students)): ?>
+                        <?php 
+                        // Se students é um array associativo (um único aluno) ou array de alunos
+                        $studentList = isset($students['id']) ? [$students] : $students;
+                        ?>
+                        <?php foreach ($studentList as $student): ?>
+                            <?php 
+                            // Verificar se este aluno deve ser selecionado
+                            $isSelected = false;
+                            if (old('student_id') !== null) {
+                                $isSelected = (old('student_id') == $student['id']);
+                            } elseif ($enrollment && isset($enrollment['student_id'])) {
+                                $isSelected = ($enrollment['student_id'] == $student['id']);
+                            }
+                            ?>
+                            <option value="<?= $student['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                <?= $student['first_name'] ?> <?= $student['last_name'] ?> (<?= $student['student_number'] ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+                <?php if (session('errors.student_id')): ?>
+                    <div class="form-error"><?= session('errors.student_id') ?></div>
+                <?php endif; ?>
+                <?php if ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')): ?>
+                    <input type="hidden" name="student_id" value="<?= $enrollment['student_id'] ?>">
+                <?php endif; ?>
+            </div>
                     </div>
                     
                     <div class="col-md-6">
@@ -418,13 +423,13 @@
                                         $isSelected = false;
                                         
                                         if (old('grade_level_id') !== null) {
-                                            $isSelected = (old('grade_level_id') == $level->id);
+                                            $isSelected = (old('grade_level_id') == $level['id']);
                                         } elseif ($enrollment && isset($enrollment['grade_level_id'])) {
-                                            $isSelected = ($enrollment['grade_level_id'] == $level->id);
+                                            $isSelected = ($enrollment['grade_level_id'] == $level['id']);
                                         }
                                         ?>
-                                        <option value="<?= $level->id ?>" <?= $isSelected ? 'selected' : '' ?>>
-                                            <?= $level->level_name ?> (<?= $level->education_level ?>)
+                                        <option value="<?= $level['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                            <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -453,9 +458,9 @@
                             <option value="">Ensino Geral (sem curso específico)</option>
                             <?php if (!empty($courses)): ?>
                                 <?php foreach ($courses as $course): ?>
-                                    <option value="<?= $course->id ?>" 
-                                        <?= (old('course_id', $enrollment['course_id'] ?? '') == $course->id) ? 'selected' : '' ?>>
-                                        <?= $course['course_name'] ?> (<?= $course->course_code ?>)
+                                    <option value="<?= $course['id'] ?>" 
+                                        <?= (old('course_id', $enrollment['course_id'] ?? '') == $course['id']) ? 'selected' : '' ?>>
+                                        <?= $course['course_name'] ?> (<?= $course['course_code'] ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -508,8 +513,8 @@
                                 $currentSelectedClass = null;
                                 if (old('class_id') !== null) {
                                     $currentSelectedClass = old('class_id');
-                                } elseif ($enrollment && isset($enrollment->class_id)) {
-                                    $currentSelectedClass = $enrollment->class_id;
+                                } elseif ($enrollment && isset($enrollment['class_id'])) {
+                                    $currentSelectedClass = $enrollment['class_id'];
                                 }
                                 ?>
                                 
@@ -522,23 +527,23 @@
                                         $availableSeats = $capacity - $enrolled;
                                         
                                         // Verificar se é a turma selecionada
-                                        $isSelected = ($currentSelectedClass == $class->id);
+                                        $isSelected = ($currentSelectedClass == $class['id']);
                                         
                                         // Desabilitar se não houver vagas (a menos que seja a turma já selecionada)
                                         $isDisabled = ($availableSeats <= 0 && !$isSelected) ? 'disabled' : '';
                                         
                                         // Obter nome do nível
-                                        $levelName = $class->level_name ?? '';
+                                        $levelName = $class['level_name'] ?? '';
                                         ?>
-                                        <option value="<?= $class->id ?>" 
+                                        <option value="<?= $class['id'] ?>" 
                                             data-capacity="<?= $capacity ?>"
                                             data-level="<?= $levelName ?>"
                                             data-available="<?= $availableSeats ?>"
                                             <?= $isSelected ? 'selected' : '' ?>
                                             <?= $isDisabled ?>>
-                                            <?= $class->class_name ?> 
-                                            <?php if (!empty($class->class_code)): ?>(<?= $class->class_code ?>)<?php endif; ?> - 
-                                            <?= $class->class_shift ?? 'N/A' ?>
+                                            <?= $class['class_name'] ?> 
+                                            <?php if (!empty($class['class_code'])): ?>(<?= $class['class_code'] ?>)<?php endif; ?> - 
+                                            <?= $class['class_shift'] ?? 'N/A' ?>
                                             <?php if (!empty($levelName)): ?>- <?= $levelName ?><?php endif; ?>
                                             (<?= $availableSeats ?> vagas)
                                         </option>
@@ -586,8 +591,8 @@
                                         $isSelected = false;
                                         if (old('academic_year_id') !== null) {
                                             $isSelected = (old('academic_year_id') == $year['id']);
-                                        } elseif ($enrollment && isset($enrollment->academic_year_id)) {
-                                            $isSelected = ($enrollment->academic_year_id == $year['id']);
+                                        } elseif ($enrollment && isset($enrollment['academic_year_id'])) {
+                                            $isSelected = ($enrollment['academic_year_id'] == $year['id']);
                                         } elseif (!$enrollment && $currentYear && $currentYear['id'] == $year['id']) {
                                             $isSelected = true;
                                         }
@@ -602,7 +607,7 @@
                                 <div class="form-error"><?= session('errors.academic_year_id') ?></div>
                             <?php endif; ?>
                             <?php if ($enrollment && ($enrollment['status'] == 'Pendente' || $enrollment['status'] == 'Ativo')): ?>
-                                <input type="hidden" name="academic_year_id" value="<?= $enrollment->academic_year_id ?>">
+                                <input type="hidden" name="academic_year_id" value="<?= $enrollment['academic_year_id'] ?>">
                             <?php endif; ?>
                         </div>
                     </div>
@@ -702,13 +707,13 @@
                                         <?php 
                                         $isSelected = false;
                                         if (old('previous_grade_id') !== null) {
-                                            $isSelected = (old('previous_grade_id') == $level->id);
-                                        } elseif ($enrollment && isset($enrollment->previous_grade_id)) {
-                                            $isSelected = ($enrollment->previous_grade_id == $level->id);
+                                            $isSelected = (old('previous_grade_id') == $level['id']);
+                                        } elseif ($enrollment && isset($enrollment['previous_grade_id'])) {
+                                            $isSelected = ($enrollment['previous_grade_id'] == $level['id']);
                                         }
                                         ?>
-                                        <option value="<?= $level->id ?>" <?= $isSelected ? 'selected' : '' ?>>
-                                            <?= $level->level_name ?>
+                                        <option value="<?= $level['id'] ?>" <?= $isSelected ? 'selected' : '' ?>>
+                                            <?= $level['level_name'] ?>
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -749,7 +754,7 @@
                             <label class="form-label-ci" for="observations">
                                 <i class="fas fa-sticky-note"></i> Observações
                             </label>
-                            <textarea class="form-input-ci" id="observations" name="observations" rows="3"><?= old('observations', $enrollment->observations ?? '') ?></textarea>
+                            <textarea class="form-input-ci" id="observations" name="observations" rows="3"><?= old('observations', $enrollment['observations'] ?? '') ?></textarea>
                         </div>
                     </div>
                 </div>

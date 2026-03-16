@@ -422,7 +422,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/courses') ?>">Cursos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/courses/view/' . $course->id) ?>"><?= $course['course_name'] ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/courses/view/' . $course['id']) ?>"><?= $course['course_name'] ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Currículo</li>
         </ol>
     </nav>
@@ -438,7 +438,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <div>
             <div class="course-banner-name"><?= $course['course_name'] ?></div>
             <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
-                <span class="course-banner-code"><?= $course->course_code ?></span>
+                <span class="course-banner-code"><?= $course['course_code'] ?></span>
                 <?php if ($course->is_active): ?>
                     <span class="status-pill-active"><span class="status-dot"></span>Ativo</span>
                 <?php else: ?>
@@ -447,7 +447,7 @@ body { background: var(--surface); color: var(--text-primary); }
             </div>
         </div>
     </div>
-    <a href="<?= site_url('admin/courses/view/' . $course->id) ?>" class="btn-back">
+    <a href="<?= site_url('admin/courses/view/' . $course['id']) ?>" class="btn-back">
         <i class="fas fa-arrow-left"></i> Voltar ao Curso
     </a>
 </div>
@@ -491,7 +491,7 @@ body { background: var(--surface); color: var(--text-primary); }
                 </div>
                 <button type="button" class="btn-add-discipline"
                         data-bs-toggle="modal" data-bs-target="#addDisciplineModal"
-                        onclick="setCourseLevel(<?= $course->id ?>, <?= $level->id ?>)">
+                        onclick="setCourseLevel(<?= $course['id'] ?>, <?= $level->id ?>)">
                     <i class="fas fa-plus"></i> Adicionar Disciplina
                 </button>
             </div>

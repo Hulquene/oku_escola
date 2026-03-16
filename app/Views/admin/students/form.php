@@ -600,9 +600,9 @@
                                     <option value="">Selecione o curso (apenas para Ensino Médio)...</option>
                                     <?php if (!empty($courses)): ?>
                                         <?php foreach ($courses as $course): ?>
-                                            <option value="<?= $course->id ?>" 
-                                                <?= (old('course_id', $selectedCourse ?? '') == $course->id) ? 'selected' : '' ?>>
-                                                <?= esc($course['course_name']) ?> (<?= esc($course->course_code) ?>) - <?= esc($course->course_type) ?>
+                                            <option value="<?= $course['id'] ?>" 
+                                                <?= (old('course_id', $selectedCourse ?? '') == $course['id']) ? 'selected' : '' ?>>
+                                                <?= esc($course['course_name']) ?> (<?= esc($course['course_code']) ?>) - <?= esc($course['course_type']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>

@@ -278,7 +278,7 @@
         <form action="<?=  site_url('admin/academic/courses/save') ?>" method="post">
             <?= csrf_field() ?>
             <?php if ($course): ?>
-                <input type="hidden" name="id" value="<?= $course->id ?>">
+                <input type="hidden" name="id" value="<?= $course['id'] ?>">
             <?php endif; ?>
 
             <!-- ── SECTION: Informações Básicas ── -->
@@ -303,7 +303,7 @@
                         <input type="text"
                                class="form-input-ci <?= session('errors.course_code') ? 'is-invalid' : '' ?>"
                                id="course_code" name="course_code"
-                               value="<?= old('course_code', $course->course_code ?? '') ?>"
+                               value="<?= old('course_code', $course['course_code'] ?? '') ?>"
                                required maxlength="20"
                                placeholder="Ex: CFB"
                                style="font-family:'JetBrains Mono',monospace; letter-spacing:.05em; text-transform:uppercase;">
@@ -319,7 +319,7 @@
                                 id="course_type" name="course_type" required>
                             <option value="">Selecione...</option>
                             <?php foreach (['Ciências','Humanidades','Económico-Jurídico','Técnico','Profissional','Outro'] as $t): ?>
-                                <option value="<?= $t ?>" <?= old('course_type', $course->course_type ?? '') == $t ? 'selected' : '' ?>><?= $t ?></option>
+                                <option value="<?= $t ?>" <?= old('course_type', $course['course_type'] ?? '') == $t ? 'selected' : '' ?>><?= $t ?></option>
                             <?php endforeach; ?>
                         </select>
                         <?php if (session('errors.course_type')): ?>

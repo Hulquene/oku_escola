@@ -7,7 +7,7 @@ class StudentModel extends BaseModel
     protected $table = 'tbl_students';
     protected $primaryKey = 'id';
 
-        protected $returnType = 'array';
+    protected $returnType = 'array';
         
     protected $allowedFields = [
         'user_id',
@@ -83,8 +83,8 @@ class StudentModel extends BaseModel
             ->orderBy('id', 'DESC')
             ->first();
         
-        if ($last && isset($last->student_number)) {
-            $lastNumber = intval(substr($last->student_number, -4));
+        if ($last && isset($last['student_number'])) {
+            $lastNumber = intval(substr($last['student_number'], -4));
             $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '0001';

@@ -6,7 +6,7 @@ class FeeStructureModel extends BaseModel
 {
     protected $table = 'tbl_fee_structure';
     protected $primaryKey = 'id';
-    
+      protected $returnType = 'array';
     protected $allowedFields = [
         'academic_year_id',
         'grade_level_id',

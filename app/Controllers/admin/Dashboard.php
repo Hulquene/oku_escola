@@ -269,7 +269,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
             foreach ($levels as $level) {
                 // Buscar turmas deste curso e nível
                 $classes = $this->classModel
-                    ->where('course_id', $course->id)
+                    ->where('course_id', $course['id'])
                     ->where('grade_level_id', $level->id)
                     ->where('academic_year_id', $academicYearId)
                     ->where('is_active', 1)
@@ -331,7 +331,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
                 
                 $stats[] = [
                     'course_name' => $course['course_name'],
-                    'course_code' => $course->course_code,
+                    'course_code' => $course['course_code'],
                     'level_name' => $level->level_name,
                     'grade_number' => $level->grade_number,
                     'total_classes' => $totalClasses,

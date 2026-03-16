@@ -8,6 +8,7 @@ class AcademicYearModel extends BaseModel
     protected $table = 'tbl_academic_years';
     protected $primaryKey = 'id';
     
+    
     protected $allowedFields = [
         'year_name',
         'start_date',

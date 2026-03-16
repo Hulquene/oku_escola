@@ -379,7 +379,7 @@ body { background: var(--surface); color: var(--text-primary); }
                     <i class="fas fa-info-circle"></i>
                     Informações do Curso
                 </div>
-                <a href="<?= site_url('admin/courses/form-edit/' . $course->id) ?>"
+                <a href="<?= site_url('admin/courses/form-edit/' . $course['id']) ?>"
                    style="background:transparent;border:1.5px solid var(--border);color:var(--text-secondary);border-radius:var(--radius-sm);padding:.35rem .85rem;font-size:.78rem;font-weight:600;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;transition:all .18s;"
                    onmouseover="this.style.background='var(--surface)';this.style.color='var(--primary)';this.style.borderColor='var(--primary)'"
                    onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)';this.style.borderColor='var(--border)'">
@@ -397,7 +397,7 @@ body { background: var(--surface); color: var(--text-primary); }
                             </tr>
                             <tr>
                                 <th>Código</th>
-                                <td><span class="code-badge"><?= $course->course_code ?></span></td>
+                                <td><span class="code-badge"><?= $course['course_code'] ?></span></td>
                             </tr>
                             <tr>
                                 <th>Tipo</th>
@@ -411,9 +411,9 @@ body { background: var(--surface); color: var(--text-primary); }
                                             'Profissional'       => 'type-secondary',
                                             'Outro'              => 'type-dark',
                                         ];
-                                        $cls = $typeMap[$course->course_type] ?? 'type-secondary';
+                                        $cls = $typeMap[$course['course_type']] ?? 'type-secondary';
                                     ?>
-                                    <span class="type-badge <?= $cls ?>"><?= $course->course_type ?></span>
+                                    <span class="type-badge <?= $cls ?>"><?= $course['course_type'] ?></span>
                                 </td>
                             </tr>
                             <tr>
@@ -501,16 +501,16 @@ body { background: var(--surface); color: var(--text-primary); }
                 </div>
             </div>
             <div class="ci-card-body" style="display:flex;flex-direction:column;gap:.5rem;">
-                <a href="<?= site_url('admin/courses/curriculum/' . $course->id) ?>" class="qa-btn primary">
+                <a href="<?= site_url('admin/courses/curriculum/' . $course['id']) ?>" class="qa-btn primary">
                     <span class="qa-icon"><i class="fas fa-book-open"></i></span>
                     Gerir Currículo
                 </a>
-                <a href="<?= site_url('admin/courses/form-edit/' . $course->id) ?>" class="qa-btn secondary">
+                <a href="<?= site_url('admin/courses/form-edit/' . $course['id']) ?>" class="qa-btn secondary">
                     <span class="qa-icon"><i class="fas fa-edit"></i></span>
                     Editar Curso
                 </a>
                 <button type="button" class="qa-btn danger-outline"
-                        onclick="confirmDelete(<?= $course->id ?>, '<?= esc($course['course_name'], 'js') ?>')">
+                        onclick="confirmDelete(<?= $course['id'] ?>, '<?= esc($course['course_name'], 'js') ?>')">
                     <span class="qa-icon"><i class="fas fa-trash"></i></span>
                     Eliminar Curso
                 </button>
@@ -527,9 +527,9 @@ body { background: var(--surface); color: var(--text-primary); }
             <div class="ci-card-body" style="padding-top:.75rem;padding-bottom:.75rem;">
                 <?php
                     $classModel = new \App\Models\ClassModel();
-                    $totalClasses = $classModel->where('course_id', $course->id)->countAllResults();
+                    $totalClasses = $classModel->where('course_id', $course['id'])->countAllResults();
                     $enrollmentModel = new \App\Models\EnrollmentModel();
-                    $totalEnrollments = $enrollmentModel->where('course_id', $course->id)->countAllResults();
+                    $totalEnrollments = $enrollmentModel->where('course_id', $course['id'])->countAllResults();
                 ?>
                 <div class="stat-list-item">
                     <div class="stat-list-label">
@@ -571,7 +571,7 @@ body { background: var(--surface); color: var(--text-primary); }
             <i class="fas fa-book-open"></i>
             Currículo por Nível
         </div>
-        <a href="<?= site_url('admin/courses/curriculum/' . $course->id) ?>"
+        <a href="<?= site_url('admin/courses/curriculum/' . $course['id']) ?>"
            style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:.38rem .9rem;font-size:.78rem;font-weight:600;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;box-shadow:0 3px 8px rgba(59,127,232,.28);transition:all .18s;"
            onmouseover="this.style.background='var(--accent-hover)'"
            onmouseout="this.style.background='var(--accent)'">
@@ -660,7 +660,7 @@ body { background: var(--surface); color: var(--text-primary); }
                 <i class="fas fa-book-open"></i>
                 <strong>Nenhuma disciplina atribuída</strong>
                 <p>Este curso ainda não tem disciplinas no currículo.</p>
-                <a href="<?= site_url('admin/courses/curriculum/' . $course->id) ?>"
+                <a href="<?= site_url('admin/courses/curriculum/' . $course['id']) ?>"
                    class="qa-btn primary" style="width:auto;display:inline-flex;">
                     <span class="qa-icon"><i class="fas fa-plus-circle"></i></span>
                     Adicionar Disciplinas

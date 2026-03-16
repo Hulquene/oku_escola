@@ -122,8 +122,8 @@
                     <option value="0">Ensino Geral</option>
                     <?php if (!empty($courses)): ?>
                         <?php foreach ($courses as $course): ?>
-                            <option value="<?= $course->id ?>" <?= ($selectedCourse ?? '') == $course->id ? 'selected' : '' ?>>
-                                <?= $course['course_name'] ?> (<?= $course->course_code ?>)
+                            <option value="<?= $course['id'] ?>" <?= ($selectedCourse ?? '') == $course['id'] ? 'selected' : '' ?>>
+                                <?= $course['course_name'] ?> (<?= $course['course_code'] ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
