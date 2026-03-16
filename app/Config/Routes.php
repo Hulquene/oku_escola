@@ -429,6 +429,13 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
             $routes->get('delete/(:num)', [Enrollments::class, 'delete/$1'], ["as" => 'students.enrollments.delete']);
             $routes->get('get-classes-by-year/(:num)', [Enrollments::class, 'getClassesByYear/$1'], ['as' => 'students.enrollments.get-classes-by-year']);
         });
+
+        // Encarregados de Educação
+        $routes->group('guardians', function ($routes) {
+        $routes->get('', [StudentGuardians::class, 'index'], ["as" => 'students.guardians']);
+        $routes->post('save', [StudentGuardians::class, 'save'], ["as" => 'students.guardians.save']);
+        $routes->get('get-by-student/(:num)', [StudentGuardians::class, 'getByStudent'], ["as" => 'students.guardians.get/$1']);
+        });
     });
 
     /**
