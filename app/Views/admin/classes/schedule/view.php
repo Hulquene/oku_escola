@@ -766,7 +766,7 @@ body { background: var(--surface); }
                 <select name="discipline_id" class="form-select" required>
                     <option value="">Selecione...</option>
                     <?php foreach ($disciplines as $disc): ?>
-                        <option value="<?= $disc->discipline_id ?>">
+                        <option value="<?= $disc['discipline_id'] ?>">
                             <?= $disc['discipline_name'] ?> (<?= $disc['discipline_code'] ?>)
                         </option>
                     <?php endforeach; ?>

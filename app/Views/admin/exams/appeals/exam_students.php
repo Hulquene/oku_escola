@@ -158,7 +158,7 @@
                     <div class="col-md-6">
                         <p class="mb-1"><strong>Notas Registadas:</strong> <?= count($results) ?></p>
                         <p class="mb-1"><strong>Aprovados no Recurso:</strong> 
-                            <?= count(array_filter($results, fn($r) => $r->score >= 10)) ?></p>
+                            <?= count(array_filter($results, fn($r) => $r['score'] >= 10)) ?></p>
                     </div>
                 </div>
             </div>

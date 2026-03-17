@@ -238,8 +238,8 @@
 <?php else: ?>
 <div class="row">
     <?php foreach ($classes as $class): 
-        $progress = $class['total_alunos'] > 0 ? round(($class->alunos_com_notas / $class['total_alunos']) * 100) : 0;
-        $canApprove = ($class['total_alunos'] > 0 && $class->alunos_com_notas == $class['total_alunos']);
+        $progress = $class['total_alunos'] > 0 ? round(($class['alunos_com_notas'] / $class['total_alunos']) * 100) : 0;
+        $canApprove = ($class['total_alunos'] > 0 && $class['alunos_com_notas'] == $class['total_alunos']);
         $statusClass = $canApprove ? 'ready' : 'pending';
         $statusText = $canApprove ? 'Pronto para aprovação' : 'Aguardando notas';
     ?>
@@ -271,7 +271,7 @@
                     <div class="stat-label">Total Alunos</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value"><?= $class->alunos_com_notas ?></div>
+                    <div class="stat-value"><?= $class['alunos_com_notas'] ?></div>
                     <div class="stat-label">Com Notas</div>
                 </div>
             </div>
@@ -283,9 +283,9 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <small class="text-muted">Progresso: <?= $progress ?>%</small>
-                    <?php if (!$canApprove && $class->alunos_com_notas < $class['total_alunos']): ?>
+                    <?php if (!$canApprove && $class['alunos_com_notas'] < $class['total_alunos']): ?>
                     <small class="text-warning">
-                        <i class="fas fa-clock me-1"></i> <?= $class['total_alunos'] - $class->alunos_com_notas ?> pendentes
+                        <i class="fas fa-clock me-1"></i> <?= $class['total_alunos'] - $class['alunos_com_notas'] ?> pendentes
                     </small>
                     <?php endif; ?>
                 </div>
@@ -315,7 +315,7 @@
                     <?php 
                     $prontas = 0;
                     foreach ($classes as $c) {
-                        if ($c->total_alunos > 0 && $c->alunos_com_notas == $c->total_alunos) $prontas++;
+                        if ($c['total_alunos'] > 0 && $c['alunos_com_notas'] == $c['total_alunos']) $prontas++;
                     }
                     ?>
                     <h5 class="fw-bold text-success"><?= $prontas ?></h5>
@@ -327,7 +327,7 @@
                     <?php 
                     $pendentes = 0;
                     foreach ($classes as $c) {
-                        if ($c->total_alunos > 0 && $c->alunos_com_notas < $c->total_alunos) $pendentes++;
+                        if ($c['total_alunos'] > 0 && $c['alunos_com_notas'] < $c['total_alunos']) $pendentes++;
                     }
                     ?>
                     <h5 class="fw-bold text-warning"><?= $pendentes ?></h5>
@@ -340,8 +340,8 @@
                     $totalAlunos = 0;
                     $totalComNotas = 0;
                     foreach ($classes as $c) {
-                        $totalAlunos += $c->total_alunos;
-                        $totalComNotas += $c->alunos_com_notas;
+                        $totalAlunos += $c['total_alunos'];
+                        $totalComNotas += $c['alunos_com_notas'];
                     }
                     $mediaProgresso = $totalAlunos > 0 ? round(($totalComNotas / $totalAlunos) * 100) : 0;
                     ?>

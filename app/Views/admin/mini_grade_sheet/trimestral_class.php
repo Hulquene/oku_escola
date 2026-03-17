@@ -2,55 +2,66 @@
 
 <?= $this->section('content') ?>
 
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1>Pauta Trimestral - <?= $class['class_name'] ?></h1>
+<!-- Page Header com estilo do sistema -->
+<div class="ci-page-header">
+    <div class="ci-page-header-inner">
         <div>
+            <h1><i class="fas fa-file-alt me-2"></i>Pauta Trimestral - <?= $class['class_name'] ?></h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet') ?>">Mini Pautas</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>">Pautas Trimestrais</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?= $class['class_name'] ?></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="hdr-actions">
             <a href="<?= site_url('admin/mini-grade-sheet/exportTrimestral/' . $class['id'] . '?semester=' . $semester['id']) ?>" 
-               class="btn btn-success me-2">
-                <i class="fas fa-file-excel"></i> Exportar Excel
+               class="hdr-btn success">
+                <i class="fas fa-file-excel me-1"></i> Exportar Excel
             </a>
-            <a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" class="btn btn-info">
-                <i class="fas fa-arrow-left"></i> Voltar
+            <a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>" class="hdr-btn info">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
     </div>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet') ?>">Mini Pautas</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>">Pautas Trimestrais</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $class['class_name'] ?></li>
-        </ol>
-    </nav>
+    <div class="mt-2">
+        <span class="badge-ci info">
+            <i class="fas fa-calendar-alt me-1"></i>
+            <?= $semester['semester_name'] ?> • <?= $class['year_name'] ?>
+        </span>
+    </div>
 </div>
 
-<!-- Informações -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informações</h5>
+<!-- Alertas -->
+<?= view('admin/partials/alerts') ?>
+
+<!-- Informações da Pauta -->
+<div class="ci-card mb-4">
+    <div class="ci-card-header" style="background: var(--primary);">
+        <div class="ci-card-title" style="color: #fff;">
+            <i class="fas fa-info-circle me-2"></i>
+            <span>Informações da Pauta</span>
+        </div>
+    </div>
+    <div class="ci-card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="info-label">Ano Letivo</div>
+                <div class="info-value fw-semibold"><?= $class['year_name'] ?></div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <strong>Ano Letivo:</strong>
-                        <p><?= $class['year_name'] ?></p>
-                    </div>
-                    <div class="col-md-3">
-                        <strong>Turma:</strong>
-                        <p><?= $class['class_name'] ?></p>
-                    </div>
-                    <div class="col-md-3">
-                        <strong>Nível:</strong>
-                        <p><?= $class['level_name'] ?></p>
-                    </div>
-                    <div class="col-md-3">
-                        <strong>Trimestre:</strong>
-                        <p><?= $semester['semester_name'] ?></p>
-                    </div>
-                </div>
+            <div class="col-md-3">
+                <div class="info-label">Turma</div>
+                <div class="info-value fw-semibold"><?= $class['class_name'] ?></div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-label">Nível</div>
+                <div class="info-value fw-semibold"><?= $class['level_name'] ?></div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-label">Trimestre</div>
+                <div class="info-value fw-semibold"><?= $semester['semester_name'] ?></div>
             </div>
         </div>
     </div>
@@ -75,7 +86,7 @@
                         <?php foreach ($disciplinas as $disc): ?>
                             <th class="text-center" title="<?= $disc['discipline_name'] ?>">
                                 <?= $disc['discipline_code'] ?><br>
-                                <small><?= $disc->teacher_first_name ? substr($disc->teacher_first_name, 0, 1) . '.' : '' ?></small>
+                                <small><?= $disc['teacher_first_name'] ? substr($disc['teacher_first_name'], 0, 1) . '.' : '' ?></small>
                             </th>
                         <?php endforeach; ?>
                     </tr>
@@ -93,14 +104,14 @@
                                 </td>
                                 
                                 <?php foreach ($disciplinas as $disc): ?>
-                                    <?php $nota = $aluno->notas[$disc->discipline_id] ?? '—'; ?>
+                                    <?php $nota = $aluno['notas'][$disc['discipline_id']] ?? '—'; ?>
                                     <td class="text-center <?= $nota !== '—' ? ($nota >= 10 ? 'table-success' : ($nota >= 7 ? 'table-warning' : 'table-danger')) : '' ?>">
                                         <strong><?= $nota ?></strong>
                                     </td>
                                 <?php endforeach; ?>
                                 
                                 <td class="text-center">
-                                    <strong><?= $aluno->media_geral ?></strong>
+                                    <strong><?= $aluno['media_geral'] ?></strong>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

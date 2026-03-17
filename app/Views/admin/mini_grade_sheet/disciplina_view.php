@@ -2,64 +2,78 @@
 
 <?= $this->section('content') ?>
 
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1>Pauta da Disciplina: <?= $discipline['discipline_name'] ?></h1>
+<!-- Page Header com estilo do sistema -->
+<div class="ci-page-header">
+    <div class="ci-page-header-inner">
         <div>
+            <h1><i class="fas fa-book-open me-2"></i>Pauta da Disciplina: <?= $discipline['discipline_name'] ?></h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet') ?>">Mini Pautas</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>">Pautas por Disciplina</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?= $discipline['discipline_code'] ?></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="hdr-actions">
             <a href="<?= site_url('admin/mini-grade-sheet/exportDisciplina/' . $class['id'] . '/' . $discipline['id']) ?>" 
-               class="btn btn-success me-2">
-                <i class="fas fa-file-excel"></i> Exportar Excel
+               class="hdr-btn success">
+                <i class="fas fa-file-excel me-1"></i> Exportar Excel
             </a>
-            <a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" class="btn btn-info">
-                <i class="fas fa-arrow-left"></i> Voltar
+            <a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" class="hdr-btn info">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
     </div>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet') ?>">Mini Pautas</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>">Pautas por Disciplina</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $discipline['discipline_code'] ?></li>
-        </ol>
-    </nav>
 </div>
 
-<!-- Informações -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Informações</h5>
+<!-- Alertas -->
+<?= view('admin/partials/alerts') ?>
+
+<!-- Informações da Pauta -->
+<div class="ci-card mb-4">
+    <div class="ci-card-header" style="background: var(--primary);">
+        <div class="ci-card-title" style="color: #fff;">
+            <i class="fas fa-info-circle me-2"></i>
+            <span>Informações da Pauta</span>
+        </div>
+    </div>
+    <div class="ci-card-body">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="info-label">Ano Letivo</div>
+                <div class="info-value fw-semibold"><?= $class['year_name'] ?></div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <strong>Ano Letivo:</strong>
-                        <p><?= $class['year_name'] ?></p>
-                    </div>
-                    <div class="col-md-3">
-                        <strong>Turma:</strong>
-                        <p><?= $class['class_name'] ?></p>
-                    </div>
-                    <div class="col-md-3">
-                        <strong>Nível:</strong>
-                        <p><?= $class['level_name'] ?></p>
-                    </div>
-                    <div class="col-md-3">
-                        <strong>Disciplina:</strong>
-                        <p><?= $discipline['discipline_name'] ?> (<?= $discipline['discipline_code'] ?>)</p>
-                    </div>
+            <div class="col-md-3">
+                <div class="info-label">Turma</div>
+                <div class="info-value fw-semibold"><?= $class['class_name'] ?></div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-label">Nível</div>
+                <div class="info-value fw-semibold"><?= $class['level_name'] ?></div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-label">Disciplina</div>
+                <div class="info-value fw-semibold"><?= $discipline['discipline_name'] ?> <span class="code-badge ms-1"><?= $discipline['discipline_code'] ?></span></div>
+            </div>
+        </div>
+        <div class="row g-3 mt-2">
+            <div class="col-md-6">
+                <div class="info-label">Professor</div>
+                <div class="info-value fw-semibold">
+                    <?php if (!empty($teacher['first_name']) && !empty($teacher['last_name'])): ?>
+                        <i class="fas fa-chalkboard-teacher text-accent me-1"></i>
+                        <?= $teacher['first_name'] . ' ' . $teacher['last_name'] ?>
+                    <?php else: ?>
+                        <span class="badge-ci secondary">Não atribuído</span>
+                    <?php endif; ?>
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <strong>Professor:</strong>
-                        <p><?= ($teacher['first_name'] ?? 'Não') . ' ' . ($teacher['last_name'] ?? 'atribuído') ?></p>
-                    </div>
-                    <div class="col-md-4">
-                        <strong>Total de Alunos:</strong>
-                        <p><?= count($alunos) ?></p>
-                    </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-label">Total de Alunos</div>
+                <div class="info-value fw-semibold">
+                    <span class="badge-ci primary"><?= count($alunos) ?></span>
                 </div>
             </div>
         </div>

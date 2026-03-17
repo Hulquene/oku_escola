@@ -44,7 +44,7 @@
                         <option value="">Selecione</option>
                         <?php foreach ($semesters as $sem): ?>
                             <option value="<?= $sem['id'] ?>" <?= ($selectedSemester ?? '') == $sem['id'] ? 'selected' : '' ?>>
-                                <?= $sem['semester_name'] ?> (<?= date('d/m/Y', strtotime($sem['start_date'])) ?> - <?= date('d/m/Y', strtotime($sem->end_date)) ?>)
+                                <?= $sem['semester_name'] ?> (<?= date('d/m/Y', strtotime($sem['start_date'])) ?> - <?= date('d/m/Y', strtotime($sem['end_date'])) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>

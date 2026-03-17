@@ -266,7 +266,7 @@ body { background:var(--surface); color:var(--text-primary); }
                             <td style="font-weight:600;"><?= esc($sem['semester_name']) ?></td>
                             <td><span class="type-badge"><?= esc($sem->semester_type) ?></span></td>
                             <td style="font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--text-secondary);">
-                                <?= date('d/m/Y', strtotime($sem['start_date'])) ?> → <?= date('d/m/Y', strtotime($sem->end_date)) ?>
+                                <?= date('d/m/Y', strtotime($sem['start_date'])) ?> → <?= date('d/m/Y', strtotime($sem['end_date'])) ?>
                             </td>
                             <td>
                                 <div style="display:flex;gap:.3rem;flex-wrap:wrap;">

@@ -131,7 +131,7 @@
                             ->where('exam_schedule_id', $exam['id'])
                             ->findAll();
                         
-                        $approved = count(array_filter($results, fn($r) => $r->score >= 10));
+                        $approved = count(array_filter($results, fn($r) => $r['score'] >= 10));
                         $failed = count($results) - $approved;
                         ?>
                         <tr>

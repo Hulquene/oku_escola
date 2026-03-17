@@ -690,7 +690,7 @@ public function trimestral()
         
         // Para cada aluno, buscar notas das disciplinas
         foreach ($data['alunos'] as $aluno) {
-            $aluno->notas = [];
+            $aluno['notas'] = [];
             $somaNotas = 0;
             $disciplinasCount = 0;
             
@@ -700,12 +700,12 @@ public function trimestral()
                     ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
                     ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
                     ->where('tbl_exam_results.enrollment_id', $aluno['enrollment_id'])
-                    ->where('tbl_exam_schedules.discipline_id', $disciplina->discipline_id)
+                    ->where('tbl_exam_schedules.discipline_id', $disciplina['discipline_id'])
                     ->where('tbl_exam_periods.semester_id', $semesterId)
                     ->first();
                 
                 $nota = $avg && $avg->media ? round($avg->media, 1) : '—';
-                $aluno->notas[$disciplina->discipline_id] = $nota;
+                $aluno['notas'][$disciplina['discipline_id']] = $nota;
                 
                 if ($nota !== '—') {
                     $somaNotas += $nota;
@@ -713,12 +713,15 @@ public function trimestral()
                 }
             }
             
-            $aluno->media_geral = $disciplinasCount > 0 ? round($somaNotas / $disciplinasCount, 1) : '—';
+            $aluno['media_geral'] = $disciplinasCount > 0 ? round($somaNotas / $disciplinasCount, 1) : '—';
         }
         
         return view('admin/mini_grade_sheet/trimestral_class', $data);
     } */
     /**
+ * Visualizar pauta trimestral de uma turma
+ */
+/**
  * Visualizar pauta trimestral de uma turma
  */
 public function trimestralClass($classId, $semesterId = null)
@@ -750,7 +753,7 @@ public function trimestralClass($classId, $semesterId = null)
     $data['semester'] = $this->semesterModel->find($semesterId);
     
     // Buscar alunos da turma
-    $data['alunos'] = $this->enrollmentModel
+    $alunos = $this->enrollmentModel
         ->select('
             tbl_enrollments.id as enrollment_id,
             tbl_students.id as student_id,
@@ -767,7 +770,7 @@ public function trimestralClass($classId, $semesterId = null)
         ->findAll();
     
     // Buscar disciplinas da turma
-    $data['disciplinas'] = $this->classDisciplineModel
+    $disciplinas = $this->classDisciplineModel
         ->select('
             tbl_class_disciplines.*,
             tbl_disciplines.discipline_name,
@@ -782,20 +785,22 @@ public function trimestralClass($classId, $semesterId = null)
         ->orderBy('tbl_disciplines.discipline_name', 'ASC')
         ->findAll();
     
-    // Para cada aluno, buscar notas das disciplinas
-    foreach ($data['alunos'] as $aluno) {
-        $aluno->notas = [];
+    // Processar alunos e suas notas
+    $alunosProcessados = [];
+    foreach ($alunos as $aluno) {
+        $alunoArray = (array)$aluno;
+        $alunoArray['notas'] = [];
         $somaNotas = 0;
         $disciplinasCount = 0;
         
-        foreach ($data['disciplinas'] as $disciplina) {
+        foreach ($disciplinas as $disciplina) {
             // Buscar notas para esta disciplina no trimestre selecionado
             $resultados = $this->examResultModel
                 ->select('tbl_exam_results.*')
                 ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
                 ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
                 ->where('tbl_exam_results.enrollment_id', $aluno['enrollment_id'])
-                ->where('tbl_exam_schedules.discipline_id', $disciplina->discipline_id)
+                ->where('tbl_exam_schedules.discipline_id', $disciplina['discipline_id'])
                 ->where('tbl_exam_periods.semester_id', $semesterId)
                 ->findAll();
             
@@ -803,19 +808,23 @@ public function trimestralClass($classId, $semesterId = null)
             if (!empty($resultados)) {
                 $soma = 0;
                 foreach ($resultados as $r) {
-                    $soma += $r->score;
+                    $soma += $r['score'];
                 }
                 $nota = round($soma / count($resultados), 1);
-                $aluno->notas[$disciplina->discipline_id] = $nota;
+                $alunoArray['notas'][$disciplina['discipline_id']] = $nota;
                 $somaNotas += $nota;
                 $disciplinasCount++;
             } else {
-                $aluno->notas[$disciplina->discipline_id] = '—';
+                $alunoArray['notas'][$disciplina['discipline_id']] = '—';
             }
         }
         
-        $aluno->media_geral = $disciplinasCount > 0 ? round($somaNotas / $disciplinasCount, 1) : '—';
+        $alunoArray['media_geral'] = $disciplinasCount > 0 ? round($somaNotas / $disciplinasCount, 1) : '—';
+        $alunosProcessados[] = $alunoArray;
     }
+    
+    $data['alunos'] = $alunosProcessados;
+    $data['disciplinas'] = $disciplinas;
     
     return view('admin/mini_grade_sheet/trimestral_class', $data);
 }
@@ -1010,7 +1019,7 @@ public function disciplina()
                 ];
             }
             
-            $tipo = $result->assessment_type;
+            $tipo = $result['assessment_type'];
             if (in_array($tipo, ['AC', 'NPP', 'NPT'])) {
                 $data['resultados'][$enrollmentId][$trimestre][$tipo] = $result['score'];
             }
@@ -1144,7 +1153,7 @@ public function disciplinaView($classId, $disciplineId)
         ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
         ->join('tbl_semesters', 'tbl_semesters.id = tbl_exam_periods.semester_id')
         ->where('tbl_exam_schedules.class_id', $classId)
-        ->where('tbl_exam_schedules.discipline_id', $data['discipline']->discipline_id)  // Usa o discipline_id da class_disciplines
+        ->where('tbl_exam_schedules.discipline_id', $data['discipline']['discipline_id'])  // Usa o discipline_id da class_disciplines
         ->orderBy('tbl_semesters.start_date', 'ASC')
         ->findAll();
     
@@ -1168,7 +1177,7 @@ public function disciplinaView($classId, $disciplineId)
             ];
         }
         
-        $tipo = $result->assessment_type;
+        $tipo = $result['assessment_type'];
         if (in_array($tipo, ['AC', 'NPP', 'NPT'])) {
             $data['resultados'][$enrollmentId][$trimestre][$tipo] = $result['score'];
         }

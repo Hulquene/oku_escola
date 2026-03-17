@@ -480,9 +480,9 @@ textarea.form-control {
                     <select name="discipline_id" class="form-select" required>
                         <option value="">Selecione uma disciplina...</option>
                         <?php foreach ($disciplines as $disc): ?>
-                            <option value="<?= $disc->discipline_id ?>" 
-                                <?= isset($schedule) && $schedule['discipline_id'] == $disc->discipline_id ? 'selected' : '' ?>
-                                <?= old('discipline_id') == $disc->discipline_id ? 'selected' : '' ?>>
+                            <option value="<?= $disc['discipline_id'] ?>" 
+                                <?= isset($schedule) && $schedule['discipline_id'] == $disc['discipline_id'] ? 'selected' : '' ?>
+                                <?= old('discipline_id') == $disc['discipline_id'] ? 'selected' : '' ?>>
                                 <?= $disc['discipline_name'] ?> (<?= $disc['discipline_code'] ?>)
                             </option>
                         <?php endforeach; ?>
