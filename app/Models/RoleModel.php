@@ -17,7 +17,6 @@ class RoleModel extends BaseModel
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
     
-    protected $returnType = 'object';
     protected $useSoftDeletes = false;
     
     protected $validationRules = [

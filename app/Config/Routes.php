@@ -505,6 +505,9 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
             
             // Filtros AJAX
             $routes->get('get-students-by-class/(:num)', [StudentGuardians::class, 'getStudentsByClass/$1'], ['as' => 'students.guardians.get-students-by-class']);
+
+            // No grupo 'guardians', adicione:
+            $routes->post('create-user', [StudentGuardians::class, 'createUser'], ['as' => 'students.guardians.create-user']);
         });
     });
 

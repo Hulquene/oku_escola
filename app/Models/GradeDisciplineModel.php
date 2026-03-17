@@ -12,7 +12,6 @@ class GradeDisciplineModel extends Model
     
     protected $useAutoIncrement = true;
     
-    protected $returnType = 'object'; // Pode ser 'array' ou 'object'
     protected $useSoftDeletes = false; // Não usamos soft delete
     
     protected $allowedFields = [

@@ -229,7 +229,7 @@
                                 </td>
                                 <td class="center">
                                     <span class="badge-ci primary" style="font-size: 0.75rem;">
-                                        <?= $guardian['student_count ']?? 0 ?>
+                                        <?= $guardian['student_count']?? 0 ?>
                                     </span>
                                 </td>
                                 <td class="center">
@@ -286,6 +286,20 @@
                                                 title="Eliminar">
                                             <i class="fas fa-trash"></i>
                                         </button>
+                                        <?php endif; ?>
+                                        <!-- Dentro da div action-group, após os botões existentes -->
+                                        <?php if (empty($guardian['user_id'])): ?>
+                                            <button type="button" class="row-btn success" 
+                                                    onclick="createUser(<?= $guardian['id'] ?>, '<?= $guardian['full_name'] ?>', '<?= $guardian['email'] ?>', '<?= $guardian['phone'] ?>')"
+                                                    title="Criar usuário">
+                                                <i class="fas fa-user-plus"></i>
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" class="row-btn secondary" 
+                                                    onclick="viewUser(<?= $guardian['user_id'] ?>)"
+                                                    title="Ver usuário (ID: <?= $guardian['user_id'] ?>)">
+                                                <i class="fas fa-user-check"></i>
+                                            </button>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -582,7 +596,7 @@
                                                     <?= $student['name']?? $student['first_name'] . ' ' . $student['last_name'] ?>
                                                 </div>
                                             </td>
-                                            <td><?= $student->class_name ?? '-' ?></td>
+                                            <td><?= $student['class_name'] ?? '-' ?></td>
                                             <td><span class="code-badge"><?= $student['student_number'] ?></span></td>
                                             <td>
                                                 <?php if ($student['is_active']): ?>
@@ -632,6 +646,79 @@
     </div>
 </div>
 
+<!-- Modal para Criar Usuário -->
+<div class="modal fade ci-modal" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--success);">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Criar Usuário para Encarregado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createUserForm">
+                <?= csrf_field() ?>
+                <input type="hidden" name="guardian_id" id="userGuardianId">
+                
+                <div class="modal-body">
+                    <div class="alert-ci info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Será criado um usuário para <strong id="userGuardianName"></strong> com acesso à área de encarregados.
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="filter-label">Nome de Usuário</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-input-ci" id="username" name="username" 
+                                   placeholder="nome.sobrenome" required>
+                        </div>
+                        <small class="form-text text-muted">Nome de usuário para login</small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="filter-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-input-ci" id="userEmail" name="email" 
+                                   placeholder="email@exemplo.com" required>
+                        </div>
+                        <small class="form-text text-muted">Email para login e recuperação</small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label class="filter-label">Senha</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="text" class="form-input-ci" id="userPassword" name="password" 
+                                   value="<?= bin2hex(random_bytes(4)) ?>" required readonly>
+                            <button type="button" class="btn-filter clear" onclick="generatePassword()" 
+                                    style="border-radius: 0 10px 10px 0; margin: 0;">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">Senha gerada automaticamente</small>
+                    </div>
+                    
+                    <div class="alert-ci warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Atenção:</strong> Guarde esta senha para fornecer ao encarregado.
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-filter clear" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn-filter success" id="createUserBtn">
+                        <i class="fas fa-save me-2"></i>Criar Usuário
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
@@ -942,6 +1029,106 @@ $(document).ready(function() {
         var input = $(this).prev('input');
         if (input.is(':checked')) {
             $(this).addClass('checked');
+        }
+    });
+});
+</script>
+<script>
+// Função para criar usuário
+function createUser(guardianId, guardianName, email, phone) {
+    $('#userGuardianId').val(guardianId);
+    $('#userGuardianName').text(guardianName);
+    
+    // Sugerir username baseado no nome
+    var nameParts = guardianName.toLowerCase().split(' ');
+    var username = nameParts[0] + '.' + nameParts[nameParts.length - 1];
+    username = username.replace(/[^a-z0-9.]/g, '');
+    $('#username').val(username);
+    
+    // Sugerir email baseado no email existente ou gerar
+    if (email) {
+        $('#userEmail').val(email);
+    } else {
+        $('#userEmail').val(username + '@escola.ao');
+    }
+    
+    // Gerar senha aleatória
+    generatePassword();
+    
+    $('#createUserModal').modal('show');
+}
+
+// Função para gerar senha aleatória
+function generatePassword() {
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var password = "";
+    for (var i = 0; i < 8; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    $('#userPassword').val(password);
+}
+
+// Função para visualizar usuário
+function viewUser(userId) {
+    window.location.href = '<?= site_url('admin/users/view/') ?>' + userId;
+}
+
+// Processar formulário de criação de usuário
+$('#createUserForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    var form = $(this);
+    var data = form.serialize();
+    
+    $.ajax({
+        url: '<?= site_url('admin/students/guardians/create-user') ?>',
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        beforeSend: function() {
+            $('#createUserBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processando...');
+        },
+        success: function(response) {
+            if (response.success) {
+                // Fechar modal
+                $('#createUserModal').modal('hide');
+                
+                // Mostrar mensagem de sucesso com as credenciais
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Usuário criado com sucesso!',
+                    html: `
+                        <strong>Usuário:</strong> ${response.username}<br>
+                        <strong>Senha:</strong> <span class="text-success">${response.password}</span><br>
+                        <small class="text-muted">Anote estas credenciais para entregar ao encarregado.</small>
+                    `,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: response.message
+                });
+            }
+        },
+        error: function(xhr) {
+            var message = 'Erro ao processar requisição';
+            try {
+                var response = JSON.parse(xhr.responseText);
+                message = response.message || message;
+            } catch(e) {}
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: message
+            });
+        },
+        complete: function() {
+            $('#createUserBtn').prop('disabled', false).html('<i class="fas fa-save me-2"></i>Criar Usuário');
         }
     });
 });

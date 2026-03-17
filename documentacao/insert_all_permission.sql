@@ -483,6 +483,8 @@ WHERE permission_key IN (
     'guardians.view_students'
 );
 
+INSERT INTO tbl_permissions (permission_name, permission_key, module) 
+VALUES ('Criar Usuário para Encarregado', 'guardians.create_user', 'guardians');
 -- --------------------------------------------------------
 -- VERIFICAR PERMISSÕES INSERIDAS
 -- --------------------------------------------------------

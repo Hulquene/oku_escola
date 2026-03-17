@@ -9,7 +9,6 @@ class ScheduleModel extends Model
     protected $table = 'tbl_schedules';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType = 'object';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [

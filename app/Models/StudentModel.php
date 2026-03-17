@@ -217,36 +217,33 @@ class StudentModel extends BaseModel
     
     /**
      * Get student fees summary
+     * @param int $studentId ID do estudante
+     * @return array Resumo das taxas do estudante
      */
     public function getFeesSummary($studentId)
     {
         $db = db_connect();
         
-        $builder = $db->table('tbl_student_fees sf');
-        $builder->select('
+        $result = $db->table('tbl_student_fees sf')
+            ->select('
                 SUM(CASE WHEN sf.status = "Pago" THEN sf.total_amount ELSE 0 END) as paid,
                 SUM(CASE WHEN sf.status IN ("Pendente", "Vencido") THEN sf.total_amount ELSE 0 END) as pending,
                 COUNT(*) as total_fees,
                 SUM(CASE WHEN sf.status = "Vencido" THEN 1 ELSE 0 END) as overdue
             ')
             ->join('tbl_enrollments e', 'e.id = sf.enrollment_id')
-            ->where('e.student_id', $studentId);
+            ->where('e.student_id', $studentId)
+            ->get()
+            ->getRowArray();
         
-        $result = $builder->get()->getRow();
-        
-        // Garantir que o resultado não seja nulo
-        if (!$result) {
-            return (object)[
-                'paid' => 0,
-                'pending' => 0,
-                'total_fees' => 0,
-                'overdue' => 0
-            ];
-        }
-        
-        return $result;
+        return [
+            'paid' => (float)($result['paid'] ?? 0),
+            'pending' => (float)($result['pending'] ?? 0),
+            'total_fees' => (int)($result['total_fees'] ?? 0),
+            'overdue' => (int)($result['overdue'] ?? 0)
+        ];
     }
-    
+        
     /**
      * Count active students
      */
