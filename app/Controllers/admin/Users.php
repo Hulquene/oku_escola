@@ -180,7 +180,7 @@ public function save()
     
     // Buscar role para obter o role_type
     $role = $this->roleModel->find($data['role_id']);
-    if ($role && $role->role_type == 'admin') {
+    if ($role && $role['role_type'] == 'admin') {
         $data['user_type'] = 'admin';
     }
     

@@ -51,7 +51,7 @@
                 <i class="fas fa-link"></i> Ações Rápidas
             </div>
             <div class="list-group list-group-flush">
-                <a href="<?= site_url('admin/users/form-edit/' . $user->id) ?>" class="list-group-item list-group-item-action">
+                <a href="<?= site_url('admin/users/form-edit/' . $user['id']) ?>" class="list-group-item list-group-item-action">
                     <i class="fas fa-edit text-primary"></i> Editar Perfil
                 </a>
                 <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#passwordModal">
@@ -100,7 +100,7 @@
                             </tr>
                             <tr>
                                 <th>Tipo:</th>
-                                <td><span class="badge bg-primary"><?= ucfirst($user->user_type) ?></span></td>
+                                <td><span class="badge bg-primary"><?= ucfirst($user['user_type']) ?></span></td>
                             </tr>
                             <tr>
                                 <th>Membro desde:</th>
@@ -131,7 +131,7 @@
             <div class="card-body">
                 <?php
                 $logModel = new \App\Models\UserLogModel();
-                $logs = $logModel->getUserLogs($user->id, 10);
+                $logs = $logModel->getUserLogs($user['id'], 10);
                 ?>
                 
                 <?php if (!empty($logs)): ?>

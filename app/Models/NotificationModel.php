@@ -153,7 +153,7 @@ class NotificationModel extends BaseModel
         $insertData = [];
         foreach ($users as $user) {
             $insertData[] = [
-                'user_id' => $user->id,
+                'user_id' => $user['id'],
                 'user_type' => $userType,
                 'title' => $data['title'] ?? '',
                 'message' => $data['message'] ?? '',
@@ -187,8 +187,8 @@ class NotificationModel extends BaseModel
         $insertData = [];
         foreach ($users as $user) {
             $insertData[] = [
-                'user_id' => $user->id,
-                'user_type' => $user->user_type,
+                'user_id' => $user['id'],
+                'user_type' => $user['user_type'],
                 'title' => $data['title'] ?? '',
                 'message' => $data['message'] ?? '',
                 'icon' => $data['icon'] ?? 'fa-info-circle',

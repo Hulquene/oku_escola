@@ -51,7 +51,7 @@ class RoleModel extends BaseModel
     public function isSystemRole($id)
     {
         $role = $this->find($id);
-        return $role && in_array($role->role_type, ['admin', 'teacher', 'student']);
+        return $role && in_array($role['role_type'], ['admin', 'teacher', 'student']);
     }
     
     /**

@@ -98,7 +98,7 @@ class Dashboard extends BaseController
                 ')
                 ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
                 ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
-                ->where('tbl_exam_schedules.class_id', $data['enrollment']->class_id)
+                ->where('tbl_exam_schedules.class_id', $data['enrollment']['class_id'])
                 ->where('tbl_exam_schedules.exam_date >=', date('Y-m-d'))
                 ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
                 ->limit(5)
@@ -116,7 +116,7 @@ class Dashboard extends BaseController
                 ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
                 ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
                 ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
-                ->where('tbl_exam_results.enrollment_id', $data['enrollment']->id)
+                ->where('tbl_exam_results.enrollment_id', $data['enrollment']['id'])
                 ->orderBy('tbl_exam_results.recorded_at', 'DESC')
                 ->limit(5)
                 ->findAll();
@@ -139,7 +139,7 @@ class Dashboard extends BaseController
                 ')
                 ->join('tbl_fee_structure', 'tbl_fee_structure.id = tbl_student_fees.fee_structure_id')
                 ->join('tbl_fee_types', 'tbl_fee_types.id = tbl_fee_structure.fee_type_id')
-                ->where('tbl_student_fees.enrollment_id', $data['enrollment']->id)
+                ->where('tbl_student_fees.enrollment_id', $data['enrollment']['id'])
                 ->whereIn('tbl_student_fees.status', ['Pendente', 'Vencido'])
                 ->orderBy('tbl_student_fees.due_date', 'ASC')
                 ->findAll();
@@ -150,7 +150,7 @@ class Dashboard extends BaseController
                     COUNT(*) as total,
                     SUM(CASE WHEN status IN ("Presente", "Atrasado", "Falta Justificada") THEN 1 ELSE 0 END) as present
                 ')
-                ->where('enrollment_id', $data['enrollment']->id)
+                ->where('enrollment_id', $data['enrollment']['id'])
                 ->where('attendance_date >=', date('Y-m-01'))
                 ->where('attendance_date <=', date('Y-m-t'))
                 ->first();
@@ -161,12 +161,12 @@ class Dashboard extends BaseController
             ];
             
             // Resumo financeiro
-            $data['financialSummary'] = $this->getFinancialSummary($data['enrollment']->id);
+            $data['financialSummary'] = $this->getFinancialSummary($data['enrollment']['id']);
             
             // Total de disciplinas do aluno
             $db = db_connect();
             $totalDisciplines = $db->table('tbl_class_disciplines')
-                ->where('class_id', $data['enrollment']->class_id)
+                ->where('class_id', $data['enrollment']['class_id'])
                 ->countAllResults();
             $data['totalDisciplines'] = $totalDisciplines;
             

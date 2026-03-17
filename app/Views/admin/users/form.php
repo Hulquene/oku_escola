@@ -135,7 +135,7 @@
                             <?php if (!empty($roles)): ?>
                                 <?php foreach ($roles as $role): ?>
                                     <option value="<?= $role->id ?>" 
-                                        <?= (old('role_id', $user->role_id ?? '') == $role->id) ? 'selected' : '' ?>>
+                                        <?= (old('role_id', $user['role_id'] ?? '') == $role->id) ? 'selected' : '' ?>>
                                         <?= $role->role_name ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -151,11 +151,11 @@
                     <div class="mb-3">
                         <label for="user_type" class="form-label">Tipo de Utilizador</label>
                         <select class="form-select" id="user_type" name="user_type">
-                            <option value="staff" <?= (old('user_type', $user->user_type ?? '') == 'staff') ? 'selected' : '' ?>>Staff</option>
-                            <option value="admin" <?= (old('user_type', $user->user_type ?? '') == 'admin') ? 'selected' : '' ?>>Administrador</option>
-                            <option value="teacher" <?= (old('user_type', $user->user_type ?? '') == 'teacher') ? 'selected' : '' ?>>Professor</option>
-                            <option value="student" <?= (old('user_type', $user->user_type ?? '') == 'student') ? 'selected' : '' ?>>Aluno</option>
-                            <option value="guardian" <?= (old('user_type', $user->user_type ?? '') == 'guardian') ? 'selected' : '' ?>>Encarregado</option>
+                            <option value="staff" <?= (old('user_type', $user['user_type'] ?? '') == 'staff') ? 'selected' : '' ?>>Staff</option>
+                            <option value="admin" <?= (old('user_type', $user['user_type'] ?? '') == 'admin') ? 'selected' : '' ?>>Administrador</option>
+                            <option value="teacher" <?= (old('user_type', $user['user_type'] ?? '') == 'teacher') ? 'selected' : '' ?>>Professor</option>
+                            <option value="student" <?= (old('user_type', $user['user_type'] ?? '') == 'student') ? 'selected' : '' ?>>Aluno</option>
+                            <option value="guardian" <?= (old('user_type', $user['user_type'] ?? '') == 'guardian') ? 'selected' : '' ?>>Encarregado</option>
                         </select>
                     </div>
                 </div>

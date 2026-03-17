@@ -110,15 +110,15 @@
                                         <div>
                                             <strong><?= $role->role_name ?></strong>
                                             
-                                            <?php if ($role->role_type == 'admin'): ?>
+                                            <?php if ($role['role_type'] == 'admin'): ?>
                                                 <span class="badge bg-warning ms-2">Administrador</span>
-                                            <?php elseif ($role->role_type == 'teacher'): ?>
+                                            <?php elseif ($role['role_type'] == 'teacher'): ?>
                                                 <span class="badge bg-info ms-2">Professor</span>
-                                            <?php elseif ($role->role_type == 'student'): ?>
+                                            <?php elseif ($role['role_type'] == 'student'): ?>
                                                 <span class="badge bg-success ms-2">Aluno</span>
                                             <?php endif; ?>
                                             
-                                            <?php if (in_array($role->role_type, ['admin', 'teacher', 'student'])): ?>
+                                            <?php if (in_array($role['role_type'], ['admin', 'teacher', 'student'])): ?>
                                                 <span class="badge bg-secondary ms-1">Sistema</span>
                                             <?php endif; ?>
                                         </div>
@@ -142,7 +142,7 @@
                                         </a>
                                         
                                         <!-- Proteger edição: não permitir editar perfis de sistema (admin, teacher, student) -->
-                                        <?php if (!in_array($role->role_type, ['admin', 'teacher', 'student']) && has_permission('roles.edit')): ?>
+                                        <?php if (!in_array($role['role_type'], ['admin', 'teacher', 'student']) && has_permission('roles.edit')): ?>
                                             <a href="<?= site_url('admin/roles/form/' . $role->id) ?>" 
                                             class="btn btn-sm btn-outline-info" 
                                             title="Editar"
@@ -152,7 +152,7 @@
                                         <?php endif; ?>
                                         
                                         <!-- Proteger exclusão: não permitir excluir perfis de sistema -->
-                                        <?php if (!in_array($role->role_type, ['admin', 'teacher', 'student']) && has_permission('roles.delete')): ?>
+                                        <?php if (!in_array($role['role_type'], ['admin', 'teacher', 'student']) && has_permission('roles.delete')): ?>
                                             <form action="<?= site_url('admin/roles/delete/' . $role->id) ?>" method="post" style="display: inline;">
                                                 <?= csrf_field() ?>
                                                 <button type="submit" 

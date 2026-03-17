@@ -1,6 +1,11 @@
 <?php
 // app/Helpers/auth_helper.php
 
+use App\Models\UserModel;
+use App\Models\StudentModel;
+use App\Models\TeacherModel;
+use App\Models\GuardianModel;
+
 if (!function_exists('currentUserId')) {
     /**
      * Retorna o ID do usuário logado
@@ -123,14 +128,14 @@ if (!function_exists('getStudentIdFromUser')) {
             return null;
         }
         
-        $db = db_connect();
-        $student = $db->table('tbl_students')
+        $studentModel = new StudentModel();
+        
+        $student = $studentModel
             ->select('id')
             ->where('user_id', $userId)
-            ->get()
-            ->getRow();
+            ->first();
         
-        return $student ? $student['id'] : null;
+        return $student ? ($student['id'] ?? null) : null;
     }
 }
 
@@ -146,14 +151,14 @@ if (!function_exists('getTeacherIdFromUser')) {
             return null;
         }
         
-        $db = db_connect();
-        $teacher = $db->table('tbl_teachers')
+        $teacherModel = new TeacherModel();
+        
+        $teacher = $teacherModel
             ->select('id')
             ->where('user_id', $userId)
-            ->get()
-            ->getRow();
+            ->first();
         
-        return $teacher ? $teacher['id'] : null;
+        return $teacher ? ($teacher['id'] ?? null) : null;
     }
 }
 
@@ -169,16 +174,17 @@ if (!function_exists('getGuardianIdFromUser')) {
             return null;
         }
         
-        $db = db_connect();
-        $guardian = $db->table('tbl_guardians')
+        $guardianModel = new GuardianModel();
+        
+        $guardian = $guardianModel
             ->select('id')
             ->where('user_id', $userId)
-            ->get()
-            ->getRow();
+            ->first();
         
-        return $guardian ?  $guardian['id'] : null;
+        return $guardian ? ($guardian['id'] ?? null) : null;
     }
 }
+
 if (!function_exists('getUserName')) {
     /**
      * Retorna o nome completo do usuário pelo ID
@@ -189,15 +195,14 @@ if (!function_exists('getUserName')) {
             return null;
         }
         
-        $db = db_connect();
-        $user = $db->table('tbl_users')
+        $userModel = new UserModel();
+        
+        $user = $userModel
             ->select('first_name, last_name')
-            ->where('id', $userId)
-            ->get()
-            ->getRow();
+            ->find($userId);
         
         if ($user) {
-            return $user->first_name . ' ' . $user->last_name;
+            return ($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '');
         }
         
         return null;
@@ -207,19 +212,19 @@ if (!function_exists('getUserName')) {
 if (!function_exists('getUserData')) {
     /**
      * Retorna todos os dados do usuário pelo ID
+     * @return array|null
      */
-    function getUserData($userId): ?object
+    function getUserData($userId): ?array
     {
         if (!$userId) {
             return null;
         }
         
-        $db = db_connect();
-        return $db->table('tbl_users')
+        $userModel = new UserModel();
+        
+        return $userModel
             ->select('id, username, email, first_name, last_name, phone, user_type, photo')
-            ->where('id', $userId)
-            ->get()
-            ->getRow();
+            ->find($userId);
     }
 }
 
@@ -233,14 +238,13 @@ if (!function_exists('getUserEmail')) {
             return null;
         }
         
-        $db = db_connect();
-        $user = $db->table('tbl_users')
-            ->select('email')
-            ->where('id', $userId)
-            ->get()
-            ->getRow();
+        $userModel = new UserModel();
         
-        return $user ? $user->email : null;
+        $user = $userModel
+            ->select('email')
+            ->find($userId);
+        
+        return $user ? ($user['email'] ?? null) : null;
     }
 }
 
@@ -254,14 +258,13 @@ if (!function_exists('getUserType')) {
             return null;
         }
         
-        $db = db_connect();
-        $user = $db->table('tbl_users')
-            ->select('user_type')
-            ->where('id', $userId)
-            ->get()
-            ->getRow();
+        $userModel = new UserModel();
         
-        return $user ? $user->user_type : null;
+        $user = $userModel
+            ->select('user_type')
+            ->find($userId);
+        
+        return $user ? ($user['user_type'] ?? null) : null;
     }
 }
 
@@ -279,6 +282,80 @@ if (!function_exists('formatUserType')) {
             'guardian' => 'Encarregado'
         ];
         
-        return $types[$userType] ?? ucfirst($userType);
+        return $types[$userType] ?? ucfirst((string)$userType);
+    }
+}
+
+if (!function_exists('getUserRoleName')) {
+    /**
+     * Retorna o nome do perfil do usuário pelo ID
+     */
+    function getUserRoleName($userId): ?string
+    {
+        if (!$userId) {
+            return null;
+        }
+        
+        $db = db_connect();
+        
+        $user = $db->table('tbl_users u')
+            ->select('r.role_name')
+            ->join('tbl_roles r', 'r.id = u.role_id', 'left')
+            ->where('u.id', $userId)
+            ->get()
+            ->getRow();
+        
+        return $user ? ($user->role_name ?? null) : null;
+    }
+}
+
+if (!function_exists('getUserRoleId')) {
+    /**
+     * Retorna o ID do perfil do usuário pelo ID
+     */
+    function getUserRoleId($userId): ?int
+    {
+        if (!$userId) {
+            return null;
+        }
+        
+        $userModel = new UserModel();
+        
+        $user = $userModel
+            ->select('role_id')
+            ->find($userId);
+        
+        return $user ? ($user['role_id'] ?? null) : null;
+    }
+}
+
+if (!function_exists('hasPermission')) {
+    /**
+     * Verifica se o usuário atual tem uma determinada permissão
+     */
+    function hasPermission(string $permissionKey): bool
+    {
+        $permissions = session()->get('permissions') ?? [];
+        return in_array($permissionKey, $permissions) || isAdmin();
+    }
+}
+
+if (!function_exists('can')) {
+    /**
+     * Alias para hasPermission
+     */
+    function can(string $permissionKey): bool
+    {
+        return hasPermission($permissionKey);
+    }
+}
+
+if (!function_exists('getUserPermissions')) {
+    /**
+     * Retorna as permissões do usuário atual
+     */
+    function getUserPermissions(): array
+    {
+        return session()->get('permissions') ?? [];
     }
 }

@@ -7,13 +7,15 @@ use App\Models\ExamResultModel;
 use App\Models\AttendanceModel;
 use App\Models\DisciplineAverageModel;
 use App\Models\StudentFeeModel;
+use App\Models\ClassDisciplineModel;
+use App\Models\StudentModel;
 
 // Carrega o auth_helper automaticamente
 helper('auth');
 
 /**
  * ============================================
- * FUNÇÕES PRINCIPAIS (NOVO MODELO)
+ * FUNÇÕES PRINCIPAIS (TUDO COMO ARRAY)
  * ============================================
  */
 
@@ -21,10 +23,12 @@ if (!function_exists('getStudentCurrentEnrollment')) {
     /**
      * Busca matrícula atual do aluno
      * @param int $studentId ID do aluno
-     * @return object|null
+     * @return array|null
      */
-    function getStudentCurrentEnrollment($studentId) {
+    function getStudentCurrentEnrollment($studentId)
+    {
         $enrollmentModel = new EnrollmentModel();
+
         return $enrollmentModel
             ->select('
                 tbl_enrollments.*,
@@ -51,17 +55,18 @@ if (!function_exists('getStudentExams')) {
      * @param int|null $limit Limite de resultados
      * @return array
      */
-    function getStudentExams($enrollmentId, $limit = null) {
+    function getStudentExams($enrollmentId, $limit = null)
+    {
         $examScheduleModel = new ExamScheduleModel();
-        
+
         // Primeiro buscar a matrícula para pegar a class_id
         $enrollmentModel = new EnrollmentModel();
         $enrollment = $enrollmentModel->find($enrollmentId);
-        
-        if (!$enrollment || !$enrollment->class_id) {
+
+        if (!$enrollment || !isset($enrollment['class_id']) || !$enrollment['class_id']) {
             return [];
         }
-        
+
         $builder = $examScheduleModel
             ->select('
                 tbl_exam_schedules.*,
@@ -77,13 +82,13 @@ if (!function_exists('getStudentExams')) {
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-            ->where('tbl_exam_schedules.class_id', $enrollment->class_id)
+            ->where('tbl_exam_schedules.class_id', $enrollment['class_id'])
             ->where('tbl_exam_schedules.exam_date >=', date('Y-m-d'));
-        
+
         if ($limit) {
             $builder->limit($limit);
         }
-        
+
         return $builder->orderBy('tbl_exam_schedules.exam_date', 'ASC')
             ->orderBy('tbl_exam_schedules.exam_time', 'ASC')
             ->findAll();
@@ -97,9 +102,10 @@ if (!function_exists('getStudentGrades')) {
      * @param int|null $semesterId ID do semestre (opcional)
      * @return array
      */
-    function getStudentGrades($enrollmentId, $semesterId = null) {
+    function getStudentGrades($enrollmentId, $semesterId = null)
+    {
         $examResultModel = new ExamResultModel();
-        
+
         $builder = $examResultModel
             ->select('
                 tbl_exam_results.*,
@@ -121,11 +127,11 @@ if (!function_exists('getStudentGrades')) {
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
             ->where('tbl_exam_results.enrollment_id', $enrollmentId);
-        
+
         if ($semesterId) {
             $builder->where('tbl_exam_periods.semester_id', $semesterId);
         }
-        
+
         return $builder->orderBy('tbl_exam_schedules.exam_date', 'DESC')
             ->findAll();
     }
@@ -138,18 +144,19 @@ if (!function_exists('getStudentGradesByDiscipline')) {
      * @param int|null $semesterId ID do semestre (opcional)
      * @return array
      */
-    function getStudentGradesByDiscipline($enrollmentId, $semesterId = null) {
+    function getStudentGradesByDiscipline($enrollmentId, $semesterId = null)
+    {
         $grades = getStudentGrades($enrollmentId, $semesterId);
-        
+
         $disciplines = [];
         foreach ($grades as $grade) {
-            $disciplineId = $grade->discipline_id;
-            
+            $disciplineId = $grade['discipline_id'];
+
             if (!isset($disciplines[$disciplineId])) {
                 $disciplines[$disciplineId] = [
                     'discipline_id' => $disciplineId,
-                    'discipline_name' => $grade->discipline_name,
-                    'discipline_code' => $grade->discipline_code,
+                    'discipline_name' => $grade['discipline_name'],
+                    'discipline_code' => $grade['discipline_code'],
                     'grades' => [],
                     'average' => 0,
                     'total' => 0,
@@ -157,31 +164,31 @@ if (!function_exists('getStudentGradesByDiscipline')) {
                     'failed' => 0
                 ];
             }
-            
+
             $disciplines[$disciplineId]['grades'][] = $grade;
         }
-        
+
         // Calcular estatísticas por disciplina
         foreach ($disciplines as &$discipline) {
             $total = 0;
             $count = 0;
             $approved = 0;
-            
+
             foreach ($discipline['grades'] as $grade) {
-                $total += $grade->score;
+                $total += $grade['score'];
                 $count++;
-                if ($grade->score >= ($grade->approval_score ?? 10)) {
+                if ($grade['score'] >= ($grade['approval_score'] ?? 10)) {
                     $approved++;
                 }
             }
-            
+
             $discipline['average'] = $count > 0 ? round($total / $count, 1) : 0;
             $discipline['total'] = $count;
             $discipline['approved'] = $approved;
             $discipline['failed'] = $count - $approved;
             $discipline['approval_rate'] = $count > 0 ? round(($approved / $count) * 100, 1) : 0;
         }
-        
+
         return $disciplines;
     }
 }
@@ -193,9 +200,10 @@ if (!function_exists('getStudentAttendanceStats')) {
      * @param int|null $semesterId ID do semestre (opcional)
      * @return array
      */
-    function getStudentAttendanceStats($enrollmentId, $semesterId = null) {
+    function getStudentAttendanceStats($enrollmentId, $semesterId = null)
+    {
         $attendanceModel = new AttendanceModel();
-        
+
         $builder = $attendanceModel
             ->select('
                 tbl_attendance.discipline_id,
@@ -205,31 +213,25 @@ if (!function_exists('getStudentAttendanceStats')) {
             ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_attendance.discipline_id', 'left')
             ->where('tbl_attendance.enrollment_id', $enrollmentId);
-        
+
         if ($semesterId) {
             $builder->where('tbl_attendance.semester_id', $semesterId);
         }
-        
+
         $results = $builder->groupBy('tbl_attendance.discipline_id')
             ->findAll();
-        
-        // ✅ CORRIGIDO: Converter arrays para objetos e calcular percentuais
+
+        // Calcular percentuais
         $formattedResults = [];
         foreach ($results as $result) {
-            // Converter para objeto se for array
-            if (is_array($result)) {
-                $result = (object)$result;
-            }
-            
-            // Calcular percentuais
-            $result->percentage = $result->total > 0 
-                ? round(($result->present / $result->total) * 100, 1) 
+            $result['percentage'] = $result['total'] > 0
+                ? round(($result['present'] / $result['total']) * 100, 1)
                 : 0;
-            $result->absent = $result->total - $result->present;
-            
+            $result['absent'] = $result['total'] - $result['present'];
+
             $formattedResults[] = $result;
         }
-        
+
         return $formattedResults;
     }
 }
@@ -240,23 +242,24 @@ if (!function_exists('getStudentDisciplines')) {
      * @param int|null $studentId ID do aluno (opcional)
      * @return array
      */
-    function getStudentDisciplines($studentId = null) {
-        if (!$studentId && isStudent()) {
+    function getStudentDisciplines($studentId = null)
+    {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return [];
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
-        if (!$enrollment || !$enrollment->class_id) {
+
+        if (!$enrollment || !isset($enrollment['class_id']) || !$enrollment['class_id']) {
             return [];
         }
-        
-        $classDisciplineModel = new \App\Models\ClassDisciplineModel();
-        
+
+        $classDisciplineModel = new ClassDisciplineModel();
+
         $disciplines = $classDisciplineModel
             ->select('
                 tbl_disciplines.id,
@@ -271,59 +274,59 @@ if (!function_exists('getStudentDisciplines')) {
             ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
             ->join('tbl_users', 'tbl_users.id = tbl_class_disciplines.teacher_id', 'left')
-            ->where('tbl_class_disciplines.class_id', $enrollment->class_id)
+            ->where('tbl_class_disciplines.class_id', $enrollment['class_id'])
             ->where('tbl_class_disciplines.is_active', 1)
             ->orderBy('tbl_disciplines.discipline_name', 'ASC')
             ->findAll();
-        
+
         // Adicionar estatísticas para cada disciplina
-        foreach ($disciplines as $discipline) {
+        foreach ($disciplines as &$discipline) {
             // Notas da disciplina
-            $grades = getStudentGrades($enrollment['id'], null);
-            $disciplineGrades = array_filter($grades, function($g) use ($discipline) {
-                return $g->discipline_id == $discipline['id'];
+            $grades = getStudentGrades($enrollment['id'] ?? 0, null);
+            $disciplineGrades = array_filter($grades, function ($g) use ($discipline) {
+                return $g['discipline_id'] == $discipline['id'];
             });
-            
+
             if (!empty($disciplineGrades)) {
                 $total = 0;
                 foreach ($disciplineGrades as $g) {
-                    $total += $g->score;
+                    $total += $g['score'];
                 }
-                $discipline->average = round($total / count($disciplineGrades), 1);
-                $discipline->total_grades = count($disciplineGrades);
+                $discipline['average'] = round($total / count($disciplineGrades), 1);
+                $discipline['total_grades'] = count($disciplineGrades);
             } else {
-                $discipline->average = null;
-                $discipline->total_grades = 0;
+                $discipline['average'] = null;
+                $discipline['total_grades'] = 0;
             }
-            
+
             // Presenças da disciplina
-            $attendance = getStudentAttendanceStats($enrollment['id']);
-            $disciplineAttendance = array_filter($attendance, function($a) use ($discipline) {
-                return $a->discipline_id == $discipline['id'];
+            $attendance = getStudentAttendanceStats($enrollment['id'] ?? 0);
+            $disciplineAttendance = array_filter($attendance, function ($a) use ($discipline) {
+                return $a['discipline_id'] == $discipline['id'];
             });
-            
+
             if (!empty($disciplineAttendance)) {
                 $att = reset($disciplineAttendance);
-                $discipline->attendance_percentage = $att->percentage;
-                $discipline->attendance_total = $att->total;
-                $discipline->attendance_present = $att->present;
+                $discipline['attendance_percentage'] = $att['percentage'];
+                $discipline['attendance_total'] = $att['total'];
+                $discipline['attendance_present'] = $att['present'];
             } else {
-                $discipline->attendance_percentage = 0;
-                $discipline->attendance_total = 0;
-                $discipline->attendance_present = 0;
+                $discipline['attendance_percentage'] = 0;
+                $discipline['attendance_total'] = 0;
+                $discipline['attendance_present'] = 0;
             }
-            
+
             // Média final da disciplina
             $averageModel = new DisciplineAverageModel();
             $finalAverage = $averageModel
-                ->where('enrollment_id', $enrollment['id'])
+                ->where('enrollment_id', $enrollment['id'] ?? 0)
                 ->where('discipline_id', $discipline['id'])
                 ->orderBy('semester_id', 'DESC')
                 ->first();
-            
-            $discipline->final_grade = $finalAverage ? $finalAverage->final_score : null;
+
+            $discipline['final_grade'] = $finalAverage ? ($finalAverage['final_score'] ?? null) : null;
         }
-        
+
         return $disciplines;
     }
 }
@@ -343,36 +346,36 @@ if (!function_exists('getStudentAverageGrade')) {
      */
     function getStudentAverageGrade($studentId = null, $precision = 1)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return '-';
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
+
         if (!$enrollment) {
             return '-';
         }
-        
-        $grades = getStudentGrades($enrollment['id']);
-        
+
+        $grades = getStudentGrades($enrollment['id'] ?? 0);
+
         if (empty($grades)) {
             return '-';
         }
-        
+
         $total = 0;
         $count = 0;
-        
+
         foreach ($grades as $grade) {
-            $total += $grade->score;
+            $total += $grade['score'];
             $count++;
         }
-        
+
         $average = $total / $count;
-        
+
         return number_format($average, $precision, ',', '.');
     }
 }
@@ -386,37 +389,37 @@ if (!function_exists('getStudentAttendancePercentage')) {
      */
     function getStudentAttendancePercentage($studentId = null, $precision = 1)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return '0%';
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
+
         if (!$enrollment) {
             return '0%';
         }
-        
+
         $attendanceModel = new AttendanceModel();
-        
+
         $total = $attendanceModel
-            ->where('enrollment_id', $enrollment['id'])
+            ->where('enrollment_id', $enrollment['id'] ?? 0)
             ->countAllResults();
-        
+
         if ($total == 0) {
             return '0%';
         }
-        
+
         $present = $attendanceModel
-            ->where('enrollment_id', $enrollment['id'])
+            ->where('enrollment_id', $enrollment['id'] ?? 0)
             ->whereIn('status', ['Presente', 'Atrasado', 'Falta Justificada'])
             ->countAllResults();
-        
+
         $percentage = ($present / $total) * 100;
-        
+
         return number_format($percentage, $precision, ',', '.') . '%';
     }
 }
@@ -430,41 +433,41 @@ if (!function_exists('getStudentAttendanceBySubject')) {
      */
     function getStudentAttendanceBySubject($studentId = null, $disciplineId = null)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return $disciplineId ? 0 : [];
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
+
         if (!$enrollment) {
             return $disciplineId ? 0 : [];
         }
-        
-        $attendanceStats = getStudentAttendanceStats($enrollment['id']);
-        
+
+        $attendanceStats = getStudentAttendanceStats($enrollment['id'] ?? 0);
+
         if ($disciplineId) {
             foreach ($attendanceStats as $stat) {
-                if ($stat->discipline_id == $disciplineId) {
-                    return $stat->percentage;
+                if ($stat['discipline_id'] == $disciplineId) {
+                    return $stat['percentage'];
                 }
             }
             return 0;
         }
-        
+
         $result = [];
         foreach ($attendanceStats as $stat) {
-            $result[$stat->discipline_id] = [
-                'discipline_name' => $stat->discipline_name,
-                'percentage' => $stat->percentage,
-                'total' => $stat->total,
-                'present' => $stat->present
+            $result[$stat['discipline_id']] = [
+                'discipline_name' => $stat['discipline_name'],
+                'percentage' => $stat['percentage'],
+                'total' => $stat['total'],
+                'present' => $stat['present']
             ];
         }
-        
+
         return $result;
     }
 }
@@ -478,29 +481,29 @@ if (!function_exists('getNextStudentExam')) {
      */
     function getNextStudentExam($studentId = null, $format = 'd/m')
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return '-';
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
+
         if (!$enrollment) {
             return '-';
         }
-        
-        $exams = getStudentExams($enrollment['id'], 1);
-        
+
+        $exams = getStudentExams($enrollment['id'] ?? 0, 1);
+
         if (empty($exams)) {
             return '-';
         }
-        
+
         $nextExam = $exams[0];
-        
-        return date($format, strtotime($nextExam->exam_date)) . ' - ' . $nextExam->discipline_name;
+
+        return date($format, strtotime($nextExam['exam_date'])) . ' - ' . $nextExam['discipline_name'];
     }
 }
 
@@ -512,27 +515,27 @@ if (!function_exists('getStudentPendingFeesCount')) {
      */
     function getStudentPendingFeesCount($studentId = null)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return '0 pendente(s)';
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
+
         if (!$enrollment) {
             return '0 pendente(s)';
         }
-        
+
         $feeModel = new StudentFeeModel();
-        
+
         $pendingCount = $feeModel
-            ->where('enrollment_id', $enrollment['id'])
+            ->where('enrollment_id', $enrollment['id'] ?? 0)
             ->whereIn('status', ['Pendente', 'Vencido'])
             ->countAllResults();
-        
+
         return $pendingCount . ' ' . ($pendingCount == 1 ? 'pendente' : 'pendente(s)');
     }
 }
@@ -545,10 +548,10 @@ if (!function_exists('getStudentAcademicSummary')) {
      */
     function getStudentAcademicSummary($studentId = null)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         return [
             'average_grade' => getStudentAverageGrade($studentId),
             'attendance' => getStudentAttendancePercentage($studentId),
@@ -572,34 +575,37 @@ if (!function_exists('formatStudentClassInfo')) {
      */
     function formatStudentClassInfo($studentId = null)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return '';
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
+
         if (!$enrollment) {
             return '';
         }
-        
+
         $shiftLabels = [
             'Manhã' => 'Manhã',
             'Tarde' => 'Tarde',
             'Noite' => 'Noite',
             'Integral' => 'Integral'
         ];
-        
-        $shift = $shiftLabels[$enrollment->class_shift] ?? $enrollment->class_shift ?? '';
-        
+
+        $shift = $shiftLabels[$enrollment['class_shift']] ?? $enrollment['class_shift'] ?? '';
+
         $parts = [];
-        if ($enrollment->class_name) $parts[] = $enrollment->class_name;
-        if ($shift) $parts[] = $shift;
-        if ($enrollment->level_name) $parts[] = '(' . $enrollment->level_name . ')';
-        
+        if ($enrollment['class_name'])
+            $parts[] = $enrollment['class_name'];
+        if ($shift)
+            $parts[] = $shift;
+        if ($enrollment['level_name'])
+            $parts[] = '(' . $enrollment['level_name'] . ')';
+
         return implode(' - ', $parts);
     }
 }
@@ -612,17 +618,17 @@ if (!function_exists('getStudentEnrollmentId')) {
      */
     function getStudentEnrollmentId($studentId = null)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return null;
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
-        return $enrollment ? $enrollment['id'] : null;
+
+        return $enrollment ? ($enrollment['id'] ?? null) : null;
     }
 }
 
@@ -636,8 +642,8 @@ if (!function_exists('getStudentIdFromEnrollment')) {
     {
         $enrollmentModel = new EnrollmentModel();
         $enrollment = $enrollmentModel->find($enrollmentId);
-        
-        return $enrollment ? $enrollment['student_id'] : null;
+
+        return $enrollment ? ($enrollment['student_id'] ?? null) : null;
     }
 }
 
@@ -649,33 +655,33 @@ if (!function_exists('getStudentGradesBySubject')) {
      */
     function getStudentGradesBySubject($studentId = null)
     {
-        if (!$studentId && isStudent()) {
+        if (!$studentId && function_exists('isStudent') && isStudent()) {
             $studentId = getStudentIdFromUser();
         }
-        
+
         if (!$studentId) {
             return [];
         }
-        
+
         $enrollment = getStudentCurrentEnrollment($studentId);
-        
+
         if (!$enrollment) {
             return [];
         }
-        
-        $grades = getStudentGrades($enrollment['id']);
-        
+
+        $grades = getStudentGrades($enrollment['id'] ?? 0);
+
         // Agrupar por disciplina no formato antigo
         $result = [];
         foreach ($grades as $grade) {
-            $result[] = (object)[
-                'discipline_name' => $grade->discipline_name,
-                'final_score' => $grade->score,
-                'status' => $grade->score >= ($grade->approval_score ?? 10) ? 'Aprovado' : 'Em curso',
-                'exam_date' => $grade->exam_date
+            $result[] = [
+                'discipline_name' => $grade['discipline_name'],
+                'final_score' => $grade['score'],
+                'status' => $grade['score'] >= ($grade['approval_score'] ?? 10) ? 'Aprovado' : 'Em curso',
+                'exam_date' => $grade['exam_date']
             ];
         }
-        
+
         return $result;
     }
 }

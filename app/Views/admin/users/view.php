@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-            <a href="<?= site_url('admin/users/form-edit/' . $user->id) ?>" class="btn btn-info">
+            <a href="<?= site_url('admin/users/form-edit/' . $user['id']) ?>" class="btn btn-info">
                 <i class="fas fa-edit"></i> Editar
             </a>
             <a href="<?= site_url('admin/users') ?>" class="btn btn-secondary">
@@ -66,9 +66,9 @@
                         'student' => 'primary',
                         'guardian' => 'warning',
                         'staff' => 'secondary'
-                    ][$user->user_type] ?? 'secondary';
+                    ][$user['user_type']] ?? 'secondary';
                     ?>
-                    <span class="badge bg-<?= $typeClass ?> p-2 ms-2"><?= ucfirst($user->user_type) ?></span>
+                    <span class="badge bg-<?= $typeClass ?> p-2 ms-2"><?= ucfirst($user['user_type']) ?></span>
                 </div>
             </div>
         </div>
@@ -137,7 +137,7 @@
                             </tr>
                             <tr>
                                 <th>Tipo:</th>
-                                <td><?= ucfirst($user->user_type) ?></td>
+                                <td><?= ucfirst($user['user_type']) ?></td>
                             </tr>
                         </table>
                     </div>
@@ -153,7 +153,7 @@
             <div class="card-body">
                 <?php
                 $logModel = new \App\Models\UserLogModel();
-                $logs = $logModel->getUserLogs($user->id, 20);
+                $logs = $logModel->getUserLogs($user['id'], 20);
                 ?>
                 
                 <?php if (!empty($logs)): ?>

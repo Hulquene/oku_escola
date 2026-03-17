@@ -117,6 +117,10 @@ $routes->group('auth', function ($routes) {
     $routes->get('students', [Auth::class, 'studentsIndex'], ["as" => 'auth.students']);
     $routes->post('students/signin', [Auth::class, 'studentsSignin'], ["as" => 'auth.students.signin']);
     
+        // NOVO: Login específico para encarregados (guardians)
+    $routes->get('guardians', [Auth::class, 'guardiansIndex'], ["as" => 'auth.guardians']);
+    $routes->post('guardians/signin', [Auth::class, 'guardiansSignin'], ["as" => 'auth.guardians.signin']);
+
     // Logout e recuperação de senha
     $routes->get('logout', [Auth::class, 'logout'], ["as" => 'auth.logout']);
     $routes->get('forgetpassword', [Auth::class, 'forgetpassword'], ["as" => 'auth.forgetpassword']);
@@ -884,7 +888,6 @@ $routes->group('teachers', function ($routes) {
  */
 $routes->group('students', function ($routes) {
 
-   
     // Rotas de autenticação - SEM FILTRO
     $routes->group('auth', function ($routes) {
         $routes->get('', [Auth::class, 'studentsIndex'], ["as" => 'students.auth']);
@@ -895,6 +898,7 @@ $routes->group('students', function ($routes) {
     // Rotas protegidas - APLICAR FILTRO AQUI
     $routes->group('', ['filter' => 'auth:students'], function ($routes) {
           
+          $routes->get('', [StudentsDashboard::class, 'index'], ["as" => 'students']);
           $routes->get('dashboard', [StudentsDashboard::class, 'index'], ["as" => 'students.dashboard']);
            // Profile
           $routes->get('profile', [StudentsProfile::class, 'index'], ['as' => 'students.profile']);
@@ -982,6 +986,70 @@ $routes->group('students', function ($routes) {
     });
 
 
+});
+
+
+/**
+ * Área dos Encarregados (Guardians)
+ */
+$routes->group('guardians', function ($routes) {
+
+    // Rotas de autenticação - SEM FILTRO
+    $routes->group('auth', function ($routes) {
+        $routes->get('', [Auth::class, 'guardiansIndex'], ["as" => 'guardians.auth']);
+        $routes->get('login', [Auth::class, 'guardiansIndex'], ["as" => 'guardians.auth']);
+        $routes->post('signin', [Auth::class, 'guardiansSignin'], ["as" => 'guardians.auth.signin']);
+        $routes->get('logout', [Auth::class, 'logout'], ["as" => 'guardians.auth.logout']);
+    });
+    
+    // Rotas protegidas - APLICAR FILTRO AQUI
+    $routes->group('', ['filter' => 'auth:guardians'], function ($routes) {
+        
+        // Dashboard do Encarregado
+        $routes->get('dashboard', [\App\Controllers\guardians\Dashboard::class, 'index'], ["as" => 'guardians.dashboard']);
+        $routes->get('', [\App\Controllers\guardians\Dashboard::class, 'index'], ["as" => 'guardians.dashboard']);
+        
+        // Perfil
+        $routes->group('profile', function ($routes) {
+            $routes->get('', [\App\Controllers\guardians\Profile::class, 'index'], ['as' => 'guardians.profile']);
+            $routes->post('update', [\App\Controllers\guardians\Profile::class, 'update'], ['as' => 'guardians.profile.update']);
+            $routes->post('update-photo', [\App\Controllers\guardians\Profile::class, 'updatePhoto'], ['as' => 'guardians.profile.update-photo']);
+        });
+        
+        // Meus Alunos
+        $routes->group('students', function ($routes) {
+            $routes->get('', [\App\Controllers\guardians\Students::class, 'index'], ['as' => 'guardians.students']);
+            $routes->get('view/(:num)', [\App\Controllers\guardians\Students::class, 'view/$1'], ['as' => 'guardians.students.view']);
+            $routes->get('grades/(:num)', [\App\Controllers\guardians\Students::class, 'grades/$1'], ['as' => 'guardians.students.grades']);
+            $routes->get('attendance/(:num)', [\App\Controllers\guardians\Students::class, 'attendance/$1'], ['as' => 'guardians.students.attendance']);
+            $routes->get('exams/(:num)', [\App\Controllers\guardians\Students::class, 'exams/$1'], ['as' => 'guardians.students.exams']);
+            $routes->get('fees/(:num)', [\App\Controllers\guardians\Students::class, 'fees/$1'], ['as' => 'guardians.students.fees']);
+        });
+        
+        // Notificações
+        $routes->group('notifications', function ($routes) {
+            $routes->get('', [\App\Controllers\guardians\Notifications::class, 'index'], ['as' => 'guardians.notifications']);
+            $routes->get('read/(:num)', [\App\Controllers\guardians\Notifications::class, 'read/$1'], ['as' => 'guardians.notifications.read']);
+            $routes->get('mark-all-read', [\App\Controllers\guardians\Notifications::class, 'markAllRead'], ['as' => 'guardians.notifications.markAllRead']);
+            $routes->get('delete/(:num)', [\App\Controllers\guardians\Notifications::class, 'delete/$1'], ['as' => 'guardians.notifications.delete']);
+            $routes->get('unread-count', [\App\Controllers\guardians\Notifications::class, 'getUnreadCount'], ['as' => 'guardians.notifications.unreadCount']);
+        });
+        
+        // Documentos
+        $routes->group('documents', function ($routes) {
+            $routes->get('', [\App\Controllers\guardians\Documents::class, 'index'], ['as' => 'guardians.documents']);
+            $routes->get('download/(:num)', [\App\Controllers\guardians\Documents::class, 'download/$1'], ['as' => 'guardians.documents.download']);
+            $routes->get('view/(:num)', [\App\Controllers\guardians\Documents::class, 'view/$1'], ['as' => 'guardians.documents.view']);
+        });
+        
+        // Financeiro (propinas dos alunos)
+        $routes->group('fees', function ($routes) {
+            $routes->get('', [\App\Controllers\guardians\Fees::class, 'index'], ['as' => 'guardians.fees']);
+            $routes->get('student/(:num)', [\App\Controllers\guardians\Fees::class, 'student/$1'], ['as' => 'guardians.fees.student']);
+            $routes->get('pay/(:num)', [\App\Controllers\guardians\Fees::class, 'pay/$1'], ['as' => 'guardians.fees.pay']);
+            $routes->get('history', [\App\Controllers\guardians\Fees::class, 'history'], ['as' => 'guardians.fees.history']);
+        });
+    });
 });
 
 /**

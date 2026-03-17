@@ -136,7 +136,7 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($users)): ?>
                                 <?php foreach ($users as $user): ?>
-                                    <option value="<?= $user->id ?>" <?= old('approved_by', $expense->approved_by ?? '') == $user->id ? 'selected' : '' ?>>
+                                    <option value="<?= $user['id'] ?>" <?= old('approved_by', $expense->approved_by ?? '') == $user['id'] ? 'selected' : '' ?>>
                                         <?= $user->first_name ?> <?= $user->last_name ?>
                                     </option>
                                 <?php endforeach; ?>
