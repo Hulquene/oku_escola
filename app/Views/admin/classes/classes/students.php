@@ -57,8 +57,8 @@
                         <tr>
                             <td><span class="badge bg-secondary"><?= $student['student_number'] ?></span></td>
                             <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
-                            <td><?= $student->email ?></td>
-                            <td><?= $student->phone ?: '-' ?></td>
+                            <td><?= $student['email'] ?></td>
+                            <td><?= $student['phone'] ?: '-' ?></td>
                             <td><?= date('d/m/Y', strtotime($student->enrollment_date)) ?></td>
                             <td>
                                 <span class="badge bg-success">Ativo</span>

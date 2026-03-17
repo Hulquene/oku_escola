@@ -111,7 +111,7 @@
                                 </td>
                                 <td>
                                     <i class="fas fa-file-pdf text-danger me-1"></i>
-                                    <?= $doc->document_name ?>
+                                    <?= $doc['document_name'] ?>
                                     <br>
                                     <small class="text-muted"><?= round($doc->document_size / 1024, 1) ?> KB</small>
                                 </td>

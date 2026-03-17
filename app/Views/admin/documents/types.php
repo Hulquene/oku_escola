@@ -40,8 +40,8 @@
                     <?php foreach ($types as $type): ?>
                         <tr>
                             <td><?= $type->id ?></td>
-                            <td><code><?= $type->type_code ?></code></td>
-                            <td class="fw-semibold"><?= $type->type_name ?></td>
+                            <td><code><?= $type['type_code'] ?></code></td>
+                            <td class="fw-semibold"><?= $type['type_name'] ?></td>
                             <td>
                                 <?php
                                 $categoryLabels = [
@@ -53,10 +53,10 @@
                                 echo $categoryLabels[$type->type_category] ?? $type->type_category;
                                 ?>
                             </td>
-                            <td><?= strtoupper($type->allowed_extensions) ?></td>
-                            <td><?= $type->max_size / 1024 ?> MB</td>
+                            <td><?= strtoupper($type['allowed_extensions']) ?></td>
+                            <td><?= $type['max_size'] / 1024 ?> MB</td>
                             <td>
-                                <?php if ($type->is_required): ?>
+                                <?php if ($type['is_required']): ?>
                                     <span class="badge bg-warning">Sim</span>
                                 <?php else: ?>
                                     <span class="badge bg-secondary">Não</span>

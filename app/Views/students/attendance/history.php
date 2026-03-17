@@ -43,7 +43,7 @@
                     <?php if (!empty($semesters)): ?>
                         <?php foreach ($semesters as $sem): ?>
                             <option value="<?= $sem['id'] ?>" <?= $selectedSemester == $sem['id'] ? 'selected' : '' ?>>
-                                <?= $sem['semester_name'] ?> (<?= date('Y', strtotime($sem->start_date)) ?>)
+                                <?= $sem['semester_name'] ?> (<?= date('Y', strtotime($sem['start_date'])) ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

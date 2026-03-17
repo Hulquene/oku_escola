@@ -144,10 +144,10 @@
                             <tr>
                                 <td><?= $student['student_number'] ?></td>
                                 <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
-                                <td><?= $student->email ?></td>
-                                <td><?= $student->phone ?: '-' ?></td>
-                                <td><?= date('d/m/Y', strtotime($student->birth_date)) ?></td>
-                                <td><?= $student->gender ?></td>
+                                <td><?= $student['email'] ?></td>
+                                <td><?= $student['phone'] ?: '-' ?></td>
+                                <td><?= date('d/m/Y', strtotime($student['birth_date'])) ?></td>
+                                <td><?= $student['gender'] ?></td>
                                 <td><?= $student->class_name ?></td>
                                 <td>
                                     <span class="badge bg-success"><?= $student->status ?></span>

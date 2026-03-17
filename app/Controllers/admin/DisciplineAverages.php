@@ -655,7 +655,7 @@ class DisciplineAverages extends BaseController
             ]);
         }
 
-        $disciplines = $this->getClassDisciplines($enrollment->class_id, $semesterId);
+        $disciplines = $this->getClassDisciplines($enrollment['class_id'], $semesterId);
         $calculated = [];
 
         foreach ($disciplines as $discipline) {

@@ -47,8 +47,8 @@
                     <?php foreach ($types as $type): ?>
                         <tr>
                             <td><?= $type->id ?></td>
-                            <td><?= $type->type_name ?></td>
-                            <td><span class="badge bg-info"><?= $type->type_code ?></span></td>
+                            <td><?= $type['type_name'] ?></td>
+                            <td><span class="badge bg-info"><?= $type['type_code'] ?></span></td>
                             <td><?= $type->type_category ?></td>
                             <td>
                                 <?php if ($type->is_recurring): ?>
@@ -69,8 +69,8 @@
                             <td>
                                 <button type="button" class="btn btn-sm btn-info edit-type" 
                                         data-id="<?= $type->id ?>"
-                                        data-name="<?= $type->type_name ?>"
-                                        data-code="<?= $type->type_code ?>"
+                                        data-name="<?= $type['type_name'] ?>"
+                                        data-code="<?= $type['type_code'] ?>"
                                         data-category="<?= $type->type_category ?>"
                                         data-recurring="<?= $type->is_recurring ?>"
                                         data-period="<?= $type->recurrence_period ?>"

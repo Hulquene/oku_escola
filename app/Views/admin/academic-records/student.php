@@ -47,7 +47,7 @@
                     </tr>
                     <tr>
                         <td><strong>Email:</strong></td>
-                        <td><?= $student->email ?></td>
+                        <td><?= $student['email'] ?></td>
                     </tr>
                 </table>
             </div>

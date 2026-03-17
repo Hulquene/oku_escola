@@ -44,12 +44,12 @@
                     <select class="form-select" id="document_code" name="document_code" required>
                         <option value="">Selecione...</option>
                         <?php foreach ($requestableDocs as $doc): ?>
-                            <option value="<?= $doc->document_code ?>" 
-                                    data-fee="<?= $doc->fee_amount ?>"
-                                    data-days="<?= $doc->processing_days ?>">
-                                <?= $doc->document_name ?>
-                                <?php if ($doc->fee_amount > 0): ?>
-                                    (<?= number_format($doc->fee_amount, 2, ',', '.') ?> Kz)
+                            <option value="<?= $doc['document_code'] ?>" 
+                                    data-fee="<?= $doc['fee_amount'] ?>"
+                                    data-days="<?= $doc['processing_days'] ?>">
+                                <?= $doc['document_name'] ?>
+                                <?php if ($doc['fee_amount'] > 0): ?>
+                                    (<?= number_format($doc['fee_amount'], 2, ',', '.') ?> Kz)
                                 <?php endif; ?>
                             </option>
                         <?php endforeach; ?>

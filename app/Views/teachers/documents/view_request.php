@@ -330,7 +330,7 @@
                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                             <div>
                                 <i class="fas fa-file-pdf text-danger me-2"></i>
-                                <?= $doc->document_name ?>
+                                <?= $doc['document_name'] ?>
                             </div>
                             <span class="badge bg-primary rounded-pill">
                                 <i class="fas fa-download"></i> <?= $doc->download_count ?? 0 ?>

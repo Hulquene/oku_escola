@@ -83,10 +83,10 @@
                                 <i class="fas fa-id-card me-1"></i> Nº: <?= $student['student_number'] ?>
                             </span>
                             <span class="badge bg-success-soft text-success px-3 py-2">
-                                <i class="fas fa-venus-mars me-1"></i> <?= $student->gender ?? 'Não informado' ?>
+                                <i class="fas fa-venus-mars me-1"></i> <?= $student['gender'] ?? 'Não informado' ?>
                             </span>
                             <span class="badge bg-info-soft text-info px-3 py-2">
-                                <i class="fas fa-calendar-alt me-1"></i> <?= $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'Nascimento não informado' ?>
+                                <i class="fas fa-calendar-alt me-1"></i> <?= $student['birth_date'] ? date('d/m/Y', strtotime($student['birth_date'])) : 'Nascimento não informado' ?>
                             </span>
                         </div>
                         
@@ -94,13 +94,13 @@
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center text-muted">
                                     <i class="fas fa-envelope me-2" style="width: 20px;"></i>
-                                    <span><?= $student->email ?? $student->user_email ?></span>
+                                    <span><?= $student['email'] ?? $student['user_email'] ?></span>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center text-muted">
                                     <i class="fas fa-phone me-2" style="width: 20px;"></i>
-                                    <span><?= $student->phone ?? $student->user_phone ?? 'Telefone não informado' ?></span>
+                                    <span><?= $student['phone'] ?? $student->user_phone ?? 'Telefone não informado' ?></span>
                                 </div>
                             </div>
                         </div>
@@ -118,7 +118,7 @@
                                         </div>
                                         <div class="flex-grow-1 ms-3">
                                             <h6 class="mb-0">Matrícula Ativa</h6>
-                                            <small class="text-muted"><?= $currentEnrollment->enrollment_number ?></small>
+                                            <small class="text-muted"><?= $currentEnrollment['enrollment_number'] ?></small>
                                         </div>
                                     </div>
                                     
@@ -126,19 +126,19 @@
                                         <div class="col-4">
                                             <div class="bg-white rounded p-2">
                                                 <small class="text-muted d-block">Turma</small>
-                                                <strong><?= $currentEnrollment->class_name ?></strong>
+                                                <strong><?= $currentEnrollment['class_name'] ?></strong>
                                             </div>
                                         </div>
                                         <div class="col-4">
                                             <div class="bg-white rounded p-2">
                                                 <small class="text-muted d-block">Ano</small>
-                                                <strong><?= $currentEnrollment->year_name ?></strong>
+                                                <strong><?= $currentEnrollment['year_name'] ?></strong>
                                             </div>
                                         </div>
                                         <div class="col-4">
                                             <div class="bg-white rounded p-2">
                                                 <small class="text-muted d-block">Turno</small>
-                                                <strong><?= $currentEnrollment->class_shift ?></strong>
+                                                <strong><?= $currentEnrollment['class_shift'] ?></strong>
                                             </div>
                                         </div>
                                     </div>
@@ -288,7 +288,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="first_name" name="first_name" 
-                                               value="<?= old('first_name', $user->first_name) ?>" required>
+                                               value="<?= old('first_name', $user['first_name']) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -296,7 +296,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="last_name" name="last_name" 
-                                               value="<?= old('last_name', $user->last_name) ?>" required>
+                                               value="<?= old('last_name', $user['last_name']) ?>" required>
                                     </div>
                                 </div>
                             </div>
@@ -307,7 +307,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-calendar text-muted"></i></span>
                                         <input type="date" class="form-control border-start-0" id="birth_date" name="birth_date" 
-                                               value="<?= old('birth_date', $student->birth_date) ?>">
+                                               value="<?= old('birth_date', $student['birth_date']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -316,8 +316,8 @@
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-venus-mars text-muted"></i></span>
                                         <select class="form-select border-start-0" id="gender" name="gender" required>
                                             <option value="">Selecione...</option>
-                                            <option value="Masculino" <?= old('gender', $student->gender) == 'Masculino' ? 'selected' : '' ?>>Masculino</option>
-                                            <option value="Feminino" <?= old('gender', $student->gender) == 'Feminino' ? 'selected' : '' ?>>Feminino</option>
+                                            <option value="Masculino" <?= old('gender', $student['gender']) == 'Masculino' ? 'selected' : '' ?>>Masculino</option>
+                                            <option value="Feminino" <?= old('gender', $student['gender']) == 'Feminino' ? 'selected' : '' ?>>Feminino</option>
                                         </select>
                                     </div>
                                 </div>
@@ -326,7 +326,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-globe text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="nationality" name="nationality" 
-                                               value="<?= old('nationality', $student->nationality) ?>" placeholder="Ex: Angolana">
+                                               value="<?= old('nationality', $student['nationality']) ?>" placeholder="Ex: Angolana">
                                     </div>
                                 </div>
                             </div>
@@ -338,10 +338,10 @@
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-id-card text-muted"></i></span>
                                         <select class="form-select border-start-0" id="identity_type" name="identity_type">
                                             <option value="">Selecione...</option>
-                                            <option value="BI" <?= old('identity_type', $student['id']['entity_type']) == 'BI' ? 'selected' : '' ?>>BI</option>
-                                            <option value="Passaporte" <?= old('identity_type', $student['id']['entity_type']) == 'Passaporte' ? 'selected' : '' ?>>Passaporte</option>
-                                            <option value="Cédula" <?= old('identity_type', $student['id']['entity_type']) == 'Cédula' ? 'selected' : '' ?>>Cédula</option>
-                                            <option value="Outro" <?= old('identity_type', $student['id']['entity_type']) == 'Outro' ? 'selected' : '' ?>>Outro</option>
+                                            <option value="BI" <?= old('identity_type', $student['identity_type']) == 'BI' ? 'selected' : '' ?>>BI</option>
+                                            <option value="Passaporte" <?= old('identity_type', $student['identity_type']) == 'Passaporte' ? 'selected' : '' ?>>Passaporte</option>
+                                            <option value="Cédula" <?= old('identity_type', $student['identity_type']) == 'Cédula' ? 'selected' : '' ?>>Cédula</option>
+                                            <option value="Outro" <?= old('identity_type', $student['identity_type']) == 'Outro' ? 'selected' : '' ?>>Outro</option>
                                         </select>
                                     </div>
                                 </div>
@@ -350,7 +350,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-hashtag text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="identity_document" name="identity_document" 
-                                               value="<?= old('identity_document', $student['id']['entity_type']) ?>">
+                                               value="<?= old('identity_document', $student['identity_type']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -358,7 +358,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-barcode text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="nif" name="nif" 
-                                               value="<?= old('nif', $student->nif) ?>">
+                                               value="<?= old('nif', $student['nif']) ?>">
                                     </div>
                                 </div>
                             </div>
@@ -369,7 +369,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-map-pin text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="birth_place" name="birth_place" 
-                                               value="<?= old('birth_place', $student->birth_place) ?>" placeholder="Província/Município">
+                                               value="<?= old('birth_place', $student['birth_place']) ?>" placeholder="Província/Município">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -378,14 +378,14 @@
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-tint text-muted"></i></span>
                                         <select class="form-select border-start-0" id="blood_type" name="blood_type">
                                             <option value="">Não informado</option>
-                                            <option value="A+" <?= old('blood_type', $student->blood_type) == 'A+' ? 'selected' : '' ?>>A+</option>
-                                            <option value="A-" <?= old('blood_type', $student->blood_type) == 'A-' ? 'selected' : '' ?>>A-</option>
-                                            <option value="B+" <?= old('blood_type', $student->blood_type) == 'B+' ? 'selected' : '' ?>>B+</option>
-                                            <option value="B-" <?= old('blood_type', $student->blood_type) == 'B-' ? 'selected' : '' ?>>B-</option>
-                                            <option value="AB+" <?= old('blood_type', $student->blood_type) == 'AB+' ? 'selected' : '' ?>>AB+</option>
-                                            <option value="AB-" <?= old('blood_type', $student->blood_type) == 'AB-' ? 'selected' : '' ?>>AB-</option>
-                                            <option value="O+" <?= old('blood_type', $student->blood_type) == 'O+' ? 'selected' : '' ?>>O+</option>
-                                            <option value="O-" <?= old('blood_type', $student->blood_type) == 'O-' ? 'selected' : '' ?>>O-</option>
+                                            <option value="A+" <?= old('blood_type', $student['blood_type']) == 'A+' ? 'selected' : '' ?>>A+</option>
+                                            <option value="A-" <?= old('blood_type', $student['blood_type']) == 'A-' ? 'selected' : '' ?>>A-</option>
+                                            <option value="B+" <?= old('blood_type', $student['blood_type']) == 'B+' ? 'selected' : '' ?>>B+</option>
+                                            <option value="B-" <?= old('blood_type', $student['blood_type']) == 'B-' ? 'selected' : '' ?>>B-</option>
+                                            <option value="AB+" <?= old('blood_type', $student['blood_type']) == 'AB+' ? 'selected' : '' ?>>AB+</option>
+                                            <option value="AB-" <?= old('blood_type', $student['blood_type']) == 'AB-' ? 'selected' : '' ?>>AB-</option>
+                                            <option value="O+" <?= old('blood_type', $student['blood_type']) == 'O+' ? 'selected' : '' ?>>O+</option>
+                                            <option value="O-" <?= old('blood_type', $student['blood_type']) == 'O-' ? 'selected' : '' ?>>O-</option>
                                         </select>
                                     </div>
                                 </div>
@@ -420,23 +420,23 @@
                             <div class="row g-3">
 
                                             <!-- INPUTS HIDDEN PARA CAMPOS OBRIGATÓRIOS -->
-                                <input type="hidden" name="first_name" value="<?= old('first_name', $user->first_name) ?>">
-                                <input type="hidden" name="last_name" value="<?= old('last_name', $user->last_name) ?>">
-                                <input type="hidden" name="gender" value="<?= old('gender', $student->gender) ?>">
+                                <input type="hidden" name="first_name" value="<?= old('first_name', $user['first_name']) ?>">
+                                <input type="hidden" name="last_name" value="<?= old('last_name', $user['last_name']) ?>">
+                                <input type="hidden" name="gender" value="<?= old('gender', $student['gender']) ?>">
 
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label fw-semibold">Telefone Principal</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-phone-alt text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="phone" name="phone" 
-                                               value="<?= old('phone', $student->phone ?? $user->phone) ?>">
+                                               value="<?= old('phone', $student['phone'] ?? $user['phone']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="email" class="form-label fw-semibold">Email</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                                        <input type="email" class="form-control border-start-0" id="email" value="<?= $student->email ?? $user->email ?>" disabled>
+                                        <input type="email" class="form-control border-start-0" id="email" value="<?= $student['email'] ?? $user->email ?>" disabled>
                                     </div>
                                     <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Para alterar o email, contacte a secretaria</small>
                                 </div>
@@ -448,7 +448,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-user-shield text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="emergency_contact_name" name="emergency_contact_name" 
-                                               value="<?= old('emergency_contact_name', $student->emergency_contact_name) ?>">
+                                               value="<?= old('emergency_contact_name', $student['emergency_contact_name']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -456,7 +456,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-phone text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="emergency_contact" name="emergency_contact" 
-                                               value="<?= old('emergency_contact', $student->emergency_contact) ?>">
+                                               value="<?= old('emergency_contact', $student['emergency_contact']) ?>">
                                     </div>
                                 </div>
                             </div>
@@ -465,7 +465,7 @@
                                 <label for="address" class="form-label fw-semibold">Endereço</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="fas fa-map-marker-alt text-muted"></i></span>
-                                    <textarea class="form-control border-start-0" id="address" name="address" rows="2"><?= old('address', $student->address ?? $user->address) ?></textarea>
+                                    <textarea class="form-control border-start-0" id="address" name="address" rows="2"><?= old('address', $student['address'] ?? $user['address']) ?></textarea>
                                 </div>
                             </div>
                             
@@ -475,7 +475,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-city text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="city" name="city" 
-                                               value="<?= old('city', $student->city) ?>">
+                                               value="<?= old('city', $student['city']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -483,7 +483,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-map text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="municipality" name="municipality" 
-                                               value="<?= old('municipality', $student->municipality) ?>">
+                                               value="<?= old('municipality', $student['municipality']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -491,7 +491,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-globe-africa text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="province" name="province" 
-                                               value="<?= old('province', $student->province) ?>">
+                                               value="<?= old('province', $student['province']) ?>">
                                     </div>
                                 </div>
                             </div>
@@ -524,16 +524,16 @@
                             <div class="row g-3">
 
                                             <!-- INPUTS HIDDEN PARA CAMPOS OBRIGATÓRIOS -->
-                                <input type="hidden" name="first_name" value="<?= old('first_name', $user->first_name) ?>">
-                                <input type="hidden" name="last_name" value="<?= old('last_name', $user->last_name) ?>">
-                                <input type="hidden" name="gender" value="<?= old('gender', $student->gender) ?>">
+                                <input type="hidden" name="first_name" value="<?= old('first_name', $user['first_name']) ?>">
+                                <input type="hidden" name="last_name" value="<?= old('last_name', $user['last_name']) ?>">
+                                <input type="hidden" name="gender" value="<?= old('gender', $student['gender']) ?>">
 
                                 <div class="col-md-6">
                                     <label for="previous_school" class="form-label fw-semibold">Escola Anterior</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-school text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="previous_school" name="previous_school" 
-                                               value="<?= old('previous_school', $student->previous_school) ?>">
+                                               value="<?= old('previous_school', $student['previous_school']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -541,7 +541,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-layer-group text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="previous_grade" name="previous_grade" 
-                                               value="<?= old('previous_grade', $student->previous_grade) ?>">
+                                               value="<?= old('previous_grade', $student['previous_grade']) ?>">
                                     </div>
                                 </div>
                             </div>
@@ -589,20 +589,20 @@
 
                             <div class="mb-3">
                                               <!-- INPUTS HIDDEN PARA CAMPOS OBRIGATÓRIOS -->
-                                <input type="hidden" name="first_name" value="<?= old('first_name', $user->first_name) ?>">
-                                <input type="hidden" name="last_name" value="<?= old('last_name', $user->last_name) ?>">
-                                <input type="hidden" name="gender" value="<?= old('gender', $student->gender) ?>">
+                                <input type="hidden" name="first_name" value="<?= old('first_name', $user['first_name']) ?>">
+                                <input type="hidden" name="last_name" value="<?= old('last_name', $user['last_name']) ?>">
+                                <input type="hidden" name="gender" value="<?= old('gender', $student['gender']) ?>">
                             </div>
 
                             <div class="mb-3">
                                 <label for="health_conditions" class="form-label fw-semibold">Condições de Saúde</label>
-                                <textarea class="form-control" id="health_conditions" name="health_conditions" rows="3"><?= old('health_conditions', $student->health_conditions) ?></textarea>
+                                <textarea class="form-control" id="health_conditions" name="health_conditions" rows="3"><?= old('health_conditions', $student['health_conditions']) ?></textarea>
                                 <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Alergias, doenças crónicas, etc.</small>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="special_needs" class="form-label fw-semibold">Necessidades Especiais</label>
-                                <textarea class="form-control" id="special_needs" name="special_needs" rows="3"><?= old('special_needs', $student->special_needs) ?></textarea>
+                                <textarea class="form-control" id="special_needs" name="special_needs" rows="3"><?= old('special_needs', $student['special_needs']) ?></textarea>
                                 <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Necessidades educativas especiais</small>
                             </div>
                             

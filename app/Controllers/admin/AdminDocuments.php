@@ -66,7 +66,7 @@ class AdminDocuments extends BaseController
         // Buscar nomes dos usuários para os documentos recentes
         foreach ($data['recentDocuments'] as $doc) {
             $user = $this->userModel->find($doc->user_id);
-            $doc->user_name = $user ? $user->first_name . ' ' . $user->last_name : 'N/A';
+            $doc->user_name = $user ? $user['first_name'] . ' ' . $user['last_name'] : 'N/A';
         }
         
         // Últimas solicitações
@@ -78,7 +78,7 @@ class AdminDocuments extends BaseController
         // Buscar nomes dos usuários para as solicitações recentes
         foreach ($data['recentRequests'] as $req) {
             $user = $this->userModel->find($req->user_id);
-            $req->user_name = $user ? $user->first_name . ' ' . $user->last_name : 'N/A';
+            $req->user_name = $user ? $user['first_name'] . ' ' . $user['last_name'] : 'N/A';
         }
         
         // Estatísticas mensais
@@ -271,7 +271,7 @@ public function view($id)
         }
         
         // Verificar se há documentos usando este tipo
-        $count = $this->documentModel->where('document_type', $type->type_code)->countAllResults();
+        $count = $this->documentModel->where('document_type', $type['type_code'])->countAllResults();
         
         if ($count > 0) {
             return redirect()->back()->with('error', 

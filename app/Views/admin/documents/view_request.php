@@ -143,7 +143,7 @@
                             <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 <div>
                                     <i class="fas fa-file-pdf text-danger me-2"></i>
-                                    <?= $doc->document_name ?>
+                                    <?= $doc['document_name'] ?>
                                     <br>
                                     <small class="text-muted">
                                         Gerado em: <?= date('d/m/Y H:i', strtotime($doc->generated_at)) ?> | 

@@ -111,7 +111,7 @@ class GradeCalculator extends BaseController
         // Get all disciplines for this class in this semester
         $classDisciplineModel = new \App\Models\ClassDisciplineModel();
         $disciplines = $classDisciplineModel
-            ->where('class_id', $enrollment->class_id)
+            ->where('class_id', $enrollment['class_id'])
             ->where('semester_id', $semesterId)
             ->where('is_active', 1)
             ->findAll();

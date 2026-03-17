@@ -125,11 +125,11 @@
                     <select class="form-select" id="document_type" name="document_type" required>
                         <option value="">Selecione...</option>
                         <?php foreach ($documentTypes as $type): ?>
-                            <option value="<?= $type->type_code ?>" 
-                                    data-extensions="<?= $type->allowed_extensions ?>"
-                                    data-maxsize="<?= $type->max_size ?>">
-                                <?= $type->type_name ?>
-                                <?php if ($type->is_required): ?> 
+                            <option value="<?= $type['type_code'] ?>" 
+                                    data-extensions="<?= $type['allowed_extensions'] ?>"
+                                    data-maxsize="<?= $type['max_size'] ?>">
+                                <?= $type['type_name'] ?>
+                                <?php if ($type['is_required']): ?> 
                                     <span class="text-danger">*</span>
                                 <?php endif; ?>
                             </option>
@@ -192,7 +192,7 @@
                             <?php 
                             $typeInfo = null;
                             foreach ($documentTypes as $type) {
-                                if ($type->type_code == $doc->document_type) {
+                                if ($type['type_code'] == $doc->document_type) {
                                     $typeInfo = $type;
                                     break;
                                 }
@@ -207,7 +207,7 @@
                                 </td>
                                 <td>
                                     <i class="fas fa-file-<?= strpos($doc->document_mime, 'pdf') !== false ? 'pdf' : 'image' ?> text-muted me-1"></i>
-                                    <?= $doc->document_name ?>
+                                    <?= $doc['document_name'] ?>
                                 </td>
                                 <td><?= date('d/m/Y H:i', strtotime($doc->created_at)) ?></td>
                                 <td><?= round($doc->document_size / 1024, 1) ?> KB</td>

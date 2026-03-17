@@ -104,7 +104,7 @@
                     <?php if (!empty($users)): ?>
                         <?php foreach ($users as $user): ?>
                             <option value="<?= $user['id'] ?>" <?= $selectedUser == $user['id'] ? 'selected' : '' ?>>
-                                <?= $user->first_name ?> <?= $user->last_name ?> (<?= $user->username ?>)
+                                <?= $user['first_name'] ?> <?= $user['last_name'] ?> (<?= $user->username ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

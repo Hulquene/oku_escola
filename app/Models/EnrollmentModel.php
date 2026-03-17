@@ -380,13 +380,13 @@ public function getForView($id)
             // This logic depends on your promotion rules
             $newEnrollment = [
                 'student_id' => $enrollment['student_id'],
-                'class_id' => $this->getNextClass($enrollment->class_id), // You need to implement this
+                'class_id' => $this->getNextClass($enrollment['class_id']), // You need to implement this
                 'academic_year_id' => $newAcademicYearId,
                 'enrollment_date' => date('Y-m-d'),
                 'enrollment_number' => $this->generateEnrollmentNumber(),
                 'enrollment_type' => 'Renovação',
                 'status' => 'Ativo',
-                'previous_class_id' => $enrollment->class_id
+                'previous_class_id' => $enrollment['class_id']
             ];
             
             if ($this->insert($newEnrollment)) {

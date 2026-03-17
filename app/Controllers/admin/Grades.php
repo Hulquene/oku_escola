@@ -204,7 +204,7 @@ class Grades extends BaseController
             ->findAll();
         
         foreach ($enrollments as $enrollment) {
-            $disciplines = $this->disciplineModel->getByClass($enrollment->class_id);
+            $disciplines = $this->disciplineModel->getByClass($enrollment['class_id']);
             
             foreach ($disciplines as $discipline) {
                 $semesters = $this->semesterModel

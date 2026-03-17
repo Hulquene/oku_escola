@@ -107,8 +107,8 @@ class DocumentTypeModel extends BaseModel
     public function getAllowedExtensionsArray($typeCode)
     {
         $type = $this->getByCode($typeCode);
-        if ($type && $type->allowed_extensions) {
-            return array_map('trim', explode(',', $type->allowed_extensions));
+        if ($type && $type['allowed_extensions']) {
+            return array_map('trim', explode(',', $type['allowed_extensions']));
         }
         return ['jpg', 'jpeg', 'png', 'pdf']; // default
     }

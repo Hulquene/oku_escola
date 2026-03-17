@@ -1046,7 +1046,7 @@ private function getNextColumn($col)
         $historyData = [
             'student_id' => $studentId,
             'academic_year_id' => $academicYearId,
-            'class_id' => $enrollment->class_id,
+            'class_id' => $enrollment['class_id'],
             'final_status' => $finalStatus,
             'final_average' => $yearlyAverage,
             'observations' => 'Histórico gerado automaticamente'
@@ -1704,7 +1704,7 @@ public function export()
         $historyData = [
             'student_id' => $enrollment['student_id'],
             'academic_year_id' => $enrollment->academic_year_id,
-            'class_id' => $enrollment->class_id,
+            'class_id' => $enrollment['class_id'],
             'final_status' => $enrollment->final_result ?? 'Aprovado',
             'final_average' => $enrollment->final_average ?? 0,
             'observations' => 'Aprovado - Gerado automaticamente',
@@ -1843,7 +1843,7 @@ public function export()
                 'enrollment_number' => $this->enrollmentModel->generateEnrollmentNumber(),
                 'enrollment_type' => 'Renovação',
                 'status' => 'Pendente', // Pendente para aprovação manual
-                'previous_class_id' => $enrollment->class_id,
+                'previous_class_id' => $enrollment['class_id'],
                 'previous_grade_id' => $enrollment['grade_level_id'],
                 'created_by' => session()->get('user_id')
             ];

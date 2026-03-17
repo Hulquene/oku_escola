@@ -42,8 +42,8 @@
                 <select class="form-select" id="type" name="type">
                     <option value="">Todos</option>
                     <?php foreach ($documentTypes as $type): ?>
-                        <option value="<?= $type->type_code ?>" <?= ($_GET['type'] ?? '') == $type->type_code ? 'selected' : '' ?>>
-                            <?= $type->type_name ?>
+                        <option value="<?= $type['type_code'] ?>" <?= ($_GET['type'] ?? '') == $type['type_code'] ? 'selected' : '' ?>>
+                            <?= $type['type_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -85,7 +85,7 @@
                             <?php 
                             $typeInfo = null;
                             foreach ($documentTypes as $type) {
-                                if ($type->type_code == $doc->document_type) {
+                                if ($type['type_code'] == $doc->document_type) {
                                     $typeInfo = $type;
                                     break;
                                 }
@@ -97,7 +97,7 @@
                                 </td>
                                 <td>
                                     <i class="fas fa-file-<?= strpos($doc->document_mime, 'pdf') !== false ? 'pdf' : 'image' ?> text-muted me-1"></i>
-                                    <?= $doc->document_name ?>
+                                    <?= $doc['document_name'] ?>
                                 </td>
                                 <td><?= date('d/m/Y', strtotime($doc->created_at)) ?></td>
                                 <td><?= date('d/m/Y', strtotime('+1 year', strtotime($doc->created_at))) ?></td>

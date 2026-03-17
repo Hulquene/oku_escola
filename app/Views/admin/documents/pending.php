@@ -30,8 +30,8 @@
                 <select class="form-select" id="document_type" name="document_type">
                     <option value="">Todos</option>
                     <?php foreach ($documentTypes ?? [] as $type): ?>
-                        <option value="<?= $type->type_code ?>" <?= ($_GET['document_type'] ?? '') == $type->type_code ? 'selected' : '' ?>>
-                            <?= $type->type_name ?>
+                        <option value="<?= $type['type_code'] ?>" <?= ($_GET['document_type'] ?? '') == $type['type_code'] ? 'selected' : '' ?>>
+                            <?= $type['type_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -97,7 +97,7 @@
                                 </td>
                                 <td>
                                     <i class="fas fa-file-<?= strpos($doc->document_mime, 'pdf') !== false ? 'pdf' : 'image' ?> text-muted me-1"></i>
-                                    <?= $doc->document_name ?>
+                                    <?= $doc['document_name'] ?>
                                     <?php if ($doc->description): ?>
                                         <br><small class="text-muted"><?= $doc->description ?></small>
                                     <?php endif; ?>

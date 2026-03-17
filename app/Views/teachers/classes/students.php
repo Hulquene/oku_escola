@@ -102,8 +102,8 @@
                                         <strong><?= $student['first_name'] ?> <?= $student['last_name'] ?></strong>
                                     </td>
                                     <td><span class="badge bg-info"><?= $student['student_number'] ?></span></td>
-                                    <td><?= $student->email ?? '-' ?></td>
-                                    <td><?= $student->phone ?? '-' ?></td>
+                                    <td><?= $student['email'] ?? '-' ?></td>
+                                    <td><?= $student['phone'] ?? '-' ?></td>
                                     <td>
                                         <div class="btn-group">
                                             <a href="<?= site_url('teachers/attendance?class_id=' . $class->class_id . '&student=' . $student['id']) ?>" 

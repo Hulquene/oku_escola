@@ -32,11 +32,11 @@
                 <?php else: ?>
                     <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center text-white mb-3"
                          style="width: 150px; height: 150px; font-size: 3rem;">
-                        <?= strtoupper(substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1)) ?>
+                        <?= strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)) ?>
                     </div>
                 <?php endif; ?>
                 
-                <h4><?= $user->first_name ?> <?= $user->last_name ?></h4>
+                <h4><?= $user['first_name'] ?> <?= $user['last_name'] ?></h4>
                 <p class="text-muted"><?= $user->email ?></p>
                 
                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#photoModal">
@@ -76,7 +76,7 @@
                         <table class="table table-sm">
                             <tr>
                                 <th style="width: 120px;">Nome:</th>
-                                <td><?= $user->first_name ?> <?= $user->last_name ?></td>
+                                <td><?= $user['first_name'] ?> <?= $user['last_name'] ?></td>
                             </tr>
                             <tr>
                                 <th>Username:</th>
@@ -88,7 +88,7 @@
                             </tr>
                             <tr>
                                 <th>Telefone:</th>
-                                <td><?= $user->phone ?: '-' ?></td>
+                                <td><?= $user['phone'] ?: '-' ?></td>
                             </tr>
                         </table>
                     </div>
@@ -114,10 +114,10 @@
                     </div>
                 </div>
                 
-                <?php if ($user->address): ?>
+                <?php if ($user['address']): ?>
                     <div class="mt-3">
                         <h6>Endereço:</h6>
-                        <p><?= $user->address ?></p>
+                        <p><?= $user['address'] ?></p>
                     </div>
                 <?php endif; ?>
             </div>

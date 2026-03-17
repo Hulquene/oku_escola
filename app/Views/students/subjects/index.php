@@ -117,7 +117,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center"
                          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                         <h5 class="card-title mb-0"><?= esc($subject['discipline_name']) ?></h5>
-                        <span class="badge bg-<?= $subject->status_color ?? 'secondary' ?>"><?= $subject->status ?? 'N/A' ?></span>
+                        <span class="badge bg-<?= $subject['status_color'] ?? 'secondary' ?>"><?= $subject['status'] ?? 'N/A' ?></span>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -144,8 +144,8 @@
                         <div class="mt-3">
                             <div class="d-flex justify-content-between mb-1">
                                 <span>Nota Final:</span>
-                                <strong class="<?= ($subject->final_grade ?? 0) >= ($subject['approval_grade'] ?? 10) ? 'text-success' : 'text-danger' ?>">
-                                    <?= $subject->final_grade ? number_format($subject->final_grade, 1, ',', '.') : '--' ?>
+                                <strong class="<?= ($subject['final_grade'] ?? 0) >= ($subject['approval_grade'] ?? 10) ? 'text-success' : 'text-danger' ?>">
+                                    <?= $subject['final_grade'] ? number_format($subject['final_grade'], 1, ',', '.') : '--' ?>
                                 </strong>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
@@ -154,12 +154,12 @@
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span>Presença:</span>
-                                <strong><?= $subject->attendance_percentage ?? 0 ?>%</strong>
+                                <strong><?= $subject['attendance_percentage'] ?? 0 ?>%</strong>
                             </div>
                             <div class="progress mb-2" style="height: 8px;">
                                 <div class="progress-bar bg-success" role="progressbar" 
-                                     style="width: <?= $subject->attendance_percentage ?? 0 ?>%" 
-                                     aria-valuenow="<?= $subject->attendance_percentage ?? 0 ?>" 
+                                     style="width: <?= $subject['attendance_percentage'] ?? 0 ?>%" 
+                                     aria-valuenow="<?= $subject['attendance_percentage'] ?? 0 ?>" 
                                      aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
@@ -171,7 +171,7 @@
                         </div>
                     </div>
                     <div class="card-footer bg-transparent">
-                        <a href="<?= site_url('students/subjects/details/' . ($subject->discipline_id ?? $subject['id'])) ?>" 
+                        <a href="<?= site_url('students/subjects/details/' . ($subject['discipline_id'] ?? $subject['id'])) ?>" 
                            class="btn btn-sm btn-outline-primary w-100">
                             <i class="fas fa-eye"></i> Ver Detalhes
                         </a>

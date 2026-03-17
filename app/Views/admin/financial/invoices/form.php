@@ -182,7 +182,7 @@
                 <option value="">-- Tipo --</option>
                 <?php if (!empty($feeTypes)): ?>
                     <?php foreach ($feeTypes as $type): ?>
-                        <option value="<?= $type->id ?>"><?= $type->type_name ?></option>
+                        <option value="<?= $type->id ?>"><?= $type['type_name'] ?></option>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </select>

@@ -62,7 +62,7 @@
                                 <?php else: ?>
                                     <div class="bg-gradient-success rounded-circle d-flex align-items-center justify-content-center text-white border border-4 border-white shadow"
                                          style="width: 150px; height: 150px; font-size: 4rem;">
-                                        <?= strtoupper(substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1)) ?>
+                                        <?= strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)) ?>
                                     </div>
                                 <?php endif; ?>
                                 
@@ -77,7 +77,7 @@
                     </div>
                     
                     <div class="col-md-5">
-                        <h2 class="mb-2"><?= $user->first_name . ' ' . $user->last_name ?></h2>
+                        <h2 class="mb-2"><?= $user['first_name'] . ' ' . $user['last_name'] ?></h2>
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             <span class="badge bg-success-soft text-success px-3 py-2">
                                 <i class="fas fa-chalkboard-teacher me-1"></i> Professor
@@ -97,7 +97,7 @@
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center text-muted">
                                     <i class="fas fa-phone me-2" style="width: 20px;"></i>
-                                    <span><?= $user->phone ?? 'Telefone não informado' ?></span>
+                                    <span><?= $user['phone'] ?? 'Telefone não informado' ?></span>
                                 </div>
                             </div>
                         </div>
@@ -272,7 +272,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="first_name" name="first_name" 
-                                               value="<?= old('first_name', $user->first_name) ?>" required>
+                                               value="<?= old('first_name', $user['first_name']) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -280,7 +280,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="last_name" name="last_name" 
-                                               value="<?= old('last_name', $user->last_name) ?>" required>
+                                               value="<?= old('last_name', $user['last_name']) ?>" required>
                                     </div>
                                 </div>
                             </div>
@@ -373,8 +373,8 @@
                             <?= csrf_field() ?>
                             
                             <!-- Inputs hidden para campos obrigatórios -->
-                            <input type="hidden" name="first_name" value="<?= old('first_name', $user->first_name) ?>">
-                            <input type="hidden" name="last_name" value="<?= old('last_name', $user->last_name) ?>">
+                            <input type="hidden" name="first_name" value="<?= old('first_name', $user['first_name']) ?>">
+                            <input type="hidden" name="last_name" value="<?= old('last_name', $user['last_name']) ?>">
                             
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -382,7 +382,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-phone-alt text-muted"></i></span>
                                         <input type="text" class="form-control border-start-0" id="phone" name="phone" 
-                                               value="<?= old('phone', $user->phone) ?>">
+                                               value="<?= old('phone', $user['phone']) ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -418,7 +418,7 @@
                                 <label for="address" class="form-label fw-semibold">Endereço</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="fas fa-map-marker-alt text-muted"></i></span>
-                                    <textarea class="form-control border-start-0" id="address" name="address" rows="2"><?= old('address', $user->address) ?></textarea>
+                                    <textarea class="form-control border-start-0" id="address" name="address" rows="2"><?= old('address', $user['address']) ?></textarea>
                                 </div>
                             </div>
                             
@@ -475,8 +475,8 @@
                             <?= csrf_field() ?>
                             
                             <!-- Inputs hidden para campos obrigatórios -->
-                            <input type="hidden" name="first_name" value="<?= old('first_name', $user->first_name) ?>">
-                            <input type="hidden" name="last_name" value="<?= old('last_name', $user->last_name) ?>">
+                            <input type="hidden" name="first_name" value="<?= old('first_name', $user['first_name']) ?>">
+                            <input type="hidden" name="last_name" value="<?= old('last_name', $user['last_name']) ?>">
                             
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -534,8 +534,8 @@
                             <?= csrf_field() ?>
                             
                             <!-- Inputs hidden para campos obrigatórios -->
-                            <input type="hidden" name="first_name" value="<?= old('first_name', $user->first_name) ?>">
-                            <input type="hidden" name="last_name" value="<?= old('last_name', $user->last_name) ?>">
+                            <input type="hidden" name="first_name" value="<?= old('first_name', $user['first_name']) ?>">
+                            <input type="hidden" name="last_name" value="<?= old('last_name', $user['last_name']) ?>">
                             
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -594,7 +594,7 @@
                             <?php else: ?>
                                 <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center text-white"
                                      style="width: 100px; height: 100px; font-size: 2.5rem;">
-                                    <?= strtoupper(substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1)) ?>
+                                    <?= strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1)) ?>
                                 </div>
                             <?php endif; ?>
                         </div>

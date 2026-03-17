@@ -54,7 +54,7 @@ class Exams extends BaseController
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-            ->where('tbl_exam_schedules.class_id', $enrollment->class_id)
+            ->where('tbl_exam_schedules.class_id', $enrollment['class_id'])
             ->where('tbl_exam_schedules.exam_date >=', date('Y-m-d'))
             ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
             ->orderBy('tbl_exam_schedules.exam_time', 'ASC')
@@ -72,7 +72,7 @@ class Exams extends BaseController
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-            ->where('tbl_exam_schedules.class_id', $enrollment->class_id)
+            ->where('tbl_exam_schedules.class_id', $enrollment['class_id'])
             ->where('tbl_exam_schedules.exam_date <', date('Y-m-d'))
             ->orderBy('tbl_exam_schedules.exam_date', 'DESC')
             ->findAll();
@@ -129,7 +129,7 @@ class Exams extends BaseController
             ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_exam_schedules.discipline_id')
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
-            ->where('tbl_exam_schedules.class_id', $enrollment->class_id)
+            ->where('tbl_exam_schedules.class_id', $enrollment['class_id'])
             ->where('tbl_exam_schedules.exam_date >=', $startDate)
             ->where('tbl_exam_schedules.exam_date <=', $endDate)
             ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
@@ -239,7 +239,7 @@ class Exams extends BaseController
         }
         
         // Verificar se o exame é da turma do aluno
-        if ($data['exam']->class_id != $enrollment->class_id) {
+        if ($data['exam']->class_id != $enrollment['class_id']) {
             return redirect()->to('/students/exams')
                 ->with('error', 'Exame não pertence à sua turma');
         }

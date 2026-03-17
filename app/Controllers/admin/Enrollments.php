@@ -698,12 +698,12 @@ public function approve($id)
     } */
     
     // Verificar se tem turma atribuída
-    if (!$enrollment->class_id) {
+    if (!$enrollment['class_id']) {
         return redirect()->back()->with('error', 'É necessário atribuir uma turma antes de aprovar a matrícula');
     }
     
     // Verificar vagas
-    $availableSeats = $this->classModel->getAvailableSeats($enrollment->class_id);
+    $availableSeats = $this->classModel->getAvailableSeats($enrollment['class_id']);
     if ($availableSeats <= 0) {
         return redirect()->back()->with('error', 'Turma sem vagas disponíveis');
     }

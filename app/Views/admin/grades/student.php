@@ -50,10 +50,10 @@
                         <h3 class="mb-1"><?= $student['first_name'] ?> <?= $student['last_name'] ?></h3>
                         <p class="mb-1">
                             <span class="badge bg-info">Nº: <?= $student['student_number'] ?></span>
-                            <span class="badge bg-secondary ms-2"><?= $student->email ?></span>
+                            <span class="badge bg-secondary ms-2"><?= $student['email'] ?></span>
                         </p>
                         <p class="mb-0 text-muted">
-                            <i class="fas fa-phone me-1"></i> <?= $student->phone ?: 'Não informado' ?>
+                            <i class="fas fa-phone me-1"></i> <?= $student['phone'] ?: 'Não informado' ?>
                         </p>
                     </div>
                 </div>

@@ -360,7 +360,7 @@ class Profile extends BaseController
         if ($enrollment) {
             $classDisciplineModel = new \App\Models\ClassDisciplineModel();
             $disciplines = $classDisciplineModel
-                ->where('class_id', $enrollment->class_id)
+                ->where('class_id', $enrollment['class_id'])
                 ->where('is_active', 1)
                 ->countAllResults();
         }

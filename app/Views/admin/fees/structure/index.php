@@ -188,7 +188,7 @@
                             <?php if (!empty($feeTypes)): ?>
                                 <?php foreach ($feeTypes as $type): ?>
                                     <option value="<?= $type->id ?>">
-                                        <?= $type->type_name ?> (<?= $type->type_category ?>)
+                                        <?= $type['type_name'] ?> (<?= $type->type_category ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -322,7 +322,7 @@
                                                value="<?= $type->id ?>"
                                                id="type_<?= $type->id ?>">
                                         <label class="form-check-label" for="type_<?= $type->id ?>">
-                                            <?= $type->type_name ?> (<?= $type->type_category ?>)
+                                            <?= $type['type_name'] ?> (<?= $type->type_category ?>)
                                         </label>
                                     </div>
                                 <?php endforeach; ?>

@@ -163,7 +163,7 @@
             
             <div class="mb-3">
                 <label for="address" class="form-label">Endereço</label>
-                <textarea class="form-control" id="address" name="address" rows="2"><?= old('address', $user->address ?? '') ?></textarea>
+                <textarea class="form-control" id="address" name="address" rows="2"><?= old('address', $user['address'] ?? '') ?></textarea>
             </div>
             
             <div class="row">

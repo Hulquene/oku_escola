@@ -98,7 +98,7 @@ class DocumentGenerator extends BaseController
         // Buscar nomes dos usuários
         foreach ($data['requests'] as $req) {
             $user = $this->userModel->find($req->user_id);
-            $req->user_name = $user ? $user->first_name . ' ' . $user->last_name : 'N/A';
+            $req->user_name = $user ? $user['first_name'] . ' ' . $user['last_name'] : 'N/A';
         }
         
         return view('admin/document-generator/pending', $data);
@@ -386,17 +386,17 @@ class DocumentGenerator extends BaseController
             'data' => date('d/m/Y'),
             'aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
             'nome_aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
-            'bi' => $student['id']['entity_type'] ?? 'N/A',
-            'nif' => $student->nif ?? 'N/A',
+            'bi' => $student['identity_type'] ?? 'N/A',
+            'nif' => $student['nif'] ?? 'N/A',
             'classe' => $enrollment->class_name,
             'ano_letivo' => $enrollment['year_name'],
             'turno' => $enrollment->class_shift,
             'data_matricula' => date('d/m/Y', strtotime($enrollment['enrollment_date'])),
             'numero_matricula' => $enrollment['enrollment_number'],
-            'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A',
-            'naturalidade' => $student->birth_place ?? 'N/A',
+            'data_nascimento' => $student['birth_date'] ? date('d/m/Y', strtotime($student['birth_date'])) : 'N/A',
+            'naturalidade' => $student['birth_place'] ?? 'N/A',
             'filiacao' => 'A confirmar', // Buscar dos encarregados
-            'morada' => $student->address ?? 'N/A',
+            'morada' => $student['address'] ?? 'N/A',
             'quantidade' => $request->quantity,
             'formato' => $request->format
         ];
@@ -430,12 +430,12 @@ class DocumentGenerator extends BaseController
             'data' => date('d/m/Y'),
             'aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
             'nome_aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
-            'bi' => $student['id']['entity_type'] ?? 'N/A',
+            'bi' => $student['identity_type'] ?? 'N/A',
             'classe' => $enrollment->class_name,
             'ano_letivo' => $enrollment['year_name'],
             'turno' => $enrollment->class_shift,
             'finalidade' => $request->purpose,
-            'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A'
+            'data_nascimento' => $student['birth_date'] ? date('d/m/Y', strtotime($student['birth_date'])) : 'N/A'
         ];
         
         return $this->generatePDF('declaracao_frequencia', $data, $this->generateFileName($request));
@@ -479,8 +479,8 @@ class DocumentGenerator extends BaseController
             'data' => date('d/m/Y'),
             'aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
             'nome_aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
-            'bi' => $student['id']['entity_type'] ?? 'N/A',
-            'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A',
+            'bi' => $student['identity_type'] ?? 'N/A',
+            'data_nascimento' => $student['birth_date'] ? date('d/m/Y', strtotime($student['birth_date'])) : 'N/A',
             'historico' => $historico
         ];
         
@@ -519,8 +519,8 @@ class DocumentGenerator extends BaseController
             'data' => date('d/m/Y'),
             'aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
             'nome_aluno' => $student['full_name'] ?? $student['first_name'] . ' ' . $student['last_name'],
-            'bi' => $student['id']['entity_type'] ?? 'N/A',
-            'data_nascimento' => $student->birth_date ? date('d/m/Y', strtotime($student->birth_date)) : 'N/A',
+            'bi' => $student['identity_type'] ?? 'N/A',
+            'data_nascimento' => $student['birth_date'] ? date('d/m/Y', strtotime($student['birth_date'])) : 'N/A',
             'ano_conclusao' => $lastYear ?? 'N/A',
             'concluido' => $concluded
         ];

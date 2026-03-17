@@ -87,7 +87,7 @@ class FeeStructureModel extends BaseModel
         foreach ($enrollments as $enrollment) {
             // Get class to find grade level
             $classModel = new ClassModel();
-            $class = $classModel->find($enrollment->class_id);
+            $class = $classModel->find($enrollment['class_id']);
             
             if (!$class) {
                 continue;

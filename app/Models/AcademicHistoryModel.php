@@ -84,7 +84,7 @@ class AcademicHistoryModel extends BaseModel
         return $this->insert([
             'student_id' => $enrollment['student_id'],
             'academic_year_id' => $enrollment->academic_year_id,
-            'class_id' => $enrollment->class_id,
+            'class_id' => $enrollment['class_id'],
             'final_status' => $status,
             'final_average' => $average,
             'total_days' => $attendance,

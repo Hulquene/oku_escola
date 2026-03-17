@@ -300,7 +300,7 @@
                 </div>
             </div>
             <div class="ci-card-body">
-                <?php if (isset($enrollment->class_id) && $enrollment->class_id): ?>
+                <?php if (isset($enrollment['class_id']) && $enrollment['class_id']): ?>
                     <div class="info-grid">
                         <div class="info-item">
                             <div class="info-label">Turma</div>
@@ -359,7 +359,7 @@
                     </div>
                     
                     <div class="mt-3">
-                        <a href="<?= site_url('admin/classes/classes/view/' . $enrollment->class_id) ?>" 
+                        <a href="<?= site_url('admin/classes/classes/view/' . $enrollment['class_id']) ?>" 
                            class="btn-filter apply">
                             <i class="fas fa-eye me-1"></i> Ver Detalhes da Turma
                         </a>
