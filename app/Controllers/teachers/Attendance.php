@@ -89,7 +89,7 @@ public function index()
             if (is_array($att)) {
                 $att = (object)$att;
             }
-            $data['attendances'][$att->enrollment_id] = $att;
+            $data['attendances'][$att['enrollment_id']] = $att;
         }
     } else {
         $data['students'] = [];

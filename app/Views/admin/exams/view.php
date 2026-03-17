@@ -8,13 +8,13 @@
         <h1><?= $title ?></h1>
         <div>
             <?php if (!$exam->is_published): ?>
-                <a href="<?= site_url('admin/exams/publish/' . $exam->id) ?>" 
+                <a href="<?= site_url('admin/exams/publish/' . $exam['id']) ?>" 
                    class="btn btn-success"
                    onclick="return confirm('Publicar resultados? Os alunos poderão ver as notas.')">
                     <i class="fas fa-globe"></i> Publicar Resultados
                 </a>
             <?php endif; ?>
-            <a href="<?= site_url('admin/exams/form-edit/' . $exam->id) ?>" class="btn btn-info">
+            <a href="<?= site_url('admin/exams/form-edit/' . $exam['id']) ?>" class="btn btn-info">
                 <i class="fas fa-edit"></i> Editar
             </a>
             <a href="<?= site_url('admin/exams') ?>" class="btn btn-secondary">
@@ -51,11 +51,11 @@
                             </tr>
                             <tr>
                                 <th>Turma:</th>
-                                <td><?= $exam->class_name ?></td>
+                                <td><?= $exam['class_name'] ?></td>
                             </tr>
                             <tr>
                                 <th>Disciplina:</th>
-                                <td><?= $exam->discipline_name ?></td>
+                                <td><?= $exam['discipline_name'] ?></td>
                             </tr>
                             <tr>
                                 <th>Tipo:</th>
@@ -67,15 +67,15 @@
                         <table class="table table-sm">
                             <tr>
                                 <th>Data:</th>
-                                <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
+                                <td><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
                             </tr>
                             <tr>
                                 <th>Hora:</th>
-                                <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
+                                <td><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '-' ?></td>
                             </tr>
                             <tr>
                                 <th>Sala:</th>
-                                <td><?= $exam->exam_room ?: '-' ?></td>
+                                <td><?= $exam['exam_room'] ?: '-' ?></td>
                             </tr>
                             <tr>
                                 <th>Valor Máximo:</th>
@@ -106,7 +106,7 @@
                 <?php if (!empty($students)): ?>
                     <form action="<?= site_url('admin/exams/save-results') ?>" method="post">
                         <?= csrf_field() ?>
-                        <input type="hidden" name="exam_id" value="<?= $exam->id ?>">
+                        <input type="hidden" name="exam_id" value="<?= $exam['id'] ?>">
                         
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -121,8 +121,8 @@
                                 <tbody>
                                     <?php foreach ($students as $student): ?>
                                         <?php 
-                                        $result = $results[$student->enrollment_id] ?? null;
-                                        $score = $result ? $result->score : '';
+                                        $result = $results[$student['enrollment_id']] ?? null;
+                                        $score = $result ? $result['score'] : '';
                                         ?>
                                         <tr>
                                             <td><?= $student['student_number'] ?></td>
@@ -130,7 +130,7 @@
                                             <td style="width: 150px;">
                                                 <input type="number" 
                                                        class="form-control score-input" 
-                                                       name="score[<?= $student->enrollment_id ?>]" 
+                                                       name="score[<?= $student['enrollment_id'] ?>]" 
                                                        value="<?= $score ?>"
                                                        step="0.1"
                                                        min="0"
@@ -218,7 +218,7 @@
                     <hr>
                     
                     <div class="mt-3">
-                        <a href="<?= site_url('admin/exams/results?exam=' . $exam->id) ?>" class="btn btn-outline-primary w-100">
+                        <a href="<?= site_url('admin/exams/results?exam=' . $exam['id']) ?>" class="btn btn-outline-primary w-100">
                             <i class="fas fa-list"></i> Ver Resultados Detalhados
                         </a>
                     </div>
@@ -234,10 +234,10 @@
                 <i class="fas fa-download"></i> Exportar
             </div>
             <div class="card-body">
-                <a href="<?= site_url('admin/exams/results/export/' . $exam->id) ?>" class="btn btn-outline-success w-100 mb-2">
+                <a href="<?= site_url('admin/exams/results/export/' . $exam['id']) ?>" class="btn btn-outline-success w-100 mb-2">
                     <i class="fas fa-file-csv"></i> Exportar para CSV
                 </a>
-                <a href="<?= site_url('printpdf/exam/' . $exam->id) ?>" class="btn btn-outline-danger w-100">
+                <a href="<?= site_url('printpdf/exam/' . $exam['id']) ?>" class="btn btn-outline-danger w-100">
                     <i class="fas fa-file-pdf"></i> Gerar PDF
                 </a>
             </div>

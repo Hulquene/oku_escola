@@ -326,7 +326,7 @@ class AppealExams extends BaseController
         
         $attendanceMap = [];
         foreach ($attendance as $att) {
-            $attendanceMap[$att->enrollment_id] = $att;
+            $attendanceMap[$att['enrollment_id']] = $att;
         }
 
         // Get existing results if any
@@ -336,10 +336,10 @@ class AppealExams extends BaseController
         
         $resultsMap = [];
         foreach ($results as $res) {
-            $resultsMap[$res->enrollment_id] = $res;
+            $resultsMap[$res['enrollment_id']] = $res;
         }
 
-        $data['title'] = 'Alunos em Recurso - ' . $exam->discipline_name;
+        $data['title'] = 'Alunos em Recurso - ' . $exam['discipline_name'];
         $data['exam'] = $exam;
         $data['students'] = $students;
         $data['attendance'] = $attendanceMap;
@@ -539,11 +539,11 @@ class AppealExams extends BaseController
 
             // Get results for this exam
             $results = $this->examResultModel
-                ->where('exam_schedule_id', $exam->id)
+                ->where('exam_schedule_id', $exam['id'])
                 ->findAll();
 
             foreach ($results as $result) {
-                if ($result->score >= 10) {
+                if ($result['score'] >= 10) {
                     $stats['total_approved']++;
                 } else {
                     $stats['total_failed']++;

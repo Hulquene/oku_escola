@@ -178,7 +178,7 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($students as $student): ?>
-                                    <?php $attendance = $attendances[$student->enrollment_id] ?? null; ?>
+                                    <?php $attendance = $attendances[$student['enrollment_id']] ?? null; ?>
                                     <tr>
                                         <td><span class="badge bg-secondary"><?= $student['student_number'] ?></span></td>
                                         <td>
@@ -186,7 +186,7 @@
                                         </td>
                                         <td>
                                             <select class="form-select status-select" 
-                                                    name="attendance[<?= $student->enrollment_id ?>][status]"
+                                                    name="attendance[<?= $student['enrollment_id'] ?>][status]"
                                                     onchange="updateStats()">
                                                 <option value="Presente" <?= ($attendance && $attendance->status == 'Presente') ? 'selected' : '' ?>>Presente</option>
                                                 <option value="Ausente" <?= ($attendance && $attendance->status == 'Ausente') ? 'selected' : '' ?>>Ausente</option>
@@ -197,7 +197,7 @@
                                         </td>
                                         <td>
                                             <input type="text" class="form-control form-control-sm" 
-                                                   name="attendance[<?= $student->enrollment_id ?>][justification]" 
+                                                   name="attendance[<?= $student['enrollment_id'] ?>][justification]" 
                                                    value="<?= $attendance ? $attendance->justification : '' ?>" 
                                                    placeholder="Justificação (opcional)">
                                         </td>

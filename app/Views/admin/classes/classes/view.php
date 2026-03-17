@@ -402,10 +402,10 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                                 <span class="code-badge"><?= esc($disc['discipline_code']) ?></span>
                             </td>
                             <td>
-                                <?php if (!empty($disc->teacher_id)): ?>
+                                <?php if (!empty($disc['teacher_id'])): ?>
                                 <?php
                                     $teacherModel = new \App\Models\UserModel();
-                                    $teacher = $teacherModel->find($disc->teacher_id);
+                                    $teacher = $teacherModel->find($disc['teacher_id']);
                                 ?>
                                 <?php if ($teacher): ?>
                                 <div class="teacher-chip">
@@ -421,7 +421,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                             </td>
                             <td style="text-align:center;">
                                 <span class="workload-chip">
-                                    <?= $disc->workload_hours ? esc($disc->workload_hours).'h' : '—' ?>
+                                    <?= $disc['workload_hours'] ? esc($disc['workload_hours']).'h' : '—' ?>
                                 </span>
                             </td>
                         </tr>

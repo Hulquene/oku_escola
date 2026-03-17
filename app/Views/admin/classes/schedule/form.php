@@ -466,7 +466,7 @@ textarea.form-control {
             <?= csrf_field() ?>
             
             <?php if (isset($schedule)): ?>
-                <input type="hidden" name="id" value="<?= $schedule->id ?>">
+                <input type="hidden" name="id" value="<?= $schedule['id'] ?>">
             <?php endif; ?>
             
             <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
@@ -604,7 +604,7 @@ textarea.form-control {
                     <i class="fas fa-save"></i>Salvar Horário
                 </button>
                 <?php if (isset($schedule)): ?>
-                    <button type="button" class="btn btn-danger" onclick="confirmDelete(<?= $schedule->id ?>, '<?= $schedule->discipline_name ?? 'este horário' ?>')">
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete(<?= $schedule['id'] ?>, '<?= $schedule['discipline_name'] ?? 'este horário' ?>')">
                         <i class="fas fa-trash"></i>Eliminar
                     </button>
                 <?php endif; ?>

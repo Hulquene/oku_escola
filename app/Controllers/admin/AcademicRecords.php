@@ -374,7 +374,7 @@ class AcademicRecords extends BaseController
         foreach ($data['disciplines'] as $discipline) {
             // Buscar média da disciplina usando o novo model
             $avg = $this->disciplineAverageModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('discipline_id', $discipline['id'])
                 ->where('semester_id', $semesterId)
                 ->first();
@@ -399,7 +399,7 @@ class AcademicRecords extends BaseController
         
         // Buscar resultado semestral
         $semesterResult = $this->semesterResultModel
-            ->where('enrollment_id', $student->enrollment_id)
+            ->where('enrollment_id', $student['enrollment_id'])
             ->where('semester_id', $semesterId)
             ->first();
         
@@ -508,7 +508,7 @@ public function class($classId)
         
         foreach ($data['disciplines'] as $discipline) {
             // Buscar notas da disciplina por trimestre
-            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline['id']);
+            $notas = $this->getDisciplineTrimestralScores($student['enrollment_id'], $discipline['id']);
             
             $student->disciplinas[$discipline['id']] = $notas;
             
@@ -581,7 +581,7 @@ private function getDisciplineTrimestralScores($enrollmentId, $disciplineId)
             $trimestres[$trimestre]['notas'][$result->board_code] = [];
         }
         
-        $trimestres[$trimestre]['notas'][$result->board_code][] = $result->score;
+        $trimestres[$trimestre]['notas'][$result->board_code][] = $result['score'];
     }
     
     // Calcular médias por trimestre
@@ -737,7 +737,7 @@ public function exportFinal($classId)
         ];
         
         foreach ($disciplines as $disc) {
-            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $disc['id']);
+            $notas = $this->getDisciplineTrimestralScores($student['enrollment_id'], $disc['id']);
             
             $row['disc_' . $disc['id'] . '_m1'] = $notas['trimestre1']['mt'] ?? '';
             $row['disc_' . $disc['id'] . '_mt2'] = $notas['trimestre2']['mt'] ?? '';
@@ -745,7 +745,7 @@ public function exportFinal($classId)
             $row['disc_' . $disc['id'] . '_mfd'] = $notas['mfd'] ?? '';
         }
         
-        $row['resultado'] = $this->determinarResultadoFinal([$student->enrollment_id => []]); // Simplificado
+        $row['resultado'] = $this->determinarResultadoFinal([$student['enrollment_id'] => []]); // Simplificado
         
         $dados[] = $row;
     }
@@ -1192,7 +1192,7 @@ public function export()
         
         foreach ($disciplines as $disc) {
             $avg = $this->disciplineAverageModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('discipline_id', $disc['id'])
                 ->where('semester_id', $semesterId)
                 ->first();
@@ -1201,7 +1201,7 @@ public function export()
         }
         
         $result = $this->semesterResultModel
-            ->where('enrollment_id', $student->enrollment_id)
+            ->where('enrollment_id', $student['enrollment_id'])
             ->where('semester_id', $semesterId)
             ->first();
         
@@ -1497,7 +1497,7 @@ public function export()
             
             foreach ($data['disciplines'] as $discipline) {
                 // Buscar notas da disciplina por trimestre
-                $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline['id']);
+                $notas = $this->getDisciplineTrimestralScores($student['enrollment_id'], $discipline['id']);
                 $student->disciplinas[$discipline['id']] = $notas;
                 
                 if ($notas['mfd'] !== null) {

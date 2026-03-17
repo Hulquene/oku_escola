@@ -712,13 +712,13 @@ $this->section('content');
             <div class="ci-card-body p0">
                 <ul class="ci-list">
                     <?php foreach (array_slice($upcomingExams, 0, 8) as $exam):
-                        $isToday = (date('Y-m-d', strtotime($exam->exam_date)) === date('Y-m-d'));
+                        $isToday = (date('Y-m-d', strtotime($exam['exam_date'])) === date('Y-m-d'));
                     ?>
                     <li class="ci-list-item">
                         <div style="min-width:0;flex:1">
-                            <div class="ci-list-item-name"><?= esc($exam->discipline_name ?? '—') ?></div>
+                            <div class="ci-list-item-name"><?= esc($exam['discipline_name'] ?? '—') ?></div>
                             <div class="ci-list-item-sub">
-                                <i class="fa-solid fa-door-open fa-xs"></i><?= esc($exam->class_name ?? '—') ?>
+                                <i class="fa-solid fa-door-open fa-xs"></i><?= esc($exam['class_name'] ?? '—') ?>
                                 <?php if (!empty($exam->board_name)): ?>
                                     <span style="opacity:.4">·</span><?= esc($exam->board_name) ?>
                                 <?php endif; ?>
@@ -726,7 +726,7 @@ $this->section('content');
                         </div>
                         <div class="text-end flex-shrink-0">
                             <span class="ci-list-badge <?= $isToday ? 'today' : 'future' ?>">
-                                <?= $isToday ? 'Hoje' : date('d/m', strtotime($exam->exam_date)) ?>
+                                <?= $isToday ? 'Hoje' : date('d/m', strtotime($exam['exam_date'])) ?>
                             </span>
                             <?php if (!empty($exam->start_time)): ?>
                             <div class="ci-list-date"><?= date('H:i', strtotime($exam->start_time)) ?></div>

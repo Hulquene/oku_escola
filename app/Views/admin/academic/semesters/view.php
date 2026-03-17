@@ -321,19 +321,19 @@ body { background: var(--surface); color: var(--text-primary); }
             <tbody>
                 <?php foreach ($exams as $exam):
                     $today  = date('Y-m-d');
-                    $isToday = $exam->exam_date == $today;
-                    $isPast  = $exam->exam_date <  $today;
+                    $isToday = $exam['exam_date'] == $today;
+                    $isPast  = $exam['exam_date'] <  $today;
                     $ebClass = $isToday ? 'eb-today' : ($isPast ? 'eb-past' : 'eb-upcoming');
                     $ebText  = $isToday ? 'Hoje' : ($isPast ? 'Realizado' : 'Agendado');
                 ?>
                 <tr>
-                    <td style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.78rem;"><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
-                    <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text-secondary);"><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '—' ?></td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.78rem;"><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text-secondary);"><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '—' ?></td>
                     <td style="font-weight:600;"><?= esc($exam->board_name ?? 'Exame') ?></td>
-                    <td><span class="exam-type-badge"><?= esc($exam->board_type ?? 'Normal') ?></span></td>
-                    <td><?= esc($exam->class_name) ?></td>
-                    <td><?= esc($exam->discipline_name) ?></td>
-                    <td style="color:var(--text-muted);font-size:.8rem;"><?= esc($exam->exam_room ?: '—') ?></td>
+                    <td><span class="exam-type-badge"><?= esc($exam['board_type'] ?? 'Normal') ?></span></td>
+                    <td><?= esc($exam['class_name']) ?></td>
+                    <td><?= esc($exam['discipline_name']) ?></td>
+                    <td style="color:var(--text-muted);font-size:.8rem;"><?= esc($exam['exam_room'] ?: '—') ?></td>
                     <td class="center"><span class="exam-badge <?= $ebClass ?>"><?= $ebText ?></span></td>
                 </tr>
                 <?php endforeach; ?>

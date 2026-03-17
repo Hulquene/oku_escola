@@ -96,19 +96,19 @@
                                     <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                     <td class="text-center">
                                         <input type="number" class="form-control form-control-sm text-center" 
-                                               name="ac1[<?= $student->enrollment_id ?>]" 
+                                               name="ac1[<?= $student['enrollment_id'] ?>]" 
                                                value="<?= $ac1 ?>" step="0.1" min="0" max="20"
                                                style="width: 80px; margin: 0 auto;">
                                     </td>
                                     <td class="text-center">
                                         <input type="number" class="form-control form-control-sm text-center" 
-                                               name="ac2[<?= $student->enrollment_id ?>]" 
+                                               name="ac2[<?= $student['enrollment_id'] ?>]" 
                                                value="<?= $ac2 ?>" step="0.1" min="0" max="20"
                                                style="width: 80px; margin: 0 auto;">
                                     </td>
                                     <td class="text-center">
                                         <input type="number" class="form-control form-control-sm text-center" 
-                                               name="ac3[<?= $student->enrollment_id ?>]" 
+                                               name="ac3[<?= $student['enrollment_id'] ?>]" 
                                                value="<?= $ac3 ?>" step="0.1" min="0" max="20"
                                                style="width: 80px; margin: 0 auto;">
                                     </td>

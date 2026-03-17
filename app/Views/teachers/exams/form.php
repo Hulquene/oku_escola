@@ -27,7 +27,7 @@
             <?= csrf_field() ?>
             
             <?php if (isset($exam) && $exam): ?>
-                <input type="hidden" name="id" value="<?= $exam->id ?>">
+                <input type="hidden" name="id" value="<?= $exam['id'] ?>">
             <?php endif; ?>
             
             <div class="row">
@@ -111,7 +111,7 @@
                     <div class="mb-3">
                         <label for="exam_date" class="form-label">Data <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="exam_date" name="exam_date" 
-                               value="<?= old('exam_date', $exam->exam_date ?? '') ?>" 
+                               value="<?= old('exam_date', $exam['exam_date'] ?? '') ?>" 
                                min="<?= date('Y-m-d') ?>" required>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                     <div class="mb-3">
                         <label for="exam_time" class="form-label">Hora</label>
                         <input type="time" class="form-control" id="exam_time" name="exam_time" 
-                               value="<?= old('exam_time', $exam->exam_time ?? '') ?>">
+                               value="<?= old('exam_time', $exam['exam_time'] ?? '') ?>">
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@
                     <div class="mb-3">
                         <label for="exam_room" class="form-label">Sala</label>
                         <input type="text" class="form-control" id="exam_room" name="exam_room" 
-                               value="<?= old('exam_room', $exam->exam_room ?? '') ?>"
+                               value="<?= old('exam_room', $exam['exam_room'] ?? '') ?>"
                                placeholder="Ex: Sala 101">
                     </div>
                 </div>

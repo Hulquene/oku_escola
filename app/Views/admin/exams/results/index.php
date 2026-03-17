@@ -45,8 +45,8 @@
                 <select class="form-select" name="exam" onchange="this.form.submit()">
                     <option value="">Todos</option>
                     <?php foreach ($exams as $exam): ?>
-                        <option value="<?= $exam->id ?>" <?= $selectedExam == $exam->id ? 'selected' : '' ?>>
-                            <?= date('d/m/Y', strtotime($exam->exam_date)) ?> - <?= $exam->discipline_name ?>
+                        <option value="<?= $exam['id'] ?>" <?= $selectedExam == $exam['id'] ? 'selected' : '' ?>>
+                            <?= date('d/m/Y', strtotime($exam['exam_date'])) ?> - <?= $exam['discipline_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -118,8 +118,8 @@
                     <tbody>
                         <?php foreach ($results as $result): ?>
                             <?php
-                            $statusClass = $result->score >= 10 ? 'success' : ($result->score >= 7 ? 'warning' : 'danger');
-                            $statusText = $result->score >= 10 ? 'Aprovado' : ($result->score >= 7 ? 'Recurso' : 'Reprovado');
+                            $statusClass = $result['score'] >= 10 ? 'success' : ($result['score'] >= 7 ? 'warning' : 'danger');
+                            $statusText = $result['score'] >= 10 ? 'Aprovado' : ($result['score'] >= 7 ? 'Recurso' : 'Reprovado');
                             ?>
                             <tr>
                                 <td class="ps-3">
@@ -151,7 +151,7 @@
                                 </td>
                                 <td class="text-center">
                                     <span class="fw-bold fs-5 <?= $statusClass == 'success' ? 'text-success' : ($statusClass == 'warning' ? 'text-warning' : 'text-danger') ?>">
-                                        <?= number_format($result->score, 1) ?>
+                                        <?= number_format($result['score'], 1) ?>
                                     </span>
                                 </td>
                                 <td class="text-center">

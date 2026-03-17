@@ -481,13 +481,13 @@ public function updateStatus($id, $status, $userId = null)
     }
     
     // Verificar se já está com o mesmo status
-    if ($exam->status === $status) {
+    if ($exam['status'] === $status) {
         log_message('info', "Exame ID {$id} já está com status {$status}");
         return true; // Nada a fazer, mas consideramos sucesso
     }
     
     // Registrar status anterior para log
-    $oldStatus = $exam->status;
+    $oldStatus = $exam['status'];
     
     // Atualizar status
     $result = $this->update($id, ['status' => $status]);

@@ -252,11 +252,11 @@
                         <tbody>
                             <?php foreach ($upcomingExams as $exam): ?>
                                 <tr>
-                                    <td><strong><?= $exam->discipline_name ?></strong></td>
-                                    <td><?= $exam->formatted_date ?? date('d/m/Y', strtotime($exam->exam_date)) ?></td>
-                                    <td><?= $exam->formatted_time ?? ($exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '--:--') ?></td>
-                                    <td><?= $exam->exam_room ?? 'N/D' ?></td>
-                                    <td><span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span></td>
+                                    <td><strong><?= $exam['discipline_name'] ?></strong></td>
+                                    <td><?= $exam->formatted_date ?? date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
+                                    <td><?= $exam->formatted_time ?? ($exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '--:--') ?></td>
+                                    <td><?= $exam['exam_room'] ?? 'N/D' ?></td>
+                                    <td><span class="badge bg-info"><?= $exam['board_type'] ?? 'Normal' ?></span></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

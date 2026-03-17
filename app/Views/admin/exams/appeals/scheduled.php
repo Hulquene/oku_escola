@@ -69,12 +69,12 @@
                                 <?php foreach ($periodExams as $exam): ?>
                                     <tr>
                                         <td class="ps-3">
-                                            <?= date('d/m/Y', strtotime($exam->exam_date)) ?>
+                                            <?= date('d/m/Y', strtotime($exam['exam_date'])) ?>
                                             <br>
-                                            <small class="text-muted"><?= $exam->exam_time ?></small>
+                                            <small class="text-muted"><?= $exam['exam_time'] ?></small>
                                         </td>
-                                        <td class="fw-semibold"><?= $exam->class_name ?></td>
-                                        <td><?= $exam->discipline_name ?></td>
+                                        <td class="fw-semibold"><?= $exam['class_name'] ?></td>
+                                        <td><?= $exam['discipline_name'] ?></td>
                                         <td class="text-center">
                                             <span class="badge bg-info"><?= $exam->total_students ?></span>
                                         </td>
@@ -95,23 +95,23 @@
                                                 'Realizado' => 'success',
                                                 'Cancelado' => 'danger'
                                             ];
-                                            $color = $statusColors[$exam->status] ?? 'secondary';
+                                            $color = $statusColors[$exam['status']] ?? 'secondary';
                                             ?>
                                             <span class="badge bg-<?= $color ?> p-2">
-                                                <?= $exam->status ?>
+                                                <?= $exam['status'] ?>
                                             </span>
                                         </td>
                                         <td class="text-center pe-3">
                                             <div class="btn-group btn-group-sm">
-                                                <a href="<?= site_url('admin/exams/appeals/exam-students/' . $exam->id) ?>" 
+                                                <a href="<?= site_url('admin/exams/appeals/exam-students/' . $exam['id']) ?>" 
                                                    class="btn btn-outline-primary" title="Gerir alunos">
                                                     <i class="fas fa-users"></i>
                                                 </a>
-                                                <a href="<?= site_url('admin/exams/schedules/attendance/' . $exam->id) ?>" 
+                                                <a href="<?= site_url('admin/exams/schedules/attendance/' . $exam['id']) ?>" 
                                                    class="btn btn-outline-success" title="Presenças">
                                                     <i class="fas fa-user-check"></i>
                                                 </a>
-                                                <a href="<?= site_url('admin/exams/schedules/results/' . $exam->id) ?>" 
+                                                <a href="<?= site_url('admin/exams/schedules/results/' . $exam['id']) ?>" 
                                                    class="btn btn-outline-warning" title="Notas">
                                                     <i class="fas fa-graduation-cap"></i>
                                                 </a>

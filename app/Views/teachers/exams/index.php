@@ -246,7 +246,7 @@
                             $hasResults = ($exam->results_count ?? 0) > 0;
                             
                             // CORREÇÃO 1: Usar o status real da tabela
-                            switch($exam->status) {
+                            switch($exam['status']) {
                                 case 'Realizado':
                                     $statusClass = 'secondary';
                                     $statusText = 'Realizado';
@@ -265,13 +265,13 @@
                             }
                             
                             // Se for hoje, destacar (apenas se ainda estiver agendado)
-                            if ($exam->exam_date == date('Y-m-d') && $exam->status == 'Agendado') {
+                            if ($exam['exam_date'] == date('Y-m-d') && $exam['status'] == 'Agendado') {
                                 $statusClass = 'success';
                                 $statusText = 'Hoje';
                             }
                             
                             // CORREÇÃO 2: Mapear board_type para classe do badge
-                            $boardTypeClass = match($exam->board_type) {
+                            $boardTypeClass = match($exam['board_type']) {
                                 'Avaliação Contínua' => 'info',
                                 'Prova Professor' => 'primary',
                                 'Prova Trimestral' => 'warning',
@@ -285,14 +285,14 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-<?= $boardTypeClass ?>">
-                                        <?= $exam->board_type ?? 'Normal' ?>
+                                        <?= $exam['board_type'] ?? 'Normal' ?>
                                     </span>
                                 </td>
-                                <td><?= $exam->class_name ?></td>
-                                <td><?= $exam->discipline_name ?></td>
-                                <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
-                                <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
-                                <td><?= $exam->exam_room ?: '-' ?></td>
+                                <td><?= $exam['class_name'] ?></td>
+                                <td><?= $exam['discipline_name'] ?></td>
+                                <td><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
+                                <td><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '-' ?></td>
+                                <td><?= $exam['exam_room'] ?: '-' ?></td>
                                 <td>
                                     <span class="badge bg-secondary" title="<?= $exam->period_name ?? '' ?>">
                                         <?= $exam->period_type ?? 'Normal' ?>
@@ -317,29 +317,29 @@
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="<?= site_url('teachers/exams/grade/' . $exam->id) ?>" 
+                                        <a href="<?= site_url('teachers/exams/grade/' . $exam['id']) ?>" 
                                            class="btn btn-sm btn-success" title="Lançar Notas">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
-                                        <?php if ($exam->exam_date >= date('Y-m-d') || !$hasResults): ?>
-                                            <a href="<?= site_url('teachers/exams/form-edit/' . $exam->id) ?>" 
+                                        <?php if ($exam['exam_date'] >= date('Y-m-d') || !$hasResults): ?>
+                                            <a href="<?= site_url('teachers/exams/form-edit/' . $exam['id']) ?>" 
                                                class="btn btn-sm btn-info" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         <?php endif; ?>
-                                        <?php if (!$hasResults && $exam->exam_date >= date('Y-m-d')): ?>
+                                        <?php if (!$hasResults && $exam['exam_date'] >= date('Y-m-d')): ?>
                                             <button type="button" 
                                                     class="btn btn-sm btn-danger" 
-                                                    onclick="confirmDelete(<?= $exam->id ?>)"
+                                                    onclick="confirmDelete(<?= $exam['id'] ?>)"
                                                     title="Eliminar">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         <?php endif; ?>
-                                        <a href="<?= site_url('teachers/exams/results/' . $exam->id) ?>" 
+                                        <a href="<?= site_url('teachers/exams/results/' . $exam['id']) ?>" 
                                            class="btn btn-sm btn-primary" title="Ver Resultados">
                                             <i class="fas fa-chart-bar"></i>
                                         </a>
-                                        <a href="<?= site_url('teachers/exams/attendance/' . $exam->id) ?>" 
+                                        <a href="<?= site_url('teachers/exams/attendance/' . $exam['id']) ?>" 
                                            class="btn btn-sm btn-warning" title="Registrar Presenças">
                                             <i class="fas fa-user-check"></i>
                                         </a>

@@ -2,41 +2,43 @@
 
 <?= $this->section('content') ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
+<!-- Page Header com estilo do sistema -->
+<div class="ci-page-header">
+    <div class="ci-page-header-inner">
         <div>
-            <h1 class="mb-2"><?= $title ?></h1>
-            <p class="text-muted mb-0">
-                <i class="fas fa-calendar-alt me-1"></i>
-                Gerencie os períodos de exames e avaliações
-            </p>
+            <h1><i class="fas fa-calendar-alt me-2"></i><?= $title ?></h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/exams') ?>">Exames</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Períodos</li>
+                </ol>
+            </nav>
         </div>
-        <div class="d-flex gap-2">
-            <a href="<?= site_url('admin/exams/periods/create') ?>" class="btn btn-primary">
+        <div class="hdr-actions">
+            <a href="<?= site_url('admin/exams/periods/create') ?>" class="hdr-btn primary">
                 <i class="fas fa-plus me-1"></i> Novo Período
             </a>
         </div>
     </div>
-    <nav aria-label="breadcrumb" class="mt-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/exams') ?>">Exames</a></li>
-            <li class="breadcrumb-item active">Períodos</li>
-        </ol>
-    </nav>
 </div>
 
 <!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
 <!-- Filtros -->
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="get" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label fw-semibold">Ano Letivo</label>
-                <select class="form-select" name="academic_year" onchange="this.form.submit()">
+<div class="ci-card mb-4">
+    <div class="ci-card-header">
+        <div class="ci-card-title">
+            <i class="fas fa-filter"></i>
+            <span>Filtros</span>
+        </div>
+    </div>
+    <div class="ci-card-body">
+        <form method="get" class="filter-grid">
+            <div>
+                <label class="filter-label">Ano Letivo</label>
+                <select class="filter-select" name="academic_year" onchange="this.form.submit()">
                     <option value="">Todos os anos</option>
                     <?php foreach ($academicYears as $year): ?>
                         <option value="<?= $year['id'] ?>" <?= current_academic_year() == $year['id'] ? 'selected' : '' ?>>
@@ -45,8 +47,8 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <a href="<?= site_url('admin/exams/periods') ?>" class="btn btn-secondary">
+            <div class="filter-actions" style="grid-column: -1 / 1;">
+                <a href="<?= site_url('admin/exams/periods') ?>" class="btn-filter clear">
                     <i class="fas fa-undo me-1"></i> Limpar Filtros
                 </a>
             </div>
@@ -61,13 +63,13 @@
             <?php 
             // Determinar cores com base no status
             $statusColors = [
-                'Planejado' => ['bg' => 'secondary', 'icon' => 'fa-calendar'],
-                'Em Andamento' => ['bg' => 'success', 'icon' => 'fa-play'],
-                'Concluído' => ['bg' => 'info', 'icon' => 'fa-check-circle'],
-                'Cancelado' => ['bg' => 'danger', 'icon' => 'fa-times-circle']
+                'Planejado' => ['class' => 'secondary', 'icon' => 'fa-calendar'],
+                'Em Andamento' => ['class' => 'success', 'icon' => 'fa-play'],
+                'Concluído' => ['class' => 'info', 'icon' => 'fa-check-circle'],
+                'Cancelado' => ['class' => 'danger', 'icon' => 'fa-times-circle']
             ];
             
-            $statusColor = $statusColors[$period['status']] ?? ['bg' => 'secondary', 'icon' => 'fa-calendar'];
+            $statusColor = $statusColors[$period['status']] ?? ['class' => 'secondary', 'icon' => 'fa-calendar'];
             
             // Calcular dias restantes ou passados
             $today = new DateTime();
@@ -86,25 +88,25 @@
             ?>
             
             <div class="col-md-4">
-                <div class="card h-100 period-card">
+                <div class="ci-card period-card h-100">
                     <!-- Cabeçalho com status -->
-                    <div class="card-header bg-<?= $statusColor['bg'] ?> text-white py-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
+                    <div class="ci-card-header" style="background: var(--<?= $statusColor['class'] ?>); color: #030303;">
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <div class="ci-card-title" style="color: #070707;">
                                 <i class="fas <?= $statusColor['icon'] ?> me-2"></i>
-                                <?= $period['period_name'] ?>
-                            </h5>
-                            <span class="badge bg-light text-dark">
+                                <span><?= $period['period_name'] ?></span>
+                            </div>
+                            <span class="badge-ci black">
                                 <?= $period['total_exams'] ?? 0 ?> exames
                             </span>
                         </div>
-                        <small class="d-block mt-2">
+                        <small class="d-block mt-2" style="opacity: 0.9;">
                             <?= $period['period_type'] ?> • <?= $period['semester_name'] ?>
                         </small>
                     </div>
                     
                     <!-- Corpo do card -->
-                    <div class="card-body">
+                    <div class="ci-card-body">
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">
@@ -123,7 +125,7 @@
                                     <span class="text-muted">
                                         <i class="fas fa-hourglass-half me-1"></i> Status:
                                     </span>
-                                    <span class="badge bg-<?= $statusColor['bg'] ?> bg-opacity-10 text-<?= $statusColor['bg'] ?>">
+                                    <span class="badge-ci <?= $statusColor['class'] ?>" style="background: rgba(var(--<?= $statusColor['class'] ?>-rgb), 0.1);">
                                         <?= $daysText ?>
                                     </span>
                                 </div>
@@ -148,24 +150,24 @@
                                     <span>Progresso</span>
                                     <span><?= $progress ?>%</span>
                                 </div>
-                                <div class="progress" style="height: 5px;">
-                                    <div class="progress-bar bg-success" style="width: <?= $progress ?>%"></div>
+                                <div class="progress" style="height: 5px; background: var(--surface);">
+                                    <div class="progress-bar bg-success" style="width: <?= $progress ?>%; height: 5px; border-radius: 3px;"></div>
                                 </div>
                             </div>
                         <?php endif; ?>
                     </div>
                     
                     <!-- Footer com ações -->
-                    <div class="card-footer bg-white">
+                    <div class="ci-card-footer" style="background: var(--surface);">
                         <div class="d-flex justify-content-between gap-2">
                             <a href="<?= site_url('admin/exams/periods/view/' . $period['id']) ?>" 
-                               class="btn btn-sm btn-outline-primary flex-grow-1">
+                               class="btn-ci outline flex-grow-1">
                                 <i class="fas fa-eye me-1"></i> Detalhes
                             </a>
                             
                             <?php if ($period['status'] != 'Concluído' && $period['status'] != 'Cancelado'): ?>
                                 <a href="<?= site_url('admin/exams/periods/generate-schedule/' . $period['id']) ?>" 
-                                   class="btn btn-sm btn-outline-success" 
+                                   class="btn-ci outline" 
                                    title="Gerar calendário">
                                     <i class="fas fa-calendar-plus"></i>
                                 </a>
@@ -173,7 +175,7 @@
                             
                             <div class="btn-group">
                                 <button type="button" 
-                                        class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                        class="row-btn" 
                                         data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
@@ -183,7 +185,6 @@
                                             <i class="fas fa-edit me-2 text-primary"></i> Editar
                                         </a>
                                     </li>
-                                    <!-- No dropdown menu, substitua os links -->
                                     <?php if ($period['status'] == 'Planejado'): ?>
                                         <li>
                                             <a class="dropdown-item text-success" href="<?= site_url('admin/exams/periods/start/' . $period['id']) ?>" 
@@ -243,24 +244,24 @@
     <?php endif; ?>
     
 <?php else: ?>
-    <!-- Estado vazio -->
+    <!-- Estado vazio com estilo do sistema -->
     <div class="empty-state">
-        <i class="fas fa-calendar-times empty-state-icon"></i>
-        <h5 class="empty-state-title">Nenhum período de exame encontrado</h5>
-        <p class="empty-state-text">
+        <i class="fas fa-calendar-times"></i>
+        <h5>Nenhum período de exame encontrado</h5>
+        <p class="text-muted">
             Comece por criar um novo período de exames para organizar as avaliações.
         </p>
-        <a href="<?= site_url('admin/exams/periods/create') ?>" class="btn btn-primary">
+        <a href="<?= site_url('admin/exams/periods/create') ?>" class="btn-ci primary">
             <i class="fas fa-plus me-2"></i> Criar Período
         </a>
     </div>
 <?php endif; ?>
 
-<!-- Modal de Confirmação de Delete -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
+<!-- Modal de Confirmação de Delete com estilo do sistema -->
+<div class="modal fade ci-modal" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header danger-header">
                 <h5 class="modal-title">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     Confirmar Eliminação
@@ -269,14 +270,16 @@
             </div>
             <div class="modal-body">
                 <p>Tem certeza que deseja eliminar o período <strong id="deleteItemName"></strong>?</p>
-                <p class="text-danger mb-0">
+                <div class="alert-ci danger mt-3">
                     <i class="fas fa-info-circle me-1"></i>
                     Esta ação não pode ser desfeita. Todos os agendamentos associados serão removidos.
-                </p>
+                </div>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                <a href="#" id="deleteConfirmBtn" class="btn btn-danger">
+            <div class="modal-footer">
+                <button type="button" class="btn-filter clear" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <a href="#" id="deleteConfirmBtn" class="btn-filter danger">
                     <i class="fas fa-trash me-2"></i>Eliminar
                 </a>
             </div>
@@ -284,54 +287,125 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+function confirmDelete(id, name) {
+    document.getElementById('deleteItemName').textContent = name;
+    document.getElementById('deleteConfirmBtn').href = '<?= site_url('admin/exams/periods/delete') ?>/' + id;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+$(document).ready(function() {
+    // Inicializar tooltips se existirem
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+
 <style>
+/* Estilos adicionais específicos para esta página */
 .period-card {
     border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .period-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-lg);
 }
 
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.empty-state-icon {
-    font-size: 4rem;
-    color: #dee2e6;
-    margin-bottom: 1rem;
-}
-
-.empty-state-title {
-    color: #495057;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.empty-state-text {
-    color: #6c757d;
-    margin-bottom: 1.5rem;
-}
-
-.badge {
-    font-weight: 500;
-    padding: 0.5em 0.8em;
-}
-
-.card-header {
+.period-card .ci-card-header {
     border-bottom: none;
 }
 
-.card-footer {
-    border-top: 1px solid rgba(0,0,0,.05);
+.period-card .ci-card-footer {
+    border-top: 1px solid var(--border);
+}
+
+/* Badge light para fundos escuros */
+.badge-ci.light {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+}
+
+/* Progress bar customizada */
+.progress {
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.progress-bar.bg-success {
+    background: var(--success) !important;
+}
+
+/* Cores de texto para badges */
+.text-success { color: var(--success) !important; }
+.text-warning { color: var(--warning) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-primary { color: var(--accent) !important; }
+.text-info { color: var(--accent) !important; }
+
+/* Dropdown menu */
+.dropdown-menu {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 0.82rem;
+    transition: all 0.18s;
+}
+
+.dropdown-item:hover {
+    background: var(--surface);
+}
+
+.dropdown-divider {
+    border-top: 1px solid var(--border);
+    margin: 0.5rem 0;
+}
+
+/* Botão de ellipsis */
+.row-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .18s;
+}
+
+.row-btn:hover {
+    background: var(--surface);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Animações */
+.col-md-4 {
+    animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
@@ -339,17 +413,21 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.col-md-4 {
-    animation: fadeIn 0.3s ease-out;
+/* Responsividade */
+@media (max-width: 768px) {
+    .btn-ci.outline {
+        padding: 0.35rem 0.8rem;
+        font-size: 0.75rem;
+    }
+    
+    .row-btn {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .period-card .ci-card-footer .d-flex {
+        flex-wrap: wrap;
+    }
 }
 </style>
-
-<script>
-function confirmDelete(id, name) {
-    document.getElementById('deleteItemName').textContent = name;
-    document.getElementById('deleteConfirmBtn').href = '<?= site_url('admin/exams/periods/delete') ?>/' + id;
-    new bootstrap.Modal(document.getElementById('deleteModal')).show();
-}
-</script>
-
 <?= $this->endSection() ?>

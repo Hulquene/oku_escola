@@ -9,15 +9,15 @@
             <h1 class="mb-2">Alunos em Recurso</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-users me-1"></i>
-                <?= $exam->discipline_name ?> • <?= $exam->class_name ?>
+                <?= $exam['discipline_name'] ?> • <?= $exam['class_name'] ?>
             </p>
         </div>
         <div class="d-flex gap-2">
-            <a href="<?= site_url('admin/exams/schedules/attendance/' . $exam->id) ?>" 
+            <a href="<?= site_url('admin/exams/schedules/attendance/' . $exam['id']) ?>" 
                class="btn btn-success">
                 <i class="fas fa-user-check me-1"></i> Registar Presenças
             </a>
-            <a href="<?= site_url('admin/exams/schedules/results/' . $exam->id) ?>" 
+            <a href="<?= site_url('admin/exams/schedules/results/' . $exam['id']) ?>" 
                class="btn btn-warning">
                 <i class="fas fa-graduation-cap me-1"></i> Registar Notas
             </a>
@@ -50,15 +50,15 @@
             </div>
             <div class="col-md-3">
                 <p class="mb-1"><strong>Data:</strong></p>
-                <p><?= date('d/m/Y', strtotime($exam->exam_date)) ?> às <?= $exam->exam_time ?></p>
+                <p><?= date('d/m/Y', strtotime($exam['exam_date'])) ?> às <?= $exam['exam_time'] ?></p>
             </div>
             <div class="col-md-3">
                 <p class="mb-1"><strong>Turma:</strong></p>
-                <p><?= $exam->class_name ?></p>
+                <p><?= $exam['class_name'] ?></p>
             </div>
             <div class="col-md-3">
                 <p class="mb-1"><strong>Disciplina:</strong></p>
-                <p><?= $exam->discipline_name ?></p>
+                <p><?= $exam['discipline_name'] ?></p>
             </div>
         </div>
     </div>
@@ -91,10 +91,10 @@
                         <?php $i = 1; ?>
                         <?php foreach ($students as $student): ?>
                             <?php
-                            $attended = isset($attendance[$student->enrollment_id]) ? 
-                                        $attendance[$student->enrollment_id]->attended : null;
-                            $newScore = isset($results[$student->enrollment_id]) ? 
-                                        $results[$student->enrollment_id]->score : null;
+                            $attended = isset($attendance[$student['enrollment_id']]) ? 
+                                        $attendance[$student['enrollment_id']]->attended : null;
+                            $newScore = isset($results[$student['enrollment_id']]) ? 
+                                        $results[$student['enrollment_id']]->score : null;
                             
                             $newStatus = null;
                             if ($newScore) {
@@ -153,7 +153,7 @@
                     <div class="col-md-6">
                         <p class="mb-1"><strong>Total de Alunos:</strong> <?= count($students) ?></p>
                         <p class="mb-1"><strong>Presenças Registadas:</strong> 
-                            <?= count(array_filter($attendance, fn($a) => $a->attended)) ?></p>
+                            <?= count(array_filter($attendance, fn($a) => $a['attended'])) ?></p>
                     </div>
                     <div class="col-md-6">
                         <p class="mb-1"><strong>Notas Registadas:</strong> <?= count($results) ?></p>

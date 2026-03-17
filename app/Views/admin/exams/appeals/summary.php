@@ -128,16 +128,16 @@
                         <?php
                         // Get results for this exam
                         $results = $this->examResultModel
-                            ->where('exam_schedule_id', $exam->id)
+                            ->where('exam_schedule_id', $exam['id'])
                             ->findAll();
                         
                         $approved = count(array_filter($results, fn($r) => $r->score >= 10));
                         $failed = count($results) - $approved;
                         ?>
                         <tr>
-                            <td class="ps-3"><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
-                            <td><?= $exam->class_name ?></td>
-                            <td><?= $exam->discipline_name ?></td>
+                            <td class="ps-3"><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
+                            <td><?= $exam['class_name'] ?></td>
+                            <td><?= $exam['discipline_name'] ?></td>
                             <td class="text-center"><?= $exam->total_students ?></td>
                             <td class="text-center"><?= $exam->results_count ?></td>
                             <td class="text-center">
@@ -187,7 +187,7 @@ const ctx2 = document.getElementById('examsChart').getContext('2d');
 new Chart(ctx2, {
     type: 'bar',
     data: {
-        labels: [<?php foreach ($appealExams as $exam): ?>'<?= $exam->discipline_name ?>', <?php endforeach; ?>],
+        labels: [<?php foreach ($appealExams as $exam): ?>'<?= $exam['discipline_name'] ?>', <?php endforeach; ?>],
         datasets: [{
             label: 'Média das Notas',
             data: [<?php foreach ($appealExams as $exam): ?><?= $exam->average_score ?>, <?php endforeach; ?>],

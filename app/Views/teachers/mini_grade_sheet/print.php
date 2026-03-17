@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Pauta - <?= $schedule->discipline_name ?></title>
+    <title>Mini Pauta - <?= $schedule['discipline_name'] ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -125,15 +125,15 @@
 <body>
     <div class="header">
         <h1>MINI PAUTA DE AVALIAÇÃO</h1>
-        <h3><?= $schedule->discipline_name ?> (<?= $schedule->discipline_code ?>)</h3>
+        <h3><?= $schedule['discipline_name'] ?> (<?= $schedule['discipline_code'] ?>)</h3>
     </div>
     
     <div class="info">
         <div class="info-item"><strong>Curso:</strong> <?= $schedule->course_name ?? 'N/A' ?></div>
-        <div class="info-item"><strong>Turma:</strong> <?= $schedule->class_name ?></div>
+        <div class="info-item"><strong>Turma:</strong> <?= $schedule['class_name'] ?></div>
         <div class="info-item"><strong>Classe:</strong> <?= $schedule->level_name ?? 'N/A' ?></div>
-        <div class="info-item"><strong>Ano Letivo:</strong> <?= $schedule->year_name ?></div>
-        <div class="info-item"><strong>Período:</strong> <?= $schedule->period_name ?></div>
+        <div class="info-item"><strong>Ano Letivo:</strong> <?= $schedule['year_name'] ?></div>
+        <div class="info-item"><strong>Período:</strong> <?= $schedule['period_name'] ?></div>
         <div class="info-item"><strong>Data Impressão:</strong> <?= $data_impressao ?></div>
     </div>
     
@@ -167,10 +167,10 @@
         <tbody>
             <?php $counter = 1; ?>
             <?php foreach ($alunos as $aluno): ?>
-                <?php $medias = $medias[$aluno->enrollment_id] ?? []; ?>
+                <?php $medias = $medias[$aluno['enrollment_id']] ?? []; ?>
                 <tr>
                     <td class="text-center"><?= $counter++ ?></td>
-                    <td><?= $aluno->full_name ?? $aluno->first_name . ' ' . $aluno->last_name ?></td>
+                    <td><?= $aluno['full_name'] ?? $aluno['first_name'] . ' ' . $aluno['last_name'] ?></td>
                     
                     <!-- 1º Trimestre -->
                     <td class="text-center"><?= $medias['trimestres'][1]['AC'] ?? '—' ?></td>
@@ -213,7 +213,7 @@
                     </td>
                     
                     <!-- Nº Processo -->
-                    <td class="text-center"><?= $aluno->student_number ?? '—' ?></td>
+                    <td class="text-center"><?= $aluno['student_number'] ?? '—' ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

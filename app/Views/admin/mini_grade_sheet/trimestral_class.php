@@ -87,9 +87,9 @@
                             <tr>
                                 <td class="text-center"><?= $counter++ ?></td>
                                 <td>
-                                    <?= $aluno->full_name ?>
+                                    <?= $aluno['full_name'] ?>
                                     <br>
-                                    <small class="text-muted">Nº: <?= $aluno->student_number ?></small>
+                                    <small class="text-muted">Nº: <?= $aluno['student_number'] ?></small>
                                 </td>
                                 
                                 <?php foreach ($disciplinas as $disc): ?>

@@ -101,7 +101,7 @@
                             <tr>
                                 <td class="text-center"><?= $counter++ ?></td>
                                 <td>
-                                    <strong><?= $student->full_name ?></strong>
+                                    <strong><?= $student['full_name'] ?></strong>
                                     <br>
                                     <small class="text-muted">Nº: <?= $student['student_number'] ?></small>
                                 </td>

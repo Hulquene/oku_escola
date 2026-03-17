@@ -31,18 +31,18 @@
             <strong>Exame:</strong> <?= $exam->exam_name ?? $exam->board_name ?>
         </div>
         <div class="col-md-3">
-            <strong>Tipo:</strong> <span class="badge bg-info"><?= $exam->board_type ?></span>
+            <strong>Tipo:</strong> <span class="badge bg-info"><?= $exam['board_type'] ?></span>
         </div>
         <div class="col-md-3">
-            <strong>Turma:</strong> <?= $exam->class_name ?>
+            <strong>Turma:</strong> <?= $exam['class_name'] ?>
         </div>
         <div class="col-md-3">
-            <strong>Disciplina:</strong> <?= $exam->discipline_name ?>
+            <strong>Disciplina:</strong> <?= $exam['discipline_name'] ?>
         </div>
     </div>
     <div class="row mt-2">
         <div class="col-md-3">
-            <strong>Data:</strong> <?= date('d/m/Y', strtotime($exam->exam_date)) ?>
+            <strong>Data:</strong> <?= date('d/m/Y', strtotime($exam['exam_date'])) ?>
         </div>
         <div class="col-md-3">
             <strong>Valor Máximo:</strong> <?= $exam->max_score ?>
@@ -75,7 +75,7 @@
         <?php if (!empty($students)): ?>
             <form action="<?= site_url('teachers/exams/save-grades') ?>" method="post" id="gradeForm">
                 <?= csrf_field() ?>
-                <input type="hidden" name="exam_schedule_id" value="<?= $exam->id ?>">
+                <input type="hidden" name="exam_schedule_id" value="<?= $exam['id'] ?>">
                 
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
@@ -91,26 +91,26 @@
                         <tbody>
                             <?php foreach ($students as $student): ?>
                                 <?php 
-                                $result = $results[$student->enrollment_id] ?? null;
-                                $attendance = $attendances[$student->enrollment_id] ?? null;
-                                $score = $result ? $result->score : '';
+                                $result = $results[$student['enrollment_id']] ?? null;
+                                $attendance = $attendances[$student['enrollment_id']] ?? null;
+                                $score = $result ? $result['score'] : '';
                                 $isAbsent = ($attendance && !$attendance->attended) || ($result && $result->is_absent);
                                 $absentChecked = $isAbsent ? 'checked' : '';
                                 $scoreValue = $isAbsent ? 0 : $score;
                                 ?>
-                                <tr class="<?= $isAbsent ? 'table-danger' : '' ?>" id="row-<?= $student->enrollment_id ?>">
+                                <tr class="<?= $isAbsent ? 'table-danger' : '' ?>" id="row-<?= $student['enrollment_id'] ?>">
                                     <td><span class="badge bg-secondary"><?= $student['student_number'] ?></span></td>
                                     <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                     <td class="text-center">
                                         <div class="form-check form-switch">
                                             <input class="form-check-input attendance-checkbox" 
                                                    type="checkbox" 
-                                                   name="attendance[<?= $student->enrollment_id ?>]" 
-                                                   id="attendance_<?= $student->enrollment_id ?>"
+                                                   name="attendance[<?= $student['enrollment_id'] ?>]" 
+                                                   id="attendance_<?= $student['enrollment_id'] ?>"
                                                    value="1"
                                                    <?= $absentChecked ?>
-                                                   onchange="toggleAbsent(<?= $student->enrollment_id ?>, this.checked)">
-                                            <label class="form-check-label" for="attendance_<?= $student->enrollment_id ?>">
+                                                   onchange="toggleAbsent(<?= $student['enrollment_id'] ?>, this.checked)">
+                                            <label class="form-check-label" for="attendance_<?= $student['enrollment_id'] ?>">
                                                 <?= $isAbsent ? '<span class="badge bg-danger">Ausente</span>' : '<span class="badge bg-success">Presente</span>' ?>
                                             </label>
                                         </div>
@@ -118,19 +118,19 @@
                                     <td>
                                         <input type="number" 
                                                class="form-control form-control-sm score-input" 
-                                               name="scores[<?= $student->enrollment_id ?>]" 
-                                               id="score_<?= $student->enrollment_id ?>"
+                                               name="scores[<?= $student['enrollment_id'] ?>]" 
+                                               id="score_<?= $student['enrollment_id'] ?>"
                                                value="<?= $scoreValue ?>"
                                                step="0.1"
                                                min="0"
                                                max="<?= $exam->max_score ?>"
                                                <?= $isAbsent ? 'readonly' : '' ?>
-                                               onchange="updateStatus(<?= $student->enrollment_id ?>, this.value)">
+                                               onchange="updateStatus(<?= $student['enrollment_id'] ?>, this.value)">
                                         <?php if ($isAbsent): ?>
                                             <small class="text-muted">(Ausente = 0)</small>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="status-cell" id="status_<?= $student->enrollment_id ?>">
+                                    <td class="status-cell" id="status_<?= $student['enrollment_id'] ?>">
                                         <?php if ($isAbsent): ?>
                                             <span class="badge bg-danger">Falta</span>
                                         <?php elseif ($scoreValue !== '' && $scoreValue !== null): ?>

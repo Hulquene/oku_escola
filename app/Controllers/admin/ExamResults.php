@@ -223,22 +223,22 @@ public function index()
         
         foreach ($students as $student) {
             $semesterResult = $this->semesterResultModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->first();
             
             if ($semesterResult) {
-                $semesterResults[$student->enrollment_id] = $semesterResult;
+                $semesterResults[$student['enrollment_id']] = $semesterResult;
             }
             
             // Get discipline averages for this student
             $averages = $this->disciplineAverageModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->findAll();
             
             $studentData = [
-                'enrollment_id' => $student->enrollment_id,
+                'enrollment_id' => $student['enrollment_id'],
                 'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                 'student_number' => $student['student_number'],
                 'averages' => []
@@ -540,7 +540,7 @@ public function save()
             ->orderBy('tbl_users.first_name', 'ASC')
             ->findAll();
         
-        $filename = 'resultados_' . $exam->discipline_name . '_' . date('Ymd') . '.csv';
+        $filename = 'resultados_' . $exam['discipline_name'] . '_' . date('Ymd') . '.csv';
         
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -609,7 +609,7 @@ public function save()
         $results = [];
         foreach ($students as $student) {
             $averages = $this->disciplineAverageModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->findAll();
             

@@ -113,7 +113,7 @@
                                 <td><?= $result->exam_name ?></td>
                                 <td><span class="badge bg-info"><?= $result->board_type ?></span></td>
                                 <td><?= date('d/m/Y', strtotime($result->exam_date)) ?></td>
-                                <td class="text-center fw-bold"><?= number_format($result->score, 1) ?></td>
+                                <td class="text-center fw-bold"><?= number_format($result['score'], 1) ?></td>
                                 <td class="text-center"><?= number_format($result->score_percentage, 1) ?>%</td>
                                 <td class="text-center"><?= $result->grade ?: '-' ?></td>
                             </tr>

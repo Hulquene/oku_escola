@@ -213,13 +213,13 @@ public function index()
         $results = [];
         foreach ($students as $student) {
             $result = $this->semesterResultModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->first();
 
             if ($result) {
                 $results[] = [
-                    'enrollment_id' => $student->enrollment_id,
+                    'enrollment_id' => $student['enrollment_id'],
                     'student_number' => $student['student_number'],
                     'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                     'overall_average' => $result->overall_average,
@@ -325,7 +325,7 @@ public function index()
         $results = [];
         foreach ($students as $student) {
             $result = $this->semesterResultModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->first();
 
@@ -546,7 +546,7 @@ public function index()
 
             // Get student's results
             $result = $this->semesterResultModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->first();
 
@@ -556,7 +556,7 @@ public function index()
                     tbl_disciplines.discipline_name
                 ')
                 ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
-                ->where('tbl_discipline_averages.enrollment_id', $student->enrollment_id)
+                ->where('tbl_discipline_averages.enrollment_id', $student['enrollment_id'])
                 ->where('tbl_discipline_averages.semester_id', $semesterId)
                 ->findAll();
 

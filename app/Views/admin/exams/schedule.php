@@ -88,29 +88,29 @@
                         <?php 
                         $currentDate = '';
                         foreach ($exams as $exam): 
-                            $examDate = date('Y-m-d', strtotime($exam->exam_date));
+                            $examDate = date('Y-m-d', strtotime($exam['exam_date']));
                             if ($currentDate != $examDate):
                                 $currentDate = $examDate;
                         ?>
                             <tr class="table-secondary">
                                 <td colspan="7" class="fw-bold">
                                     <i class="fas fa-calendar-day"></i> 
-                                    <?= date('d/m/Y', strtotime($exam->exam_date)) ?> 
-                                    (<?= getDayOfWeek($exam->exam_date) ?>)
+                                    <?= date('d/m/Y', strtotime($exam['exam_date'])) ?> 
+                                    (<?= getDayOfWeek($exam['exam_date']) ?>)
                                 </td>
                             </tr>
                         <?php endif; ?>
                             <tr>
                                 <td></td>
-                                <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
-                                <td><?= $exam->class_name ?></td>
-                                <td><?= $exam->discipline_name ?></td>
+                                <td><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '-' ?></td>
+                                <td><?= $exam['class_name'] ?></td>
+                                <td><?= $exam['discipline_name'] ?></td>
                                 <td><span class="badge bg-info"><?= $exam->board_name ?></span></td>
-                                <td><?= $exam->exam_room ?: '-' ?></td>
+                                <td><?= $exam['exam_room'] ?: '-' ?></td>
                                 <td>
-                                    <?php if ($exam->exam_date < date('Y-m-d')): ?>
+                                    <?php if ($exam['exam_date'] < date('Y-m-d')): ?>
                                         <span class="badge bg-secondary">Realizado</span>
-                                    <?php elseif ($exam->exam_date == date('Y-m-d')): ?>
+                                    <?php elseif ($exam['exam_date'] == date('Y-m-d')): ?>
                                         <span class="badge bg-success">Hoje</span>
                                     <?php else: ?>
                                         <span class="badge bg-primary">Agendado</span>

@@ -1143,7 +1143,7 @@ class Semesters extends BaseController
             try {
                 // Verificar se já existe boletim
                 $existing = $db->table('tbl_report_cards')
-                    ->where('enrollment_id', $result->enrollment_id)
+                    ->where('enrollment_id', $result['enrollment_id'])
                     ->where('semester_id', $semesterId)
                     ->get()
                     ->getRow();
@@ -1151,13 +1151,13 @@ class Semesters extends BaseController
                 if (!$existing) {
                     // Gerar novo boletim
                     $reportCardId = $reportCardModel->generateForStudent(
-                        $result->enrollment_id, 
+                        $result['enrollment_id'], 
                         $semesterId
                     );
                     if ($reportCardId) $count++;
                 }
             } catch (\Exception $e) {
-                log_message('error', 'Erro ao gerar boletim para matrícula ' . $result->enrollment_id . ': ' . $e->getMessage());
+                log_message('error', 'Erro ao gerar boletim para matrícula ' . $result['enrollment_id'] . ': ' . $e->getMessage());
             }
         }
         

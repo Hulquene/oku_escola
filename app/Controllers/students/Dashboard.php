@@ -125,7 +125,7 @@ class Dashboard extends BaseController
             foreach ($recentResults as $result) {
                 $data['recentGrades'][] = (object)[
                     'discipline_name' => $result->discipline_name,
-                    'score' => $result->score,
+                    'score' => $result['score'],
                     'board_type' => $result->board_type,
                     'exam_date' => $result->exam_date
                 ];

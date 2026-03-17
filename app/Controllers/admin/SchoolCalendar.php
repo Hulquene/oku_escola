@@ -236,8 +236,8 @@ class SchoolCalendar extends BaseController
         $formattedEvents = [];
         foreach ($exams as $exam) {
             $today = date('Y-m-d');
-            $isPast = $exam->exam_date < $today;
-            $isToday = $exam->exam_date == $today;
+            $isPast = $exam['exam_date'] < $today;
+            $isToday = $exam['exam_date'] == $today;
             
             // Determinar cor baseada no status
             if ($isToday) {
@@ -249,34 +249,34 @@ class SchoolCalendar extends BaseController
             }
             
             // Título do evento
-            $title = $exam->board_type . ': ' . $exam->discipline_name;
+            $title = $exam['board_type'] . ': ' . $exam['discipline_name'];
             
             $formattedEvents[] = [
-                'id' => 'exam_' . $exam->id,
+                'id' => 'exam_' . $exam['id'],
                 'title' => $title,
-                'start' => $exam->exam_date . ($exam->exam_time ? 'T' . $exam->exam_time : ''),
-                'end' => $exam->exam_date . ($exam->exam_time ? 'T' . date('H:i:s', strtotime($exam->exam_time) + ($exam->duration_minutes ?? 120) * 60) : ''),
+                'start' => $exam['exam_date'] . ($exam['exam_time'] ? 'T' . $exam['exam_time'] : ''),
+                'end' => $exam['exam_date'] . ($exam['exam_time'] ? 'T' . date('H:i:s', strtotime($exam['exam_time']) + ($exam->duration_minutes ?? 120) * 60) : ''),
                 'allDay' => false,
                 'backgroundColor' => $color,
                 'borderColor' => $color,
                 'textColor' => '#ffffff',
                 'extendedProps' => [
                     'type' => 'exam',
-                    'exam_id' => $exam->id,
-                    'discipline' => $exam->discipline_name,
-                    'class' => $exam->class_name,
-                    'board_type' => $exam->board_type,
+                    'exam_id' => $exam['id'],
+                    'discipline' => $exam['discipline_name'],
+                    'class' => $exam['class_name'],
+                    'board_type' => $exam['board_type'],
                     'board_name' => $exam->board_name,
                     'weight' => $exam->weight,
                     'period' => $exam->period_name,
                     'semester' => $exam->semester_name,
                     'academic_year' => $exam->year_name,
-                    'room' => $exam->exam_room,
+                    'room' => $exam['exam_room'],
                     'duration' => $exam->duration_minutes,
-                    'status' => $exam->status,
+                    'status' => $exam['status'],
                     'is_today' => $isToday,
                     'is_past' => $isPast,
-                    'description' => 'Exame de ' . $exam->discipline_name . ' - Turma ' . $exam->class_name,
+                    'description' => 'Exame de ' . $exam['discipline_name'] . ' - Turma ' . $exam['class_name'],
                     'can_edit' => false
                 ]
             ];

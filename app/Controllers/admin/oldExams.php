@@ -169,7 +169,7 @@ public function index()
         $results = $this->examResultModel->getByExam($id);
         $data['results'] = [];
         foreach ($results as $result) {
-            $data['results'][$result->enrollment_id] = $result;
+            $data['results'][$result['enrollment_id']] = $result;
         }
         
         // Statistics

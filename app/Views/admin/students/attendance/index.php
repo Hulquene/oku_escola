@@ -110,8 +110,8 @@
                                     <td><?= $student['first_name'] ?> <?= $student['last_name'] ?></td>
                                     <td style="width: 200px;">
                                         <select class="form-select status-select" 
-                                                name="attendance[<?= $student->enrollment_id ?>][status]"
-                                                data-enrollment="<?= $student->enrollment_id ?>">
+                                                name="attendance[<?= $student['enrollment_id'] ?>][status]"
+                                                data-enrollment="<?= $student['enrollment_id'] ?>">
                                             <option value="Presente" <?= ($student->attendance_status ?? '') == 'Presente' ? 'selected' : '' ?>>Presente</option>
                                             <option value="Ausente" <?= ($student->attendance_status ?? '') == 'Ausente' ? 'selected' : '' ?>>Ausente</option>
                                             <option value="Atrasado" <?= ($student->attendance_status ?? '') == 'Atrasado' ? 'selected' : '' ?>>Atrasado</option>
@@ -121,7 +121,7 @@
                                     </td>
                                     <td>
                                         <input type="text" class="form-control" 
-                                               name="attendance[<?= $student->enrollment_id ?>][justification]"
+                                               name="attendance[<?= $student['enrollment_id'] ?>][justification]"
                                                value="<?= $student->attendance_justification ?? '' ?>"
                                                placeholder="Justificação (opcional)">
                                     </td>

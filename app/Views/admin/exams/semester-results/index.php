@@ -161,12 +161,12 @@
                                 </td>
                                 <td class="text-center pe-3">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="<?= site_url('admin/semester-results/student/' . $result->enrollment_id . '/' . $result->semester_id) ?>" 
+                                        <a href="<?= site_url('admin/semester-results/student/' . $result['enrollment_id'] . '/' . $result->semester_id) ?>" 
                                            class="btn btn-outline-primary" title="Ver detalhes">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <?php if ($result->overall_average > 0): ?>
-                                            <a href="<?= site_url('admin/semester-results/export/' . $result->enrollment_id . '/' . $result->semester_id . '?type=pdf') ?>" 
+                                            <a href="<?= site_url('admin/semester-results/export/' . $result['enrollment_id'] . '/' . $result->semester_id . '?type=pdf') ?>" 
                                                class="btn btn-outline-success" title="Exportar PDF">
                                                 <i class="fas fa-file-pdf"></i>
                                             </a>

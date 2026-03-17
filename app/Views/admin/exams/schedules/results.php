@@ -9,11 +9,11 @@
             <h1 class="mb-2">Registar Notas</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-graduation-cap me-1"></i>
-                <?= $schedule->discipline_name ?> • <?= $schedule->class_name ?>
+                <?= $schedule['discipline_name'] ?> • <?= $schedule['class_name'] ?>
             </p>
         </div>
         <div>
-            <a href="<?= site_url('admin/exams/schedules/view/' . $schedule->id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/exams/schedules/view/' . $schedule['id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
@@ -22,7 +22,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/schedules') ?>">Agendamentos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/schedules/view/' . $schedule->id) ?>">Detalhes</a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/schedules/view/' . $schedule['id']) ?>">Detalhes</a></li>
             <li class="breadcrumb-item active">Notas</li>
         </ol>
     </nav>
@@ -41,7 +41,7 @@
                 </h5>
             </div>
             <div class="card-body">
-        <form method="post" action="<?= route_to('exams.schedules.results.post', $schedule->id) ?>" id="resultsForm">
+        <form method="post" action="<?= route_to('exams.schedules.results.post', $schedule['id']) ?>" id="resultsForm">
     <?= csrf_field() ?>
                     
                     <div class="table-responsive">
@@ -60,7 +60,7 @@
                                     <?php $i = 1; ?>
                                     <?php foreach ($students as $student): ?>
                                         <?php 
-                                        $score = $existingScores[$student->enrollment_id] ?? '';
+                                        $score = $existingScores[$student['enrollment_id']] ?? '';
                                         $scoreClass = '';
                                         $status = '';
                                         
@@ -92,13 +92,13 @@
                                             <td class="text-center">
                                                 <input type="number" 
                                                        class="form-control form-control-sm text-center score-input" 
-                                                       name="scores[<?= $student->enrollment_id ?>]" 
+                                                       name="scores[<?= $student['enrollment_id'] ?>]" 
                                                        value="<?= $score ?>"
                                                        min="0" max="20" step="0.1"
                                                        placeholder="0-20"
-                                                       data-enrollment="<?= $student->enrollment_id ?>">
+                                                       data-enrollment="<?= $student['enrollment_id'] ?>">
                                             </td>
-                                            <td class="text-center status-cell" id="status_<?= $student->enrollment_id ?>">
+                                            <td class="text-center status-cell" id="status_<?= $student['enrollment_id'] ?>">
                                                 <?= $status ?>
                                             </td>
                                         </tr>
@@ -125,7 +125,7 @@
                             </span>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="<?= site_url('admin/exams/schedules/view/' . $schedule->id) ?>" class="btn btn-light">
+                            <a href="<?= site_url('admin/exams/schedules/view/' . $schedule['id']) ?>" class="btn btn-light">
                                 Cancelar
                             </a>
                             <button type="submit" class="btn btn-warning">
@@ -150,25 +150,25 @@
             <div class="card-body">
                 <div class="mb-3">
                     <h6 class="text-muted mb-1">Disciplina:</h6>
-                    <p class="fw-semibold"><?= $schedule->discipline_name ?></p>
+                    <p class="fw-semibold"><?= $schedule['discipline_name'] ?></p>
                 </div>
                 
                 <div class="mb-3">
                     <h6 class="text-muted mb-1">Tipo:</h6>
                     <p class="fw-semibold">
-                        <span class="badge bg-info"><?= $schedule->board_name ?></span>
-                        <span class="badge bg-secondary ms-1">Peso: <?= $schedule->weight ?>x</span>
+                        <span class="badge bg-info"><?= $schedule['board_name'] ?></span>
+                        <span class="badge bg-secondary ms-1">Peso: <?= $schedule['weight'] ?>x</span>
                     </p>
                 </div>
                 
                 <div class="mb-3">
                     <h6 class="text-muted mb-1">Turma:</h6>
-                    <p class="fw-semibold"><?= $schedule->class_name ?></p>
+                    <p class="fw-semibold"><?= $schedule['class_name'] ?></p>
                 </div>
                 
                 <div class="mb-3">
                     <h6 class="text-muted mb-1">Data:</h6>
-                    <p class="fw-semibold"><?= date('d/m/Y', strtotime($schedule->exam_date)) ?></p>
+                    <p class="fw-semibold"><?= date('d/m/Y', strtotime($schedule['exam_date'])) ?></p>
                 </div>
                 
                 <div class="mb-3">

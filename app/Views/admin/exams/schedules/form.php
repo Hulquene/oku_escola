@@ -35,7 +35,7 @@
         </h5>
     </div>
     <div class="card-body">
-        <form method="post" action="<?= isset($schedule) ? site_url('admin/exams/schedules/update/' . $schedule->id) : site_url('admin/exams/schedules/save') ?>" class="needs-validation" novalidate>
+        <form method="post" action="<?= isset($schedule) ? site_url('admin/exams/schedules/update/' . $schedule['id']) : site_url('admin/exams/schedules/save') ?>" class="needs-validation" novalidate>
             <?= csrf_field() ?>
             
             <div class="row g-3">
@@ -83,7 +83,7 @@
                         <option value="">Primeiro selecione a turma...</option>
                         <?php if (isset($schedule)): ?>
                             <option value="<?= $schedule->discipline_id ?>" selected>
-                                <?= $schedule->discipline_name ?>
+                                <?= $schedule['discipline_name'] ?>
                             </option>
                         <?php endif; ?>
                     </select>
@@ -114,7 +114,7 @@
                 <div class="col-md-4">
                     <label class="form-label fw-semibold required">Data do Exame</label>
                     <input type="date" class="form-control <?= session('errors.exam_date') ? 'is-invalid' : '' ?>" 
-                           name="exam_date" value="<?= old('exam_date') ?? (isset($schedule) ? $schedule->exam_date : '') ?>" required>
+                           name="exam_date" value="<?= old('exam_date') ?? (isset($schedule) ? $schedule['exam_date'] : '') ?>" required>
                     <div class="invalid-feedback">
                         <?= session('errors.exam_date') ?? 'Selecione a data do exame' ?>
                     </div>
@@ -124,7 +124,7 @@
                 <div class="col-md-4">
                     <label class="form-label fw-semibold">Hora de Início</label>
                     <input type="time" class="form-control <?= session('errors.exam_time') ? 'is-invalid' : '' ?>" 
-                           name="exam_time" value="<?= old('exam_time') ?? (isset($schedule) && $schedule->exam_time ? substr($schedule->exam_time, 0, 5) : '') ?>">
+                           name="exam_time" value="<?= old('exam_time') ?? (isset($schedule) && $schedule['exam_time'] ? substr($schedule['exam_time'], 0, 5) : '') ?>">
                     <div class="invalid-feedback"><?= session('errors.exam_time') ?></div>
                 </div>
                 
@@ -132,7 +132,7 @@
                 <div class="col-md-4">
                     <label class="form-label fw-semibold">Duração (minutos)</label>
                     <input type="number" class="form-control <?= session('errors.duration_minutes') ? 'is-invalid' : '' ?>" 
-                           name="duration_minutes" value="<?= old('duration_minutes') ?? (isset($schedule) ? $schedule->duration_minutes : 120) ?>" 
+                           name="duration_minutes" value="<?= old('duration_minutes') ?? (isset($schedule) ? $schedule['duration_minutes'] : 120) ?>" 
                            min="30" step="15">
                     <div class="invalid-feedback"><?= session('errors.duration_minutes') ?></div>
                 </div>
@@ -141,7 +141,7 @@
                 <div class="col-md-6">
                     <label class="form-label fw-semibold">Sala/Local</label>
                     <input type="text" class="form-control <?= session('errors.exam_room') ? 'is-invalid' : '' ?>" 
-                           name="exam_room" value="<?= old('exam_room') ?? (isset($schedule) ? $schedule->exam_room : '') ?>" 
+                           name="exam_room" value="<?= old('exam_room') ?? (isset($schedule) ? $schedule['exam_room'] : '') ?>" 
                            placeholder="Ex: Sala 101, Laboratório, etc.">
                     <div class="invalid-feedback"><?= session('errors.exam_room') ?></div>
                 </div>
@@ -151,10 +151,10 @@
                 <div class="col-md-6">
                     <label class="form-label fw-semibold required">Status</label>
                     <select class="form-select <?= session('errors.status') ? 'is-invalid' : '' ?>" name="status" required>
-                        <option value="Agendado" <?= (old('status') ?? $schedule->status) == 'Agendado' ? 'selected' : '' ?>>Agendado</option>
-                        <option value="Realizado" <?= (old('status') ?? $schedule->status) == 'Realizado' ? 'selected' : '' ?>>Realizado</option>
-                        <option value="Cancelado" <?= (old('status') ?? $schedule->status) == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
-                        <option value="Adiado" <?= (old('status') ?? $schedule->status) == 'Adiado' ? 'selected' : '' ?>>Adiado</option>
+                        <option value="Agendado" <?= (old('status') ?? $schedule['status']) == 'Agendado' ? 'selected' : '' ?>>Agendado</option>
+                        <option value="Realizado" <?= (old('status') ?? $schedule['status']) == 'Realizado' ? 'selected' : '' ?>>Realizado</option>
+                        <option value="Cancelado" <?= (old('status') ?? $schedule['status']) == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
+                        <option value="Adiado" <?= (old('status') ?? $schedule['status']) == 'Adiado' ? 'selected' : '' ?>>Adiado</option>
                     </select>
                     <div class="invalid-feedback">
                         <?= session('errors.status') ?? 'Selecione o status' ?>
@@ -167,7 +167,7 @@
                     <label class="form-label fw-semibold">Observações</label>
                     <textarea class="form-control <?= session('errors.observations') ? 'is-invalid' : '' ?>" 
                               name="observations" rows="3" 
-                              placeholder="Informações adicionais sobre o exame..."><?= old('observations') ?? (isset($schedule) ? $schedule->observations : '') ?></textarea>
+                              placeholder="Informações adicionais sobre o exame..."><?= old('observations') ?? (isset($schedule) ? $schedule['observations'] : '') ?></textarea>
                     <div class="invalid-feedback"><?= session('errors.observations') ?></div>
                 </div>
             </div>

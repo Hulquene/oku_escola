@@ -109,25 +109,25 @@
                         <?php 
                         $today = date('Y-m-d');
                         foreach ($upcomingExams as $exam): 
-                            $isToday = $exam->exam_date == $today;
-                            $isTomorrow = $exam->exam_date == date('Y-m-d', strtotime('+1 day'));
+                            $isToday = $exam['exam_date'] == $today;
+                            $isTomorrow = $exam['exam_date'] == date('Y-m-d', strtotime('+1 day'));
                         ?>
                             <tr class="<?= $isToday ? 'table-warning' : '' ?>">
                                 <td>
                                     <strong><?= $exam->board_name ?? 'Exame' ?></strong>
                                 </td>
-                                <td><?= $exam->discipline_name ?></td>
-                                <td><span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span></td>
+                                <td><?= $exam['discipline_name'] ?></td>
+                                <td><span class="badge bg-info"><?= $exam['board_type'] ?? 'Normal' ?></span></td>
                                 <td>
-                                    <?= date('d/m/Y', strtotime($exam->exam_date)) ?>
+                                    <?= date('d/m/Y', strtotime($exam['exam_date'])) ?>
                                     <?php if ($isToday): ?>
                                         <span class="badge bg-danger ms-1">Hoje!</span>
                                     <?php elseif ($isTomorrow): ?>
                                         <span class="badge bg-warning ms-1">Amanhã</span>
                                     <?php endif; ?>
                                 </td>
-                                <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
-                                <td><?= $exam->exam_room ?: '-' ?></td>
+                                <td><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '-' ?></td>
+                                <td><?= $exam['exam_room'] ?: '-' ?></td>
                                 <td>
                                     <?php if ($isToday): ?>
                                         <span class="badge bg-danger">Hoje</span>
@@ -182,8 +182,8 @@
                         $countComNota = 0;
                         
                         foreach ($pastExams as $exam): 
-                            $result = $results[$exam->id] ?? null;
-                            $nota = $result ? $result->score : null;
+                            $result = $results[$exam['id']] ?? null;
+                            $nota = $result ? $result['score'] : null;
                             $percentual = $nota ? round(($nota / ($exam->max_score ?? 20)) * 100, 1) : 0;
                             $statusClass = !$nota ? 'warning' : ($nota >= 10 ? 'success' : 'danger');
                             $statusText = !$nota ? 'Aguardando' : ($nota >= 10 ? 'Aprovado' : 'Reprovado');
@@ -196,8 +196,8 @@
                         ?>
                             <tr>
                                 <td><strong><?= $exam->board_name ?? 'Exame' ?></strong></td>
-                                <td><?= $exam->discipline_name ?></td>
-                                <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
+                                <td><?= $exam['discipline_name'] ?></td>
+                                <td><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
                                 <td>
                                     <?php if ($nota): ?>
                                         <span class="fw-bold <?= $nota >= 10 ? 'text-success' : 'text-danger' ?>">
@@ -230,7 +230,7 @@
                                     <?php if ($nota): ?>
                                         <button type="button" class="btn btn-sm btn-outline-info" 
                                                 data-bs-toggle="modal" 
-                                                data-bs-target="#examModal<?= $exam->id ?>">
+                                                data-bs-target="#examModal<?= $exam['id'] ?>">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     <?php else: ?>
@@ -292,10 +292,10 @@
 <!-- Modals para detalhes dos exames -->
 <?php if (!empty($pastExams)): ?>
     <?php foreach ($pastExams as $exam): ?>
-        <?php $result = $results[$exam->id] ?? null; ?>
+        <?php $result = $results[$exam['id']] ?? null; ?>
         <?php if ($result): ?>
             <!-- Modal -->
-            <div class="modal fade" id="examModal<?= $exam->id ?>" tabindex="-1">
+            <div class="modal fade" id="examModal<?= $exam['id'] ?>" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header bg-info text-white">
@@ -310,39 +310,39 @@
                                     <i class="fas fa-pencil-alt fa-2x text-white"></i>
                                 </div>
                                 <h4><?= $exam->board_name ?? 'Exame' ?></h4>
-                                <span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span>
+                                <span class="badge bg-info"><?= $exam['board_type'] ?? 'Normal' ?></span>
                             </div>
                             
                             <table class="table table-bordered">
                                 <tr>
                                     <th style="width: 40%">Disciplina</th>
-                                    <td><?= $exam->discipline_name ?></td>
+                                    <td><?= $exam['discipline_name'] ?></td>
                                 </tr>
                                 <tr>
                                     <th>Data</th>
-                                    <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
+                                    <td><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
                                 </tr>
                                 <tr>
                                     <th>Hora</th>
-                                    <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
+                                    <td><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '-' ?></td>
                                 </tr>
                                 <tr>
                                     <th>Sala</th>
-                                    <td><?= $exam->exam_room ?: '-' ?></td>
+                                    <td><?= $exam['exam_room'] ?: '-' ?></td>
                                 </tr>
                                 <tr>
                                     <th>Nota Obtida</th>
-                                    <td class="fw-bold <?= $result->score >= 10 ? 'text-success' : 'text-danger' ?>">
-                                        <?= number_format($result->score, 1) ?> / <?= $exam->max_score ?? 20 ?>
+                                    <td class="fw-bold <?= $result['score'] >= 10 ? 'text-success' : 'text-danger' ?>">
+                                        <?= number_format($result['score'], 1) ?> / <?= $exam->max_score ?? 20 ?>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th>Percentual</th>
                                     <td>
-                                        <?php $percent = round(($result->score / ($exam->max_score ?? 20)) * 100, 1); ?>
+                                        <?php $percent = round(($result['score'] / ($exam->max_score ?? 20)) * 100, 1); ?>
                                         <div class="d-flex align-items-center">
                                             <div class="progress flex-grow-1 me-2" style="height: 10px;">
-                                                <div class="progress-bar bg-<?= $result->score >= 10 ? 'success' : 'danger' ?>" 
+                                                <div class="progress-bar bg-<?= $result['score'] >= 10 ? 'success' : 'danger' ?>" 
                                                      style="width: <?= $percent ?>%"></div>
                                             </div>
                                             <span><?= $percent ?>%</span>
@@ -352,9 +352,9 @@
                                 <tr>
                                     <th>Status</th>
                                     <td>
-                                        <span class="badge bg-<?= $result->score >= 10 ? 'success' : 'danger' ?> p-2">
-                                            <i class="fas fa-<?= $result->score >= 10 ? 'check-circle' : 'times-circle' ?> me-1"></i>
-                                            <?= $result->score >= 10 ? 'Aprovado' : 'Reprovado' ?>
+                                        <span class="badge bg-<?= $result['score'] >= 10 ? 'success' : 'danger' ?> p-2">
+                                            <i class="fas fa-<?= $result['score'] >= 10 ? 'check-circle' : 'times-circle' ?> me-1"></i>
+                                            <?= $result['score'] >= 10 ? 'Aprovado' : 'Reprovado' ?>
                                         </span>
                                     </td>
                                 </tr>

@@ -7,8 +7,8 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-             <?php if ($exam->status !== 'Realizado') {  ?>
-                <a href="<?= site_url('teachers/exams/grade/' . $exam->id) ?>" class="btn btn-success me-2">
+             <?php if ($exam['status'] !== 'Realizado') {  ?>
+                <a href="<?= site_url('teachers/exams/grade/' . $exam['id']) ?>" class="btn btn-success me-2">
                     <i class="fas fa-pencil-alt"></i> Lançar/Editar Notas
                 </a>
              <?php } ?>
@@ -38,14 +38,14 @@
         <div class="row">
             <div class="col-md-4">
                 <p><strong>Exame:</strong> <?= esc($exam->exam_name ?? $exam->board_name) ?></p>
-                <p><strong>Tipo:</strong> <span class="badge bg-info"><?= esc($exam->board_type) ?></span></p>
+                <p><strong>Tipo:</strong> <span class="badge bg-info"><?= esc($exam['board_type']) ?></span></p>
             </div>
             <div class="col-md-4">
-                <p><strong>Turma:</strong> <?= esc($exam->class_name) ?></p>
-                <p><strong>Disciplina:</strong> <?= esc($exam->discipline_name) ?></p>
+                <p><strong>Turma:</strong> <?= esc($exam['class_name']) ?></p>
+                <p><strong>Disciplina:</strong> <?= esc($exam['discipline_name']) ?></p>
             </div>
             <div class="col-md-4">
-                <p><strong>Data:</strong> <?= date('d/m/Y', strtotime($exam->exam_date)) ?></p>
+                <p><strong>Data:</strong> <?= date('d/m/Y', strtotime($exam['exam_date'])) ?></p>
                 <p><strong>Valor Máximo:</strong> <?= $exam->max_score ?> pontos</p>
             </div>
         </div>
@@ -145,7 +145,7 @@
                     <tbody>
                         <?php foreach ($results as $result): ?>
                             <?php 
-                            $percentage = $exam->max_score > 0 ? ($result->score / $exam->max_score) * 100 : 0;
+                            $percentage = $exam->max_score > 0 ? ($result['score'] / $exam->max_score) * 100 : 0;
                             $statusClass = $result->is_absent ? 'secondary' : 
                                           ($percentage >= 50 ? 'success' : 'danger');
                             $statusText = $result->is_absent ? 'Falta' : 
@@ -156,7 +156,7 @@
                                 <td><span class="badge bg-secondary"><?= $result->student_number ?></span></td>
                                 <td><?= $result->first_name ?> <?= $result->last_name ?></td>
                                 <td>
-                                    <strong><?= number_format($result->score, 1) ?></strong> / <?= $exam->max_score ?>
+                                    <strong><?= number_format($result['score'], 1) ?></strong> / <?= $exam->max_score ?>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -219,7 +219,7 @@
                 <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
                 <h5 class="text-muted">Nenhum resultado lançado para este exame</h5>
                 <p class="text-muted mb-4">Clique no botão abaixo para lançar as notas dos alunos.</p>
-                <a href="<?= site_url('teachers/exams/grade/' . $exam->id) ?>" class="btn btn-success btn-lg">
+                <a href="<?= site_url('teachers/exams/grade/' . $exam['id']) ?>" class="btn btn-success btn-lg">
                     <i class="fas fa-pencil-alt me-2"></i> Lançar Notas
                 </a>
             </div>
@@ -269,7 +269,7 @@ function exportTableToExcel() {
     const url = URL.createObjectURL(blob);
     
     link.setAttribute('href', url);
-    link.setAttribute('download', 'resultados_exame_<?= $exam->id ?>_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.setAttribute('download', 'resultados_exame_<?= $exam['id'] ?>_' + new Date().toISOString().split('T')[0] + '.csv');
     link.click();
 }
 </script>

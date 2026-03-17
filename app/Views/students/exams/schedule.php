@@ -208,7 +208,7 @@
                 // Agrupar exames por dia
                 $examsByDay = [];
                 foreach ($exams as $exam) {
-                    $day = (int)date('d', strtotime($exam->exam_date));
+                    $day = (int)date('d', strtotime($exam['exam_date']));
                     if (!isset($examsByDay[$day])) {
                         $examsByDay[$day] = [];
                     }
@@ -280,7 +280,7 @@
                 <?php if (!empty($upcomingExams)): ?>
                     <div class="timeline">
                         <?php foreach ($upcomingExams as $exam): 
-                            $daysLeft = floor((strtotime($exam->exam_date) - time()) / (60 * 60 * 24));
+                            $daysLeft = floor((strtotime($exam['exam_date']) - time()) / (60 * 60 * 24));
                             $urgencyClass = $daysLeft <= 1 ? 'urgent' : ($daysLeft <= 3 ? 'warning' : 'normal');
                         ?>
                             <div class="timeline-item">
@@ -289,19 +289,19 @@
                                 </div>
                                 <div class="timeline-content">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-1 fw-bold"><?= $exam->discipline_name ?></h6>
+                                        <h6 class="mb-1 fw-bold"><?= $exam['discipline_name'] ?></h6>
                                         <span class="badge bg-<?= $daysLeft <= 1 ? 'danger' : ($daysLeft <= 3 ? 'warning' : 'primary') ?>">
                                             <?= $daysLeft == 0 ? 'Hoje' : ($daysLeft == 1 ? 'Amanhã' : $daysLeft . ' dias') ?>
                                         </span>
                                     </div>
                                     <p class="mb-1 small text-muted">
-                                        <i class="fas fa-calendar me-1"></i><?= date('d/m/Y', strtotime($exam->exam_date)) ?>
-                                        <i class="fas fa-clock ms-2 me-1"></i><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '--:--' ?>
+                                        <i class="fas fa-calendar me-1"></i><?= date('d/m/Y', strtotime($exam['exam_date'])) ?>
+                                        <i class="fas fa-clock ms-2 me-1"></i><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '--:--' ?>
                                     </p>
                                     <p class="mb-0 small">
-                                        <span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span>
-                                        <?php if ($exam->exam_room): ?>
-                                            <span class="badge bg-secondary"><i class="fas fa-door-open me-1"></i><?= $exam->exam_room ?></span>
+                                        <span class="badge bg-info"><?= $exam['board_type'] ?? 'Normal' ?></span>
+                                        <?php if ($exam['exam_room']): ?>
+                                            <span class="badge bg-secondary"><i class="fas fa-door-open me-1"></i><?= $exam['exam_room'] ?></span>
                                         <?php endif; ?>
                                     </p>
                                 </div>
@@ -348,7 +348,7 @@
                         $tomorrow = date('Y-m-d', strtotime('+1 day'));
                         
                         foreach ($exams as $exam): 
-                            $examDate = $exam->exam_date;
+                            $examDate = $exam['exam_date'];
                             $isToday = $examDate == $today;
                             $isTomorrow = $examDate == $tomorrow;
                             $isPast = $examDate < $today;
@@ -358,33 +358,33 @@
                         ?>
                             <tr>
                                 <td>
-                                    <span class="fw-bold"><?= date('d/m/Y', strtotime($exam->exam_date)) ?></span>
+                                    <span class="fw-bold"><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></span>
                                     <br>
-                                    <small class="text-muted"><?= getDayOfWeek($exam->exam_date) ?></small>
+                                    <small class="text-muted"><?= getDayOfWeek($exam['exam_date']) ?></small>
                                 </td>
                                 <td>
-                                    <?php if ($exam->exam_time): ?>
+                                    <?php if ($exam['exam_time']): ?>
                                         <span class="badge bg-light text-dark p-2">
                                             <i class="far fa-clock me-1"></i>
-                                            <?= date('H:i', strtotime($exam->exam_time)) ?>
+                                            <?= date('H:i', strtotime($exam['exam_time'])) ?>
                                         </span>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <span class="fw-bold"><?= $exam->discipline_name ?></span>
+                                    <span class="fw-bold"><?= $exam['discipline_name'] ?></span>
                                 </td>
                                 <td>
                                     <span class="badge bg-info bg-opacity-10 text-info p-2">
-                                        <?= $exam->board_type ?? 'Normal' ?>
+                                        <?= $exam['board_type'] ?? 'Normal' ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if ($exam->exam_room): ?>
+                                    <?php if ($exam['exam_room']): ?>
                                         <span class="badge bg-light text-dark p-2">
                                             <i class="fas fa-door-open me-1"></i>
-                                            <?= $exam->exam_room ?>
+                                            <?= $exam['exam_room'] ?>
                                         </span>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
@@ -399,7 +399,7 @@
                                 <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" 
                                             data-bs-toggle="modal" 
-                                            data-bs-target="#examModal<?= $exam->id ?>">
+                                            data-bs-target="#examModal<?= $exam['id'] ?>">
                                         <i class="fas fa-eye me-1"></i>Detalhes
                                     </button>
                                 </td>
@@ -437,20 +437,20 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
-                                            <h6 class="mb-1 fw-bold"><?= $exam->discipline_name ?></h6>
+                                            <h6 class="mb-1 fw-bold"><?= $exam['discipline_name'] ?></h6>
                                             <p class="mb-2">
-                                                <span class="badge bg-info me-2"><?= $exam->board_type ?? 'Normal' ?></span>
-                                                <?php if ($exam->exam_time): ?>
-                                                    <span class="badge bg-secondary"><i class="far fa-clock me-1"></i><?= date('H:i', strtotime($exam->exam_time)) ?></span>
+                                                <span class="badge bg-info me-2"><?= $exam['board_type'] ?? 'Normal' ?></span>
+                                                <?php if ($exam['exam_time']): ?>
+                                                    <span class="badge bg-secondary"><i class="far fa-clock me-1"></i><?= date('H:i', strtotime($exam['exam_time'])) ?></span>
                                                 <?php endif; ?>
                                             </p>
-                                            <?php if ($exam->exam_room): ?>
-                                                <p class="mb-1"><i class="fas fa-door-open me-2 text-muted"></i>Sala: <?= $exam->exam_room ?></p>
+                                            <?php if ($exam['exam_room']): ?>
+                                                <p class="mb-1"><i class="fas fa-door-open me-2 text-muted"></i>Sala: <?= $exam['exam_room'] ?></p>
                                             <?php endif; ?>
                                         </div>
                                         <button type="button" class="btn btn-sm btn-outline-primary" 
                                                 data-bs-toggle="modal" 
-                                                data-bs-target="#examModal<?= $exam->id ?>"
+                                                data-bs-target="#examModal<?= $exam['id'] ?>"
                                                 data-bs-dismiss="modal">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -471,7 +471,7 @@
 <!-- Modals de Detalhes dos Exames -->
 <?php if (!empty($exams)): ?>
     <?php foreach ($exams as $exam): ?>
-        <div class="modal fade" id="examModal<?= $exam->id ?>" tabindex="-1">
+        <div class="modal fade" id="examModal<?= $exam['id'] ?>" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
@@ -485,29 +485,29 @@
                             <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
                                 <i class="fas fa-pencil-alt fa-2x text-primary"></i>
                             </div>
-                            <h4><?= $exam->discipline_name ?></h4>
-                            <span class="badge bg-info"><?= $exam->board_type ?? 'Normal' ?></span>
+                            <h4><?= $exam['discipline_name'] ?></h4>
+                            <span class="badge bg-info"><?= $exam['board_type'] ?? 'Normal' ?></span>
                         </div>
                         
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="bg-light rounded-3 p-3 text-center">
                                     <small class="text-muted d-block">Data</small>
-                                    <strong><?= date('d/m/Y', strtotime($exam->exam_date)) ?></strong>
+                                    <strong><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></strong>
                                     <br>
-                                    <small class="text-muted"><?= getDayOfWeek($exam->exam_date) ?></small>
+                                    <small class="text-muted"><?= getDayOfWeek($exam['exam_date']) ?></small>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="bg-light rounded-3 p-3 text-center">
                                     <small class="text-muted d-block">Hora</small>
-                                    <strong><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '--:--' ?></strong>
+                                    <strong><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '--:--' ?></strong>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="bg-light rounded-3 p-3 text-center">
                                     <small class="text-muted d-block">Sala</small>
-                                    <strong><?= $exam->exam_room ?: 'Não definida' ?></strong>
+                                    <strong><?= $exam['exam_room'] ?: 'Não definida' ?></strong>
                                 </div>
                             </div>
                             <div class="col-6">
@@ -519,7 +519,7 @@
                         </div>
                         
                         <?php 
-                        $examDate = strtotime($exam->exam_date);
+                        $examDate = strtotime($exam['exam_date']);
                         $today = time();
                         $daysDiff = round(($examDate - $today) / (60 * 60 * 24));
                         ?>

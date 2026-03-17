@@ -24,7 +24,7 @@
             <?= csrf_field() ?>
             
             <?php if ($exam): ?>
-                <input type="hidden" name="id" value="<?= $exam->id ?>">
+                <input type="hidden" name="id" value="<?= $exam['id'] ?>">
             <?php endif; ?>
             
             <div class="row">
@@ -146,7 +146,7 @@
                                class="form-control <?= session('errors.exam_date') ? 'is-invalid' : '' ?>" 
                                id="exam_date" 
                                name="exam_date" 
-                               value="<?= old('exam_date', $exam->exam_date ?? '') ?>"
+                               value="<?= old('exam_date', $exam['exam_date'] ?? '') ?>"
                                required>
                         <?php if (session('errors.exam_date')): ?>
                             <div class="invalid-feedback"><?= session('errors.exam_date') ?></div>
@@ -161,7 +161,7 @@
                                class="form-control" 
                                id="exam_time" 
                                name="exam_time" 
-                               value="<?= old('exam_time', $exam->exam_time ?? '') ?>">
+                               value="<?= old('exam_time', $exam['exam_time'] ?? '') ?>">
                     </div>
                 </div>
                 
@@ -172,7 +172,7 @@
                                class="form-control" 
                                id="exam_room" 
                                name="exam_room" 
-                               value="<?= old('exam_room', $exam->exam_room ?? '') ?>">
+                               value="<?= old('exam_room', $exam['exam_room'] ?? '') ?>">
                     </div>
                 </div>
                 

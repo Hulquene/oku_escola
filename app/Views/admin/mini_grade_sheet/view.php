@@ -186,13 +186,13 @@
                     <?php if (!empty($alunos)): ?>
                         <?php $counter = 1; ?>
                         <?php foreach ($alunos as $aluno): ?>
-                            <?php $mediasAluno = $medias[$aluno->enrollment_id] ?? []; ?>
+                            <?php $mediasAluno = $medias[$aluno['enrollment_id']] ?? []; ?>
                             <tr>
                                 <td class="text-center"><?= $counter++ ?></td>
                                 <td>
-                                    <strong><?= $aluno->full_name ?? $aluno->first_name . ' ' . $aluno->last_name ?></strong>
+                                    <strong><?= $aluno['full_name'] ?? $aluno['first_name'] . ' ' . $aluno['last_name'] ?></strong>
                                 </td>
-                                <td class="text-center"><?= $aluno->student_number ?? '—' ?></td>
+                                <td class="text-center"><?= $aluno['student_number'] ?? '—' ?></td>
                                 
                                 <!-- 1º Trimestre -->
                                 <td class="text-center"><?= $mediasAluno['trimestres'][1]['AC'] ?? '—' ?></td>

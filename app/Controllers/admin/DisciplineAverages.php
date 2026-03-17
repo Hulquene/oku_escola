@@ -198,12 +198,12 @@ class DisciplineAverages extends BaseController
 
         foreach ($students as $student) {
             $averages = $this->disciplineAverageModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->findAll();
 
             $studentData = [
-                'enrollment_id' => $student->enrollment_id,
+                'enrollment_id' => $student['enrollment_id'],
                 'student_name' => $student['first_name'] . ' ' . $student['last_name'],
                 'student_number' => $student['student_number'],
                 'averages' => []
@@ -305,13 +305,13 @@ class DisciplineAverages extends BaseController
         $averages = [];
         foreach ($students as $student) {
             $studentAverages = $this->disciplineAverageModel
-                ->where('enrollment_id', $student->enrollment_id)
+                ->where('enrollment_id', $student['enrollment_id'])
                 ->where('semester_id', $semesterId)
                 ->findAll();
             
-            $averages[$student->enrollment_id] = [];
+            $averages[$student['enrollment_id']] = [];
             foreach ($studentAverages as $avg) {
-                $averages[$student->enrollment_id][$avg->discipline_id] = $avg;
+                $averages[$student['enrollment_id']][$avg->discipline_id] = $avg;
             }
         }
 
@@ -475,8 +475,8 @@ class DisciplineAverages extends BaseController
             $count = 0;
 
             foreach ($disciplines as $discipline) {
-                $score = isset($averages[$student->enrollment_id][$discipline['id']]) 
-                    ? $averages[$student->enrollment_id][$discipline['id']]->final_score 
+                $score = isset($averages[$student['enrollment_id']][$discipline['id']]) 
+                    ? $averages[$student['enrollment_id']][$discipline['id']]->final_score 
                     : '-';
                 
                 $sheet->setCellValue($col . $row, $score);
@@ -576,8 +576,8 @@ class DisciplineAverages extends BaseController
             $count = 0;
 
             foreach ($disciplines as $discipline) {
-                $score = isset($averages[$student->enrollment_id][$discipline['id']]) 
-                    ? number_format($averages[$student->enrollment_id][$discipline['id']]->final_score, 1)
+                $score = isset($averages[$student['enrollment_id']][$discipline['id']]) 
+                    ? number_format($averages[$student['enrollment_id']][$discipline['id']]->final_score, 1)
                     : '-';
                 
                 $html .= '<td>' . $score . '</td>';

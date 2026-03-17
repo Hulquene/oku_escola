@@ -96,14 +96,14 @@
                 <?php if (!empty($exams)): ?>
                     <?php foreach ($exams as $exam): ?>
                         <tr>
-                            <td><?= $exam->id ?></td>
+                            <td><?= $exam['id'] ?></td>
                             <td><?= $exam->exam_name ?></td>
-                            <td><?= $exam->class_name ?></td>
-                            <td><?= $exam->discipline_name ?></td>
+                            <td><?= $exam['class_name'] ?></td>
+                            <td><?= $exam['discipline_name'] ?></td>
                             <td><span class="badge bg-info"><?= $exam->board_name ?></span></td>
-                            <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
-                            <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
-                            <td><?= $exam->exam_room ?: '-' ?></td>
+                            <td><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
+                            <td><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '-' ?></td>
+                            <td><?= $exam['exam_room'] ?: '-' ?></td>
                             <td>
                                 <?php if ($exam->is_published): ?>
                                     <span class="badge bg-success">Sim</span>
@@ -112,15 +112,15 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <a href="<?= site_url('admin/exams/view/' . $exam->id) ?>" 
+                                <a href="<?= site_url('admin/exams/view/' . $exam['id']) ?>" 
                                    class="btn btn-sm btn-success" title="Ver Detalhes">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="<?= site_url('admin/exams/form-edit/' . $exam->id) ?>" 
+                                <a href="<?= site_url('admin/exams/form-edit/' . $exam['id']) ?>" 
                                    class="btn btn-sm btn-info" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="<?= site_url('admin/exams/delete/' . $exam->id) ?>" 
+                                <a href="<?= site_url('admin/exams/delete/' . $exam['id']) ?>" 
                                    class="btn btn-sm btn-danger" 
                                    onclick="return confirm('Tem certeza que deseja eliminar este exame?')"
                                    title="Eliminar">

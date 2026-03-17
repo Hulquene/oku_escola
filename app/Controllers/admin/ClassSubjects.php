@@ -609,7 +609,7 @@ public function assignTeachers($classId)
     
     // ✅ NOVO: Adicionar informações de período formatadas
     foreach ($data['disciplines'] as $disc) {
-        $disc->period_info = $this->getPeriodInfo($disc->period_type);
+        $disc['period_info'] = $this->getPeriodInfo($disc['period_type']);
     }
     
     // Buscar professores disponíveis

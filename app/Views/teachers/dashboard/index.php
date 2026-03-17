@@ -241,7 +241,7 @@
                                         </td>
                                         <td>
                                             <span class="badge bg-<?php 
-                                                switch($exam->board_type) {
+                                                switch($exam['board_type']) {
                                                     case 'Avaliação Contínua': echo 'info'; break;
                                                     case 'Prova Professor': echo 'primary'; break;
                                                     case 'Prova Trimestral': echo 'warning'; break;
@@ -249,36 +249,36 @@
                                                     default: echo 'secondary';
                                                 }
                                             ?>">
-                                                <?= $exam->board_type ?>
+                                                <?= $exam['board_type'] ?>
                                             </span>
                                         </td>
-                                        <td><?= $exam->class_name ?></td>
-                                        <td><?= $exam->discipline_name ?></td>
-                                        <td><?= date('d/m/Y', strtotime($exam->exam_date)) ?></td>
-                                        <td><?= $exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '-' ?></td>
-                                        <td><?= $exam->exam_room ?: '-' ?></td>
+                                        <td><?= $exam['class_name'] ?></td>
+                                        <td><?= $exam['discipline_name'] ?></td>
+                                        <td><?= date('d/m/Y', strtotime($exam['exam_date'])) ?></td>
+                                        <td><?= $exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '-' ?></td>
+                                        <td><?= $exam['exam_room'] ?: '-' ?></td>
                                         <td>
-                                            <?php if ($exam->status == 'Agendado'): ?>
+                                            <?php if ($exam['status'] == 'Agendado'): ?>
                                                 <span class="badge bg-success">Agendado</span>
-                                            <?php elseif ($exam->status == 'Realizado'): ?>
+                                            <?php elseif ($exam['status'] == 'Realizado'): ?>
                                                 <span class="badge bg-secondary">Realizado</span>
                                             <?php else: ?>
-                                                <span class="badge bg-warning"><?= $exam->status ?></span>
+                                                <span class="badge bg-warning"><?= $exam['status'] ?></span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="<?= site_url('teachers/exams/grade/' . $exam->id) ?>" 
+                                                <a href="<?= site_url('teachers/exams/grade/' . $exam['id']) ?>" 
                                                    class="btn btn-sm btn-success" 
                                                    title="Lançar Notas">
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
-                                                <a href="<?= site_url('teachers/exams/attendance/' . $exam->id) ?>" 
+                                                <a href="<?= site_url('teachers/exams/attendance/' . $exam['id']) ?>" 
                                                    class="btn btn-sm btn-info" 
                                                    title="Registrar Presenças">
                                                     <i class="fas fa-user-check"></i>
                                                 </a>
-                                                <a href="<?= site_url('teachers/exams/results/' . $exam->id) ?>" 
+                                                <a href="<?= site_url('teachers/exams/results/' . $exam['id']) ?>" 
                                                    class="btn btn-sm btn-primary" 
                                                    title="Ver Resultados">
                                                     <i class="fas fa-chart-bar"></i>

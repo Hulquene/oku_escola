@@ -98,8 +98,8 @@ class Grades extends BaseController
             $seq = 1;
             foreach ($acSchedules as $schedule) {
                 $result = $this->examResultModel
-                    ->where('exam_schedule_id', $schedule->id)
-                    ->where('enrollment_id', $student->enrollment_id)
+                    ->where('exam_schedule_id', $schedule['id'])
+                    ->where('enrollment_id', $student['enrollment_id'])
                     ->first();
                 
                 $student->assessments[$seq] = $result;
@@ -193,7 +193,7 @@ class Grades extends BaseController
                             'status' => 'Agendado'
                         ]);
                     } else {
-                        $scheduleId = $schedule->id;
+                        $scheduleId = $schedule['id'];
                     }
                     
                     // Buscar o agendamento para obter max_score
@@ -292,15 +292,15 @@ class Grades extends BaseController
             
             foreach ($acSchedules as $index => $schedule) {
                 $result = $this->examResultModel
-                    ->where('exam_schedule_id', $schedule->id)
-                    ->where('enrollment_id', $student->enrollment_id)
+                    ->where('exam_schedule_id', $schedule['id'])
+                    ->where('enrollment_id', $student['enrollment_id'])
                     ->first();
                 
                 $seq = $index + 1;
-                $scores["ac{$seq}"] = $result ? $result->score : '-';
+                $scores["ac{$seq}"] = $result ? $result['score'] : '-';
                 
-                if ($result && $result->score) {
-                    $total += $result->score;
+                if ($result && $result['score']) {
+                    $total += $result['score'];
                     $count++;
                 }
             }

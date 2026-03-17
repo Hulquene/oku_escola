@@ -2,142 +2,118 @@
 
 <?= $this->section('content') ?>
 
-<!-- Page Header -->
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
+<!-- Page Header com estilo do sistema -->
+<div class="ci-page-header">
+    <div class="ci-page-header-inner">
         <div>
-            <h1 class="mb-2">Detalhes do Exame</h1>
-            <p class="text-muted mb-0">
-                <i class="fas fa-calendar-check me-1"></i>
-                <?= $schedule->discipline_name ?> • <?= $schedule->class_name ?>
-            </p>
+            <h1><i class="fas fa-calendar-check me-2"></i>Detalhes do Exame</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/schedules') ?>">Agendamentos</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?= $schedule['discipline_name'] ?></li>
+                </ol>
+            </nav>
         </div>
-        <div class="d-flex gap-2">
-            <?php if ($schedule->status == 'Agendado'): ?>
-                <a href="<?= site_url('admin/exams/schedules/attendance/' . $schedule->id) ?>" 
-                   class="btn btn-success">
+        <div class="hdr-actions">
+            <?php if ($schedule['status'] == 'Agendado'): ?>
+                <a href="<?= site_url('admin/exams/schedules/attendance/' . $schedule['id']) ?>" 
+                   class="hdr-btn success">
                     <i class="fas fa-user-check me-1"></i> Presenças
                 </a>
-                <a href="<?= site_url('admin/exams/schedules/results/' . $schedule->id) ?>" 
-                   class="btn btn-warning">
+                <a href="<?= site_url('admin/exams/schedules/results/' . $schedule['id']) ?>" 
+                   class="hdr-btn warning">
                     <i class="fas fa-graduation-cap me-1"></i> Notas
                 </a>
             <?php endif; ?>
              
             <!-- Botão para mudar status -->
-            <?php if ($schedule->status != 'Realizado' && $schedule->status != 'Cancelado'): ?>
-                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#statusModal">
+            <?php if ($schedule['status'] != 'Realizado' && $schedule['status'] != 'Cancelado'): ?>
+                <button type="button" class="hdr-btn info" data-bs-toggle="modal" data-bs-target="#statusModal">
                     <i class="fas fa-sync-alt me-1"></i> Mudar Status
                 </button>
             <?php endif; ?>
             
-            <a href="<?= site_url('admin/exams/schedules/edit/' . $schedule->id) ?>" 
-               class="btn btn-primary">
+            <a href="<?= site_url('admin/exams/schedules/edit/' . $schedule['id']) ?>" 
+               class="hdr-btn primary">
                 <i class="fas fa-edit me-1"></i> Editar
             </a>
-            <a href="<?= site_url('admin/exams/schedules') ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/exams/schedules') ?>" class="hdr-btn secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
     </div>
-    <nav aria-label="breadcrumb" class="mt-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/schedules') ?>">Agendamentos</a></li>
-            <li class="breadcrumb-item active"><?= $schedule->discipline_name ?></li>
-        </ol>
-    </nav>
+    <div class="mt-2">
+        <span class="badge-ci info">
+            <i class="fas fa-calendar-check me-1"></i>
+            <?= $schedule['discipline_name'] ?> • <?= $schedule['class_name'] ?>
+        </span>
+    </div>
 </div>
 
 <!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
 <!-- Informações do Exame -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-calendar text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Data/Hora</h6>
-                        <h5 class="mb-0"><?= date('d/m/Y', strtotime($schedule->exam_date)) ?></h5>
-                        <small class="text-muted"><?= $schedule->exam_time ? substr($schedule->exam_time, 0, 5) : 'Horário não definido' ?></small>
-                    </div>
-                </div>
+<div class="stat-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-calendar"></i>
+        </div>
+        <div>
+            <div class="stat-label">Data/Hora</div>
+            <div class="stat-value"><?= date('d/m/Y', strtotime($schedule['exam_date'])) ?></div>
+            <div class="stat-sub"><?= $schedule['exam_time'] ? substr($schedule['exam_time'], 0, 5) : 'Horário não definido' ?></div>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <?php
+        $statusColors = [
+            'Agendado' => 'orange',
+            'Realizado' => 'green',
+            'Cancelado' => 'navy',
+            'Adiado' => 'blue'
+        ];
+        $statusColor = $statusColors[$schedule['status']] ?? 'secondary';
+        $statusIcon = [
+            'Agendado' => 'fa-clock',
+            'Realizado' => 'fa-check-circle',
+            'Cancelado' => 'fa-times-circle',
+            'Adiado' => 'fa-hourglass-half'
+        ][$schedule['status']] ?? 'fa-circle';
+        ?>
+        <div class="stat-icon <?= $statusColor ?>">
+            <i class="fas <?= $statusIcon ?>"></i>
+        </div>
+        <div>
+            <div class="stat-label">Status</div>
+            <div class="stat-value">
+                <span class="badge-ci <?= $statusColor ?> p-2">
+                    <?= $schedule['status'] ?>
+                </span>
             </div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-clock text-success"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Status</h6>
-                        <?php
-                        $statusColors = [
-                            'Agendado' => 'secondary',
-                            'Realizado' => 'success',
-                            'Cancelado' => 'danger',
-                            'Adiado' => 'warning'
-                        ];
-                        $statusColor = $statusColors[$schedule->status] ?? 'secondary';
-                        ?>
-                        <h5 class="mb-0">
-                            <span class="badge bg-<?= $statusColor ?> p-2">
-                                <?= $schedule->status ?>
-                            </span>
-                        </h5>
-                    </div>
-                </div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-users"></i>
+        </div>
+        <div>
+            <div class="stat-label">Presenças</div>
+            <div class="stat-value"><?= $attendanceStats->present ?? 0 ?>/<?= $attendanceStats->total ?? 0 ?></div>
+            <div class="stat-sub"><?= $attendanceStats->percentage ?? 0 ?>%</div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-info bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-users text-info"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Presenças</h6>
-                        <h5 class="mb-0"><?= $attendanceStats->present ?? 0 ?>/<?= $attendanceStats->total ?? 0 ?></h5>
-                        <small class="text-muted"><?= $attendanceStats->percentage ?? 0 ?>%</small>
-                    </div>
-                </div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fas fa-graduation-cap"></i>
         </div>
-    </div>
-    
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-warning bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-graduation-cap text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Notas Registadas</h6>
-                        <h5 class="mb-0"><?= count($results) ?>/<?= $attendanceStats->present ?? 0 ?></h5>
-                    </div>
-                </div>
-            </div>
+        <div>
+            <div class="stat-label">Notas Registadas</div>
+            <div class="stat-value"><?= count($results) ?>/<?= $attendanceStats->present ?? 0 ?></div>
         </div>
     </div>
 </div>
@@ -145,54 +121,54 @@
 <div class="row">
     <div class="col-md-6">
         <!-- Detalhes do Exame -->
-        <div class="card mb-4">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-semibold">
-                    <i class="fas fa-info-circle me-2 text-primary"></i>
-                    Informações do Exame
-                </h5>
+        <div class="ci-card mb-4">
+            <div class="ci-card-header">
+                <div class="ci-card-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Informações do Exame</span>
+                </div>
             </div>
-            <div class="card-body">
-                <table class="table table-borderless">
+            <div class="ci-card-body">
+                <table class="ci-table table-borderless">
                     <tr>
                         <th width="150">Período:</th>
-                        <td><?= $schedule->period_name ?></td>
+                        <td><?= $schedule['period_name'] ?></td>
                     </tr>
                     <tr>
                         <th>Ano Letivo:</th>
-                        <td><?= $schedule->year_name ?></td>
+                        <td><?= $schedule['year_name'] ?></td>
                     </tr>
                     <tr>
                         <th>Semestre:</th>
-                        <td><?= $schedule->semester_name ?></td>
+                        <td><?= $schedule['semester_name'] ?></td>
                     </tr>
                     <tr>
                         <th>Turma:</th>
-                        <td><?= $schedule->class_name ?> (<?= $schedule->class_code ?>)</td>
+                        <td><?= $schedule['class_name'] ?> (<?= $schedule['class_code'] ?>)</td>
                     </tr>
                     <tr>
                         <th>Disciplina:</th>
-                        <td><?= $schedule->discipline_name ?> (<?= $schedule->discipline_code ?>)</td>
+                        <td><?= $schedule['discipline_name'] ?> (<?= $schedule['discipline_code'] ?>)</td>
                     </tr>
                     <tr>
                         <th>Tipo:</th>
                         <td>
-                            <span class="badge bg-info"><?= $schedule->board_name ?></span>
-                            <span class="badge bg-secondary ms-1">Peso: <?= $schedule->weight ?>x</span>
+                            <span class="badge-ci info"><?= $schedule['board_name'] ?></span>
+                            <span class="badge-ci secondary ms-1">Peso: <?= $schedule['weight'] ?>x</span>
                         </td>
                     </tr>
                     <tr>
                         <th>Sala:</th>
-                        <td><?= $schedule->exam_room ?: 'Não definida' ?></td>
+                        <td><?= $schedule['exam_room'] ?: 'Não definida' ?></td>
                     </tr>
                     <tr>
                         <th>Duração:</th>
-                        <td><?= $schedule->duration_minutes ?> minutos</td>
+                        <td><?= $schedule['duration_minutes'] ?> minutos</td>
                     </tr>
-                    <?php if ($schedule->observations): ?>
+                    <?php if ($schedule['observations']): ?>
                         <tr>
                             <th>Observações:</th>
-                            <td><?= $schedule->observations ?></td>
+                            <td><?= $schedule['observations'] ?></td>
                         </tr>
                     <?php endif; ?>
                 </table>
@@ -202,12 +178,12 @@
     
     <div class="col-md-6">
         <!-- Lista de Resultados com Presenças e Notas na mesma tabela -->
-        <div class="card mb-4">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-semibold">
-                    <i class="fas fa-graduation-cap me-2 text-warning"></i>
-                    Resultados e Presenças
-                </h5>
+        <div class="ci-card mb-4">
+            <div class="ci-card-header">
+                <div class="ci-card-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Resultados e Presenças</span>
+                </div>
                 <?php if (!empty($combinedData)): ?>
                     <?php
                     $scores = array_filter(array_column($combinedData, 'score'), function($v) { return $v !== null; });
@@ -217,24 +193,24 @@
                         $minScore = min($scores);
                     ?>
                     <div class="text-end">
-                        <span class="badge bg-light text-dark me-1">Média: <?= number_format($avgScore, 1) ?></span>
-                        <span class="badge bg-success me-1">Max: <?= number_format($maxScore, 1) ?></span>
-                        <span class="badge bg-danger">Min: <?= number_format($minScore, 1) ?></span>
+                        <span class="badge-ci secondary me-1">Média: <?= number_format($avgScore, 1) ?></span>
+                        <span class="badge-ci success me-1">Max: <?= number_format($maxScore, 1) ?></span>
+                        <span class="badge-ci danger">Min: <?= number_format($minScore, 1) ?></span>
                     </div>
                     <?php endif; ?>
                 <?php endif; ?>
             </div>
-            <div class="card-body p-0">
+            <div class="ci-card-body p0">
                 <?php if (!empty($combinedData)): ?>
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
+                        <table class="ci-table">
+                            <thead>
                                 <tr>
-                                    <th class="border-0 py-2 ps-3">Aluno</th>
-                                    <th class="border-0 py-2 text-center">Processo</th>
-                                    <th class="border-0 py-2 text-center">Presença</th>
-                                    <th class="border-0 py-2 text-center">Nota</th>
-                                    <th class="border-0 py-2 text-center pe-3">Status</th>
+                                    <th class="ps-3">Aluno</th>
+                                    <th class="center">Processo</th>
+                                    <th class="center">Presença</th>
+                                    <th class="center">Nota</th>
+                                    <th class="center pe-3">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -265,7 +241,7 @@
                                     <tr>
                                         <td class="ps-3">
                                             <div class="d-flex align-items-center">
-                                                <div class="avatar-circle bg-primary bg-opacity-10 text-primary me-2">
+                                                <div class="teacher-initials me-2" style="width: 35px; height: 35px; font-size: 0.9rem;">
                                                     <?= strtoupper(substr($item->first_name, 0, 1) . substr($item->last_name, 0, 1)) ?>
                                                 </div>
                                                 <div>
@@ -273,11 +249,11 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-center align-middle">
-                                            <span class="badge bg-light text-dark"><?= $item->student_number ?></span>
+                                        <td class="center">
+                                            <span class="code-badge"><?= $item->student_number ?></span>
                                         </td>
-                                        <td class="text-center align-middle">
-                                            <span class="badge bg-<?= $attendanceClass ?>">
+                                        <td class="center">
+                                            <span class="badge-ci <?= $attendanceClass ?>">
                                                 <i class="fas <?= $attendanceIcon ?> me-1"></i>
                                                 <?= $attendanceText ?>
                                             </span>
@@ -286,22 +262,22 @@
                                                 <small class="text-muted"><?= date('H:i', strtotime($item->check_in_time)) ?></small>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-center align-middle">
+                                        <td class="center">
                                             <?php if ($item->score !== null): ?>
-                                                <span class="fw-bold fs-5"><?= number_format($item->score, 1) ?></span>
+                                                <span class="num-chip" style="font-size: 1rem;"><?= number_format($item->score, 1) ?></span>
                                             <?php else: ?>
                                                 <span class="text-muted">—</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-center align-middle pe-3">
+                                        <td class="center pe-3">
                                             <?php if ($item->score !== null): ?>
-                                                <span class="badge bg-<?= $scoreClass ?>">
+                                                <span class="badge-ci <?= $scoreClass ?>">
                                                     <?= $scoreText ?>
                                                 </span>
                                             <?php elseif ($item->attended): ?>
-                                                <span class="badge bg-secondary">Aguardando</span>
+                                                <span class="badge-ci secondary">Aguardando</span>
                                             <?php else: ?>
-                                                <span class="badge bg-secondary">—</span>
+                                                <span class="badge-ci secondary">—</span>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
@@ -310,17 +286,18 @@
                         </table>
                     </div>
                 <?php else: ?>
-                    <div class="text-center py-4">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Nenhum aluno encontrado</p>
-                        <?php if ($schedule->status == 'Agendado'): ?>
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h5>Nenhum aluno encontrado</h5>
+                        <p class="text-muted mb-3">Nenhum aluno registado para este exame.</p>
+                        <?php if ($schedule['status'] == 'Agendado'): ?>
                             <div class="mt-2">
-                                <a href="<?= site_url('admin/exams/schedules/attendance/' . $schedule->id) ?>" 
-                                   class="btn btn-sm btn-success me-2">
+                                <a href="<?= site_url('admin/exams/schedules/attendance/' . $schedule['id']) ?>" 
+                                   class="btn-ci success me-2">
                                     <i class="fas fa-user-check me-1"></i> Registar Presenças
                                 </a>
-                                <a href="<?= site_url('admin/exams/schedules/results/' . $schedule->id) ?>" 
-                                   class="btn btn-sm btn-warning">
+                                <a href="<?= site_url('admin/exams/schedules/results/' . $schedule['id']) ?>" 
+                                   class="btn-ci warning">
                                     <i class="fas fa-graduation-cap me-1"></i> Registar Notas
                                 </a>
                             </div>
@@ -332,32 +309,32 @@
     </div>
 </div>
 
-<!-- Modal para mudar status -->
-<div class="modal fade" id="statusModal" tabindex="-1">
+<!-- Modal para mudar status com estilo do sistema -->
+<div class="modal fade ci-modal" id="statusModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
+            <div class="modal-header info-header">
                 <h5 class="modal-title">
                     <i class="fas fa-sync-alt me-2"></i>
                     Alterar Status do Exame
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= site_url('admin/exams/schedules/update-status/' . $schedule->id) ?>" method="post">
+            <form action="<?= site_url('admin/exams/schedules/update-status/' . $schedule['id']) ?>" method="post">
                 <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Status Atual</label>
+                        <label class="filter-label">Status Atual</label>
                         <div>
-                            <span class="badge bg-<?= $statusColor ?> p-2 fs-6">
-                                <?= $schedule->status ?>
+                            <span class="badge-ci <?= $statusColor ?> p-2" style="font-size: 1rem;">
+                                <?= $schedule['status'] ?>
                             </span>
                         </div>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Novo Status</label>
-                        <select name="status" class="form-select" required>
+                        <label class="filter-label">Novo Status</label>
+                        <select name="status" class="filter-select" required>
                             <option value="">Selecione...</option>
                             <option value="Agendado">Agendado</option>
                             <option value="Realizado">Realizado</option>
@@ -367,28 +344,30 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Observações</label>
-                        <textarea name="observations" class="form-control" rows="2" 
+                        <label class="filter-label">Observações</label>
+                        <textarea name="observations" class="form-input-ci" rows="2" 
                                   placeholder="Motivo da alteração (opcional)"></textarea>
                     </div>
                     
-                    <?php if ($schedule->status != 'Realizado'): ?>
-                    <div class="alert alert-info small">
+                    <?php if ($schedule['status'] != 'Realizado'): ?>
+                    <div class="alert-ci info small">
                         <i class="fas fa-info-circle me-2"></i>
                         Ao marcar como <strong>Realizado</strong>, o exame será finalizado e não poderá mais ser editado.
                     </div>
                     <?php endif; ?>
                     
-                    <?php if ($schedule->status == 'Cancelado'): ?>
-                    <div class="alert alert-danger small">
+                    <?php if ($schedule['status'] == 'Cancelado'): ?>
+                    <div class="alert-ci danger small">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Ao cancelar o exame, todas as presenças e notas serão mantidas, mas o exame ficará inativo.
                     </div>
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-info">
+                    <button type="button" class="btn-filter clear" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn-filter info">
                         <i class="fas fa-save me-1"></i> Salvar Alteração
                     </button>
                 </div>
@@ -397,43 +376,88 @@
     </div>
 </div>
 
-<style>
-.avatar-circle {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
+<?= $this->endSection() ?>
 
+<?= $this->section('scripts') ?>
+<script>
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
+<style>
+/* Estilos adicionais específicos para esta página */
 .table-borderless th,
 .table-borderless td {
     padding: 0.75rem;
+    vertical-align: top;
+    border: none;
 }
 
-.badge {
-    font-weight: 500;
-    padding: 0.5em 0.8em;
+.table-borderless tr {
+    border-bottom: 1px solid var(--border);
 }
 
-.table tbody tr:hover {
-    background-color: rgba(0,0,0,0.02);
+.table-borderless tr:last-child {
+    border-bottom: none;
 }
 
-.avatar-circle {
-    width: 40px;
-    height: 40px;
+.ci-table tbody tr:hover {
+    background: rgba(59,127,232,0.03);
+}
+
+.teacher-initials {
+    background: var(--accent);
+    color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+/* Cabeçalhos de modal */
+.modal-header.info-header {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* Ajustes para badges no header da página */
+.badge-ci.info {
+    background: rgba(59,127,232,0.15);
+    color: var(--accent);
     font-size: 0.9rem;
-    background-color: #f8f9fa;
+    padding: 0.5rem 1rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .hdr-actions {
+        flex-wrap: wrap;
+    }
+    
+    .hdr-btn {
+        padding: 0.35rem 0.8rem;
+        font-size: 0.75rem;
+    }
+    
+    .ci-table td {
+        min-width: 120px;
+    }
+    
+    .ci-table td:first-child {
+        min-width: auto;
+    }
 }
 </style>
-
 <?= $this->endSection() ?>

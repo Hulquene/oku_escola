@@ -253,13 +253,13 @@
                                     <td><?= esc($result->exam_name ?? $result->board_name ?? 'Exame') ?></td>
                                     <td><?= esc($result->board_type ?? 'Normal') ?></td>
                                     <td><?= $result->weight ?? 1 ?>x</td>
-                                    <td class="fw-bold <?= ($result->score ?? 0) >= ($result->approval_score ?? 10) ? 'text-success' : 'text-danger' ?>">
-                                        <?= number_format($result->score ?? 0, 1, ',', '.') ?>
+                                    <td class="fw-bold <?= ($result['score'] ?? 0) >= ($result->approval_score ?? 10) ? 'text-success' : 'text-danger' ?>">
+                                        <?= number_format($result['score'] ?? 0, 1, ',', '.') ?>
                                     </td>
                                     <td>
                                         <?php if ($result->grade ?? false): ?>
                                             <span class="badge bg-info"><?= $result->grade ?></span>
-                                        <?php elseif (($result->score ?? 0) >= ($result->approval_score ?? 10)): ?>
+                                        <?php elseif (($result['score'] ?? 0) >= ($result->approval_score ?? 10)): ?>
                                             <span class="badge bg-success">Aprovado</span>
                                         <?php else: ?>
                                             <span class="badge bg-danger">Reprovado</span>
@@ -375,12 +375,12 @@
                         <tbody>
                             <?php foreach ($upcomingExams as $exam): ?>
                                 <tr>
-                                    <td><strong><?= $exam->formatted_date ?? date('d/m/Y', strtotime($exam->exam_date ?? 'now')) ?></strong></td>
-                                    <td><?= $exam->formatted_time ?? ($exam->exam_time ? date('H:i', strtotime($exam->exam_time)) : '--:--') ?></td>
+                                    <td><strong><?= $exam->formatted_date ?? date('d/m/Y', strtotime($exam['exam_date'] ?? 'now')) ?></strong></td>
+                                    <td><?= $exam->formatted_time ?? ($exam['exam_time'] ? date('H:i', strtotime($exam['exam_time'])) : '--:--') ?></td>
                                     <td><?= esc($exam->exam_name ?? $exam->board_name ?? 'Exame') ?></td>
-                                    <td><?= esc($exam->board_type ?? 'Normal') ?></td>
+                                    <td><?= esc($exam['board_type'] ?? 'Normal') ?></td>
                                     <td><?= $exam->weight ?? 1 ?>x</td>
-                                    <td><?= esc($exam->exam_room ?? 'Não definida') ?></td>
+                                    <td><?= esc($exam['exam_room'] ?? 'Não definida') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

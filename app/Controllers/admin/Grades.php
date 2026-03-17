@@ -78,7 +78,7 @@ class Grades extends BaseController
             foreach ($students as $student) {
                 foreach ($data['disciplines'] as $discipline) {
                     $assessments = $this->continuousModel
-                        ->where('enrollment_id', $student->enrollment_id)
+                        ->where('enrollment_id', $student['enrollment_id'])
                         ->where('discipline_id', $discipline['id'])
                         ->where('semester_id', $currentSemester['id'] ?? null)
                         ->findAll();
@@ -150,7 +150,7 @@ class Grades extends BaseController
         foreach ($students as $student) {
             foreach ($data['disciplines'] as $discipline) {
                 $assessments = $this->continuousModel
-                    ->where('enrollment_id', $student->enrollment_id)
+                    ->where('enrollment_id', $student['enrollment_id'])
                     ->where('discipline_id', $discipline['id'])
                     ->where('semester_id', $semesterId)
                     ->findAll();
@@ -353,7 +353,7 @@ public function statistics()
                 // Buscar notas do aluno nesta disciplina
                 $notas = $this->continuousModel
                     ->select('score')
-                    ->where('enrollment_id', $aluno->enrollment_id)
+                    ->where('enrollment_id', $aluno['enrollment_id'])
                     ->where('discipline_id', $disciplina->id)
                     ->where('semester_id', $semesterId)
                     ->findAll();
@@ -503,7 +503,7 @@ public function period()
             foreach ($disciplinas as $disciplina) {
                 $notas = $this->continuousModel
                     ->select('score')
-                    ->where('enrollment_id', $aluno->enrollment_id)
+                    ->where('enrollment_id', $aluno['enrollment_id'])
                     ->where('discipline_id', $disciplina->id)
                     ->where('semester_id', $semesterId)
                     ->findAll();
@@ -522,8 +522,8 @@ public function period()
             }
             
             $alunoInfo = [
-                'nome' => $aluno->first_name . ' ' . $aluno->last_name,
-                'numero' => $aluno->student_number,
+                'nome' => $aluno['first_name'] . ' ' . $aluno['last_name'],
+                'numero' => $aluno['student_number'],
                 'notas' => $notasPorDisciplina
             ];
             

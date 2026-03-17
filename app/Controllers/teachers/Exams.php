@@ -150,10 +150,10 @@ class Exams extends BaseController
         $data['withResultsCount'] = 0;
         
         foreach ($data['exams'] as $exam) {
-            if ($exam->exam_date >= date('Y-m-d')) {
+            if ($exam['exam_date'] >= date('Y-m-d')) {
                 $data['pendingCount']++;
             }
-            if ($exam->exam_date == date('Y-m-d')) {
+            if ($exam['exam_date'] == date('Y-m-d')) {
                 $data['todayCount']++;
             }
             if (($exam->results_count ?? 0) > 0) {
@@ -375,7 +375,7 @@ public function grade($examScheduleId)
     }
     
     // ✅ VERIFICAR SE O EXAME JÁ FOI REALIZADO
-    if ($exam->status === 'Realizado') {
+    if ($exam['status'] === 'Realizado') {
         return redirect()->to('/teachers/exams/results/' . $examScheduleId)
             ->with('info', 'Este exame já foi realizado. Visualize os resultados abaixo.');
     }
@@ -420,7 +420,7 @@ public function grade($examScheduleId)
     
     $data['results'] = [];
     foreach ($results as $result) {
-        $data['results'][$result->enrollment_id] = $result;
+        $data['results'][$result['enrollment_id']] = $result;
     }
     
     // Buscar presenças do exame
@@ -647,7 +647,7 @@ public function attendance($examScheduleId)
     
     $data['attendanceMap'] = [];
     foreach ($attendance as $att) {
-        $data['attendanceMap'][$att->enrollment_id] = $att;
+        $data['attendanceMap'][$att['enrollment_id']] = $att;
     }
     
     return view('teachers/exams/attendance', $data);

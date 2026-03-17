@@ -27,8 +27,8 @@
                     <option value="">Todos</option>
                     <?php if (!empty($exams)): ?>
                         <?php foreach ($exams as $exam): ?>
-                            <option value="<?= $exam->id ?>" <?= $selectedExam == $exam->id ? 'selected' : '' ?>>
-                                <?= $exam->exam_name ?> (<?= date('d/m/Y', strtotime($exam->exam_date)) ?>)
+                            <option value="<?= $exam['id'] ?>" <?= $selectedExam == $exam['id'] ? 'selected' : '' ?>>
+                                <?= $exam->exam_name ?> (<?= date('d/m/Y', strtotime($exam['exam_date'])) ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

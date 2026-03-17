@@ -153,7 +153,7 @@ class ExamPeriods extends BaseController
         
         $data['exams'] = $this->examScheduleModel->getByPeriod($id);
         $data['stats'] = $this->examPeriodModel->getPeriodStats($id);
-        $data['title'] = 'Período: ' . $data['period']->period_name;
+        $data['title'] = 'Período: ' . $data['period']['period_name'];
         
         return view('admin/exams/periods/view', $data);
     }

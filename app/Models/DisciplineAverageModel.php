@@ -79,7 +79,7 @@ class DisciplineAverageModel extends BaseModel
                     'weight' => 0
                 ];
             }
-            $grouped[$boardId]['scores'][] = $result->score;
+            $grouped[$boardId]['scores'][] = $result['score'];
             
             // Find weight for this board
             foreach ($weights as $weight) {

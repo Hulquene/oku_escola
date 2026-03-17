@@ -135,7 +135,7 @@
                                             <small class="text-muted">Cód: <?= $disc['discipline_code'] ?></small>
                                         </div>
                                         <div>
-                                            <span class="badge bg-info"><?= $disc->workload_hours ?>h</span>
+                                            <span class="badge bg-info"><?= $disc['workload_hours'] ?>h</span>
                                         </div>
                                     </div>
                                 </div>

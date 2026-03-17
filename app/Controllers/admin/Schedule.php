@@ -392,7 +392,7 @@ class Schedule extends BaseController
             
             // Verificar se a decodificação foi bem-sucedida
             if (!is_array($data)) {
-                log_message('error', "schedule_data inválido para o schedule ID: {$schedule->id}");
+                log_message('error', "schedule_data inválido para o schedule ID: {$schedule['id']}");
                 continue;
             }
             
@@ -569,7 +569,7 @@ class Schedule extends BaseController
         $totalSchedules = $scheduleRecord->total_items ?? 0;
         
         foreach ($disciplines as $disc) {
-            if ($disc->teacher_id) $assignedTeachers++;
+            if ($disc['teacher_id']) $assignedTeachers++;
         }
         
         // Buscar todos os professores para o formulário rápido

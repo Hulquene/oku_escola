@@ -348,19 +348,19 @@ class MiniGradeSheet extends BaseController
         $sheet->getStyle('A1')->applyFromArray($titleStyle);
         
         // Informações da pauta
-        $sheet->setCellValue('A2', 'DISCIPLINA: ' . $schedule->discipline_name);
+        $sheet->setCellValue('A2', 'DISCIPLINA: ' . $schedule['discipline_name']);
         $sheet->mergeCells('A2:C2');
         $sheet->setCellValue('D2', 'CURSO: ' . ($schedule->course_name ?? 'N/A'));
         $sheet->mergeCells('D2:F2');
         
-        $sheet->setCellValue('A3', 'TURMA: ' . $schedule->class_name);
+        $sheet->setCellValue('A3', 'TURMA: ' . $schedule['class_name']);
         $sheet->mergeCells('A3:C3');
         $sheet->setCellValue('D3', 'CLASSE: ' . ($schedule->level_name ?? 'N/A'));
         $sheet->mergeCells('D3:F3');
         
-        $sheet->setCellValue('A4', 'ANO LETIVO: ' . $schedule->year_name);
+        $sheet->setCellValue('A4', 'ANO LETIVO: ' . $schedule['year_name']);
         $sheet->mergeCells('A4:C4');
-        $sheet->setCellValue('D4', 'PERÍODO: ' . $schedule->period_name);
+        $sheet->setCellValue('D4', 'PERÍODO: ' . $schedule['period_name']);
         $sheet->mergeCells('D4:F4');
         
         // Professor
@@ -414,11 +414,11 @@ class MiniGradeSheet extends BaseController
         $counter = 1;
         
         foreach ($alunos as $aluno) {
-            $mediasAluno = $medias[$aluno->enrollment_id] ?? [];
+            $mediasAluno = $medias[$aluno['enrollment_id']] ?? [];
             
             $sheet->setCellValue('A' . $row, $counter++);
-            $sheet->setCellValue('B' . $row, $aluno->full_name ?? $aluno->first_name . ' ' . $aluno->last_name);
-            $sheet->setCellValue('Q' . $row, $aluno->student_number ?? '—');
+            $sheet->setCellValue('B' . $row, $aluno['full_name'] ?? $aluno['first_name'] . ' ' . $aluno['last_name']);
+            $sheet->setCellValue('Q' . $row, $aluno['student_number'] ?? '—');
             
             // 1º Trimestre
             $sheet->setCellValue('C' . $row, $mediasAluno['trimestres'][1]['AC'] ?? '—');
@@ -522,7 +522,7 @@ class MiniGradeSheet extends BaseController
         $writer = new Xlsx($spreadsheet);
         
         // Nome do arquivo
-        $filename = 'mini_pauta_' . $schedule->discipline_code . '_' . $schedule->class_code . '_' . date('Ymd_His') . '.xlsx';
+        $filename = 'mini_pauta_' . $schedule['discipline_code'] . '_' . $schedule['class_code'] . '_' . date('Ymd_His') . '.xlsx';
         
         // Configurar resposta HTTP
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -699,7 +699,7 @@ public function trimestral()
                     ->select('AVG(score) as media')
                     ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
                     ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-                    ->where('tbl_exam_results.enrollment_id', $aluno->enrollment_id)
+                    ->where('tbl_exam_results.enrollment_id', $aluno['enrollment_id'])
                     ->where('tbl_exam_schedules.discipline_id', $disciplina->discipline_id)
                     ->where('tbl_exam_periods.semester_id', $semesterId)
                     ->first();
@@ -794,7 +794,7 @@ public function trimestralClass($classId, $semesterId = null)
                 ->select('tbl_exam_results.*')
                 ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
                 ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
-                ->where('tbl_exam_results.enrollment_id', $aluno->enrollment_id)
+                ->where('tbl_exam_results.enrollment_id', $aluno['enrollment_id'])
                 ->where('tbl_exam_schedules.discipline_id', $disciplina->discipline_id)
                 ->where('tbl_exam_periods.semester_id', $semesterId)
                 ->findAll();
@@ -999,7 +999,7 @@ public function disciplina()
         ];
         
         foreach ($resultados as $result) {
-            $enrollmentId = $result->enrollment_id;
+            $enrollmentId = $result['enrollment_id'];
             $trimestre = $semesterMap[$result->semester_type] ?? 1;
             
             if (!isset($data['resultados'][$enrollmentId])) {
@@ -1012,14 +1012,14 @@ public function disciplina()
             
             $tipo = $result->assessment_type;
             if (in_array($tipo, ['AC', 'NPP', 'NPT'])) {
-                $data['resultados'][$enrollmentId][$trimestre][$tipo] = $result->score;
+                $data['resultados'][$enrollmentId][$trimestre][$tipo] = $result['score'];
             }
         }
         
         // Calcular médias
         $data['medias'] = [];
         foreach ($data['alunos'] as $aluno) {
-            $enrollmentId = $aluno->enrollment_id;
+            $enrollmentId = $aluno['enrollment_id'];
             $alunoMedias = [
                 'aluno' => $aluno,
                 'trimestres' => []
@@ -1157,7 +1157,7 @@ public function disciplinaView($classId, $disciplineId)
     ];
     
     foreach ($resultados as $result) {
-        $enrollmentId = $result->enrollment_id;
+        $enrollmentId = $result['enrollment_id'];
         $trimestre = $semesterMap[$result->semester_type] ?? 1;
         
         if (!isset($data['resultados'][$enrollmentId])) {
@@ -1170,14 +1170,14 @@ public function disciplinaView($classId, $disciplineId)
         
         $tipo = $result->assessment_type;
         if (in_array($tipo, ['AC', 'NPP', 'NPT'])) {
-            $data['resultados'][$enrollmentId][$trimestre][$tipo] = $result->score;
+            $data['resultados'][$enrollmentId][$trimestre][$tipo] = $result['score'];
         }
     }
     
     // Calcular médias
     $data['medias'] = [];
     foreach ($data['alunos'] as $aluno) {
-        $enrollmentId = $aluno->enrollment_id;
+        $enrollmentId = $aluno['enrollment_id'];
         $alunoMedias = [
             'aluno' => $aluno,
             'trimestres' => []
@@ -1368,7 +1368,7 @@ public function disciplinaView($classId, $disciplineId)
         $notasPorAluno = [];
         
         foreach ($alunos as $aluno) {
-            $enrollmentId = $aluno->enrollment_id;
+            $enrollmentId = $aluno['enrollment_id'];
             $notasPorAluno[$enrollmentId] = [
                 'aluno' => $aluno,
                 'notas' => [

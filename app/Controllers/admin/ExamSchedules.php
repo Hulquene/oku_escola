@@ -219,7 +219,7 @@ public function edit($id)
             ->with('error', 'Agendamento não encontrado.');
     }
     
-    $data['title'] = 'Editar Exame: ' . $data['schedule']->discipline_name;
+    $data['title'] = 'Editar Exame: ' . $data['schedule']['discipline_name'];
     
     if ($this->request->getMethod() === 'post') {
         $rules = [
@@ -313,7 +313,7 @@ public function attendance($id)
             ->with('error', 'Agendamento não encontrado.');
     }
     
-    $data['title'] = 'Registar Presenças - ' . $data['schedule']->discipline_name . ' (' . $data['schedule']->class_name . ')';
+    $data['title'] = 'Registar Presenças - ' . $data['schedule']['discipline_name'] . ' (' . $data['schedule']['class_name']. ')';
     
     // Buscar alunos com status "Ativo" e "Pendente"
     $data['students'] = $this->enrollmentModel
@@ -333,7 +333,7 @@ public function attendance($id)
         ')
         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-        ->where('tbl_enrollments.class_id', $data['schedule']->class_id)
+        ->where('tbl_enrollments.class_id', $data['schedule']['class_id'])
         ->whereIn('tbl_enrollments.status', ['Ativo', 'Pendente'])
         ->orderBy('tbl_users.first_name', 'ASC')
         ->orderBy('tbl_users.last_name', 'ASC')
@@ -347,13 +347,13 @@ public function attendance($id)
     // Map existing attendance by enrollment_id
     $data['attendanceMap'] = [];
     foreach ($existingAttendance as $att) {
-        $data['attendanceMap'][$att->enrollment_id] = $att;
+        $data['attendanceMap'][$att['enrollment_id']] = $att;
     }
     
     // Statistics
     $data['totalStudents'] = count($data['students']);
     $data['presentCount'] = count(array_filter($existingAttendance, function($a) { 
-        return $a->attended == 1; 
+        return $a['attended'] == 1; 
     }));
     $data['absentCount'] = $data['totalStudents'] - $data['presentCount'];
     
@@ -362,10 +362,10 @@ public function attendance($id)
     
     // Informações do agendamento formatadas
     $data['schedule_info'] = [
-        'date' => date('d/m/Y', strtotime($data['schedule']->exam_date)),
-        'time' => $data['schedule']->exam_time ? date('H:i', strtotime($data['schedule']->exam_time)) : 'Horário não definido',
-        'duration' => $data['schedule']->duration_minutes ? $data['schedule']->duration_minutes . ' minutos' : 'Duração não definida',
-        'room' => $data['schedule']->exam_room ?? 'Não definida',
+        'date' => date('d/m/Y', strtotime($data['schedule']['exam_date'])),
+        'time' => $data['schedule']['exam_time'] ? date('H:i', strtotime($data['schedule']['exam_time'])) : 'Horário não definido',
+        'duration' => $data['schedule']['duration_minutes'] ? $data['schedule']['duration_minutes'] . ' minutos' : 'Duração não definida',
+        'room' => $data['schedule']['exam_room'] ?? 'Não definida',
         'academic_year' => $data['schedule']->year_name ?? 'N/A'
     ];
     
@@ -496,7 +496,7 @@ public function results($id)
             ->with('error', 'Agendamento não encontrado.');
     }
     
-    $data['title'] = 'Registar Notas - ' . $data['schedule']->discipline_name;
+    $data['title'] = 'Registar Notas - ' . $data['schedule']['discipline_name'];
     
     // Get students with attendance (apenas alunos presentes)
     $data['students'] = $this->examAttendanceModel
@@ -524,7 +524,7 @@ public function results($id)
     
     $data['existingScores'] = [];
     foreach ($existingResults as $result) {
-        $data['existingScores'][$result->enrollment_id] = $result->score;
+        $data['existingScores'][$result['enrollment_id']] = $result['score'];
     }
     
     // Estatísticas para o card
@@ -758,7 +758,7 @@ public function view($id)
         ')
         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
         ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-        ->where('tbl_enrollments.class_id', $data['schedule']->class_id)
+        ->where('tbl_enrollments.class_id', $data['schedule']['class_id'])
         ->where('tbl_enrollments.status', 'Ativo')
         ->orderBy('tbl_users.first_name', 'ASC')
         ->findAll();
@@ -766,34 +766,34 @@ public function view($id)
     // Mapear presenças por enrollment_id
     $attendanceMap = [];
     foreach ($data['attendance'] as $att) {
-        $attendanceMap[$att->enrollment_id] = $att;
+        $attendanceMap[$att['enrollment_id']] = $att;
     }
     
     // Mapear resultados por enrollment_id
     $resultsMap = [];
     foreach ($data['results'] as $res) {
-        $resultsMap[$res->enrollment_id] = $res;
+        $resultsMap[$res['enrollment_id']] = $res;
     }
     
     // Combinar dados
     $combinedData = [];
     foreach ($alunos as $aluno) {
-        $enrollmentId = $aluno->enrollment_id;
+        $enrollmentId = $aluno['enrollment_id'];
         
         $item = new \stdClass();
         $item->enrollment_id = $enrollmentId;
-        $item->student_id = $aluno->student_id;
-        $item->student_number = $aluno->student_number;
-        $item->first_name = $aluno->first_name;
-        $item->last_name = $aluno->last_name;
-        $item->full_name = $aluno->full_name;
+        $item->student_id = $aluno['student_id'];
+        $item->student_number = $aluno['student_number'];
+        $item->first_name = $aluno['first_name'];
+        $item->last_name = $aluno['last_name'];
+        $item->full_name = $aluno['full_name'];
         
         // Dados de presença
         if (isset($attendanceMap[$enrollmentId])) {
             $att = $attendanceMap[$enrollmentId];
-            $item->attended = $att->attended;
-            $item->check_in_time = $att->check_in_time;
-            $item->attendance_id = $att->id;
+            $item->attended = $att['attended'];
+            $item->check_in_time = $att['check_in_time'];
+            $item->attendance_id = $att['id'];
         } else {
             $item->attended = 0;
             $item->check_in_time = null;
@@ -803,9 +803,9 @@ public function view($id)
         // Dados de nota
         if (isset($resultsMap[$enrollmentId])) {
             $res = $resultsMap[$enrollmentId];
-            $item->score = $res->score;
-            $item->result_id = $res->id;
-            $item->assessment_type = $res->assessment_type;
+            $item->score = $res['score'];
+            $item->result_id = $res['id'];
+            $item->assessment_type = $res['assessment_type'];
         } else {
             $item->score = null;
             $item->result_id = null;
@@ -1061,32 +1061,32 @@ public function getCalendarEvents()
     
     foreach ($schedules as $schedule) {
         // Formatar data e hora para o FullCalendar
-        $start = $schedule->exam_date;
-        if ($schedule->exam_time) {
-            $start .= 'T' . $schedule->exam_time;
+        $start = $schedule['exam_date'];
+        if ($schedule['exam_time']) {
+            $start .= 'T' . $schedule['exam_time'];
         }
         
         // Calcular end com base na duração (se tiver)
         $end = null;
-        if (!empty($schedule->duration_minutes)) {
-            $end = date('Y-m-d H:i:s', strtotime($start . ' + ' . $schedule->duration_minutes . ' minutes'));
+        if (!empty($schedule['duration_minutes'])) {
+            $end = date('Y-m-d H:i:s', strtotime($start . ' + ' . $schedule['duration_minutes'] . ' minutes'));
         }
         
         $events[] = [
-            'id' => $schedule->id,
+            'id' => $schedule['id'],
             'title' => $schedule->title,
             'start' => $start,
             'end' => $end,
-            'color' => $colors[$schedule->status] ?? '#6c757d',
+            'color' => $colors[$schedule['status']] ?? '#6c757d',
             'textColor' => '#ffffff',
             'extendedProps' => [
-                'status' => $schedule->status,
-                'board' => $schedule->board_name,
-                'board_type' => $schedule->board_type,
+                'status' => $schedule['status'],
+                'board' => $schedule['board_name'],
+                'board_type' => $schedule['board_type'],
                 'board_code' => $schedule->board_code,
-                'room' => $schedule->exam_room ?? 'Não definida',
-                'class' => $schedule->class_name,
-                'discipline' => $schedule->discipline_name
+                'room' => $schedule['exam_room'] ?? 'Não definida',
+                'class' => $schedule['class_name'],
+                'discipline' => $schedule['discipline_name']
             ]
         ];
     }
@@ -1155,23 +1155,23 @@ public function getFilteredCalendarEvents()
     ];
     
     foreach ($schedules as $schedule) {
-        $start = $schedule->exam_date;
-        if ($schedule->exam_time) {
-            $start .= 'T' . $schedule->exam_time;
+        $start = $schedule['exam_date'];
+        if ($schedule['exam_time']) {
+            $start .= 'T' . $schedule['exam_time'];
         }
         
         $events[] = [
-            'id' => $schedule->id,
+            'id' => $schedule['id'],
             'title' => $schedule->title,
             'start' => $start,
-            'color' => $colors[$schedule->status] ?? '#6c757d',
+            'color' => $colors[$schedule['status']] ?? '#6c757d',
             'textColor' => '#ffffff',
-            'url' => site_url('admin/exams/schedules/view/' . $schedule->id),
+            'url' => site_url('admin/exams/schedules/view/' . $schedule['id']),
             'extendedProps' => [
-                'status' => $schedule->status,
-                'board' => $schedule->board_name,
+                'status' => $schedule['status'],
+                'board' => $schedule['board_name'],
                 'board_code' => $schedule->board_code,
-                'room' => $schedule->exam_room
+                'room' => $schedule['exam_room']
             ]
         ];
     }
@@ -1214,7 +1214,7 @@ private function notifyTeachers($scheduleId, $message)
     // Criar notificação
     $notificationData = [
         'title' => 'Novo Exame Agendado',
-        'message' => "Foi agendado um exame de {$schedule->discipline_name} para a turma {$schedule->class_name} no dia " . date('d/m/Y', strtotime($schedule->exam_date)),
+        'message' => "Foi agendado um exame de {$schedule['discipline_name']} para a turma {$schedule['class_name']} no dia " . date('d/m/Y', strtotime($schedule['exam_date'])),
         'type' => 'exam_schedule',
         'icon' => 'fa-calendar-check',
         'color' => 'primary',
@@ -1279,7 +1279,7 @@ private function notifyStudents($scheduleId, $message)
     // Criar notificação
     $notificationData = [
         'title' => 'Notas Publicadas',
-        'message' => "As notas do exame de {$schedule->discipline_name} foram publicadas. Consulte o seu boletim.",
+        'message' => "As notas do exame de {$schedule['discipline_name']} foram publicadas. Consulte o seu boletim.",
         'type' => 'exam_result',
         'icon' => 'fa-star',
         'color' => 'success',

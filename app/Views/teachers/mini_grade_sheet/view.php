@@ -159,15 +159,15 @@
                     <tbody>
                         <?php foreach ($alunos as $index => $aluno): ?>
                             <?php 
-                            $resultado = $resultados[$aluno->enrollment_id] ?? null;
-                            $presenca = $presencas[$aluno->enrollment_id] ?? null;
+                            $resultado = $resultados[$aluno['enrollment_id']] ?? null;
+                            $presenca = $presencas[$aluno['enrollment_id']] ?? null;
                             $presente = $presenca ? $presenca->attended : ($resultado ? !$resultado->is_absent : true);
                             $nota = $resultado ? $resultado->score : null;
                             ?>
                             <tr>
                                 <td><?= $index + 1 ?></td>
-                                <td><?= $aluno->student_number ?></td>
-                                <td><?= $aluno->full_name ?></td>
+                                <td><?= $aluno['student_number'] ?></td>
+                                <td><?= $aluno['full_name'] ?></td>
                                 <td class="text-center">
                                     <?php if ($presente): ?>
                                         <span class="badge bg-success">Presente</span>

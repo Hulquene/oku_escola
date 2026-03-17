@@ -80,7 +80,7 @@ class ScheduleModel extends Model
             ]);
         }
         
-        return $this->update($schedule->id, [
+        return $this->update($schedule['id'], [
             'schedule_data' => json_encode($scheduleData),
             'total_items' => $this->countItems($scheduleData),
             'total_hours' => $this->calculateTotalHours($scheduleData)

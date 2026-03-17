@@ -173,14 +173,14 @@
                                 <?php $counter = 1; ?>
                                 <?php foreach ($pauta->alunos as $aluno): ?>
                                     <?php
-                                    $medias = $pauta->medias[$aluno->enrollment_id] ?? [];
+                                    $medias = $pauta->medias[$aluno['enrollment_id']] ?? [];
                                     ?>
                                     <tr>
                                         <td class="text-center"><?= $counter++ ?></td>
                                         <td>
-                                            <strong><?= $aluno->full_name ?? $aluno->first_name . ' ' . $aluno->last_name ?></strong>
+                                            <strong><?= $aluno['full_name'] ?? $aluno['first_name'] . ' ' . $aluno['last_name'] ?></strong>
                                             <br>
-                                            <small class="text-muted">Nº: <?= $aluno->student_number ?? '—' ?></small>
+                                            <small class="text-muted">Nº: <?= $aluno['student_number'] ?? '—' ?></small>
                                         </td>
                                         
                                         <!-- 1º Trimestre -->
