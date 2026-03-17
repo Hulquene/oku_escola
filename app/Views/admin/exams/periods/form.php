@@ -44,7 +44,7 @@
                     <?= csrf_field() ?>
                     
                     <?php if (isset($period)): ?>
-                        <input type="hidden" name="id" value="<?= $period->id ?>">
+                        <input type="hidden" name="id" value="<?= $period['id'] ?>">
                     <?php endif; ?>
                     
                     <div class="row g-3">
@@ -54,7 +54,7 @@
                                 <input type="text" 
                                        class="form-control <?= session('errors.period_name') ? 'is-invalid' : '' ?>" 
                                        name="period_name" 
-                                       value="<?= old('period_name') ?: ($period->period_name ?? '') ?>"
+                                       value="<?= old('period_name') ?: ($period['period_name'] ?? '') ?>"
                                        placeholder="Ex: 1ª Época - 1º Semestre 2024" required>
                                 <?php if (session('errors.period_name')): ?>
                                     <div class="invalid-feedback"><?= session('errors.period_name') ?></div>
@@ -110,11 +110,11 @@
                                 <select class="form-select <?= session('errors.period_type') ? 'is-invalid' : '' ?>" 
                                         name="period_type" required>
                                     <option value="">Selecione</option>
-                                    <option value="Normal" <?= (old('period_type') ?: ($period->period_type ?? '')) == 'Normal' ? 'selected' : '' ?>>Normal</option>
-                                    <option value="Recurso" <?= (old('period_type') ?: ($period->period_type ?? '')) == 'Recurso' ? 'selected' : '' ?>>Recurso</option>
-                                    <option value="Especial" <?= (old('period_type') ?: ($period->period_type ?? '')) == 'Especial' ? 'selected' : '' ?>>Especial</option>
-                                    <option value="Final" <?= (old('period_type') ?: ($period->period_type ?? '')) == 'Final' ? 'selected' : '' ?>>Final</option>
-                                    <option value="Admissão" <?= (old('period_type') ?: ($period->period_type ?? '')) == 'Admissão' ? 'selected' : '' ?>>Admissão</option>
+                                    <option value="Normal" <?= (old('period_type') ?: ($period['period_type'] ?? '')) == 'Normal' ? 'selected' : '' ?>>Normal</option>
+                                    <option value="Recurso" <?= (old('period_type') ?: ($period['period_type'] ?? '')) == 'Recurso' ? 'selected' : '' ?>>Recurso</option>
+                                    <option value="Especial" <?= (old('period_type') ?: ($period['period_type'] ?? '')) == 'Especial' ? 'selected' : '' ?>>Especial</option>
+                                    <option value="Final" <?= (old('period_type') ?: ($period['period_type'] ?? '')) == 'Final' ? 'selected' : '' ?>>Final</option>
+                                    <option value="Admissão" <?= (old('period_type') ?: ($period['period_type'] ?? '')) == 'Admissão' ? 'selected' : '' ?>>Admissão</option>
                                 </select>
                                 <?php if (session('errors.period_type')): ?>
                                     <div class="invalid-feedback"><?= session('errors.period_type') ?></div>
@@ -127,10 +127,10 @@
                                 <label class="form-label fw-semibold">Status</label>
                                 <select class="form-select <?= session('errors.status') ? 'is-invalid' : '' ?>" 
                                         name="status" id="status">
-                                    <option value="Planejado" <?= (old('status') ?: ($period->status ?? 'Planejado')) == 'Planejado' ? 'selected' : '' ?>>Planejado</option>
-                                    <option value="Em Andamento" <?= (old('status') ?: ($period->status ?? '')) == 'Em Andamento' ? 'selected' : '' ?>>Em Andamento</option>
-                                    <option value="Concluído" <?= (old('status') ?: ($period->status ?? '')) == 'Concluído' ? 'selected' : '' ?>>Concluído</option>
-                                    <option value="Cancelado" <?= (old('status') ?: ($period->status ?? '')) == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
+                                    <option value="Planejado" <?= (old('status') ?: ($period['status'] ?? 'Planejado')) == 'Planejado' ? 'selected' : '' ?>>Planejado</option>
+                                    <option value="Em Andamento" <?= (old('status') ?: ($period['status'] ?? '')) == 'Em Andamento' ? 'selected' : '' ?>>Em Andamento</option>
+                                    <option value="Concluído" <?= (old('status') ?: ($period['status'] ?? '')) == 'Concluído' ? 'selected' : '' ?>>Concluído</option>
+                                    <option value="Cancelado" <?= (old('status') ?: ($period['status'] ?? '')) == 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
                                 </select>
                                 <?php if (session('errors.status')): ?>
                                     <div class="invalid-feedback"><?= session('errors.status') ?></div>
@@ -145,7 +145,7 @@
                                        class="form-control <?= session('errors.start_date') ? 'is-invalid' : '' ?>" 
                                        name="start_date" 
                                        id="startDate"
-                                       value="<?= old('start_date') ?: ($period->start_date ?? '') ?>" required>
+                                       value="<?= old('start_date') ?: ($period['start_date'] ?? '') ?>" required>
                                 <?php if (session('errors.start_date')): ?>
                                     <div class="invalid-feedback"><?= session('errors.start_date') ?></div>
                                 <?php endif; ?>
@@ -159,7 +159,7 @@
                                        class="form-control <?= session('errors.end_date') ? 'is-invalid' : '' ?>" 
                                        name="end_date" 
                                        id="endDate"
-                                       value="<?= old('end_date') ?: ($period->end_date ?? '') ?>" required>
+                                       value="<?= old('end_date') ?: ($period['end_date'] ?? '') ?>" required>
                                 <?php if (session('errors.end_date')): ?>
                                     <div class="invalid-feedback"><?= session('errors.end_date') ?></div>
                                 <?php endif; ?>
@@ -172,7 +172,7 @@
                                 <textarea class="form-control <?= session('errors.description') ? 'is-invalid' : '' ?>" 
                                           name="description" 
                                           rows="3"
-                                          placeholder="Informações adicionais sobre este período..."><?= old('description') ?: ($period->description ?? '') ?></textarea>
+                                          placeholder="Informações adicionais sobre este período..."><?= old('description') ?: ($period['description'] ?? '') ?></textarea>
                                 <?php if (session('errors.description')): ?>
                                     <div class="invalid-feedback"><?= session('errors.description') ?></div>
                                 <?php endif; ?>

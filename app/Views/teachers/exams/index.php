@@ -91,8 +91,8 @@
                             <option value="">Todos</option>
                             <?php if (!empty($periods)): ?>
                                 <?php foreach ($periods as $period): ?>
-                                    <option value="<?= $period->id ?>" <?= ($filters['period'] ?? '') == $period->id ? 'selected' : '' ?>>
-                                        <?= $period->period_name ?>
+                                    <option value="<?= $period['id'] ?>" <?= ($filters['period'] ?? '') == $period['id'] ? 'selected' : '' ?>>
+                                        <?= $period['period_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

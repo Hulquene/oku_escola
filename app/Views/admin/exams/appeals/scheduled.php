@@ -37,10 +37,10 @@
             <div class="card-header bg-white py-3">
                 <h5 class="mb-0 fw-semibold">
                     <i class="fas fa-calendar-alt me-2 text-primary"></i>
-                    <?= $period->period_name ?>
+                    <?= $period['period_name'] ?>
                     <small class="text-muted ms-3">
-                        <?= date('d/m/Y', strtotime($period->start_date)) ?> a 
-                        <?= date('d/m/Y', strtotime($period->end_date)) ?>
+                        <?= date('d/m/Y', strtotime($period['start_date'])) ?> a 
+                        <?= date('d/m/Y', strtotime($period['end_date'])) ?>
                     </small>
                 </h5>
             </div>
@@ -62,7 +62,7 @@
                         <tbody>
                             <?php 
                             $periodExams = array_filter($exams, function($e) use ($period) {
-                                return $e->exam_period_id == $period->id;
+                                return $e->exam_period_id == $period['id'];
                             });
                             ?>
                             <?php if (!empty($periodExams)): ?>

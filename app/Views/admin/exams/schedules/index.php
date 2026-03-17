@@ -51,8 +51,8 @@
                 <select class="form-select" name="period_id" onchange="this.form.submit()">
                     <option value="">Todos os períodos</option>
                     <?php foreach ($periods as $period): ?>
-                        <option value="<?= $period->id ?>" <?= request()->getGet('period_id') == $period->id ? 'selected' : '' ?>>
-                            <?= $period->period_name ?> (<?= $period->period_type ?>)
+                        <option value="<?= $period['id'] ?>" <?= request()->getGet('period_id') == $period['id'] ? 'selected' : '' ?>>
+                            <?= $period['period_name'] ?> (<?= $period['period_type'] ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>

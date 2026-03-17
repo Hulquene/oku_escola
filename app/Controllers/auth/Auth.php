@@ -151,7 +151,7 @@ class Auth extends BaseController
             
             if ($guardian) {
                 $additionalData['guardian_id'] =  $guardian['id'];
-                $additionalData['guardian_type'] = $guardian->guardian_type;
+                $additionalData['guardian_type'] = $guardian['guardian_type'];
                 
                 // Buscar alunos associados
                 $students = $db->table('tbl_student_guardians')

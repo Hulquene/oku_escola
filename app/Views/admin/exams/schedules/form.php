@@ -46,9 +46,9 @@
                             name="exam_period_id" required>
                         <option value="">Selecione um período...</option>
                         <?php foreach ($periods as $period): ?>
-                            <option value="<?= $period->id ?>" 
-                                <?= (old('exam_period_id') == $period->id || (isset($schedule) && $schedule->exam_period_id == $period->id)) ? 'selected' : '' ?>>
-                                <?= $period->period_name ?> (<?= $period->period_type ?>)
+                            <option value="<?= $period['id'] ?>" 
+                                <?= (old('exam_period_id') == $period['id'] || (isset($schedule) && $schedule->exam_period_id == $period['id'])) ? 'selected' : '' ?>>
+                                <?= $period['period_name'] ?> (<?= $period['period_type'] ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>

@@ -96,8 +96,8 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($periods)): ?>
                                 <?php foreach ($periods as $period): ?>
-                                    <option value="<?= $period->id ?>" <?= old('exam_period_id', $exam->exam_period_id ?? '') == $period->id ? 'selected' : '' ?>>
-                                        <?= esc($period->period_name) ?> (<?= $period->period_type ?>)
+                                    <option value="<?= $period['id'] ?>" <?= old('exam_period_id', $exam->exam_period_id ?? '') == $period['id'] ? 'selected' : '' ?>>
+                                        <?= esc($period['period_name']) ?> (<?= $period['period_type'] ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>

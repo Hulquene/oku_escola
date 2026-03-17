@@ -812,7 +812,7 @@ public function viewStudent($id)
             return $this->respondWithError('Aluno não encontrado');
         }
         
-        $newStatus = $student->is_active ? 0 : 1;
+        $newStatus = $student['is_active'] ? 0 : 1;
         
         $this->studentModel->update($id, ['is_active' => $newStatus]);
         $this->userModel->update($student['user_id'], ['is_active' => $newStatus]);

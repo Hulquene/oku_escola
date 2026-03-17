@@ -9,11 +9,11 @@
             <h1 class="mb-2">Gerar Calendário de Exames</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-calendar-alt me-1"></i>
-                <?= $period->period_name ?> • <?= $period->period_type ?>
+                <?= $period['period_name'] ?> • <?= $period['period_type'] ?>
             </p>
         </div>
         <div>
-            <a href="<?= site_url('admin/exams/periods/view/' . $period->id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/exams/periods/view/' . $period['id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
@@ -22,7 +22,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/periods') ?>">Períodos</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/periods/view/' . $period->id) ?>"><?= $period->period_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/periods/view/' . $period['id']) ?>"><?= $period['period_name'] ?></a></li>
             <li class="breadcrumb-item active">Gerar Calendário</li>
         </ol>
     </nav>
@@ -41,13 +41,13 @@
                 </h5>
             </div>
             <div class="card-body">
-              <form method="post" action="<?= site_url('admin/exams/periods/save-schedule/' . $period->id) ?>">
+              <form method="post" action="<?= site_url('admin/exams/periods/save-schedule/' . $period['id']) ?>">
                     <?= csrf_field() ?>
                     
                     <div class="alert alert-info mb-4">
                         <i class="fas fa-info-circle me-2"></i>
                         O sistema irá distribuir automaticamente os exames para as turmas selecionadas,
-                        respeitando as datas do período (<?= date('d/m/Y', strtotime($period->start_date)) ?> a <?= date('d/m/Y', strtotime($period->end_date)) ?>).
+                        respeitando as datas do período (<?= date('d/m/Y', strtotime($period['start_date'])) ?> a <?= date('d/m/Y', strtotime($period['end_date'])) ?>).
                     </div>
                     
                     <div class="mb-4">
@@ -86,8 +86,8 @@
                             <option value="">Selecione o tipo de exame</option>
                             <?php foreach ($examBoards as $board): ?>
                                 <option value="<?= $board->id ?>" 
-                                        <?= ($period->period_type == 'Recurso' && $board->board_type == 'Recurso') ? 'selected' : '' ?>
-                                        <?= ($period->period_type == 'Normal' && $board->board_type == 'Normal') ? 'selected' : '' ?>>
+                                        <?= ($period['period_type'] == 'Recurso' && $board->board_type == 'Recurso') ? 'selected' : '' ?>
+                                        <?= ($period['period_type'] == 'Normal' && $board->board_type == 'Normal') ? 'selected' : '' ?>>
                                     <?= $board->board_name ?> (<?= $board->board_type ?>)
                                 </option>
                             <?php endforeach; ?>
@@ -121,7 +121,7 @@
                     <hr>
                     
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="<?= site_url('admin/exams/periods/view/' . $period->id) ?>" class="btn btn-light">
+                        <a href="<?= site_url('admin/exams/periods/view/' . $period['id']) ?>" class="btn btn-light">
                             Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary">
@@ -144,17 +144,17 @@
             </div>
             <div class="card-body">
                 <h6 class="fw-semibold">Período:</h6>
-                <p><?= $period->period_name ?></p>
+                <p><?= $period['period_name'] ?></p>
                 
                 <h6 class="fw-semibold">Duração:</h6>
                 <p>
-                    <?= date('d/m/Y', strtotime($period->start_date)) ?> a 
-                    <?= date('d/m/Y', strtotime($period->end_date)) ?>
+                    <?= date('d/m/Y', strtotime($period['start_date'])) ?> a 
+                    <?= date('d/m/Y', strtotime($period['end_date'])) ?>
                 </p>
                 
                 <?php
-                $start = new DateTime($period->start_date);
-                $end = new DateTime($period->end_date);
+                $start = new DateTime($period['start_date']);
+                $end = new DateTime($period['end_date']);
                 $interval = $start->diff($end);
                 $daysTotal = $interval->days + 1;
                 

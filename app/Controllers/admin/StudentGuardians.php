@@ -479,7 +479,7 @@ class StudentGuardians extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Encarregado não encontrado']);
         }
         
-        $newStatus = $guardian->is_active ? 0 : 1;
+        $newStatus = $guardian['is_active'] ? 0 : 1;
         $this->guardianModel->update($id, ['is_active' => $newStatus]);
         
         return $this->response->setJSON([
@@ -537,7 +537,7 @@ class StudentGuardians extends BaseController
             fputcsv($output, [
                 $g->id,
                 $g->full_name,
-                $g->guardian_type,
+                $g['guardian_type'],
                 $g->phone,
                 $g->email,
                 $g->profession,

@@ -50,7 +50,7 @@
             <div class="stat-label">Pais/Mães</div>
             <?php
             $pais = array_filter($guardians ?? [], function($g) { 
-                return in_array($g->guardian_type, ['Pai', 'Mãe']); 
+                return in_array($g['guardian_type'], ['Pai', 'Mãe']); 
             });
             ?>
             <div class="stat-value"><?= count($pais) ?></div>
@@ -66,7 +66,7 @@
             <div class="stat-label">Tutores</div>
             <?php
             $tutores = array_filter($guardians ?? [], function($g) { 
-                return in_array($g->guardian_type, ['Tutor', 'Encarregado']); 
+                return in_array($g['guardian_type'], ['Tutor', 'Encarregado']); 
             });
             ?>
             <div class="stat-value"><?= count($tutores) ?></div>
@@ -176,19 +176,19 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="teacher-initials me-2" style="width: 35px; height: 35px; font-size: 0.9rem;">
-                                            <?= strtoupper(substr($guardian->full_name, 0, 1)) ?>
+                                            <?= strtoupper(substr($guardian['full_name'], 0, 1)) ?>
                                         </div>
                                         <div>
                                             <strong><?= $guardian['full_name'] ?></strong>
-                                            <?php if ( $guardian['id']entity_document): ?>
-                                                <br><small class="text-muted">Doc: <?=  $guardian['id']entity_document ?></small>
+                                            <?php if (!empty($guardian['identity_document'])): ?>
+                                                <br><small class="text-muted">Doc: <?= $guardian['identity_document'] ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <?php
-                                    $typeClass = match($guardian->guardian_type) {
+                                    $typeClass = match($guardian['guardian_type']) {
                                         'Pai' => 'primary',
                                         'Mãe' => 'success',
                                         'Tutor' => 'info',
@@ -197,7 +197,7 @@
                                     };
                                     ?>
                                     <span class="badge-ci <?= $typeClass ?>">
-                                        <i class="fas fa-user-tie me-1"></i><?= $guardian->guardian_type ?>
+                                        <i class="fas fa-user-tie me-1"></i><?= $guardian['guardian_type'] ?>
                                     </span>
                                 </td>
                                 <td>
@@ -210,18 +210,18 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($guardian->email): ?>
-                                        <a href="mailto:<?= $guardian->email ?>" class="text-decoration-none">
-                                            <i class="fas fa-envelope text-info me-1"></i><?= $guardian->email ?>
+                                    <?php if ($guardian['email']): ?>
+                                        <a href="mailto:<?= $guardian['email'] ?>" class="text-decoration-none">
+                                            <i class="fas fa-envelope text-info me-1"></i><?= $guardian['email'] ?>
                                         </a>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($guardian->profession): ?>
+                                    <?php if ($guardian['profession']): ?>
                                         <span class="code-badge">
-                                            <i class="fas fa-briefcase me-1"></i><?= $guardian->profession ?>
+                                            <i class="fas fa-briefcase me-1"></i><?= $guardian['profession'] ?>
                                         </span>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
@@ -229,11 +229,11 @@
                                 </td>
                                 <td class="center">
                                     <span class="badge-ci primary" style="font-size: 0.75rem;">
-                                        <?= $guardian->student_count ?? 0 ?>
+                                        <?= $guardian['student_count ']?? 0 ?>
                                     </span>
                                 </td>
                                 <td class="center">
-                                    <?php if ($guardian->is_active): ?>
+                                    <?php if ($guardian['is_active']): ?>
                                         <span class="status-badge active">
                                             <i class="fas fa-circle me-1" style="font-size: 6px;"></i>Ativo
                                         </span>
@@ -248,22 +248,22 @@
                                         <button type="button" class="row-btn edit edit-guardian" 
                                                 data-id="<?=  $guardian['id'] ?>"
                                                 data-name="<?= $guardian['full_name'] ?>"
-                                                data-type="<?= $guardian->guardian_type ?>"
+                                                data-type="<?= $guardian['guardian_type'] ?>"
                                                 data-phone="<?=  $guardian['phone'] ?>"
-                                                data-phone2="<?=  $guardian['phone']2 ?>"
-                                                data-email="<?= $guardian->email ?>"
-                                                data-profession="<?= $guardian->profession ?>"
-                                                data-workplace="<?= $guardian->workplace ?>"
-                                                data-document-type="<?=  $guardian['id']entity_type ?>"
-                                                data-document="<?=  $guardian['id']entity_document ?>"
-                                                data-nif="<?= $guardian->nif ?>"
-                                                data-birth-date="<?= $guardian->birth_date ?>"
-                                                data-address="<?= $guardian->address ?>"
-                                                data-city="<?= $guardian->city ?>"
-                                                data-municipality="<?= $guardian->municipality ?>"
-                                                data-province="<?= $guardian->province ?>"
-                                                data-notes="<?= $guardian->notes ?>"
-                                                data-active="<?= $guardian->is_active ?>"
+                                                data-phone2="<?=  $guardian['phone2'] ?>"
+                                                data-email="<?= $guardian['email'] ?>"
+                                                data-profession="<?= $guardian['profession'] ?>"
+                                                data-workplace="<?= $guardian['workplace'] ?>"
+                                                data-document-type="<?= $guardian['identity_type'] ?>"
+                                                data-document="<?=  $guardian['identity_document'] ?>"
+                                                data-nif="<?= $guardian['nif'] ?>"
+                                                data-birth-date="<?= $guardian['birth_date'] ?>"
+                                                data-address="<?= $guardian['address'] ?>"
+                                                data-city="<?= $guardian['city'] ?>"
+                                                data-municipality="<?= $guardian['municipality'] ?>"
+                                                data-province="<?= $guardian['province'] ?>"
+                                                data-notes="<?= $guardian['notes'] ?>"
+                                                data-active="<?= $guardian['is_active'] ?>"
                                                 title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -568,7 +568,7 @@
                             <tbody id="studentsList">
                                 <?php if (!empty($students)): ?>
                                     <?php foreach ($students as $student): ?>
-                                        <tr class="student-row" data-class-id="<?= $student->class_id ?>" data-name="<?= strtolower($student->name ?? $student['first_name'] . ' ' . $student['last_name']) ?>">
+                                        <tr class="student-row" data-class-id="<?= $student['class_id'] ?>" data-name="<?= strtolower($student['name']?? $student['first_name'] . ' ' . $student['last_name']) ?>">
                                             <td>
                                                 <input type="checkbox" name="student_ids[]" value="<?= $student['id'] ?>" 
                                                        class="form-check-input student-checkbox"
@@ -577,15 +577,15 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="teacher-initials me-2" style="width: 30px; height: 30px; font-size: 0.8rem;">
-                                                        <?= strtoupper(substr($student->name ?? $student['first_name'], 0, 1)) ?>
+                                                        <?= strtoupper(substr($student['name']?? $student['first_name'], 0, 1)) ?>
                                                     </div>
-                                                    <?= $student->name ?? $student['first_name'] . ' ' . $student['last_name'] ?>
+                                                    <?= $student['name']?? $student['first_name'] . ' ' . $student['last_name'] ?>
                                                 </div>
                                             </td>
                                             <td><?= $student->class_name ?? '-' ?></td>
                                             <td><span class="code-badge"><?= $student['student_number'] ?></span></td>
                                             <td>
-                                                <?php if ($student->is_active): ?>
+                                                <?php if ($student['is_active']): ?>
                                                     <span class="status-badge active">Ativo</span>
                                                 <?php else: ?>
                                                     <span class="status-badge inactive">Inativo</span>

@@ -67,17 +67,17 @@
                 'Cancelado' => ['bg' => 'danger', 'icon' => 'fa-times-circle']
             ];
             
-            $statusColor = $statusColors[$period->status] ?? ['bg' => 'secondary', 'icon' => 'fa-calendar'];
+            $statusColor = $statusColors[$period['status']] ?? ['bg' => 'secondary', 'icon' => 'fa-calendar'];
             
             // Calcular dias restantes ou passados
             $today = new DateTime();
-            $start = new DateTime($period->start_date);
-            $end = new DateTime($period->end_date);
+            $start = new DateTime($period['start_date']);
+            $end = new DateTime($period['end_date']);
             
-            if ($period->status == 'Em Andamento') {
+            if ($period['status'] == 'Em Andamento') {
                 $daysLeft = $today->diff($end)->days;
                 $daysText = $daysLeft > 0 ? "$daysLeft dias restantes" : "Último dia hoje";
-            } elseif ($period->status == 'Planejado') {
+            } elseif ($period['status'] == 'Planejado') {
                 $daysToStart = $today->diff($start)->days;
                 $daysText = $today < $start ? "Inicia em $daysToStart dias" : "A iniciar hoje";
             } else {
@@ -92,14 +92,14 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
                                 <i class="fas <?= $statusColor['icon'] ?> me-2"></i>
-                                <?= $period->period_name ?>
+                                <?= $period['period_name'] ?>
                             </h5>
                             <span class="badge bg-light text-dark">
-                                <?= $period->total_exams ?? 0 ?> exames
+                                <?= $period['total_exams'] ?? 0 ?> exames
                             </span>
                         </div>
                         <small class="d-block mt-2">
-                            <?= $period->period_type ?> • <?= $period->semester_name ?>
+                            <?= $period['period_type'] ?> • <?= $period['semester_name'] ?>
                         </small>
                     </div>
                     
@@ -110,13 +110,13 @@
                                 <span class="text-muted">
                                     <i class="fas fa-calendar-alt me-1"></i> Início:
                                 </span>
-                                <strong><?= date('d/m/Y', strtotime($period->start_date)) ?></strong>
+                                <strong><?= date('d/m/Y', strtotime($period['start_date'])) ?></strong>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">
                                     <i class="fas fa-calendar-check me-1"></i> Fim:
                                 </span>
-                                <strong><?= date('d/m/Y', strtotime($period->end_date)) ?></strong>
+                                <strong><?= date('d/m/Y', strtotime($period['end_date'])) ?></strong>
                             </div>
                             <?php if ($daysText): ?>
                                 <div class="d-flex justify-content-between">
@@ -130,18 +130,18 @@
                             <?php endif; ?>
                         </div>
                         
-                        <?php if ($period->description): ?>
+                        <?php if ($period['description']): ?>
                             <p class="text-muted small mb-3">
                                 <i class="fas fa-info-circle me-1"></i>
-                                <?= $period->description ?>
+                                <?= $period['description'] ?>
                             </p>
                         <?php endif; ?>
                         
                         <!-- Progresso (se aplicável) -->
-                        <?php if ($period->status == 'Em Andamento' && ($period->total_exams ?? 0) > 0): ?>
+                        <?php if ($period['status'] == 'Em Andamento' && ($period['total_exams'] ?? 0) > 0): ?>
                             <?php
                             $completedExams = 0; // Você pode calcular isso no model
-                            $progress = $period->total_exams > 0 ? round(($completedExams / $period->total_exams) * 100) : 0;
+                            $progress = $period['total_exams'] > 0 ? round(($completedExams / $period['total_exams']) * 100) : 0;
                             ?>
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between small mb-1">
@@ -158,13 +158,13 @@
                     <!-- Footer com ações -->
                     <div class="card-footer bg-white">
                         <div class="d-flex justify-content-between gap-2">
-                            <a href="<?= site_url('admin/exams/periods/view/' . $period->id) ?>" 
+                            <a href="<?= site_url('admin/exams/periods/view/' . $period['id']) ?>" 
                                class="btn btn-sm btn-outline-primary flex-grow-1">
                                 <i class="fas fa-eye me-1"></i> Detalhes
                             </a>
                             
-                            <?php if ($period->status != 'Concluído' && $period->status != 'Cancelado'): ?>
-                                <a href="<?= site_url('admin/exams/periods/generate-schedule/' . $period->id) ?>" 
+                            <?php if ($period['status'] != 'Concluído' && $period['status'] != 'Cancelado'): ?>
+                                <a href="<?= site_url('admin/exams/periods/generate-schedule/' . $period['id']) ?>" 
                                    class="btn btn-sm btn-outline-success" 
                                    title="Gerar calendário">
                                     <i class="fas fa-calendar-plus"></i>
@@ -179,29 +179,29 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item" href="<?= site_url('admin/exams/periods/edit/' . $period->id) ?>">
+                                        <a class="dropdown-item" href="<?= site_url('admin/exams/periods/edit/' . $period['id']) ?>">
                                             <i class="fas fa-edit me-2 text-primary"></i> Editar
                                         </a>
                                     </li>
                                     <!-- No dropdown menu, substitua os links -->
-                                    <?php if ($period->status == 'Planejado'): ?>
+                                    <?php if ($period['status'] == 'Planejado'): ?>
                                         <li>
-                                            <a class="dropdown-item text-success" href="<?= site_url('admin/exams/periods/start/' . $period->id) ?>" 
+                                            <a class="dropdown-item text-success" href="<?= site_url('admin/exams/periods/start/' . $period['id']) ?>" 
                                               onclick="return confirm('Iniciar este período de exames?')">
                                                 <i class="fas fa-play me-2"></i> Iniciar Período
                                             </a>
                                         </li>
                                     <?php endif; ?>
 
-                                    <?php if ($period->status == 'Em Andamento'): ?>
+                                    <?php if ($period['status'] == 'Em Andamento'): ?>
                                         <li>
-                                            <a class="dropdown-item text-warning" href="<?= site_url('admin/exams/periods/pause/' . $period->id) ?>" 
+                                            <a class="dropdown-item text-warning" href="<?= site_url('admin/exams/periods/pause/' . $period['id']) ?>" 
                                               onclick="return confirm('Pausar este período de exames?')">
                                                 <i class="fas fa-pause me-2"></i> Pausar
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item text-success" href="<?= site_url('admin/exams/periods/complete/' . $period->id) ?>" 
+                                            <a class="dropdown-item text-success" href="<?= site_url('admin/exams/periods/complete/' . $period['id']) ?>" 
                                               onclick="return confirm('Concluir este período de exames?')">
                                                 <i class="fas fa-check-circle me-2"></i> Concluir
                                             </a>
@@ -209,19 +209,19 @@
                                     <?php endif; ?>
 
                                     <li>
-                                        <a class="dropdown-item text-danger" href="<?= site_url('admin/exams/periods/cancel/' . $period->id) ?>" 
+                                        <a class="dropdown-item text-danger" href="<?= site_url('admin/exams/periods/cancel/' . $period['id']) ?>" 
                                           onclick="return confirm('Tem certeza que deseja cancelar este período?')">
                                             <i class="fas fa-times-circle me-2"></i> Cancelar
                                         </a>
                                     </li>
-                                    <?php if ($period->status != 'Concluído'): ?>
+                                    <?php if ($period['status'] != 'Concluído'): ?>
                                         <li>
                                             <hr class="dropdown-divider">
                                         </li>
                                         <li>
                                             <a class="dropdown-item text-danger" 
                                                href="#" 
-                                               onclick="confirmDelete(<?= $period->id ?>, '<?= $period->period_name ?>')">
+                                               onclick="confirmDelete(<?= $period['id'] ?>, '<?= $period['period_name'] ?>')">
                                                 <i class="fas fa-trash me-2"></i> Eliminar
                                             </a>
                                         </li>

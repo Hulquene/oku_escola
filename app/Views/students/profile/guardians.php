@@ -28,7 +28,7 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <span class="badge bg-info"><?= $guardian->guardian_type ?></span>
+                            <span class="badge bg-info"><?= $guardian['guardian_type'] ?></span>
                             <?php if ( $guardian['relationship']): ?>
                                 <span class="badge bg-secondary"><?=  $guardian['relationship'] ?></span>
                             <?php endif; ?>
@@ -39,22 +39,22 @@
                                 <th width="40%"><i class="fas fa-phone"></i> Telefone:</th>
                                 <td><?=  $guardian['phone'] ?></td>
                             </tr>
-                            <?php if ($guardian->email): ?>
+                            <?php if ($guardian['email']): ?>
                             <tr>
                                 <th><i class="fas fa-envelope"></i> Email:</th>
-                                <td><?= $guardian->email ?></td>
+                                <td><?= $guardian['email'] ?></td>
                             </tr>
                             <?php endif; ?>
-                            <?php if ($guardian->profession): ?>
+                            <?php if ($guardian['profession']): ?>
                             <tr>
                                 <th><i class="fas fa-briefcase"></i> Profissão:</th>
-                                <td><?= $guardian->profession ?></td>
+                                <td><?= $guardian['profession'] ?></td>
                             </tr>
                             <?php endif; ?>
-                            <?php if ($guardian->workplace): ?>
+                            <?php if ($guardian['workplace']): ?>
                             <tr>
                                 <th><i class="fas fa-building"></i> Local Trabalho:</th>
-                                <td><?= $guardian->workplace ?></td>
+                                <td><?= $guardian['workplace'] ?></td>
                             </tr>
                             <?php endif; ?>
                         </table>

@@ -6,18 +6,18 @@
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h1 class="mb-2"><?= $period->period_name ?></h1>
+            <h1 class="mb-2"><?= $period['period_name'] ?></h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-calendar-alt me-1"></i>
-                <?= $period->period_type ?> • <?= $period->semester_name ?> • <?= $period->year_name ?>
+                <?= $period['period_type'] ?> • <?= $period['semester_name'] ?> • <?= $period->year_name ?>
             </p>
         </div>
         <div class="d-flex gap-2">
-            <a href="<?= site_url('admin/exams/periods/generate-schedule/' . $period->id) ?>" 
+            <a href="<?= site_url('admin/exams/periods/generate-schedule/' . $period['id']) ?>" 
                class="btn btn-success">
                 <i class="fas fa-calendar-plus me-1"></i> Gerar Calendário
             </a>
-            <a href="<?= site_url('admin/exams/periods/edit/' . $period->id) ?>" 
+            <a href="<?= site_url('admin/exams/periods/edit/' . $period['id']) ?>" 
                class="btn btn-primary">
                 <i class="fas fa-edit me-1"></i> Editar
             </a>
@@ -30,7 +30,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/exams/periods') ?>">Períodos</a></li>
-            <li class="breadcrumb-item active"><?= $period->period_name ?></li>
+            <li class="breadcrumb-item active"><?= $period['period_name'] ?></li>
         </ol>
     </nav>
 </div>
@@ -51,8 +51,8 @@
                     </div>
                     <div class="flex-grow-1 ms-3">
                         <h6 class="text-muted mb-1">Período</h6>
-                        <h5 class="mb-0"><?= date('d/m/Y', strtotime($period->start_date)) ?></h5>
-                        <small class="text-muted">até <?= date('d/m/Y', strtotime($period->end_date)) ?></small>
+                        <h5 class="mb-0"><?= date('d/m/Y', strtotime($period['start_date'])) ?></h5>
+                        <small class="text-muted">até <?= date('d/m/Y', strtotime($period['end_date'])) ?></small>
                     </div>
                 </div>
             </div>
@@ -77,17 +77,17 @@
                             'Concluído' => 'info',
                             'Cancelado' => 'danger'
                         ];
-                        $statusColor = $statusColors[$period->status] ?? 'secondary';
+                        $statusColor = $statusColors[$period['status']] ?? 'secondary';
                         ?>
                         <h5 class="mb-0">
                             <span class="badge bg-<?= $statusColor ?> p-2">
-                                <?= $period->status ?>
+                                <?= $period['status'] ?>
                             </span>
                         </h5>
                         <?php
                         $today = new DateTime();
-                        $end = new DateTime($period->end_date);
-                        if ($period->status == 'Em Andamento' && $today <= $end) {
+                        $end = new DateTime($period['end_date']);
+                        if ($period['status'] == 'Em Andamento' && $today <= $end) {
                             $daysLeft = $today->diff($end)->days;
                             echo '<small class="text-muted">' . $daysLeft . ' dias restantes</small>';
                         }
@@ -142,11 +142,11 @@
 </div>
 
 <!-- Descrição do Período -->
-<?php if ($period->description): ?>
+<?php if ($period['description']): ?>
     <div class="card mb-4">
         <div class="card-body">
             <h6 class="fw-semibold mb-2">Descrição:</h6>
-            <p class="mb-0"><?= $period->description ?></p>
+            <p class="mb-0"><?= $period['description'] ?></p>
         </div>
     </div>
 <?php endif; ?>
@@ -160,7 +160,7 @@
                 Exames Agendados
             </h5>
             <div>
-                <a href="<?= site_url('admin/exams/schedules/create?period_id=' . $period->id) ?>" 
+                <a href="<?= site_url('admin/exams/schedules/create?period_id=' . $period['id']) ?>" 
                    class="btn btn-sm btn-primary">
                     <i class="fas fa-plus me-1"></i> Adicionar Exame
                 </a>
@@ -264,11 +264,11 @@
                     ou adicione exames manualmente.
                 </p>
                 <div class="d-flex justify-content-center gap-2">
-                    <a href="<?= site_url('admin/exams/periods/generate-schedule/' . $period->id) ?>" 
+                    <a href="<?= site_url('admin/exams/periods/generate-schedule/' . $period['id']) ?>" 
                        class="btn btn-success">
                         <i class="fas fa-calendar-plus me-2"></i>Gerar Calendário
                     </a>
-                    <a href="<?= site_url('admin/exams/schedules/create?period_id=' . $period->id) ?>" 
+                    <a href="<?= site_url('admin/exams/schedules/create?period_id=' . $period['id']) ?>" 
                        class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Adicionar Manualmente
                     </a>

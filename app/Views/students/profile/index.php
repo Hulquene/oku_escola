@@ -642,7 +642,7 @@
                                                     </div>
                                                     <div class="flex-grow-1 ms-3">
                                                         <h5 class="mb-1"><?= $guardian['full_name'] ?></h5>
-                                                        <span class="badge bg-primary-soft text-primary"><?= $guardian->guardian_type ?></span>
+                                                        <span class="badge bg-primary-soft text-primary"><?= $guardian['guardian_type'] ?></span>
                                                         <?php if ( $guardian['relationship']): ?>
                                                             <span class="badge bg-secondary-soft text-secondary ms-1"><?=  $guardian['relationship'] ?></span>
                                                         <?php endif; ?>
@@ -654,20 +654,20 @@
                                                         <small class="text-muted d-block"><i class="fas fa-phone me-1"></i> Telefone</small>
                                                         <strong><?=  $guardian['phone'] ?></strong>
                                                     </div>
-                                                    <?php if ($guardian->email): ?>
+                                                    <?php if ($guardian['email']): ?>
                                                     <div class="col-6">
                                                         <small class="text-muted d-block"><i class="fas fa-envelope me-1"></i> Email</small>
-                                                        <strong><?= $guardian->email ?></strong>
+                                                        <strong><?= $guardian['email'] ?></strong>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>
                                                 
-                                                <?php if ($guardian->profession): ?>
+                                                <?php if ($guardian['profession']): ?>
                                                 <div class="mt-2">
                                                     <small class="text-muted d-block"><i class="fas fa-briefcase me-1"></i> Profissão</small>
-                                                    <strong><?= $guardian->profession ?></strong>
-                                                    <?php if ($guardian->workplace): ?>
-                                                        <small class="text-muted d-block">Local: <?= $guardian->workplace ?></small>
+                                                    <strong><?= $guardian['profession'] ?></strong>
+                                                    <?php if ($guardian['workplace']): ?>
+                                                        <small class="text-muted d-block">Local: <?= $guardian['workplace'] ?></small>
                                                     <?php endif; ?>
                                                 </div>
                                                 <?php endif; ?>

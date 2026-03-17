@@ -128,7 +128,7 @@ class ExamScheduleModel extends BaseModel
             return false;
         }
         
-        log_message('debug', 'Período - start_date: ' . $period->start_date . ', end_date: ' . $period->end_date . ', semester_id: ' . $period->semester_id);
+        log_message('debug', 'Período - start_date: ' . $period['start_date'] . ', end_date: ' . $period['end_date'] . ', semester_id: ' . $period->semester_id);
         
         $classModel = new ClassModel();
         $classDisciplineModel = new ClassDisciplineModel();
@@ -150,8 +150,8 @@ class ExamScheduleModel extends BaseModel
         // Default exam board based on period type
         if (!$examBoardId) {
             $boardModel = new ExamBoardModel();
-            $boardType = $period->period_type == 'Recurso' ? 'Recurso' : 
-                        ($period->period_type == 'Final' ? 'Final' : 'Normal');
+            $boardType = $period['period_type'] == 'Recurso' ? 'Recurso' : 
+                        ($period['period_type'] == 'Final' ? 'Final' : 'Normal');
             log_message('debug', 'Buscando exam board do tipo: ' . $boardType);
             $board = $boardModel->where('board_type', $boardType)->first();
             $examBoardId = $board->id ?? 6;
@@ -161,7 +161,7 @@ class ExamScheduleModel extends BaseModel
         $schedules = [];
         $existingSchedules = [];
         $duplicates = [];
-        $daysBetween = (strtotime($period->end_date) - strtotime($period->start_date)) / (60 * 60 * 24);
+        $daysBetween = (strtotime($period['end_date']) - strtotime($period['start_date'])) / (60 * 60 * 24);
         log_message('debug', 'Dias entre start e end: ' . $daysBetween);
         
         $totalSchedules = 0;
@@ -232,12 +232,12 @@ class ExamScheduleModel extends BaseModel
                     continue;
                 }
                 
-                $examDate = date('Y-m-d', strtotime($period->start_date . ' + ' . ($index * $interval) . ' days'));
+                $examDate = date('Y-m-d', strtotime($period['start_date'] . ' + ' . ($index * $interval) . ' days'));
                 
                 // Verificar se a data não ultrapassa o fim do período
-                if (strtotime($examDate) > strtotime($period->end_date)) {
+                if (strtotime($examDate) > strtotime($period['end_date'])) {
                     log_message('warning', 'Data do exame ' . $examDate . ' ultrapassa o fim do período - ajustando');
-                    $examDate = $period->end_date;
+                    $examDate = $period['end_date'];
                 }
                 
                 log_message('debug', 'Agendando exame: disciplina_id=' . $cd->discipline_id . ', data=' . $examDate);
@@ -343,7 +343,7 @@ class ExamScheduleModel extends BaseModel
 //         return false;
 //     }
     
-//     log_message('debug', 'Período - start_date: ' . $period->start_date . ', end_date: ' . $period->end_date . ', semester_id: ' . $period->semester_id);
+//     log_message('debug', 'Período - start_date: ' . $period['start_date'] . ', end_date: ' . $period['end_date'] . ', semester_id: ' . $period->semester_id);
     
 //     $classModel = new ClassModel();
 //     $classDisciplineModel = new ClassDisciplineModel();
@@ -361,8 +361,8 @@ class ExamScheduleModel extends BaseModel
 //     // Default exam board based on period type
 //     if (!$examBoardId) {
 //         $boardModel = new ExamBoardModel();
-//         $boardType = $period->period_type == 'Recurso' ? 'Recurso' : 
-//                     ($period->period_type == 'Final' ? 'Final' : 'Normal');
+//         $boardType = $period['period_type'] == 'Recurso' ? 'Recurso' : 
+//                     ($period['period_type'] == 'Final' ? 'Final' : 'Normal');
 //         log_message('debug', 'Buscando exam board do tipo: ' . $boardType);
 //         $board = $boardModel->where('board_type', $boardType)->first();
 //         $examBoardId = $board->id ?? 6;
@@ -370,7 +370,7 @@ class ExamScheduleModel extends BaseModel
 //     }
     
 //     $schedules = [];
-//     $daysBetween = (strtotime($period->end_date) - strtotime($period->start_date)) / (60 * 60 * 24);
+//     $daysBetween = (strtotime($period['end_date']) - strtotime($period['start_date'])) / (60 * 60 * 24);
 //     log_message('debug', 'Dias entre start e end: ' . $daysBetween);
     
 //     $totalSchedules = 0;
@@ -397,12 +397,12 @@ class ExamScheduleModel extends BaseModel
 //         log_message('debug', 'Intervalo entre exames: ' . $interval . ' dias');
         
 //         foreach ($disciplines as $index => $cd) {
-//             $examDate = date('Y-m-d', strtotime($period->start_date . ' + ' . ($index * $interval) . ' days'));
+//             $examDate = date('Y-m-d', strtotime($period['start_date'] . ' + ' . ($index * $interval) . ' days'));
             
 //             // Verificar se a data não ultrapassa o fim do período
-//             if (strtotime($examDate) > strtotime($period->end_date)) {
+//             if (strtotime($examDate) > strtotime($period['end_date'])) {
 //                 log_message('warning', 'Data do exame ' . $examDate . ' ultrapassa o fim do período - ajustando');
-//                 $examDate = $period->end_date;
+//                 $examDate = $period['end_date'];
 //             }
             
 //             log_message('debug', 'Agendando exame: disciplina_id=' . $cd->discipline_id . ', data=' . $examDate);

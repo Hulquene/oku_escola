@@ -185,7 +185,7 @@ public function generateSchedule($periodId)
     }
     
     // Verificar se o período pode ter calendário gerado
- /*    if ($period->status !== 'Planejado') {
+ /*    if ($period['status'] !== 'Planejado') {
         return redirect()->to('/admin/exams/periods/view/' . $periodId)
             ->with('error', 'Apenas períodos com status "Planejado" podem ter calendários gerados.');
     } */
@@ -210,7 +210,7 @@ public function generateSchedule($periodId)
     
     $data['examBoards'] = $boardModel->where('is_active', 1)->findAll();
     $data['period'] = $period;
-    $data['title'] = 'Gerar Calendário - ' . $period->period_name;
+    $data['title'] = 'Gerar Calendário - ' . $period['period_name'];
     
     return view('admin/exams/periods/generate_schedule', $data);
 }
@@ -389,14 +389,14 @@ public function start($id)
     // Verificar se o período pode ser iniciado
     $today = date('Y-m-d');
     
-    if ($period->status !== 'Planejado') {
+    if ($period['status'] !== 'Planejado') {
         return redirect()->back()
             ->with('error', 'Apenas períodos com status "Planejado" podem ser iniciados.');
     }
     
-    if ($period->start_date > $today) {
+    if ($period['start_date'] > $today) {
         return redirect()->back()
-            ->with('warning', 'A data de início do período é ' . date('d/m/Y', strtotime($period->start_date)) . '. Deseja iniciar mesmo assim?');
+            ->with('warning', 'A data de início do período é ' . date('d/m/Y', strtotime($period['start_date'])) . '. Deseja iniciar mesmo assim?');
     }
     
     // Atualizar status
@@ -425,7 +425,7 @@ public function pause($id)
             ->with('error', 'Período de exame não encontrado.');
     }
     
-    if ($period->status !== 'Em Andamento') {
+    if ($period['status'] !== 'Em Andamento') {
         return redirect()->back()
             ->with('error', 'Apenas períodos com status "Em Andamento" podem ser pausados.');
     }
@@ -455,7 +455,7 @@ public function complete($id)
             ->with('error', 'Período de exame não encontrado.');
     }
     
-    if ($period->status !== 'Em Andamento') {
+    if ($period['status'] !== 'Em Andamento') {
         return redirect()->back()
             ->with('error', 'Apenas períodos com status "Em Andamento" podem ser concluídos.');
     }
