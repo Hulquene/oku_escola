@@ -238,8 +238,8 @@
 <?php else: ?>
 <div class="row">
     <?php foreach ($classes as $class): 
-        $progress = $class->total_alunos > 0 ? round(($class->alunos_com_notas / $class->total_alunos) * 100) : 0;
-        $canApprove = ($class->total_alunos > 0 && $class->alunos_com_notas == $class->total_alunos);
+        $progress = $class['total_alunos'] > 0 ? round(($class->alunos_com_notas / $class['total_alunos']) * 100) : 0;
+        $canApprove = ($class['total_alunos'] > 0 && $class->alunos_com_notas == $class['total_alunos']);
         $statusClass = $canApprove ? 'ready' : 'pending';
         $statusText = $canApprove ? 'Pronto para aprovação' : 'Aguardando notas';
     ?>
@@ -267,7 +267,7 @@
             
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-value"><?= $class->total_alunos ?></div>
+                    <div class="stat-value"><?= $class['total_alunos'] ?></div>
                     <div class="stat-label">Total Alunos</div>
                 </div>
                 <div class="stat-item">
@@ -283,9 +283,9 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <small class="text-muted">Progresso: <?= $progress ?>%</small>
-                    <?php if (!$canApprove && $class->alunos_com_notas < $class->total_alunos): ?>
+                    <?php if (!$canApprove && $class->alunos_com_notas < $class['total_alunos']): ?>
                     <small class="text-warning">
-                        <i class="fas fa-clock me-1"></i> <?= $class->total_alunos - $class->alunos_com_notas ?> pendentes
+                        <i class="fas fa-clock me-1"></i> <?= $class['total_alunos'] - $class->alunos_com_notas ?> pendentes
                     </small>
                     <?php endif; ?>
                 </div>

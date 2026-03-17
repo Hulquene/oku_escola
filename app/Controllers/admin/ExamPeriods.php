@@ -295,7 +295,7 @@ public function generateSchedule($periodId)
             if ($disciplinas == 0) {
                 $classModel = new \App\Models\ClassModel();
                 $turma = $classModel->find($classId);
-                $turmasSemDisciplinas[] = $turma->class_name . ' (ID: ' . $classId . ')';
+                $turmasSemDisciplinas[] = $turma['class_name'] . ' (ID: ' . $classId . ')';
             } else {
                 $turmasComDisciplinas[] = $classId;
             }

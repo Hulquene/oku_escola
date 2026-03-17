@@ -140,15 +140,15 @@ class MiniGradeSheet extends BaseController
         
         // Para cada mini pauta, buscar dados completos
         foreach ($miniPautas as $pauta) {
-            $dadosCompletos = $this->getMiniPautaData($pauta->id);
+            $dadosCompletos = $this->getMiniPautaData($pauta['id']);
             if ($dadosCompletos) {
-                $pauta->alunos = $dadosCompletos['alunos'];
-                $pauta->medias = $dadosCompletos['medias'];
-                $pauta->estatisticas = $dadosCompletos['estatisticas'];
+                $pauta['alunos'] = $dadosCompletos['alunos'];
+                $pauta['medias'] = $dadosCompletos['medias'];
+                $pauta['estatisticas'] = $dadosCompletos['estatisticas'];
             } else {
-                $pauta->alunos = [];
-                $pauta->medias = [];
-                $pauta->estatisticas = [
+                $pauta['alunos'] = [];
+                $pauta['medias'] = [];
+                $pauta['estatisticas'] = [
                     'totalAlunos' => 0,
                     'aprovados' => 0,
                     'recurso' => 0,
@@ -1347,7 +1347,7 @@ public function disciplinaView($classId, $disciplineId)
             ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
             ->where('tbl_exam_schedules.class_id', $schedule['class_id'])
             ->where('tbl_exam_schedules.discipline_id', $schedule['discipline_id'])
-            ->where('tbl_exam_periods.academic_year_id', $schedule->academic_year_id)
+            ->where('tbl_exam_periods.academic_year_id', $schedule['academic_year_id'])
             ->orderBy('tbl_semesters.semester_type', 'ASC')
             ->orderBy('tbl_exam_results.assessment_type', 'ASC')
             ->findAll();
@@ -1381,16 +1381,16 @@ public function disciplinaView($classId, $disciplineId)
         
         // Agrupar resultados por aluno, trimestre e tipo
         foreach ($resultados as $resultado) {
-            $enrollmentId = $resultado->enrollment_id;
+            $enrollmentId = $resultado['enrollment_id'];
             
             // Determinar o trimestre
-            $trimestre = $semesterMap[$resultado->semester_type] ?? 1;
+            $trimestre = $semesterMap[$resultado['semester_type']] ?? 1;
             
             // Determinar o tipo de avaliação
-            $tipo = $resultado->assessment_type;
+            $tipo = $resultado['assessment_type'];
             
             if (in_array($tipo, $assessmentTypes) && isset($notasPorAluno[$enrollmentId])) {
-                $notasPorAluno[$enrollmentId]['notas'][$trimestre][$tipo][] = $resultado->score;
+                $notasPorAluno[$enrollmentId]['notas'][$trimestre][$tipo][] = $resultado['score'];
             }
         }
         

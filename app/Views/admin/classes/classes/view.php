@@ -320,11 +320,11 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                     <tr>
                         <td>Professor Responsável</td>
                         <td>
-                            <?php if ($class->class_teacher_id): ?>
+                            <?php if ($class['class_teacher_id']): ?>
                             <div class="teacher-chip">
                                 <div class="teacher-avatar"><i class="fas fa-chalkboard-teacher"></i></div>
                                 <div>
-                                    <div class="teacher-name"><?= esc($class->teacher_first_name) ?> <?= esc($class->teacher_last_name) ?></div>
+                                    <div class="teacher-name"><?= esc($class['teacher_first_name']) ?> <?= esc($class['teacher_last_name']) ?></div>
                                     <div class="teacher-email"><?= esc($class->teacher_email) ?></div>
                                 </div>
                             </div>

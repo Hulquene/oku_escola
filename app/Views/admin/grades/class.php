@@ -47,7 +47,7 @@
                 <strong>Nível:</strong> <?= $class['class_name'] ?> | 
                 <strong>Turno:</strong> <?= $class['class_shift'] ?> | 
                 <strong>Sala:</strong> <?= $class->class_room ?: 'Não definida' ?> |
-                <strong>Professor:</strong> <?= $class->teacher_first_name ?? 'Não atribuído' ?> <?= $class->teacher_last_name ?? '' ?>
+                <strong>Professor:</strong> <?= $class['teacher_first_name'] ?? 'Não atribuído' ?> <?= $class['teacher_last_name'] ?? '' ?>
             </p>
         </div>
     </div>

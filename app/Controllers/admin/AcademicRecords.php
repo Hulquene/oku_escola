@@ -199,18 +199,18 @@ class AcademicRecords extends BaseController
         
         // Processar resultados
         foreach ($classes as $class) {
-            $class->is_finalized = ($class->total_alunos > 0 && 
-                                     $class->alunos_com_resultado == $class->total_alunos);
+            $class['is_finalized'] = ($class['total_alunos'] > 0 && 
+                                     $class['alunos_com_resultado'] == $class['total_alunos']);
             
-            if ($class->total_alunos > 0) {
-                $class->progress_percentage = round(($class->alunos_com_resultado / $class->total_alunos) * 100);
+            if ($class['total_alunos'] > 0) {
+                $class['progress_percentage'] = round(($class['alunos_com_resultado'] / $class['total_alunos']) * 100);
             } else {
-                $class->progress_percentage = 0;
-                $class->is_finalized = false;
+                $class['progress_percentage'] = 0;
+                $class['is_finalized'] = false;
             }
             
-            $class->status_label = $this->getClassStatusLabel($class);
-            $class->status_color = $this->getClassStatusColor($class);
+            $class['status_label'] = $this->getClassStatusLabel($class);
+            $class['status_color'] = $this->getClassStatusColor($class);
         }
         
         $data['classes'] = $classes;
@@ -1368,23 +1368,23 @@ public function export()
      */
     private function getClassStatusLabel($class)
     {
-        if ($class->total_alunos == 0) {
+        if ($class['total_alunos'] == 0) {
             return 'Sem Alunos';
         }
         
-        if ($class->is_finalized) {
+        if ($class['is_finalized']) {
             return 'Finalizada';
         }
         
-        if ($class->progress_percentage == 0) {
+        if ($class['progress_percentage'] == 0) {
             return 'Não Iniciada';
         }
         
-        if ($class->progress_percentage < 50) {
+        if ($class['progress_percentage'] < 50) {
             return 'Em Andamento';
         }
         
-        if ($class->progress_percentage < 100) {
+        if ($class['progress_percentage'] < 100) {
             return 'Quase Pronta';
         }
         
@@ -1396,23 +1396,23 @@ public function export()
      */
     private function getClassStatusColor($class)
     {
-        if ($class->total_alunos == 0) {
+        if ($class['total_alunos'] == 0) {
             return 'secondary';
         }
         
-        if ($class->is_finalized) {
+        if ($class['is_finalized']) {
             return 'success';
         }
         
-        if ($class->progress_percentage == 0) {
+        if ($class['progress_percentage'] == 0) {
             return 'danger';
         }
         
-        if ($class->progress_percentage < 50) {
+        if ($class['progress_percentage'] < 50) {
             return 'warning';
         }
         
-        if ($class->progress_percentage < 100) {
+        if ($class['progress_percentage'] < 100) {
             return 'info';
         }
         

@@ -40,8 +40,8 @@
                     <select name="curso" class="form-select" id="curso">
                         <option value="">Todos</option>
                         <?php foreach ($cursos as $curso): ?>
-                            <option value="<?= $curso->id ?>" <?= ($filters['curso'] ?? '') == $curso->id ? 'selected' : '' ?>>
-                                <?= $curso->course_name ?>
+                            <option value="<?= $curso['id'] ?>" <?= ($filters['curso'] ?? '') == $curso['id'] ? 'selected' : '' ?>>
+                                <?= $curso['course_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -64,8 +64,8 @@
                     <select name="turma" class="form-select" id="turma">
                         <option value="">Todas</option>
                         <?php foreach ($turmas as $turma): ?>
-                            <option value="<?= $turma->id ?>" <?= ($filters['turma'] ?? '') == $turma->id ? 'selected' : '' ?>>
-                                <?= $turma->class_name ?>
+                            <option value="<?= $turma['id'] ?>" <?= ($filters['turma'] ?? '') == $turma['id'] ? 'selected' : '' ?>>
+                                <?= $turma['class_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -104,29 +104,29 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-file-alt me-2"></i>
-                        <?= $pauta->course_name ?? 'N/A' ?> | 
-                        Turma: <?= $pauta->class_name ?> | 
-                        Disciplina: <?= $pauta->discipline_name ?>
+                        <?= $pauta['course_name'] ?? 'N/A' ?> | 
+                        Turma: <?= $pauta['class_name'] ?> | 
+                        Disciplina: <?= $pauta['discipline_name'] ?>
                     </h5>
                     <div>
                         <span class="badge bg-light text-dark me-2">
-                            <i class="fas fa-users"></i> <?= count($pauta->alunos) ?> alunos
+                            <i class="fas fa-users"></i> <?= count($pauta['alunos']) ?> alunos
                         </span>
-                        <a href="<?= site_url('teachers/exams/grade/' . $pauta->id) ?>" class="btn btn-sm btn-light me-2">
+                        <a href="<?= site_url('teachers/exams/grade/' . $pauta['id']) ?>" class="btn btn-sm btn-light me-2">
                             <i class="fas fa-star"></i> Lançar Notas
                         </a>
-                        <a href="<?= site_url('teachers/mini-grade-sheet/print/' . $pauta->id) ?>" class="btn btn-sm btn-light" target="_blank">
+                        <a href="<?= site_url('teachers/mini-grade-sheet/print/' . $pauta['id']) ?>" class="btn btn-sm btn-light" target="_blank">
                             <i class="fas fa-print"></i> Imprimir
                         </a>
-                         <a href="<?= site_url('teachers/mini-grade-sheet/export/' . $pauta->id) ?>" class="btn btn-sm btn-success me-2">
+                         <a href="<?= site_url('teachers/mini-grade-sheet/export/' . $pauta['id']) ?>" class="btn btn-sm btn-success me-2">
                             <i class="fas fa-file-excel"></i> Excel
                         </a>
                     </div>
                 </div>
                 <div class="small mt-2">
-                    <span class="me-3"><strong>Ano Letivo:</strong> <?= $pauta->year_name ?></span>
-                    <span class="me-3"><strong>Período:</strong> <?= $pauta->period_name ?></span>
-                    <span class="me-3"><strong>Data Exame:</strong> <?= date('d/m/Y', strtotime($pauta->exam_date)) ?></span>
+                    <span class="me-3"><strong>Ano Letivo:</strong> <?= $pauta['year_name'] ?></span>
+                    <span class="me-3"><strong>Período:</strong> <?= $pauta['period_name'] ?></span>
+                    <span class="me-3"><strong>Data Exame:</strong> <?= date('d/m/Y', strtotime($pauta['exam_date'])) ?></span>
                     <span class="me-3"><strong>Status:</strong> 
                         <?php
                         $statusClass = [
@@ -134,9 +134,9 @@
                             'Realizado' => 'success',
                             'Cancelado' => 'danger',
                             'Adiado' => 'info'
-                        ][$pauta->status] ?? 'secondary';
+                        ][$pauta['status']] ?? 'secondary';
                         ?>
-                        <span class="badge bg-<?= $statusClass ?>"><?= $pauta->status ?></span>
+                        <span class="badge bg-<?= $statusClass ?>"><?= $pauta['status'] ?></span>
                     </span>
                 </div>
             </div>
@@ -169,11 +169,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (!empty($pauta->alunos)): ?>
+                            <?php if (!empty($pauta['alunos'])): ?>
                                 <?php $counter = 1; ?>
-                                <?php foreach ($pauta->alunos as $aluno): ?>
+                                <?php foreach ($pauta['alunos'] as $aluno): ?>
                                     <?php
-                                    $medias = $pauta->medias[$aluno['enrollment_id']] ?? [];
+                                    $medias = $pauta['medias'][$aluno['enrollment_id']] ?? [];
                                     ?>
                                     <tr>
                                         <td class="text-center"><?= $counter++ ?></td>
@@ -241,24 +241,24 @@
                                 <td colspan="16">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            <small><strong>Aprovados:</strong> <?= $pauta->estatisticas['aprovados'] ?? 0 ?></small>
+                                            <small><strong>Aprovados:</strong> <?= $pauta['estatisticas']['aprovados'] ?? 0 ?></small>
                                         </div>
                                         <div class="col-md-3">
-                                            <small><strong>Recurso:</strong> <?= $pauta->estatisticas['recurso'] ?? 0 ?></small>
+                                            <small><strong>Recurso:</strong> <?= $pauta['estatisticas']['recurso'] ?? 0 ?></small>
                                         </div>
                                         <div class="col-md-3">
-                                            <small><strong>Reprovados:</strong> <?= $pauta->estatisticas['reprovados'] ?? 0 ?></small>
+                                            <small><strong>Reprovados:</strong> <?= $pauta['estatisticas']['reprovados'] ?? 0 ?></small>
                                         </div>
                                         <div class="col-md-3">
-                                            <small><strong>Pendentes:</strong> <?= $pauta->estatisticas['pendentes'] ?? 0 ?></small>
+                                            <small><strong>Pendentes:</strong> <?= $pauta['estatisticas']['pendentes'] ?? 0 ?></small>
                                         </div>
                                     </div>
                                     <div class="row mt-1">
                                         <div class="col-md-6">
-                                            <small><strong>Média da Turma:</strong> <?= $pauta->estatisticas['mediaTurma'] ?? '—' ?></small>
+                                            <small><strong>Média da Turma:</strong> <?= $pauta['estatisticas']['mediaTurma'] ?? '—' ?></small>
                                         </div>
                                         <div class="col-md-6">
-                                            <small><strong>Taxa de Aprovação:</strong> <?= $pauta->estatisticas['taxaAprovacao'] ?? 0 ?>%</small>
+                                            <small><strong>Taxa de Aprovação:</strong> <?= $pauta['estatisticas']['taxaAprovacao'] ?? 0 ?>%</small>
                                         </div>
                                     </div>
                                 </td>

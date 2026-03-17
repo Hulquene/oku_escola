@@ -4,12 +4,12 @@
 
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Mini Pauta: <?= $miniPauta->discipline_name ?></h1>
+        <h1>Mini Pauta: <?= $miniPauta['discipline_name'] ?></h1>
         <div>
-            <a href="<?= site_url('teachers/mini-pauta/print/' . $miniPauta->id) ?>" class="btn btn-secondary me-2" target="_blank">
+            <a href="<?= site_url('teachers/mini-pauta/print/' . $miniPauta['id']) ?>" class="btn btn-secondary me-2" target="_blank">
                 <i class="fas fa-print"></i> Imprimir
             </a>
-            <a href="<?= site_url('teachers/exams/grade/' . $miniPauta->id) ?>" class="btn btn-success me-2">
+            <a href="<?= site_url('teachers/exams/grade/' . $miniPauta['id']) ?>" class="btn btn-success me-2">
                 <i class="fas fa-star"></i> Lançar Notas
             </a>
             <a href="<?= site_url('teachers/mini-pauta') ?>" class="btn btn-info">
@@ -45,29 +45,29 @@
                     </div>
                     <div class="col-md-2">
                         <strong>Nível:</strong>
-                        <p><?= $miniPauta->level_name ?></p>
+                        <p><?= $miniPauta['level_name'] ?></p>
                     </div>
                     <div class="col-md-2">
                         <strong>Turma:</strong>
-                        <p><?= $miniPauta->class_name ?></p>
+                        <p><?= $miniPauta['class_name'] ?></p>
                     </div>
                     <div class="col-md-2">
                         <strong>Disciplina:</strong>
-                        <p><?= $miniPauta->discipline_name ?> (<?= $miniPauta->discipline_code ?>)</p>
+                        <p><?= $miniPauta['discipline_name'] ?> (<?= $miniPauta['discipline_code'] ?>)</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3">
                         <strong>Período:</strong>
-                        <p><?= $miniPauta->period_name ?> (<?= $miniPauta->period_type ?>)</p>
+                        <p><?= $miniPauta['period_name'] ?> (<?= $miniPauta->period_type ?>)</p>
                     </div>
                     <div class="col-md-2">
                         <strong>Tipo Exame:</strong>
-                        <p><?= $miniPauta->board_name ?> (<?= $miniPauta->board_code ?>)</p>
+                        <p><?= $miniPauta['board_name'] ?> (<?= $miniPauta['board_code'] ?>)</p>
                     </div>
                     <div class="col-md-2">
                         <strong>Data:</strong>
-                        <p><?= date('d/m/Y', strtotime($miniPauta->exam_date)) ?></p>
+                        <p><?= date('d/m/Y', strtotime($miniPauta['exam_date'])) ?></p>
                     </div>
                     <div class="col-md-2">
                         <strong>Hora:</strong>
@@ -82,9 +82,9 @@
                                 'Realizado' => 'success',
                                 'Cancelado' => 'danger',
                                 'Adiado' => 'warning'
-                            ][$miniPauta->status] ?? 'secondary';
+                            ][$miniPauta['status']] ?? 'secondary';
                             ?>
-                            <span class="badge bg-<?= $statusClass ?>"><?= $miniPauta->status ?></span>
+                            <span class="badge bg-<?= $statusClass ?>"><?= $miniPauta['status'] ?></span>
                         </p>
                     </div>
                 </div>
@@ -162,7 +162,7 @@
                             $resultado = $resultados[$aluno['enrollment_id']] ?? null;
                             $presenca = $presencas[$aluno['enrollment_id']] ?? null;
                             $presente = $presenca ? $presenca->attended : ($resultado ? !$resultado->is_absent : true);
-                            $nota = $resultado ? $resultado->score : null;
+                            $nota = $resultado ? $resultado['score'] : null;
                             ?>
                             <tr>
                                 <td><?= $index + 1 ?></td>

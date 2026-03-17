@@ -184,7 +184,7 @@
                             <?php if (!empty($teachers)): ?>
                                 <?php foreach ($teachers as $teacher): ?>
                                     <option value="<?= $teacher['id'] ?>" 
-                                        <?= (old('class_teacher_id', $class->class_teacher_id ?? '') == $teacher['id']) ? 'selected' : '' ?>>
+                                        <?= (old('class_teacher_id', $class['class_teacher_id'] ?? '') == $teacher['id']) ? 'selected' : '' ?>>
                                         <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                                     </option>
                                 <?php endforeach; ?>

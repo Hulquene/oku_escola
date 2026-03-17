@@ -162,11 +162,11 @@
                         <?php foreach ($turmas as $turma): ?>
                             <tr>
                                 <td>
-                                    <strong><?= $turma->class_name ?? 'N/A' ?></strong>
+                                    <strong><?= $turma['class_name'] ?? 'N/A' ?></strong>
                                     <br>
                                     <small class="text-muted"><?= $turma->class_code ?? '' ?></small>
                                 </td>
-                                <td><?= $turma->year_name ?? '-' ?></td>
+                                <td><?= $turma['year_name'] ?? '-' ?></td>
                                 <td class="text-center"><?= $turma->total_alunos ?? 0 ?></td>
                                 <td class="text-center">
                                     <?php if (isset($turma->media) && $turma->media > 0): ?>
@@ -264,8 +264,8 @@
                     <option value="">Todos</option>
                     <?php if (isset($cursos) && !empty($cursos)): ?>
                         <?php foreach ($cursos as $curso): ?>
-                            <option value="<?= $curso->id ?>" <?= (isset($selectedCourse) && $selectedCourse == $curso->id) ? 'selected' : '' ?>>
-                                <?= $curso->course_name ?>
+                            <option value="<?= $curso['id'] ?>" <?= (isset($selectedCourse) && $selectedCourse == $curso['id']) ? 'selected' : '' ?>>
+                                <?= $curso['course_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <?php foreach ($turmas as $turma): ?>
         <?php if (isset($turma->media) && $turma->media > 0): ?>
-            classLabels.push('<?= addslashes($turma->class_name ?? 'Turma') ?>');
+            classLabels.push('<?= addslashes($turma['class_name'] ?? 'Turma') ?>');
             classData.push(<?= $turma->media ?? 0 ?>);
         <?php endif; ?>
     <?php endforeach; ?>

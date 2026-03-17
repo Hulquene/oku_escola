@@ -53,7 +53,7 @@
                     </tr>
                     <tr>
                         <td><strong>Professor:</strong></td>
-                        <td><?= ($class->teacher_first_name ?? 'Não') . ' ' . ($class->teacher_last_name ?? 'atribuído') ?></td>
+                        <td><?= ($class['teacher_first_name'] ?? 'Não') . ' ' . ($class['teacher_last_name'] ?? 'atribuído') ?></td>
                     </tr>
                 </table>
             </div>

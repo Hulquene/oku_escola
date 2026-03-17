@@ -327,7 +327,7 @@ public function statistics()
                 tbl_students.id as student_id
             ')
             ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-            ->where('tbl_enrollments.class_id', $turma->id)
+            ->where('tbl_enrollments.class_id', $turma['id'])
             ->where('tbl_enrollments.status', 'Ativo')
             ->findAll();
         
@@ -344,7 +344,7 @@ public function statistics()
         
         foreach ($alunos as $aluno) {
             // Buscar disciplinas da turma
-            $disciplinas = $this->disciplineModel->getByClass($turma->id);
+            $disciplinas = $this->disciplineModel->getByClass($turma['id']);
             
             $somaNotasAluno = 0;
             $disciplinasComNota = 0;
@@ -392,7 +392,7 @@ public function statistics()
         $turma->media = $alunosComMedia > 0 ? round($somaMedias / $alunosComMedia, 1) : 0;
         $turma->total_alunos = $totalAlunosTurma;
         
-        $chartLabels[] = $turma->class_name;
+        $chartLabels[] = $turma['class_name'];
         $chartData[] = $turma->media;
     }
     
@@ -475,7 +475,7 @@ public function period()
             ')
             ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
             ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-            ->where('tbl_enrollments.class_id', $turma->id)
+            ->where('tbl_enrollments.class_id', $turma['id'])
             ->where('tbl_enrollments.status', 'Ativo')
             ->findAll();
         
@@ -494,7 +494,7 @@ public function period()
         
         foreach ($alunos as $aluno) {
             // Buscar disciplinas da turma
-            $disciplinas = $this->disciplineModel->getByClass($turma->id);
+            $disciplinas = $this->disciplineModel->getByClass($turma['id']);
             
             $somaNotasAluno = 0;
             $disciplinasComNota = 0;
