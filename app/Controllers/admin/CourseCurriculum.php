@@ -40,8 +40,8 @@ class CourseCurriculum extends BaseController
         
         // Buscar níveis do curso
         $levels = $this->gradeLevelModel
-            ->where('id >=', $course->start_grade_id)
-            ->where('id <=', $course->end_grade_id)
+            ->where('id >=', $course['start_grade_id'])
+            ->where('id <=', $course['end_grade_id'])
             ->where('is_active', 1)
             ->orderBy('sort_order', 'ASC')
             ->findAll();
@@ -60,12 +60,12 @@ class CourseCurriculum extends BaseController
                 ')
                 ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_course_disciplines.discipline_id')
                 ->where('tbl_course_disciplines.course_id', $courseId)
-                ->where('tbl_course_disciplines.grade_level_id', $level->id)
+                ->where('tbl_course_disciplines.grade_level_id', $level['id'])
                 ->where('tbl_disciplines.is_active', 1)
                 ->orderBy('tbl_disciplines.discipline_name', 'ASC')
                 ->findAll();
             
-            $curriculum[$level->id] = [
+            $curriculum[$level['id']] = [
                 'level' => $level,
                 'disciplines' => $disciplines
             ];
@@ -243,7 +243,7 @@ public function editDiscipline($id)
         
         // Filtrar as não atribuídas
         $available = array_filter($allDisciplines, function($discipline) use ($assignedIds) {
-            return !in_array($discipline->id, $assignedIds);
+            return !in_array($discipline['id'], $assignedIds);
         });
         
         return $this->response->setJSON(array_values($available));

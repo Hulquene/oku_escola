@@ -235,7 +235,7 @@ public function index()
         // Get class summary
         $summary = $this->semesterResultModel->getClassSummary($classId, $semesterId);
 
-        $data['title'] = 'Resultados Semestrais - ' . $class->class_name;
+        $data['title'] = 'Resultados Semestrais - ' . $class['class_name'];
         $data['class'] = $class;
         $data['semester'] = $semester;
         $data['results'] = $results;
@@ -360,8 +360,8 @@ public function index()
         $sheet = $excel->getActiveSheet();
 
         // Set headers
-        $sheet->setCellValue('A1', 'Resultados Semestrais - ' . $class->class_name);
-        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class->year_name);
+        $sheet->setCellValue('A1', 'Resultados Semestrais - ' . $class['class_name']);
+        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class['year_name']);
         $sheet->mergeCells('A1:G1');
         $sheet->mergeCells('A2:G2');
 
@@ -413,7 +413,7 @@ public function index()
         }
 
         // Set filename
-        $filename = 'resultados_' . $class->class_code . '_' . $semester->semester_name . '.xlsx';
+        $filename = 'resultados_' . $class['class_code'] . '_' . $semester->semester_name . '.xlsx';
 
         // Output
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -436,7 +436,7 @@ public function index()
         // Set document information
         $pdf->SetCreator('Sistema Escolar');
         $pdf->SetAuthor('Admin');
-        $pdf->SetTitle('Resultados Semestrais - ' . $class->class_name);
+        $pdf->SetTitle('Resultados Semestrais - ' . $class['class_name']);
 
         // Remove header/footer
         $pdf->setPrintHeader(false);
@@ -447,9 +447,9 @@ public function index()
 
         // Title
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->Cell(0, 10, 'Resultados Semestrais - ' . $class->class_name, 0, 1, 'C');
+        $pdf->Cell(0, 10, 'Resultados Semestrais - ' . $class['class_name'], 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $semester->semester_name . ' - ' . $class->year_name, 0, 1, 'C');
+        $pdf->Cell(0, 10, $semester->semester_name . ' - ' . $class['year_name'], 0, 1, 'C');
         $pdf->Ln(5);
 
         // Table
@@ -507,7 +507,7 @@ public function index()
         $pdf->writeHTML($html, true, false, true, false, '');
 
         // Close and output PDF
-        $filename = 'resultados_' . $class->class_code . '_' . $semester->semester_name . '.pdf';
+        $filename = 'resultados_' . $class['class_code'] . '_' . $semester->semester_name . '.pdf';
         $pdf->Output($filename, 'D');
         exit;
     }
@@ -566,7 +566,7 @@ public function index()
         }
 
         // Output PDF
-        $filename = 'pautas_' . $class->class_code . '_' . $semesterId . '.pdf';
+        $filename = 'pautas_' . $class['class_code'] . '_' . $semesterId . '.pdf';
         $pdf->Output($filename, 'D');
         exit;
     }
@@ -597,7 +597,7 @@ public function index()
         <div class="report-card">
             <div class="header">
                 <h1>Pauta de Avaliação</h1>
-                <h2>' . $class->class_name . ' - ' . $class->year_name . '</h2>
+                <h2>' . $class['class_name'] . ' - ' . $class['year_name'] . '</h2>
             </div>
             
             <div class="student-info">

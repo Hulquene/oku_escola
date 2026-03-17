@@ -53,8 +53,8 @@
                 <select class="form-select" name="class_id" onchange="this.form.submit()">
                     <option value="">Todas as turmas</option>
                     <?php foreach ($classes as $class): ?>
-                        <option value="<?= $class->id ?>" <?= $selectedClass == $class->id ? 'selected' : '' ?>>
-                            <?= $class->class_name ?>
+                        <option value="<?= $class['id'] ?>" <?= $selectedClass == $class['id'] ? 'selected' : '' ?>>
+                            <?= $class['class_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -237,10 +237,10 @@
                                     <input class="form-check-input class-checkbox" 
                                            type="checkbox" 
                                            name="class_ids[]" 
-                                           value="<?= $class->id ?>" 
-                                           id="class_<?= $class->id ?>">
-                                    <label class="form-check-label" for="class_<?= $class->id ?>">
-                                        <?= $class->class_name ?>
+                                           value="<?= $class['id'] ?>" 
+                                           id="class_<?= $class['id'] ?>">
+                                    <label class="form-check-label" for="class_<?= $class['id'] ?>">
+                                        <?= $class['class_name'] ?>
                                     </label>
                                 </div>
                             <?php endforeach; ?>

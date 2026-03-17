@@ -45,8 +45,8 @@
                             <option value="">Todas as turmas</option>
                             <?php if (!empty($classes)): ?>
                                 <?php foreach ($classes as $class): ?>
-                                    <option value="<?= $class->id ?>" <?= ($filters['class'] ?? '') == $class->id ? 'selected' : '' ?>>
-                                        <?= $class->class_name ?>
+                                    <option value="<?= $class['id'] ?>" <?= ($filters['class'] ?? '') == $class['id'] ? 'selected' : '' ?>>
+                                        <?= $class['class_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

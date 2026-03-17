@@ -217,8 +217,8 @@ class Subjects extends BaseController
             
             // Status
             if ($subject->final_grade) {
-                $subject->status = $subject->final_grade >= $subject->approval_grade ? 'Aprovado' : 'Reprovado';
-                $subject->status_color = $subject->final_grade >= $subject->approval_grade ? 'success' : 'danger';
+                $subject->status = $subject->final_grade >= $subject['approval_grade'] ? 'Aprovado' : 'Reprovado';
+                $subject->status_color = $subject->final_grade >= $subject['approval_grade'] ? 'success' : 'danger';
             } elseif ($subject->average) {
                 $subject->status = 'Em andamento';
                 $subject->status_color = 'warning';

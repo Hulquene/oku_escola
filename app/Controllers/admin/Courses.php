@@ -247,8 +247,8 @@ class Courses extends BaseController
             foreach ($courses as $course) {
                 
                 // Buscar níveis com cache - ACESSANDO COMO OBJETO
-                $startLevel = $this->getCachedLevel($this->gradeLevelModel, $levelCache, $course->start_grade_id);
-                $endLevel = $this->getCachedLevel($this->gradeLevelModel, $levelCache, $course->end_grade_id);
+                $startLevel = $this->getCachedLevel($this->gradeLevelModel, $levelCache, $course['start_grade_id']);
+                $endLevel = $this->getCachedLevel($this->gradeLevelModel, $levelCache, $course['end_grade_id']);
                 
                 // Converter para array se necessário (para acesso consistente)
                 $startLevelArray = $startLevel ? (array)$startLevel : null;

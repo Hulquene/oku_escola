@@ -4,9 +4,9 @@
 
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Pauta Trimestral - <?= $class->class_name ?></h1>
+        <h1>Pauta Trimestral - <?= $class['class_name'] ?></h1>
         <div>
-            <a href="<?= site_url('admin/mini-grade-sheet/exportTrimestral/' . $class->id . '?semester=' . $semester->id) ?>" 
+            <a href="<?= site_url('admin/mini-grade-sheet/exportTrimestral/' . $class['id'] . '?semester=' . $semester->id) ?>" 
                class="btn btn-success me-2">
                 <i class="fas fa-file-excel"></i> Exportar Excel
             </a>
@@ -20,7 +20,7 @@
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet') ?>">Mini Pautas</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet/trimestral') ?>">Pautas Trimestrais</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $class->class_name ?></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $class['class_name'] ?></li>
         </ol>
     </nav>
 </div>
@@ -36,11 +36,11 @@
                 <div class="row">
                     <div class="col-md-3">
                         <strong>Ano Letivo:</strong>
-                        <p><?= $class->year_name ?></p>
+                        <p><?= $class['year_name'] ?></p>
                     </div>
                     <div class="col-md-3">
                         <strong>Turma:</strong>
-                        <p><?= $class->class_name ?></p>
+                        <p><?= $class['class_name'] ?></p>
                     </div>
                     <div class="col-md-3">
                         <strong>Nível:</strong>

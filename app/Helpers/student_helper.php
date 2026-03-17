@@ -281,7 +281,7 @@ if (!function_exists('getStudentDisciplines')) {
             // Notas da disciplina
             $grades = getStudentGrades($enrollment['id'], null);
             $disciplineGrades = array_filter($grades, function($g) use ($discipline) {
-                return $g->discipline_id == $discipline->id;
+                return $g->discipline_id == $discipline['id'];
             });
             
             if (!empty($disciplineGrades)) {
@@ -299,7 +299,7 @@ if (!function_exists('getStudentDisciplines')) {
             // Presenças da disciplina
             $attendance = getStudentAttendanceStats($enrollment['id']);
             $disciplineAttendance = array_filter($attendance, function($a) use ($discipline) {
-                return $a->discipline_id == $discipline->id;
+                return $a->discipline_id == $discipline['id'];
             });
             
             if (!empty($disciplineAttendance)) {
@@ -317,7 +317,7 @@ if (!function_exists('getStudentDisciplines')) {
             $averageModel = new DisciplineAverageModel();
             $finalAverage = $averageModel
                 ->where('enrollment_id', $enrollment['id'])
-                ->where('discipline_id', $discipline->id)
+                ->where('discipline_id', $discipline['id'])
                 ->orderBy('semester_id', 'DESC')
                 ->first();
             

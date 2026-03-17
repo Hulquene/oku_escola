@@ -519,7 +519,7 @@ public function view($id)
         // Inicializar curso se não existir
         if (!isset($assignmentsByYear[$yearId]['byCourse'][$courseId])) {
             $assignmentsByYear[$yearId]['byCourse'][$courseId] = [
-                'course_name' => $assignment->course_name ?? 'Ensino Geral',
+                'course_name' => $assignment['course_name'] ?? 'Ensino Geral',
                 'course_code' => $assignment->course_code ?? '',
                 'items' => []
             ];
@@ -528,10 +528,10 @@ public function view($id)
         // Adicionar item
         $assignmentsByYear[$yearId]['byCourse'][$courseId]['items'][] = $assignment;
         $assignmentsByYear[$yearId]['total']++;
-        $assignmentsByYear[$yearId]['total_workload'] += $assignment->workload_hours ?? 0;
+        $assignmentsByYear[$yearId]['total_workload'] += $assignment['workload_hours'] ?? 0;
         
         // Contar turmas únicas
-        $classKey = $assignment->class_id . '_' . $yearId;
+        $classKey = $assignment['class_id'] . '_' . $yearId;
         if (!in_array($classKey, $totalClasses)) {
             $totalClasses[] = $classKey;
             $assignmentsByYear[$yearId]['total_classes']++;
@@ -540,13 +540,13 @@ public function view($id)
         // Calcular total de alunos
         $enrollmentModel = new \App\Models\EnrollmentModel();
         $studentsCount = $enrollmentModel
-            ->where('class_id', $assignment->class_id)
+            ->where('class_id', $assignment['class_id'])
             ->where('status', 'Ativo')
             ->countAllResults();
         $totalStudents += $studentsCount;
         
         // Calcular carga horária total
-        $totalWorkload += $assignment->workload_hours ?? 0;
+        $totalWorkload += $assignment['workload_hours'] ?? 0;
     }
     
     $data['assignmentsByYear'] = $assignmentsByYear;
@@ -614,7 +614,7 @@ public function assignClass($id)
     // Organizar assignments por chave para fácil acesso
     $data['assignmentMap'] = [];
     foreach ($data['assignments'] as $assignment) {
-        $key = $assignment->class_id . '_' . $assignment->discipline_id;
+        $key = $assignment['class_id'] . '_' . $assignment->discipline_id;
         $data['assignmentMap'][$key] = $assignment;
     }
     
@@ -655,7 +655,7 @@ public function saveAssignment()
     // Criar array com chaves no formato "classId_disciplineId" para fácil comparação
     $currentKeys = [];
     foreach ($currentAssignments as $assignment) {
-        $key = $assignment->class_id . '_' . $assignment->discipline_id;
+        $key = $assignment['class_id'] . '_' . $assignment->discipline_id;
         $currentKeys[$key] = $assignment;
     }
     
@@ -692,7 +692,7 @@ public function saveAssignment()
     foreach ($currentKeys as $key => $assignment) {
         if (!isset($submittedKeys[$key])) {
             // Desativar em vez de deletar (preserva histórico)
-            $this->classDisciplineModel->update($assignment->id, [
+            $this->classDisciplineModel->update($assignment['id'], [
                 'teacher_id' => null
             ]);
         }
@@ -847,7 +847,7 @@ public function schedule($id)
     ];
     
     foreach ($data['assignments'] as $assignment) {
-        $shift = $assignment->class_shift ?? 'Integral';
+        $shift = $assignment['class_shift'] ?? 'Integral';
         $data['byShift'][$shift][] = $assignment;
     }
     

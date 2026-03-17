@@ -4,9 +4,9 @@
 
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Pauta da Disciplina: <?= $discipline->discipline_name ?></h1>
+        <h1>Pauta da Disciplina: <?= $discipline['discipline_name'] ?></h1>
         <div>
-            <a href="<?= site_url('admin/mini-grade-sheet/exportDisciplina/' . $class->id . '/' . $discipline->id) ?>" 
+            <a href="<?= site_url('admin/mini-grade-sheet/exportDisciplina/' . $class['id'] . '/' . $discipline['id']) ?>" 
                class="btn btn-success me-2">
                 <i class="fas fa-file-excel"></i> Exportar Excel
             </a>
@@ -20,7 +20,7 @@
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet') ?>">Mini Pautas</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>">Pautas por Disciplina</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $discipline->discipline_code ?></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $discipline['discipline_code'] ?></li>
         </ol>
     </nav>
 </div>
@@ -36,11 +36,11 @@
                 <div class="row">
                     <div class="col-md-3">
                         <strong>Ano Letivo:</strong>
-                        <p><?= $class->year_name ?></p>
+                        <p><?= $class['year_name'] ?></p>
                     </div>
                     <div class="col-md-3">
                         <strong>Turma:</strong>
-                        <p><?= $class->class_name ?></p>
+                        <p><?= $class['class_name'] ?></p>
                     </div>
                     <div class="col-md-3">
                         <strong>Nível:</strong>
@@ -48,13 +48,13 @@
                     </div>
                     <div class="col-md-3">
                         <strong>Disciplina:</strong>
-                        <p><?= $discipline->discipline_name ?> (<?= $discipline->discipline_code ?>)</p>
+                        <p><?= $discipline['discipline_name'] ?> (<?= $discipline['discipline_code'] ?>)</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-4">
                         <strong>Professor:</strong>
-                        <p><?= ($teacher->first_name ?? 'Não') . ' ' . ($teacher->last_name ?? 'atribuído') ?></p>
+                        <p><?= ($teacher['first_name'] ?? 'Não') . ' ' . ($teacher['last_name'] ?? 'atribuído') ?></p>
                     </div>
                     <div class="col-md-4">
                         <strong>Total de Alunos:</strong>
@@ -69,7 +69,7 @@
 <!-- Mini Pauta da Disciplina -->
 <div class="card">
     <div class="card-header bg-success text-white">
-        <h5 class="mb-0"><i class="fas fa-file-alt"></i> Mini Pauta - <?= $discipline->discipline_name ?></h5>
+        <h5 class="mb-0"><i class="fas fa-file-alt"></i> Mini Pauta - <?= $discipline['discipline_name'] ?></h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">

@@ -56,8 +56,8 @@
                 <select class="form-select" name="grade_level" onchange="this.form.submit()">
                     <option value="">Todos</option>
                     <?php foreach ($gradeLevels as $level): ?>
-                        <option value="<?= $level->id ?>" <?= $selectedLevel == $level->id ? 'selected' : '' ?>>
-                            <?= $level->level_name ?> (<?= $level->education_level ?>)
+                        <option value="<?= $level['id'] ?>" <?= $selectedLevel == $level['id'] ? 'selected' : '' ?>>
+                            <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -233,10 +233,10 @@
                             <?php foreach ($gradeLevels as $level): ?>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" 
-                                           name="grade_level_ids[]" value="<?= $level->id ?>" 
-                                           id="level_<?= $level->id ?>">
-                                    <label class="form-check-label" for="level_<?= $level->id ?>">
-                                        <?= $level->level_name ?> (<?= $level->education_level ?>)
+                                           name="grade_level_ids[]" value="<?= $level['id'] ?>" 
+                                           id="level_<?= $level['id'] ?>">
+                                    <label class="form-check-label" for="level_<?= $level['id'] ?>">
+                                        <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                                     </label>
                                 </div>
                             <?php endforeach; ?>
@@ -316,10 +316,10 @@
                             <?php foreach ($gradeLevels as $level): ?>
                                 <div class="form-check ms-3">
                                     <input class="form-check-input level-checkbox" type="checkbox" 
-                                           name="grade_level_ids[]" value="<?= $level->id ?>" 
-                                           id="copy_level_<?= $level->id ?>">
-                                    <label class="form-check-label" for="copy_level_<?= $level->id ?>">
-                                        <?= $level->level_name ?>
+                                           name="grade_level_ids[]" value="<?= $level['id'] ?>" 
+                                           id="copy_level_<?= $level['id'] ?>">
+                                    <label class="form-check-label" for="copy_level_<?= $level['id'] ?>">
+                                        <?= $level['level_name'] ?>
                                     </label>
                                 </div>
                             <?php endforeach; ?>

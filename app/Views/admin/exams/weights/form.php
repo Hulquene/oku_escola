@@ -74,9 +74,9 @@
                                         name="grade_level_id" required id="gradeLevel">
                                     <option value="">Selecione</option>
                                     <?php foreach ($gradeLevels as $level): ?>
-                                        <option value="<?= $level->id ?>" 
-                                            <?= (old('grade_level_id') ?: ($weight->grade_level_id ?? '')) == $level->id ? 'selected' : '' ?>>
-                                            <?= $level->level_name ?> (<?= $level->education_level ?>)
+                                        <option value="<?= $level['id'] ?>" 
+                                            <?= (old('grade_level_id') ?: ($weight->grade_level_id ?? '')) == $level['id'] ? 'selected' : '' ?>>
+                                            <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

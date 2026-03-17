@@ -139,8 +139,8 @@
                     <option value="">Todas as turmas</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class->id ?>" <?= $selectedClass == $class->id ? 'selected' : '' ?>>
-                                <?= $class->class_name ?> (<?= $class->class_code ?>) - <?= $class->class_shift ?> - <?= $class->year_name ?>
+                            <option value="<?= $class['id'] ?>" <?= $selectedClass == $class['id'] ? 'selected' : '' ?>>
+                                <?= $class['class_name'] ?> (<?= $class['class_code'] ?>) - <?= $class['class_shift'] ?> - <?= $class['year_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -168,8 +168,8 @@
                     <option value="">Todas</option>
                     <?php if (!empty($disciplines)): ?>
                         <?php foreach ($disciplines as $discipline): ?>
-                            <option value="<?= $discipline->id ?>" <?= $selectedDiscipline == $discipline->id ? 'selected' : '' ?>>
-                                <?= $discipline->discipline_name ?> (<?= $discipline->discipline_code ?>)
+                            <option value="<?= $discipline['id'] ?>" <?= $selectedDiscipline == $discipline['id'] ? 'selected' : '' ?>>
+                                <?= $discipline['discipline_name'] ?> (<?= $discipline['discipline_code'] ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -183,8 +183,8 @@
                     <option value="without" <?= $selectedTeacher == 'without' ? 'selected' : '' ?>>Sem professor</option>
                     <?php if (!empty($teachers)): ?>
                         <?php foreach ($teachers as $teacher): ?>
-                            <option value="<?= $teacher->teacher_id ?>" <?= $selectedTeacher == $teacher->teacher_id ? 'selected' : '' ?>>
-                                <?= $teacher->first_name ?> <?= $teacher->last_name ?>
+                            <option value="<?= $teacher['teacher_id'] ?>" <?= $selectedTeacher == $teacher['teacher_id'] ? 'selected' : '' ?>>
+                                <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -228,9 +228,9 @@
                     
                     <?php if (!empty($selectedClass)): ?>
                         <?php foreach ($classes as $class): ?>
-                            <?php if ($class->id == $selectedClass): ?>
+                            <?php if ($class['id'] == $selectedClass): ?>
                                 <span class="badge bg-success p-2">
-                                    <i class="fas fa-school me-1"></i>Turma: <?= $class->class_name ?>
+                                    <i class="fas fa-school me-1"></i>Turma: <?= $class['class_name'] ?>
                                     <a href="<?= site_url('admin/classes/class-subjects?remove=class') ?>" class="text-white ms-1">
                                         <i class="fas fa-times"></i>
                                     </a>
@@ -254,9 +254,9 @@
                     
                     <?php if (!empty($selectedDiscipline)): ?>
                         <?php foreach ($disciplines as $discipline): ?>
-                            <?php if ($discipline->id == $selectedDiscipline): ?>
+                            <?php if ($discipline['id'] == $selectedDiscipline): ?>
                                 <span class="badge bg-warning text-dark p-2">
-                                    <i class="fas fa-book me-1"></i>Disciplina: <?= $discipline->discipline_name ?>
+                                    <i class="fas fa-book me-1"></i>Disciplina: <?= $discipline['discipline_name'] ?>
                                     <a href="<?= site_url('admin/classes/class-subjects?remove=discipline') ?>" class="text-dark ms-1">
                                         <i class="fas fa-times"></i>
                                     </a>
@@ -275,9 +275,9 @@
                             </span>
                         <?php else: ?>
                             <?php foreach ($teachers as $teacher): ?>
-                                <?php if ($teacher->teacher_id == $selectedTeacher): ?>
+                                <?php if ($teacher['teacher_id'] == $selectedTeacher): ?>
                                     <span class="badge bg-secondary p-2">
-                                        <i class="fas fa-chalkboard-teacher me-1"></i>Professor: <?= $teacher->first_name ?>
+                                        <i class="fas fa-chalkboard-teacher me-1"></i>Professor: <?= $teacher['first_name'] ?>
                                         <a href="<?= site_url('admin/classes/class-subjects?remove=teacher') ?>" class="text-white ms-1">
                                             <i class="fas fa-times"></i>
                                         </a>
@@ -327,37 +327,37 @@
             
             // Agrupar por turma para mostrar totais
             foreach ($assignments as $assignment):
-                if (!isset($classTotals[$assignment->class_id])) {
-                    $classTotals[$assignment->class_id] = [
+                if (!isset($classTotals[$assignment['class_id']])) {
+                    $classTotals[$assignment['class_id']] = [
                         'total' => 0,
                         'with_teacher' => 0,
                         'without_period' => 0
                     ];
                 }
-                $classTotals[$assignment->class_id]['total']++;
-                if ($assignment->teacher_id) {
-                    $classTotals[$assignment->class_id]['with_teacher']++;
+                $classTotals[$assignment['class_id']]['total']++;
+                if ($assignment['teacher_id']) {
+                    $classTotals[$assignment['class_id']]['with_teacher']++;
                 }
-                if (empty($assignment->period_type) || !in_array($assignment->period_type, ['Anual', '1º Semestre', '2º Semestre'])) {
-                    $classTotals[$assignment->class_id]['without_period']++;
+                if (empty($assignment['period_type']) || !in_array($assignment['period_type'], ['Anual', '1º Semestre', '2º Semestre'])) {
+                    $classTotals[$assignment['class_id']]['without_period']++;
                 }
             endforeach;
             
             // Loop principal usando sintaxe padrão
             foreach ($assignments as $assignment): 
-                if ($currentClass != $assignment->class_name):
+                if ($currentClass != $assignment['class_name']):
                     if ($currentClass !== null) {
                         echo '</tbody></table>';
                     }
-                    $currentClass = $assignment->class_name;
-                    $classTotal = $classTotals[$assignment->class_id] ?? ['total' => 0, 'with_teacher' => 0, 'without_period' => 0];
+                    $currentClass = $assignment['class_name'];
+                    $classTotal = $classTotals[$assignment['class_id']] ?? ['total' => 0, 'with_teacher' => 0, 'without_period' => 0];
             ?>
                 <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
                     <div>
                         <h5>
                             <span class="badge bg-primary p-2">
-                                <i class="fas fa-school me-1"></i> <?= $assignment->class_name ?> 
-                                (<?= $assignment->class_code ?>) - <?= $assignment->class_shift ?>
+                                <i class="fas fa-school me-1"></i> <?= $assignment['class_name'] ?> 
+                                (<?= $assignment['class_code'] ?>) - <?= $assignment['class_shift'] ?>
                             </span>
                         </h5>
                         <small class="text-muted">
@@ -370,11 +370,11 @@
                         </small>
                     </div>
                     <div>
-                        <a href="<?= site_url('admin/classes/class-subjects/assign-teachers/' . $assignment->class_id) ?>" 
+                        <a href="<?= site_url('admin/classes/class-subjects/assign-teachers/' . $assignment['class_id']) ?>" 
                            class="btn btn-sm btn-success me-2">
                             <i class="fas fa-chalkboard-teacher me-1"></i>Atribuir Professores
                         </a>
-                        <a href="<?= site_url('admin/classes/class-subjects/assign?class=' . $assignment->class_id) ?>" 
+                        <a href="<?= site_url('admin/classes/class-subjects/assign?class=' . $assignment['class_id']) ?>" 
                            class="btn btn-sm btn-primary">
                             <i class="fas fa-plus-circle me-1"></i>Nova Disciplina
                         </a>
@@ -404,48 +404,48 @@
                     '1º Semestre' => 'primary',
                     '2º Semestre' => 'warning'
                 ];
-                $periodColor = $periodColors[$assignment->period_type] ?? 'secondary';
+                $periodColor = $periodColors[$assignment['period_type']] ?? 'secondary';
                 
-                $teacherStatus = $assignment->teacher_id ? 'Atribuído' : 'Pendente';
-                $teacherStatusClass = $assignment->teacher_id ? 'success' : 'warning';
+                $teacherStatus = $assignment['teacher_id'] ? 'Atribuído' : 'Pendente';
+                $teacherStatusClass = $assignment['teacher_id'] ? 'success' : 'warning';
             ?>
                 <tr>
-                    <td class="ps-3"><?= $assignment->created_at ? date('d/m/Y', strtotime($assignment->created_at)) : '-' ?></td>
+                    <td class="ps-3"><?= $assignment['created_at'] ? date('d/m/Y', strtotime($assignment['created_at'])) : '-' ?></td>
                     <td>
-                        <span class="fw-semibold"><?= $assignment->class_name ?></span>
+                        <span class="fw-semibold"><?= $assignment['class_name'] ?></span>
                         <br>
-                        <small class="text-muted"><?= $assignment->class_code ?> - <?= $assignment->class_shift ?></small>
+                        <small class="text-muted"><?= $assignment['class_code'] ?> - <?= $assignment['class_shift'] ?></small>
                     </td>
                     <td>
-                        <strong><?= $assignment->discipline_name ?></strong>
-                        <?php if ($assignment->course_name): ?>
-                            <br><small class="text-muted"><?= $assignment->course_name ?></small>
+                        <strong><?= $assignment['discipline_name'] ?></strong>
+                        <?php if ($assignment['course_name']): ?>
+                            <br><small class="text-muted"><?= $assignment['course_name'] ?></small>
                         <?php endif; ?>
                     </td>
-                    <td><span class="badge bg-info"><?= $assignment->discipline_code ?></span></td>
+                    <td><span class="badge bg-info"><?= $assignment['discipline_code'] ?></span></td>
                     <td>
                         <span class="badge bg-<?= $periodColor ?>">
-                            <?= $assignment->period_type ?? 'Não definido' ?>
+                            <?= $assignment['period_type'] ?? 'Não definido' ?>
                         </span>
                     </td>
                     <td class="text-center">
-                        <?php if ($assignment->workload_hours): ?>
-                            <span class="badge bg-secondary"><?= $assignment->workload_hours ?>h</span>
+                        <?php if ($assignment['workload_hours']): ?>
+                            <span class="badge bg-secondary"><?= $assignment['workload_hours'] ?>h</span>
                         <?php else: ?>
                             <span class="text-muted">-</span>
                         <?php endif; ?>
                     </td>
                     <td>
-                        <?php if ($assignment->teacher_id): ?>
+                        <?php if ($assignment['teacher_id']): ?>
                             <div class="d-flex align-items-center">
                                 <div class="bg-success rounded-circle text-white d-flex align-items-center justify-content-center me-2"
                                      style="width: 30px; height: 30px; font-size: 0.8rem;">
-                                    <?= strtoupper(substr($assignment->teacher_first_name ?? '', 0, 1) . substr($assignment->teacher_last_name ?? '', 0, 1)) ?>
+                                    <?= strtoupper(substr($assignment['teacher_first_name'] ?? '', 0, 1) . substr($assignment['teacher_last_name'] ?? '', 0, 1)) ?>
                                 </div>
                                 <div>
-                                    <strong><?= $assignment->teacher_first_name ?> <?= $assignment->teacher_last_name ?></strong>
+                                    <strong><?= $assignment['teacher_first_name'] ?> <?= $assignment['teacher_last_name'] ?></strong>
                                     <br>
-                                    <small class="text-muted">ID: <?= $assignment->teacher_id ?></small>
+                                    <small class="text-muted">ID: <?= $assignment['teacher_id'] ?></small>
                                 </div>
                             </div>
                         <?php else: ?>
@@ -457,18 +457,18 @@
                     </td>
                     <td class="text-center pe-3">
                         <div class="btn-group btn-group-sm">
-                            <a href="<?= site_url('admin/classes/class-subjects/assign?edit=' . $assignment->id) ?>" 
+                            <a href="<?= site_url('admin/classes/class-subjects/assign?edit=' . $assignment['id']) ?>" 
                                class="btn btn-outline-primary" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <?php if ($assignment->teacher_id): ?>
-                                <a href="<?= site_url('admin/teachers/view/' . $assignment->teacher_id) ?>" 
+                            <?php if ($assignment['teacher_id']): ?>
+                                <a href="<?= site_url('admin/teachers/view/' . $assignment['teacher_id']) ?>" 
                                    class="btn btn-outline-success" title="Ver Professor">
                                     <i class="fas fa-user"></i>
                                 </a>
                             <?php endif; ?>
                             <button type="button" class="btn btn-outline-danger" 
-                                    onclick="confirmDelete(<?= $assignment->id ?>, '<?= $assignment->discipline_name ?>', '<?= $assignment->class_name ?>')"
+                                    onclick="confirmDelete(<?= $assignment['id'] ?>, '<?= $assignment['discipline_name'] ?>', '<?= $assignment['class_name'] ?>')"
                                     title="Remover">
                                 <i class="fas fa-trash"></i>
                             </button>

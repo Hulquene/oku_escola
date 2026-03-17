@@ -108,12 +108,12 @@
                             <div class="col-md-4 mb-4">
                                 <div class="card h-100 border-success">
                                     <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0"><?= $class->class_name ?></h6>
+                                        <h6 class="mb-0"><?= $class['class_name'] ?></h6>
                                     </div>
                                     <div class="card-body">
                                         <p class="mb-2">
                                             <i class="fas fa-clock text-success"></i> 
-                                            <strong>Turno:</strong> <?= $class->class_shift ?>
+                                            <strong>Turno:</strong> <?= $class['class_shift'] ?>
                                         </p>
                                         <p class="mb-2">
                                             <i class="fas fa-door-open text-success"></i> 
@@ -169,7 +169,7 @@
                                 <tbody>
                                     <?php foreach ($myClasses as $class): ?>
                                         <tr>
-                                            <td><?= $class->class_name ?></td>
+                                            <td><?= $class['class_name'] ?></td>
                                             <td><?= $class->discipline_name ?></td>
                                             <td><span class="badge bg-info"><?= $class->discipline_code ?></span></td>
                                             <td><?= $class->workload_hours ?? 'N/A' ?> h</td>

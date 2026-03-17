@@ -444,7 +444,7 @@ class Reports extends BaseController
         $chartData = [];
         foreach ($teachers as $teacher) {
             $chartData[] = [
-                'teacher' => $teacher->first_name . ' ' . $teacher->last_name,
+                'teacher' => $teacher['first_name'] . ' ' . $teacher['last_name'],
                 'classes' => $teacher->total_classes
             ];
         }

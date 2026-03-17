@@ -40,8 +40,8 @@
                     <option value="">Todas</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class->id ?>" <?= $selectedClass == $class->id ? 'selected' : '' ?>>
-                                <?= $class->class_name ?>
+                            <option value="<?= $class['id'] ?>" <?= $selectedClass == $class['id'] ? 'selected' : '' ?>>
+                                <?= $class['class_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

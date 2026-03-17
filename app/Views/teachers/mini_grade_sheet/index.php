@@ -52,8 +52,8 @@
                     <select name="level" class="form-select" id="level">
                         <option value="">Todos</option>
                         <?php foreach ($levels as $level): ?>
-                            <option value="<?= $level->id ?>" <?= ($filters['level'] ?? '') == $level->id ? 'selected' : '' ?>>
-                                <?= $level->level_name ?>
+                            <option value="<?= $level['id'] ?>" <?= ($filters['level'] ?? '') == $level['id'] ? 'selected' : '' ?>>
+                                <?= $level['level_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

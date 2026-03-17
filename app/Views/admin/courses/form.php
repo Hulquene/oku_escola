@@ -340,10 +340,10 @@
                                 id="start_grade_id" name="start_grade_id" required>
                             <option value="">Selecione...</option>
                             <?php foreach ($highSchoolLevels as $level): ?>
-                                <option value="<?= $level->id ?>"
-                                        data-order="<?= $level->id ?>"
-                                    <?= old('start_grade_id', $course->start_grade_id ?? '') == $level->id ? 'selected' : '' ?>>
-                                    <?= $level->level_name ?> (<?= $level->education_level ?>)
+                                <option value="<?= $level['id'] ?>"
+                                        data-order="<?= $level['id'] ?>"
+                                    <?= old('start_grade_id', $course['start_grade_id'] ?? '') == $level['id'] ? 'selected' : '' ?>>
+                                    <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -359,10 +359,10 @@
                                 id="end_grade_id" name="end_grade_id" required>
                             <option value="">Selecione...</option>
                             <?php foreach ($highSchoolLevels as $level): ?>
-                                <option value="<?= $level->id ?>"
-                                        data-order="<?= $level->id ?>"
-                                    <?= old('end_grade_id', $course->end_grade_id ?? '') == $level->id ? 'selected' : '' ?>>
-                                    <?= $level->level_name ?> (<?= $level->education_level ?>)
+                                <option value="<?= $level['id'] ?>"
+                                        data-order="<?= $level['id'] ?>"
+                                    <?= old('end_grade_id', $course['end_grade_id'] ?? '') == $level['id'] ? 'selected' : '' ?>>
+                                    <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>

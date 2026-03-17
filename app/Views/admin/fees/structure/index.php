@@ -173,8 +173,8 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($gradeLevels)): ?>
                                 <?php foreach ($gradeLevels as $level): ?>
-                                    <option value="<?= $level->id ?>">
-                                        <?= $level->level_name ?>
+                                    <option value="<?= $level['id'] ?>">
+                                        <?= $level['level_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -300,10 +300,10 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" 
                                                name="grade_level_ids[]" 
-                                               value="<?= $level->id ?>"
-                                               id="level_<?= $level->id ?>">
-                                        <label class="form-check-label" for="level_<?= $level->id ?>">
-                                            <?= $level->level_name ?>
+                                               value="<?= $level['id'] ?>"
+                                               id="level_<?= $level['id'] ?>">
+                                        <label class="form-check-label" for="level_<?= $level['id'] ?>">
+                                            <?= $level['level_name'] ?>
                                         </label>
                                     </div>
                                 <?php endforeach; ?>

@@ -223,7 +223,7 @@ class GradeCurriculum extends BaseController
         
         // Filtrar as não atribuídas
         $available = array_filter($allDisciplines, function($discipline) use ($assignedIds) {
-            return !in_array($discipline->id, $assignedIds);
+            return !in_array($discipline['id'], $assignedIds);
         });
         
         return $this->response->setJSON(array_values($available));

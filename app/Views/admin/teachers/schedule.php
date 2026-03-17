@@ -39,7 +39,7 @@
         <?php else: ?>
             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white"
                  style="width: 60px; height: 60px; font-size: 1.5rem;">
-                <?= strtoupper(substr($teacher->first_name, 0, 1) . substr($teacher->last_name, 0, 1)) ?>
+                <?= strtoupper(substr($teacher['first_name'], 0, 1) . substr($teacher['last_name'], 0, 1)) ?>
             </div>
         <?php endif; ?>
     </div>

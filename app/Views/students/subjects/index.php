@@ -116,7 +116,7 @@
                 <div class="card h-100 subject-card">
                     <div class="card-header d-flex justify-content-between align-items-center"
                          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <h5 class="card-title mb-0"><?= esc($subject->discipline_name) ?></h5>
+                        <h5 class="card-title mb-0"><?= esc($subject['discipline_name']) ?></h5>
                         <span class="badge bg-<?= $subject->status_color ?? 'secondary' ?>"><?= $subject->status ?? 'N/A' ?></span>
                     </div>
                     <div class="card-body">
@@ -124,11 +124,11 @@
                             <table class="table table-sm table-borderless">
                                 <tr>
                                     <td width="40%"><i class="fas fa-code text-muted"></i> Código:</td>
-                                    <td><strong><?= esc($subject->discipline_code ?? 'N/A') ?></strong></td>
+                                    <td><strong><?= esc($subject['discipline_code'] ?? 'N/A') ?></strong></td>
                                 </tr>
                                 <tr>
                                     <td><i class="fas fa-clock text-muted"></i> Carga Horária:</td>
-                                    <td><strong><?= $subject->workload ?? $subject->workload_hours ?? 0 ?>h</strong></td>
+                                    <td><strong><?= $subject->workload ?? $subject['workload_hours'] ?? 0 ?>h</strong></td>
                                 </tr>
                                 <tr>
                                     <td><i class="fas fa-user text-muted"></i> Professor:</td>
@@ -136,7 +136,7 @@
                                 </tr>
                                 <tr>
                                     <td><i class="fas fa-layer-group text-muted"></i> Tipo:</td>
-                                    <td><span class="badge bg-info"><?= esc($subject->discipline_type ?? 'Obrigatória') ?></span></td>
+                                    <td><span class="badge bg-info"><?= esc($subject['discipline_type ']?? 'Obrigatória') ?></span></td>
                                 </tr>
                             </table>
                         </div>
@@ -144,7 +144,7 @@
                         <div class="mt-3">
                             <div class="d-flex justify-content-between mb-1">
                                 <span>Nota Final:</span>
-                                <strong class="<?= ($subject->final_grade ?? 0) >= ($subject->approval_grade ?? 10) ? 'text-success' : 'text-danger' ?>">
+                                <strong class="<?= ($subject->final_grade ?? 0) >= ($subject['approval_grade'] ?? 10) ? 'text-success' : 'text-danger' ?>">
                                     <?= $subject->final_grade ? number_format($subject->final_grade, 1, ',', '.') : '--' ?>
                                 </strong>
                             </div>
@@ -167,11 +167,11 @@
                         
                         <div class="mt-2 text-muted small">
                             <i class="fas fa-info-circle"></i> 
-                            Aprovação: ≥ <?= number_format($subject->approval_grade ?? 10, 1, ',', '.') ?>
+                            Aprovação: ≥ <?= number_format($subject['approval_grade'] ?? 10, 1, ',', '.') ?>
                         </div>
                     </div>
                     <div class="card-footer bg-transparent">
-                        <a href="<?= site_url('students/subjects/details/' . ($subject->discipline_id ?? $subject->id)) ?>" 
+                        <a href="<?= site_url('students/subjects/details/' . ($subject->discipline_id ?? $subject['id'])) ?>" 
                            class="btn btn-sm btn-outline-primary w-100">
                             <i class="fas fa-eye"></i> Ver Detalhes
                         </a>

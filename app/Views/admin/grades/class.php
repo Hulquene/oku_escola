@@ -10,10 +10,10 @@
             <p class="text-muted mb-0">Visualize todas as notas dos alunos por disciplina</p>
         </div>
         <div>
-            <a href="<?= site_url('admin/grades/report?class=' . ($class->id ?? '')) ?>" class="btn btn-info me-2">
+            <a href="<?= site_url('admin/grades/report?class=' . ($class['id'] ?? '')) ?>" class="btn btn-info me-2">
                 <i class="fas fa-chart-bar me-1"></i> Relatório
             </a>
-            <a href="<?= site_url('admin/grades/export/class/' . ($class->id ?? '')) ?>" class="btn btn-success me-2">
+            <a href="<?= site_url('admin/grades/export/class/' . ($class['id'] ?? '')) ?>" class="btn btn-success me-2">
                 <i class="fas fa-file-excel me-1"></i> Exportar
             </a>
             <a href="<?= site_url('admin/grades') ?>" class="btn btn-secondary">
@@ -42,10 +42,10 @@
             <i class="fas fa-school fa-3x"></i>
         </div>
         <div>
-            <h4 class="mb-1"><?= $class->class_name ?> (<?= $class->class_code ?>)</h4>
+            <h4 class="mb-1"><?= $class['class_name'] ?> (<?= $class['class_code'] ?>)</h4>
             <p class="mb-0">
-                <strong>Nível:</strong> <?= $class->class_name ?> | 
-                <strong>Turno:</strong> <?= $class->class_shift ?> | 
+                <strong>Nível:</strong> <?= $class['class_name'] ?> | 
+                <strong>Turno:</strong> <?= $class['class_shift'] ?> | 
                 <strong>Sala:</strong> <?= $class->class_room ?: 'Não definida' ?> |
                 <strong>Professor:</strong> <?= $class->teacher_first_name ?? 'Não atribuído' ?> <?= $class->teacher_last_name ?? '' ?>
             </p>

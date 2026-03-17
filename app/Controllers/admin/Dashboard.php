@@ -270,7 +270,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
                 // Buscar turmas deste curso e nível
                 $classes = $this->classModel
                     ->where('course_id', $course['id'])
-                    ->where('grade_level_id', $level->id)
+                    ->where('grade_level_id', $level['id'])
                     ->where('academic_year_id', $academicYearId)
                     ->where('is_active', 1)
                     ->findAll();
@@ -292,7 +292,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
                     $enrollments = $this->enrollmentModel
                         ->select('tbl_enrollments.*, tbl_students.gender')
                         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-                        ->where('tbl_enrollments.class_id', $class->id)
+                        ->where('tbl_enrollments.class_id', $class['id'])
                         ->where('tbl_enrollments.status', 'Ativo')
                         ->findAll();
                     
@@ -308,7 +308,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
                     $desistentes = $this->enrollmentModel
                         ->select('tbl_enrollments.*, tbl_students.gender')
                         ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-                        ->where('tbl_enrollments.class_id', $class->id)
+                        ->where('tbl_enrollments.class_id', $class['id'])
                         ->whereNotIn('tbl_enrollments.status', ['Ativo', 'Pendente'])
                         ->findAll();
                     
@@ -332,7 +332,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
                 $stats[] = [
                     'course_name' => $course['course_name'],
                     'course_code' => $course['course_code'],
-                    'level_name' => $level->level_name,
+                    'level_name' => $level['level_name'],
                     'grade_number' => $level->grade_number,
                     'total_classes' => $totalClasses,
                     'total_male' => $totalMale,

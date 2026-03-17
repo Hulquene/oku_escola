@@ -597,7 +597,7 @@ class DocumentGenerator extends BaseController
             'subtitulo' => 'DECLARAÇÃO DE SERVIÇO',
             'numero' => $request->request_number,
             'data' => date('d/m/Y'),
-            'professor' => $teacher->full_name ?? $teacher->first_name . ' ' . $teacher->last_name,
+            'professor' => $teacher->full_name ?? $teacher['first_name'] . ' ' . $teacher['last_name'],
             'bi' => $teacher->identity_document ?? 'N/A',
             'data_admissao' => date('d/m/Y', strtotime($teacher->admission_date)),
             'qualificacoes' => $teacher->qualifications ?? 'N/A',
@@ -631,7 +631,7 @@ class DocumentGenerator extends BaseController
             'subtitulo' => 'DECLARAÇÃO DE VENCIMENTO',
             'numero' => $request->request_number,
             'data' => date('d/m/Y'),
-            'professor' => $teacher->full_name ?? $teacher->first_name . ' ' . $teacher->last_name,
+            'professor' => $teacher->full_name ?? $teacher['first_name'] . ' ' . $teacher['last_name'],
             'bi' => $teacher->identity_document ?? 'N/A',
             'cargo' => 'Professor',
             'finalidade' => $request->purpose

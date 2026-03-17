@@ -873,7 +873,7 @@ input[type="file"].media-file { display:none; }
                                     <select class="f-select <?= session('errors.default_currency') ? 'is-invalid' : '' ?>" name="default_currency" required>
                                         <option value="">Selecione...</option>
                                         <?php foreach ($currencies ?? [] as $c): ?>
-                                        <option value="<?= $c->id ?>" <?= (old('default_currency', $settings['default_currency'] ?? '') == $c->id) ? 'selected' : '' ?>>
+                                        <option value="<?= $c['id'] ?>" <?= (old('default_currency', $settings['default_currency'] ?? '') == $c['id']) ? 'selected' : '' ?>>
                                             <?= esc($c->currency_name) ?> (<?= esc($c->currency_code) ?>)
                                         </option>
                                         <?php endforeach; ?>

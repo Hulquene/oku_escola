@@ -450,8 +450,8 @@ body { background: var(--surface); color: var(--text-primary); }
                                     <?php
                                         $gradeLevelModel = new \App\Models\GradeLevelModel();
                                         $levels = $gradeLevelModel
-                                            ->where('id >=', $course->start_grade_id)
-                                            ->where('id <=', $course->end_grade_id)
+                                            ->where('id >=', $course['start_grade_id'])
+                                            ->where('id <=', $course['end_grade_id'])
                                             ->where('is_active', 1)
                                             ->orderBy('sort_order', 'ASC')
                                             ->findAll();
@@ -460,7 +460,7 @@ body { background: var(--surface); color: var(--text-primary); }
                                         <?php foreach ($levels as $level): ?>
                                             <span class="level-chip">
                                                 <i class="fas fa-layer-group" style="font-size:.6rem;"></i>
-                                                <?= $level->level_name ?>
+                                                <?= $level['level_name'] ?>
                                             </span>
                                         <?php endforeach; ?>
                                     </div>
@@ -615,8 +615,8 @@ body { background: var(--surface); color: var(--text-primary); }
                                 <tbody>
                                     <?php foreach ($group['disciplines'] as $discipline): ?>
                                     <tr>
-                                        <td><span class="disc-code"><?= $discipline->discipline_code ?></span></td>
-                                        <td style="font-weight:500;font-size:.875rem;"><?= $discipline->discipline_name ?></td>
+                                        <td><span class="disc-code"><?= $discipline['discipline_code'] ?></span></td>
+                                        <td style="font-weight:500;font-size:.875rem;"><?= $discipline['discipline_name'] ?></td>
                                         <td class="text-center">
                                             <span class="workload-chip">
                                                 <?= $discipline->workload_hours ?: ($discipline->default_workload ?? 0) ?>h

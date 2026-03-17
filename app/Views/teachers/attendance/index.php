@@ -39,8 +39,8 @@
                     <option value="">Selecione...</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class->id ?>" <?= $selectedClass == $class->id ? 'selected' : '' ?>>
-                                <?= $class->class_name ?> (<?= $class->class_code ?>)
+                            <option value="<?= $class['id'] ?>" <?= $selectedClass == $class['id'] ? 'selected' : '' ?>>
+                                <?= $class['class_name'] ?> (<?= $class['class_code'] ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

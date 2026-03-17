@@ -64,9 +64,9 @@
                             name="class_id" id="class_id" required>
                         <option value="">Selecione uma turma...</option>
                         <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class->id ?>" 
-                                <?= (old('class_id') == $class->id || (isset($schedule) && $schedule->class_id == $class->id)) ? 'selected' : '' ?>>
-                                <?= $class->class_name ?> (<?= $class->class_code ?>)
+                            <option value="<?= $class['id'] ?>" 
+                                <?= (old('class_id') == $class['id'] || (isset($schedule) && $schedule->class_id == $class['id'])) ? 'selected' : '' ?>>
+                                <?= $class['class_name'] ?> (<?= $class['class_code'] ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>

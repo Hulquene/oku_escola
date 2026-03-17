@@ -557,8 +557,8 @@
                     
                     // Contar níveis por ciclo
                     foreach ($gradeLevels as $level) {
-                        if (isset($cycles[$level->education_level])) {
-                            $cycles[$level->education_level]['count']++;
+                        if (isset($cycles[$level['education_level']])) {
+                            $cycles[$level['education_level']]['count']++;
                         }
                     }
                     ?>
@@ -588,37 +588,37 @@
                 <div class="levels-grid">
                     <?php 
                     $cycleLevels = array_filter($gradeLevels, function($level) use ($cycleName) {
-                        return $level->education_level == $cycleName;
+                        return $level['education_level'] == $cycleName;
                     });
                     
                     foreach ($cycleLevels as $level): 
                     ?>
-                    <label class="level-item" for="level_<?= $level->id ?>_<?= str_replace(' ', '_', $cycleName) ?>">
+                    <label class="level-item" for="level_<?= $level['id'] ?>_<?= str_replace(' ', '_', $cycleName) ?>">
                         <input type="checkbox" 
                                class="level-checkbox cycle-<?= str_replace(' ', '_', $cycleName) ?>" 
                                name="grade_level_ids[]" 
-                               value="<?= $level->id ?>"
-                               id="level_<?= $level->id ?>_<?= str_replace(' ', '_', $cycleName) ?>"
-                               data-education="<?= $level->education_level ?>"
-                               data-level-name="<?= $level->level_name ?>"
-                               data-grade-number="<?= $level->grade_number ?>"
+                               value="<?= $level['id'] ?>"
+                               id="level_<?= $level['id'] ?>_<?= str_replace(' ', '_', $cycleName) ?>"
+                               data-education="<?= $level['education_level'] ?>"
+                               data-level-name="<?= $level['level_name'] ?>"
+                               data-grade-number="<?= $level['grade_number']?>"
                                onchange="updatePreview()">
                         <div class="level-info">
-                            <div class="level-name"><?= $level->level_name ?></div>
+                            <div class="level-name"><?= $level['level_name'] ?></div>
                             <div>
-                                <span class="level-code"><?= $level->level_code ?></span>
+                                <span class="level-code"><?= $level['level_code'] ?></span>
                             </div>
                         </div>
                         
                         <!-- Course selector for 2º Ciclo and Ensino Médio -->
-                        <?php if (in_array($level->education_level, ['2º Ciclo', 'Ensino Médio'])): ?>
-                        <div class="course-select-container" style="display: none;" id="course_container_<?= $level->id ?>">
-                            <select name="course_ids[<?= $level->id ?>]" class="course-select" onchange="updatePreview()">
+                        <?php if (in_array($level['education_level'], ['2º Ciclo', 'Ensino Médio'])): ?>
+                        <div class="course-select-container" style="display: none;" id="course_container_<?= $level['id'] ?>">
+                            <select name="course_ids[<?= $level['id'] ?>]" class="course-select" onchange="updatePreview()">
                                 <option value="">Escolher curso...</option>
                                 <?php 
                                 // Filtrar cursos que incluem este nível
                                 foreach ($courses as $course): 
-                                    if ($course->start_grade_id <= $level->id && $course->end_grade_id >= $course['id']):
+                                    if ($course['start_grade_id'] <= $level['id'] && $course['end_grade_id'] >= $course['id']):
                                 ?>
                                     <option value="<?= $course['id'] ?>"><?= $course['course_name'] ?></option>
                                 <?php 

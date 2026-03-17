@@ -7,10 +7,10 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-            <a href="<?= site_url('admin/students/enrollments/form-add?class=' . $class->id) ?>" class="btn btn-success">
+            <a href="<?= site_url('admin/students/enrollments/form-add?class=' . $class['id']) ?>" class="btn btn-success">
                 <i class="fas fa-user-plus"></i> Adicionar Aluno
             </a>
-            <a href="<?= site_url('admin/classes/classes/view/' . $class->id) ?>" class="btn btn-info">
+            <a href="<?= site_url('admin/classes/classes/view/' . $class['id']) ?>" class="btn btn-info">
                 <i class="fas fa-arrow-left"></i> Voltar
             </a>
         </div>
@@ -27,9 +27,9 @@
 <!-- Class Info -->
 <div class="alert alert-info">
     <i class="fas fa-info-circle"></i> 
-    <strong>Turma:</strong> <?= $class->class_name ?> (<?= $class->class_code ?>) | 
-    <strong>Ano Letivo:</strong> <?= $class->year_name ?> | 
-    <strong>Turno:</strong> <?= $class->class_shift ?> | 
+    <strong>Turma:</strong> <?= $class['class_name'] ?> (<?= $class['class_code'] ?>) | 
+    <strong>Ano Letivo:</strong> <?= $class['year_name'] ?> | 
+    <strong>Turno:</strong> <?= $class['class_shift'] ?> | 
     <strong>Vagas:</strong> <?= count($students) ?>/<?= $class['capacity']  ?>
 </div>
 
@@ -84,7 +84,7 @@
                         <td colspan="7" class="text-center">
                             Nenhum aluno matriculado nesta turma.
                             <br>
-                            <a href="<?= site_url('admin/students/enrollments/form-add?class=' . $class->id) ?>" 
+                            <a href="<?= site_url('admin/students/enrollments/form-add?class=' . $class['id']) ?>" 
                                class="btn btn-sm btn-success mt-2">
                                 <i class="fas fa-user-plus"></i> Matricular Aluno
                             </a>

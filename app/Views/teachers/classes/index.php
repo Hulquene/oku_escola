@@ -100,12 +100,12 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><?= $class->class_name ?></h5>
-                    <small><?= $class->class_code ?></small>
+                    <h5 class="mb-0"><?= $class['class_name'] ?></h5>
+                    <small><?= $class['class_code'] ?></small>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <span class="badge bg-info me-1"><?= $class->class_shift ?></span>
+                        <span class="badge bg-info me-1"><?= $class['class_shift'] ?></span>
                         <span class="badge bg-secondary">Sala: <?= $class->class_room ?: 'N/A' ?></span>
                     </div>
                     
@@ -192,11 +192,11 @@
                         <tbody>
                             <?php foreach ($classes as $class): ?>
                             <tr>
-                                <td><?= $class->class_name ?></td>
+                                <td><?= $class['class_name'] ?></td>
                                 <td><?= $class->discipline_name ?></td>
                                 <td><span class="badge bg-info"><?= $class->discipline_code ?></span></td>
                                 <td><?= $class->workload_hours ?? 'N/A' ?>h</td>
-                                <td><?= $class->class_shift ?></td>
+                                <td><?= $class['class_shift'] ?></td>
                                 <td><?= $class->class_room ?: '-' ?></td>
                                 <td>
                                     <div class="btn-group">

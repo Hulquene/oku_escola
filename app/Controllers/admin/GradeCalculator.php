@@ -130,10 +130,10 @@ class GradeCalculator extends BaseController
 
             if ($result) {
                 $discipline = $this->disciplineModel->find($cd->discipline_id);
-                $calculated[] = $discipline->discipline_name;
+                $calculated[] = $discipline['discipline_name'];
             } else {
                 $discipline = $this->disciplineModel->find($cd->discipline_id);
-                $errors[] = $discipline->discipline_name;
+                $errors[] = $discipline['discipline_name'];
             }
         }
 

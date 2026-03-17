@@ -263,8 +263,8 @@ div.dt-container .dt-search input {
                 <select class="filter-select" id="grade_level">
                     <option value="">Todos</option>
                     <?php foreach ($gradeLevels ?? [] as $level): ?>
-                        <option value="<?= $level->id ?>">
-                            <?= esc($level->level_name) ?>
+                        <option value="<?= $level['id'] ?>">
+                            <?= esc($level['level_name']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -275,8 +275,8 @@ div.dt-container .dt-search input {
                     <option value="">Todos</option>
                     <option value="0">Ensino Geral</option>
                     <?php foreach ($courses ?? [] as $c): ?>
-                        <option value="<?= $c->id ?>">
-                            <?= esc($c->course_name) ?> (<?= esc($c->course_code) ?>)
+                        <option value="<?= $c['id'] ?>">
+                            <?= esc($c['course_name']) ?> (<?= esc($c['course_code']) ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -304,8 +304,8 @@ div.dt-container .dt-search input {
                 <select class="filter-select" id="teacher">
                     <option value="">Todos</option>
                     <?php foreach ($teachers ?? [] as $t): ?>
-                        <option value="<?= $t->id ?>">
-                            <?= esc($t->first_name) ?> <?= esc($t->last_name) ?>
+                        <option value="<?= $t['id'] ?>">
+                            <?= esc($t['first_name']) ?> <?= esc($t['last_name']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

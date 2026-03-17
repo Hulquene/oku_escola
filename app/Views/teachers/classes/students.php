@@ -4,7 +4,7 @@
 
 <!-- Page Header -->
 <div class="page-header">
-    <h1>Alunos da Turma: <?= $class->class_name ?></h1>
+    <h1>Alunos da Turma: <?= $class['class_name'] ?></h1>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('teachers/dashboard') ?>">Início</a></li>
@@ -25,15 +25,15 @@
                 <div class="row">
                     <div class="col-md-3">
                         <small class="text-muted">Turma</small>
-                        <h5><?= $class->class_name ?></h5>
+                        <h5><?= $class['class_name'] ?></h5>
                     </div>
                     <div class="col-md-3">
                         <small class="text-muted">Código</small>
-                        <h5><?= $class->class_code ?></h5>
+                        <h5><?= $class['class_code'] ?></h5>
                     </div>
                     <div class="col-md-2">
                         <small class="text-muted">Turno</small>
-                        <h5><?= $class->class_shift ?></h5>
+                        <h5><?= $class['class_shift'] ?></h5>
                     </div>
                     <div class="col-md-2">
                         <small class="text-muted">Sala</small>

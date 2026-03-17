@@ -535,9 +535,9 @@
                                     <option value="">Selecione o nível/classe...</option>
                                     <?php if (!empty($gradeLevels)): ?>
                                         <?php foreach ($gradeLevels as $level): ?>
-                                            <option value="<?= $level->id ?>" 
-                                                <?= (old('grade_level_id', $selectedLevel ?? '') == $level->id) ? 'selected' : '' ?>>
-                                                <?= $level->level_name ?> (<?= $level->education_level ?>)
+                                            <option value="<?= $level['id'] ?>" 
+                                                <?= (old('grade_level_id', $selectedLevel ?? '') == $level['id']) ? 'selected' : '' ?>>
+                                                <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -578,9 +578,9 @@
                                     <option value="">Selecione...</option>
                                     <?php if (!empty($gradeLevels)): ?>
                                         <?php foreach ($gradeLevels as $level): ?>
-                                            <option value="<?= $level->id ?>" 
-                                                <?= (old('previous_grade_id', $student['previous_grade_id'] ?? '') == $level->id) ? 'selected' : '' ?>>
-                                                <?= $level->level_name ?>
+                                            <option value="<?= $level['id'] ?>" 
+                                                <?= (old('previous_grade_id', $student['previous_grade_id'] ?? '') == $level['id']) ? 'selected' : '' ?>>
+                                                <?= $level['level_name'] ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>

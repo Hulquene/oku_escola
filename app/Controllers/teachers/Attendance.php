@@ -56,7 +56,7 @@ public function index()
     $data['selectedDisciplineName'] = '';
     if ($disciplineId) {
         $discipline = $this->disciplineModel->find($disciplineId);
-        $data['selectedDisciplineName'] = $discipline ? $discipline->discipline_name : '';
+        $data['selectedDisciplineName'] = $discipline ? $discipline['discipline_name'] : '';
     }
     
     if ($classId && $disciplineId) {

@@ -87,7 +87,7 @@
                         <?php foreach ($teachers as $teacher): ?>
                             <?php $avgHours = $teacher->total_classes > 0 ? round($teacher->total_hours / $teacher->total_classes, 1) : 0; ?>
                             <tr>
-                                <td><?= $teacher->first_name ?> <?= $teacher->last_name ?></td>
+                                <td><?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?></td>
                                 <td><?= $teacher->email ?></td>
                                 <td><?= $teacher->phone ?: '-' ?></td>
                                 <td class="text-center"><?= $teacher->total_classes ?></td>

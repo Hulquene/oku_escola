@@ -278,8 +278,8 @@ class Exams extends BaseController
             $board = $this->examBoardModel->find($data['exam_board_id']);
             
             $data['exam_name'] = $board->board_name . ' - ' . 
-                                ($discipline->discipline_name ?? '') . ' - ' . 
-                                ($class->class_name ?? '');
+                                ($discipline['discipline_name'] ?? '') . ' - ' . 
+                                ($class['class_name'] ?? '');
         } else {
             $data['exam_name'] = $this->request->getPost('exam_name');
         }

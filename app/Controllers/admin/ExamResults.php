@@ -180,7 +180,7 @@ public function index()
         
         $semester = $this->semesterModel->find($semesterId);
         
-        $data['title'] = 'Pauta da Turma - ' . $class->class_name;
+        $data['title'] = 'Pauta da Turma - ' . $class['class_name'];
         $data['class'] = $class;
         $data['semester'] = $semester;
         $data['semesters'] = $this->semesterModel->getActive();

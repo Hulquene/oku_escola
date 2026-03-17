@@ -78,9 +78,9 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($classes)): ?>
                                 <?php foreach ($classes as $class): ?>
-                                    <option value="<?= $class->id ?>" 
-                                        <?= (old('class_id', $exam->class_id ?? '') == $class->id) ? 'selected' : '' ?>>
-                                        <?= $class->class_name ?> - <?= $class->level_name ?>
+                                    <option value="<?= $class['id'] ?>" 
+                                        <?= (old('class_id', $exam->class_id ?? '') == $class['id']) ? 'selected' : '' ?>>
+                                        <?= $class['class_name'] ?> - <?= $class->level_name ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -101,9 +101,9 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($disciplines)): ?>
                                 <?php foreach ($disciplines as $discipline): ?>
-                                    <option value="<?= $discipline->id ?>" 
-                                        <?= (old('discipline_id', $exam->discipline_id ?? '') == $discipline->id) ? 'selected' : '' ?>>
-                                        <?= $discipline->discipline_name ?>
+                                    <option value="<?= $discipline['id'] ?>" 
+                                        <?= (old('discipline_id', $exam->discipline_id ?? '') == $discipline['id']) ? 'selected' : '' ?>>
+                                        <?= $discipline['discipline_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

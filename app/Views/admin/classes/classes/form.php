@@ -24,7 +24,7 @@
             <?= csrf_field() ?>
             
             <?php if ($class): ?>
-                <input type="hidden" name="id" value="<?= $class->id ?>">
+                <input type="hidden" name="id" value="<?= $class['id'] ?>">
             <?php endif; ?>
             
             <div class="row">
@@ -35,7 +35,7 @@
                                class="form-control <?= session('errors.class_name') ? 'is-invalid' : '' ?>" 
                                id="class_name" 
                                name="class_name" 
-                               value="<?= old('class_name', $class->class_name ?? '') ?>"
+                               value="<?= old('class_name', $class['class_name'] ?? '') ?>"
                                placeholder="Ex: 10ª A"
                                required>
                         <?php if (session('errors.class_name')): ?>
@@ -51,7 +51,7 @@
                                class="form-control <?= session('errors.class_code') ? 'is-invalid' : '' ?>" 
                                id="class_code" 
                                name="class_code" 
-                               value="<?= old('class_code', $class->class_code ?? '') ?>"
+                               value="<?= old('class_code', $class['class_code'] ?? '') ?>"
                                placeholder="Ex: 10A-MAN"
                                required>
                         <?php if (session('errors.class_code')): ?>
@@ -73,9 +73,9 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($gradeLevels)): ?>
                                 <?php foreach ($gradeLevels as $level): ?>
-                                    <option value="<?= $level->id ?>" 
-                                        <?= (old('grade_level_id', $class->grade_level_id ?? '') == $level->id) ? 'selected' : '' ?>>
-                                        <?= $level->level_name ?> (<?= $level->education_level ?>)
+                                    <option value="<?= $level['id'] ?>" 
+                                        <?= (old('grade_level_id', $class->grade_level_id ?? '') == $level['id']) ? 'selected' : '' ?>>
+                                        <?= $level['level_name'] ?> (<?= $level['education_level'] ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -117,10 +117,10 @@
                                 name="class_shift" 
                                 required>
                             <option value="">Selecione...</option>
-                            <option value="Manhã" <?= old('class_shift', $class->class_shift ?? '') == 'Manhã' ? 'selected' : '' ?>>Manhã</option>
-                            <option value="Tarde" <?= old('class_shift', $class->class_shift ?? '') == 'Tarde' ? 'selected' : '' ?>>Tarde</option>
-                            <option value="Noite" <?= old('class_shift', $class->class_shift ?? '') == 'Noite' ? 'selected' : '' ?>>Noite</option>
-                            <option value="Integral" <?= old('class_shift', $class->class_shift ?? '') == 'Integral' ? 'selected' : '' ?>>Integral</option>
+                            <option value="Manhã" <?= old('class_shift', $class['class_shift'] ?? '') == 'Manhã' ? 'selected' : '' ?>>Manhã</option>
+                            <option value="Tarde" <?= old('class_shift', $class['class_shift'] ?? '') == 'Tarde' ? 'selected' : '' ?>>Tarde</option>
+                            <option value="Noite" <?= old('class_shift', $class['class_shift'] ?? '') == 'Noite' ? 'selected' : '' ?>>Noite</option>
+                            <option value="Integral" <?= old('class_shift', $class['class_shift'] ?? '') == 'Integral' ? 'selected' : '' ?>>Integral</option>
                         </select>
                         <?php if (session('errors.class_shift')): ?>
                             <div class="invalid-feedback"><?= session('errors.class_shift') ?></div>
@@ -185,7 +185,7 @@
                                 <?php foreach ($teachers as $teacher): ?>
                                     <option value="<?= $teacher->id ?>" 
                                         <?= (old('class_teacher_id', $class->class_teacher_id ?? '') == $teacher->id) ? 'selected' : '' ?>>
-                                        <?= $teacher->first_name ?> <?= $teacher->last_name ?>
+                                        <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

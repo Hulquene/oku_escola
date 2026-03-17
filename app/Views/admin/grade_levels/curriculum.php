@@ -339,17 +339,17 @@ body { background: var(--surface); color: var(--text-primary); }
             $disciplineCounts = [];
             $gradeDisciplineModel = new \App\Models\GradeDisciplineModel();
             foreach ($allLevels as $level) {
-                $disciplineCounts[$level->id] = $gradeDisciplineModel
-                    ->where('grade_level_id', $level->id)
+                $disciplineCounts[$level['id']] = $gradeDisciplineModel
+                    ->where('grade_level_id', $level['id'])
                     ->countAllResults();
             }
             ?>
             <?php foreach ($allLevels as $level): ?>
-                <?php $count = $disciplineCounts[$level->id] ?? 0; ?>
-                <a href="<?= site_url('admin/grade-curriculum/' . $level->id) ?>" 
-                   class="level-nav-item <?= ($level->id == $gradeLevel->id) ? 'active-level' : '' ?>">
+                <?php $count = $disciplineCounts[$level['id']] ?? 0; ?>
+                <a href="<?= site_url('admin/grade-curriculum/' . $level['id']) ?>" 
+                   class="level-nav-item <?= ($level['id'] == $gradeLevel->id) ? 'active-level' : '' ?>">
                     <span style="display:flex;align-items:center;gap:0.5rem;">
-                        <i class="fas fa-layer-group"></i> <?= $level->level_name ?>
+                        <i class="fas fa-layer-group"></i> <?= $level['level_name'] ?>
                     </span>
                     <span class="level-count <?= $count === 0 ? 'zero' : '' ?>"><?= $count ?></span>
                 </a>
@@ -394,8 +394,8 @@ body { background: var(--surface); color: var(--text-primary); }
                                 };
                             ?>
                             <tr>
-                                <td><span class="disc-code"><?= $discipline->discipline_code ?></span></td>
-                                <td><span class="disc-name"><?= $discipline->discipline_name ?></span></td>
+                                <td><span class="disc-code"><?= $discipline['discipline_code'] ?></span></td>
+                                <td><span class="disc-name"><?= $discipline['discipline_name'] ?></span></td>
                                 <td class="text-center">
                                     <span class="workload-chip"><?= $workload ?>h</span>
                                     <?php if ($discipline->workload_hours && $discipline->workload_hours != $discipline->default_workload): ?>
@@ -412,11 +412,11 @@ body { background: var(--surface); color: var(--text-primary); }
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-1">
-                                        <a href="<?= site_url('admin/grade-curriculum/edit/' . $discipline->id) ?>" class="row-btn edit" title="Editar">
+                                        <a href="<?= site_url('admin/grade-curriculum/edit/' . $discipline['id']) ?>" class="row-btn edit" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="row-btn del"
-                                                onclick="confirmRemoveDiscipline(<?= $discipline->id ?>, '<?= esc($discipline->discipline_name, 'js') ?>')"
+                                                onclick="confirmRemoveDiscipline(<?= $discipline['id'] ?>, '<?= esc($discipline['discipline_name'], 'js') ?>')"
                                                 title="Remover">
                                             <i class="fas fa-trash"></i>
                                         </button>

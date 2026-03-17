@@ -170,8 +170,8 @@ body { background:var(--surface); color:var(--text-primary); }
         <div>
             <h1>
                 <i class="fas fa-school me-2" style="opacity:.7;font-size:1.1rem;"></i>
-                <?= esc($class->class_name) ?>
-                <span class="code-badge ms-2" style="font-size:.75rem;vertical-align:middle;"><?= esc($class->class_code) ?></span>
+                <?= esc($class['class_name']) ?>
+                <span class="code-badge ms-2" style="font-size:.75rem;vertical-align:middle;"><?= esc($class['class_code']) ?></span>
             </h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
@@ -182,10 +182,10 @@ body { background:var(--surface); color:var(--text-primary); }
             </nav>
         </div>
         <div class="hdr-btns">
-            <a href="<?= site_url('admin/classes/classes/form-edit/' . $class->id) ?>" class="hdr-btn success">
+            <a href="<?= site_url('admin/classes/classes/form-edit/' . $class['id']) ?>" class="hdr-btn success">
                 <i class="fas fa-edit"></i> Editar
             </a>
-            <a href="<?= site_url('admin/classes/classes/list-students/' . $class->id) ?>" class="hdr-btn primary">
+            <a href="<?= site_url('admin/classes/classes/list-students/' . $class['id']) ?>" class="hdr-btn primary">
                 <i class="fas fa-users"></i> Ver Alunos
             </a>
             <a href="<?= site_url('admin/classes/classes') ?>" class="hdr-btn ghost">
@@ -206,8 +206,8 @@ $capPct        = $capacity > 0 ? min(100, round($enrolled / $capacity * 100)) : 
 $capColor      = $capPct >= 100 ? 'var(--danger)' : ($capPct >= 75 ? 'var(--warning)' : 'var(--success)');
 
 $shiftMap  = ['Manhã'=>'shift-manha','Tarde'=>'shift-tarde','Noite'=>'shift-noite','Integral'=>'shift-integral'];
-$shiftClass = $shiftMap[$class->class_shift] ?? 'shift-manha';
-$shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','Integral'=>'fa-clock'][$class->class_shift] ?? 'fa-clock';
+$shiftClass = $shiftMap[$class['class_shift']] ?? 'shift-manha';
+$shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','Integral'=>'fa-clock'][$class['class_shift']] ?? 'fa-clock';
 ?>
 
 <!-- ── STAT CARDS ──────────────────────────────────────────── -->
@@ -262,15 +262,15 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                 <table class="info-table">
                     <tr>
                         <td>ID</td>
-                        <td><span class="id-chip">#<?= $class->id ?></span></td>
+                        <td><span class="id-chip">#<?= $class['id'] ?></span></td>
                     </tr>
                     <tr>
                         <td>Nome</td>
-                        <td style="font-weight:700;"><?= esc($class->class_name) ?></td>
+                        <td style="font-weight:700;"><?= esc($class['class_name']) ?></td>
                     </tr>
                     <tr>
                         <td>Código</td>
-                        <td><span class="code-badge"><?= esc($class->class_code) ?></span></td>
+                        <td><span class="code-badge"><?= esc($class['class_code']) ?></span></td>
                     </tr>
                     <tr>
                         <td>Nível de Ensino</td>
@@ -284,14 +284,14 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                     <?php endif; ?>
                     <tr>
                         <td>Ano Letivo</td>
-                        <td><?= esc($class->year_name) ?></td>
+                        <td><?= esc($class['year_name']) ?></td>
                     </tr>
                     <tr>
                         <td>Turno</td>
                         <td>
                             <span class="shift-badge <?= $shiftClass ?>">
                                 <i class="fas <?= $shiftIcon ?>"></i>
-                                <?= esc($class->class_shift) ?>
+                                <?= esc($class['class_shift']) ?>
                             </span>
                         </td>
                     </tr>
@@ -346,15 +346,15 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                     <div class="sec-divider-line"></div>
                 </div>
                 <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-                    <a href="<?= site_url('admin/classes/classes/form-edit/' . $class->id) ?>"
+                    <a href="<?= site_url('admin/classes/classes/form-edit/' . $class['id']) ?>"
                        class="hdr-btn success" style="flex:1;justify-content:center;background:rgba(22,168,125,.1);color:var(--success);box-shadow:none;border:1.5px solid rgba(22,168,125,.2);">
                         <i class="fas fa-edit"></i> Editar
                     </a>
-                    <a href="<?= site_url('admin/classes/classes/list-students/' . $class->id) ?>"
+                    <a href="<?= site_url('admin/classes/classes/list-students/' . $class['id']) ?>"
                        class="hdr-btn primary" style="flex:1;justify-content:center;background:rgba(59,127,232,.1);color:var(--accent);box-shadow:none;border:1.5px solid rgba(59,127,232,.2);">
                         <i class="fas fa-users"></i> Alunos
                     </a>
-                    <a href="<?= site_url('admin/classes/class-subjects?class=' . $class->id) ?>"
+                    <a href="<?= site_url('admin/classes/class-subjects?class=' . $class['id']) ?>"
                        class="hdr-btn" style="flex:1;justify-content:center;background:rgba(232,160,32,.1);color:var(--warning);border:1.5px solid rgba(232,160,32,.2);box-shadow:none;">
                         <i class="fas fa-book"></i> Disciplinas
                     </a>
@@ -370,7 +370,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
         <div class="ci-card">
             <div class="ci-card-header">
                 <div class="ci-card-title"><i class="fas fa-book"></i> Disciplinas da Turma</div>
-                <a href="<?= site_url('admin/classes/class-subjects?class=' . $class->id) ?>"
+                <a href="<?= site_url('admin/classes/class-subjects?class=' . $class['id']) ?>"
                    class="row-btn manage" title="Gerir Disciplinas" style="width:auto;padding:0 .65rem;font-size:.72rem;gap:.3rem;color:var(--text-secondary);">
                     <i class="fas fa-cog"></i> Gerir
                 </a>
@@ -378,7 +378,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
 
             <?php
             $disciplineModel = new \App\Models\DisciplineModel();
-            $disciplines     = $disciplineModel->getByClass($class->id);
+            $disciplines     = $disciplineModel->getByClass($class['id']);
             ?>
 
             <?php if (!empty($disciplines)): ?>
@@ -410,7 +410,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                                 <?php if ($teacher): ?>
                                 <div class="teacher-chip">
                                     <div class="teacher-avatar"><i class="fas fa-chalkboard-teacher"></i></div>
-                                    <span class="teacher-name"><?= esc($teacher->first_name) ?> <?= esc($teacher->last_name) ?></span>
+                                    <span class="teacher-name"><?= esc($teacher['first_name']) ?> <?= esc($teacher['last_name']) ?></span>
                                 </div>
                                 <?php else: ?>
                                 <span class="no-teacher">—</span>

@@ -49,11 +49,11 @@
                 <?php else: ?>
                     <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center text-white mb-3" 
                          style="width: 150px; height: 150px; font-size: 3rem;">
-                        <?= strtoupper(substr($teacher->first_name, 0, 1) . substr($teacher->last_name, 0, 1)) ?>
+                        <?= strtoupper(substr($teacher['first_name'], 0, 1) . substr($teacher['last_name'], 0, 1)) ?>
                     </div>
                 <?php endif; ?>
                 
-                <h4><?= $teacher->first_name ?> <?= $teacher->last_name ?></h4>
+                <h4><?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?></h4>
                 <p class="text-muted"><?= $teacher->email ?></p>
                 
                 <div class="mt-3">
@@ -99,7 +99,7 @@
                         <table class="table table-sm">
                             <tr>
                                 <th style="width: 120px;">Nome Completo:</th>
-                                <td><strong><?= $teacher->first_name ?> <?= $teacher->last_name ?></strong></td>
+                                <td><strong><?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?></strong></td>
                             </tr>
                             <tr>
                                 <th>Email:</th>

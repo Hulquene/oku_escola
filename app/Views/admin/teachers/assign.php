@@ -22,7 +22,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers') ?>">Professores</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers/view/' . $teacher->id) ?>"><?= $teacher->first_name ?> <?= $teacher->last_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers/view/' . $teacher->id) ?>"><?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Atribuir Turmas</li>
         </ol>
     </nav>
@@ -42,11 +42,11 @@
         <?php else: ?>
             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white me-3 fw-bold"
                  style="width: 60px; height: 60px; font-size: 1.5rem;">
-                <?= strtoupper(substr($teacher->first_name, 0, 1) . substr($teacher->last_name, 0, 1)) ?>
+                <?= strtoupper(substr($teacher['first_name'], 0, 1) . substr($teacher['last_name'], 0, 1)) ?>
             </div>
         <?php endif; ?>
         <div>
-            <h4 class="mb-1"><?= $teacher->first_name ?> <?= $teacher->last_name ?></h4>
+            <h4 class="mb-1"><?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?></h4>
             <p class="mb-0">
                 <i class="fas fa-envelope me-2"></i><?= $teacher->email ?> | 
                 <i class="fas fa-phone me-2"></i><?= $teacher->phone ?> |
@@ -137,22 +137,22 @@
                 <div class="accordion" id="classesAccordion">
                     <?php foreach ($classes as $index => $class): ?>
                         <div class="accordion-item mb-3 border">
-                            <h2 class="accordion-header" id="heading<?= $class->id ?>">
+                            <h2 class="accordion-header" id="heading<?= $class['id'] ?>">
                                 <div class="accordion-button <?= $index === 0 ? '' : 'collapsed' ?>" 
                                      type="button" 
                                      data-bs-toggle="collapse" 
-                                     data-bs-target="#collapse<?= $class->id ?>">
+                                     data-bs-target="#collapse<?= $class['id'] ?>">
                                     <div class="d-flex justify-content-between align-items-center w-100 me-3">
                                         <div>
                                             <i class="fas fa-school text-primary me-2"></i>
-                                            <strong><?= $class->class_name ?></strong>
-                                            <span class="badge bg-secondary ms-2"><?= $class->class_code ?></span>
-                                            <span class="badge bg-info ms-2"><?= $class->class_shift ?></span>
+                                            <strong><?= $class['class_name'] ?></strong>
+                                            <span class="badge bg-secondary ms-2"><?= $class['class_code'] ?></span>
+                                            <span class="badge bg-info ms-2"><?= $class['class_shift'] ?></span>
                                             
                                             <!-- Ano Letivo da Turma -->
-                                            <?php if (isset($class->year_name)): ?>
+                                            <?php if (isset($class['year_name'])): ?>
                                                 <span class="badge bg-dark ms-2">
-                                                    <i class="fas fa-calendar me-1"></i><?= $class->year_name ?>
+                                                    <i class="fas fa-calendar me-1"></i><?= $class['year_name'] ?>
                                                 </span>
                                             <?php endif; ?>
                                             
@@ -168,50 +168,50 @@
                                             <?php endif; ?>
                                         </div>
                                         <div>
-                                            <span class="badge bg-success class-count-<?= $class->id ?>">0</span>
+                                            <span class="badge bg-success class-count-<?= $class['id'] ?>">0</span>
                                             <span class="text-muted mx-2">selecionadas</span>
-                                            <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="selectAll('<?= $class->id ?>', event)">
+                                            <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="selectAll('<?= $class['id'] ?>', event)">
                                                 <i class="fas fa-check-square"></i>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll('<?= $class->id ?>', event)">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll('<?= $class['id'] ?>', event)">
                                                 <i class="fas fa-square"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </h2>
-                            <div id="collapse<?= $class->id ?>" 
+                            <div id="collapse<?= $class['id'] ?>" 
                                  class="accordion-collapse collapse <?= $index === 0 ? 'show' : '' ?>" 
-                                 aria-labelledby="heading<?= $class->id ?>" 
+                                 aria-labelledby="heading<?= $class['id'] ?>" 
                                  data-bs-parent="#classesAccordion">
                                 <div class="accordion-body">
                                     <?php
                                     $disciplineModel = new \App\Models\DisciplineModel();
-                                    $disciplines = $disciplineModel->getByClass($class->id);
+                                    $disciplines = $disciplineModel->getByClass($class['id']);
                                     ?>
                                     
                                     <?php if (!empty($disciplines)): ?>
                                         <div class="row">
                                             <?php foreach ($disciplines as $discipline): 
-                                                $key = $class->id . '_' . $discipline->id;
+                                                $key = $class['id'] . '_' . $discipline['id'];
                                                 $isAssigned = isset($assignmentMap[$key]);
                                                 $isActive = $isAssigned && $assignmentMap[$key]->is_active;
                                             ?>
                                                 <div class="col-md-4 mb-2">
                                                     <div class="form-check">
-                                                        <input class="form-check-input class-<?= $class->id ?> discipline-checkbox" 
+                                                        <input class="form-check-input class-<?= $class['id'] ?> discipline-checkbox" 
                                                                type="checkbox" 
                                                                name="assignments[]" 
                                                                value="<?= $key ?>"
                                                                id="assign_<?= $key ?>"
-                                                               data-class="<?= $class->id ?>"
+                                                               data-class="<?= $class['id'] ?>"
                                                                <?= $isActive ? 'checked' : '' ?>
                                                                <?= $isAssigned && !$isActive ? 'title="Atribuição anterior (inativa)"' : '' ?>>
                                                         <label class="form-check-label <?= $isAssigned && !$isActive ? 'text-muted' : '' ?>" 
                                                                for="assign_<?= $key ?>"
                                                                title="<?= $isAssigned && !$isActive ? 'Esta disciplina já foi atribuída anteriormente mas está inativa' : '' ?>">
-                                                            <?= $discipline->discipline_name ?>
-                                                            <small class="text-muted">(<?= $discipline->discipline_code ?>)</small>
+                                                            <?= $discipline['discipline_name'] ?>
+                                                            <small class="text-muted">(<?= $discipline['discipline_code'] ?>)</small>
                                                             <?php if ($discipline->workload_hours): ?>
                                                                 <br>
                                                                 <small class="text-info">
@@ -230,7 +230,7 @@
                                         <!-- Informações adicionais da turma -->
                                         <div class="mt-3 pt-2 border-top">
                                             <small class="text-muted">
-                                                <i class="fas fa-calendar me-1"></i> Ano Letivo: <strong><?= $class->year_name ?? $currentYear->year_name ?? 'N/A' ?></strong> |
+                                                <i class="fas fa-calendar me-1"></i> Ano Letivo: <strong><?= $class['year_name'] ?? $currentYear->year_name ?? 'N/A' ?></strong> |
                                                 <i class="fas fa-users ms-2 me-1"></i> Capacidade: <?= $class['capacity']  ?> alunos |
                                                 <i class="fas fa-door-open ms-2 me-1"></i> Sala: <?= $class->class_room ?: 'Não definida' ?>
                                             </small>

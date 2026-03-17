@@ -58,8 +58,8 @@
                     <option value="">Selecione uma turma...</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class->id ?>" <?= ($selectedClass ?? '') == $class->id ? 'selected' : '' ?>>
-                                <?= $class->class_name ?> (<?= $class->class_code ?>) - <?= $class->level_name ?> - <?= $class->year_name ?>
+                            <option value="<?= $class['id'] ?>" <?= ($selectedClass ?? '') == $class['id'] ? 'selected' : '' ?>>
+                                <?= $class['class_name'] ?> (<?= $class['class_code'] ?>) - <?= $class->level_name ?> - <?= $class['year_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -80,10 +80,10 @@
     <div class="alert alert-info d-flex align-items-center mb-4">
         <i class="fas fa-school fa-2x me-3"></i>
         <div>
-            <h5 class="mb-1"><?= $class->class_name ?> (<?= $class->class_code ?>)</h5>
+            <h5 class="mb-1"><?= $class['class_name'] ?> (<?= $class['class_code'] ?>)</h5>
             <p class="mb-0">
                 <strong>Professor:</strong> <?= $class->teacher_first_name ?? 'Não atribuído' ?> <?= $class->teacher_last_name ?? '' ?> |
-                <strong>Turno:</strong> <?= $class->class_shift ?> |
+                <strong>Turno:</strong> <?= $class['class_shift'] ?> |
                 <strong>Sala:</strong> <?= $class->class_room ?: 'Não definida' ?>
             </p>
         </div>
@@ -172,8 +172,8 @@
                             <?php if (!empty($disciplines)): ?>
                                 <?php foreach ($disciplines as $discipline): ?>
                                     <th colspan="3" class="text-center bg-primary">
-                                        <?= $discipline->discipline_name ?>
-                                        <small class="d-block text-white-50"><?= $discipline->discipline_code ?></small>
+                                        <?= $discipline['discipline_name'] ?>
+                                        <small class="d-block text-white-50"><?= $discipline['discipline_code'] ?></small>
                                     </th>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -213,9 +213,9 @@
                                     <?php if (!empty($disciplines)): ?>
                                         <?php foreach ($disciplines as $discipline): ?>
                                             <?php 
-                                            $ac1 = $student->grades[$discipline->id]['ac1'] ?? null;
-                                            $ac2 = $student->grades[$discipline->id]['ac2'] ?? null;
-                                            $ac3 = $student->grades[$discipline->id]['ac3'] ?? null;
+                                            $ac1 = $student->grades[$discipline['id']]['ac1'] ?? null;
+                                            $ac2 = $student->grades[$discipline['id']]['ac2'] ?? null;
+                                            $ac3 = $student->grades[$discipline['id']]['ac3'] ?? null;
                                             
                                             $notasDisciplina = array_filter([$ac1, $ac2, $ac3]);
                                             if (!empty($notasDisciplina)) {

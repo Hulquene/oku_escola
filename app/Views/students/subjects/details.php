@@ -3,12 +3,12 @@
 <?= $this->section('content') ?>
 
 <div class="page-header">
-    <h1><?= esc($subject->discipline_name ?? 'Detalhes da Disciplina') ?></h1>
+    <h1><?= esc($subject['discipline_name'] ?? 'Detalhes da Disciplina') ?></h1>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('students/dashboard') ?>">Início</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('students/subjects') ?>">Minhas Disciplinas</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= esc($subject->discipline_name ?? 'Detalhes') ?></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= esc($subject['discipline_name'] ?? 'Detalhes') ?></li>
         </ol>
     </nav>
 </div>
@@ -41,29 +41,29 @@
                         <table class="table table-borderless">
                             <tr>
                                 <th width="40%">Código:</th>
-                                <td><strong><?= esc($subject->discipline_code ?? 'N/A') ?></strong></td>
+                                <td><strong><?= esc($subject['discipline_code'] ?? 'N/A') ?></strong></td>
                             </tr>
                             <tr>
                                 <th>Tipo:</th>
                                 <td>
-                                    <span class="badge bg-info"><?= esc($subject->discipline_type ?? 'Obrigatória') ?></span>
+                                    <span class="badge bg-info"><?= esc($subject['discipline_type ']?? 'Obrigatória') ?></span>
                                 </td>
                             </tr>
                             <tr>
                                 <th>Carga Horária:</th>
-                                <td><strong><?= $subject->workload_hours ?? 0 ?> horas</strong></td>
+                                <td><strong><?= $subject['workload_hours'] ?? 0 ?> horas</strong></td>
                             </tr>
                             <tr>
                                 <th>Nota Mínima:</th>
-                                <td><?= number_format($subject->min_grade ?? 0, 1, ',', '.') ?></td>
+                                <td><?= number_format($subject['min_grade'] ?? 0, 1, ',', '.') ?></td>
                             </tr>
                             <tr>
                                 <th>Nota Máxima:</th>
-                                <td><?= number_format($subject->max_grade ?? 20, 1, ',', '.') ?></td>
+                                <td><?= number_format($subject['max_grade'] ?? 20, 1, ',', '.') ?></td>
                             </tr>
                             <tr>
                                 <th>Nota de Aprovação:</th>
-                                <td><strong><?= number_format($subject->approval_grade ?? 10, 1, ',', '.') ?></strong></td>
+                                <td><strong><?= number_format($subject['approval_grade'] ?? 10, 1, ',', '.') ?></strong></td>
                             </tr>
                         </table>
                     </div>
@@ -89,11 +89,11 @@
                             </div>
                         </div>
                         
-                        <?php if ($subject->description ?? false): ?>
+                        <?php if ($subject['description'] ?? false): ?>
                             <div class="mt-3">
                                 <h6><i class="fas fa-align-left"></i> Descrição:</h6>
                                 <div class="p-3 bg-light rounded">
-                                    <?= nl2br(esc($subject->description)) ?>
+                                    <?= nl2br(esc($subject['description'])) ?>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -112,7 +112,7 @@
                 <!-- Nota Final -->
                 <div class="mb-4">
                     <span class="text-muted">Nota Final</span>
-                    <h2 class="display-4 <?= ($finalGrade->final_score ?? 0) >= ($subject->approval_grade ?? 10) ? 'text-success' : 'text-danger' ?>">
+                    <h2 class="display-4 <?= ($finalGrade->final_score ?? 0) >= ($subject['approval_grade'] ?? 10) ? 'text-success' : 'text-danger' ?>">
                         <?= isset($finalGrade) ? number_format($finalGrade->final_score, 1, ',', '.') : '--' ?>
                     </h2>
                     <?php if (isset($finalGrade) && $finalGrade->status): ?>

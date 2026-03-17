@@ -132,7 +132,7 @@
                                                class="form-control <?= session('errors.first_name') ? 'is-invalid' : '' ?>" 
                                                id="first_name" 
                                                name="first_name" 
-                                               value="<?= old('first_name', $teacher->first_name ?? '') ?>"
+                                               value="<?= old('first_name', $teacher['first_name'] ?? '') ?>"
                                                placeholder="Ex: João"
                                                required>
                                     </div>
@@ -151,7 +151,7 @@
                                                class="form-control <?= session('errors.last_name') ? 'is-invalid' : '' ?>" 
                                                id="last_name" 
                                                name="last_name" 
-                                               value="<?= old('last_name', $teacher->last_name ?? '') ?>"
+                                               value="<?= old('last_name', $teacher['last_name'] ?? '') ?>"
                                                placeholder="Ex: Silva"
                                                required>
                                     </div>

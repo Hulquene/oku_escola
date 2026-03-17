@@ -166,8 +166,8 @@
                     <option value="">Todos</option>
                     <?php if (!empty($gradeLevels)): ?>
                         <?php foreach ($gradeLevels as $level): ?>
-                            <option value="<?= $level->id ?>" <?= $selectedLevel == $level->id ? 'selected' : '' ?>>
-                                <?= $level->level_name ?>
+                            <option value="<?= $level['id'] ?>" <?= $selectedLevel == $level['id'] ? 'selected' : '' ?>>
+                                <?= $level['level_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -263,8 +263,8 @@
                         <i class="fas fa-layer-group me-1"></i>
                         Nível: 
                         <?php foreach ($gradeLevels as $level): ?>
-                            <?php if ($level->id == $selectedLevel): ?>
-                                <?= $level->level_name ?>
+                            <?php if ($level['id'] == $selectedLevel): ?>
+                                <?= $level['level_name'] ?>
                             <?php endif; ?>
                         <?php endforeach; ?>
                         <a href="<?= site_url('admin/academic-records?remove=level') ?>" class="remove-filter">
@@ -316,8 +316,8 @@
                     <div class="class-card-header <?= isset($class->is_finalized) && $class->is_finalized ? 'finalized' : 'pending' ?>">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h5 class="class-title mb-1"><?= $class->class_name ?></h5>
-                                <span class="class-code"><?= $class->class_code ?></span>
+                                <h5 class="class-title mb-1"><?= $class['class_name'] ?></h5>
+                                <span class="class-code"><?= $class['class_code'] ?></span>
                             </div>
                             <span class="status-badge <?= isset($class->is_finalized) && $class->is_finalized ? 'finalized' : 'pending' ?>">
                                 <?php if (isset($class->is_finalized) && $class->is_finalized): ?>
@@ -348,11 +348,11 @@
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Turno:</span>
-                                <span class="info-value"><?= $class->class_shift ?></span>
+                                <span class="info-value"><?= $class['class_shift'] ?></span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Ano Letivo:</span>
-                                <span class="info-value"><?= $class->year_name ?></span>
+                                <span class="info-value"><?= $class['year_name'] ?></span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Professor:</span>
@@ -401,7 +401,7 @@
                     <!-- Footer com Ações -->
                     <div class="card-footer bg-white">
                         <div class="d-flex gap-2">
-                            <a href="<?= site_url('admin/academic-records/class/' . $class->id) ?>" 
+                            <a href="<?= site_url('admin/academic-records/class/' . $class['id']) ?>" 
                                class="btn btn-outline-primary btn-sm flex-grow-1">
                                 <i class="fas fa-eye me-1"></i> Ver Pauta
                             </a>
@@ -409,7 +409,7 @@
                             <?php if (!isset($class->is_finalized) || !$class->is_finalized): ?>
                                 <button type="button" 
                                         class="btn btn-outline-warning btn-sm" 
-                                        onclick="confirmFinalize(<?= $class->id ?>, '<?= $class->class_name ?>')"
+                                        onclick="confirmFinalize(<?= $class['id'] ?>, '<?= $class['class_name'] ?>')"
                                         title="Finalizar pauta">
                                     <i class="fas fa-check-double"></i>
                                 </button>

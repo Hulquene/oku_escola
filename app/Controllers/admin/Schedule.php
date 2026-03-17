@@ -212,9 +212,9 @@ class Schedule extends BaseController
             return $this->response->setJSON([
                 'success' => true,
                 'data' => [
-                    'class_name' => $class->class_name,
-                    'class_shift' => $class->class_shift,
-                    'year_name' => $class->year_name,
+                    'class_name' => $class['class_name'],
+                    'class_shift' => $class['class_shift'],
+                    'year_name' => $class['year_name'],
                     'total_items' => 0,
                     'total_hours' => 0,
                     'schedule' => []
@@ -231,9 +231,9 @@ class Schedule extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'data' => [
-                'class_name' => $class->class_name,
-                'class_shift' => $class->class_shift,
-                'year_name' => $class->year_name,
+                'class_name' => $class['class_name'],
+                'class_shift' => $class['class_shift'],
+                'year_name' => $class['year_name'],
                 'total_items' => $scheduleRecord->total_items ?? 0,
                 'total_hours' => $scheduleRecord->total_hours ?? 0,
                 'schedule' => $scheduleData ?: []
@@ -582,7 +582,7 @@ class Schedule extends BaseController
             ->findAll();
         
         // Preparar dados para a view
-        $data['title'] = 'Horário da Turma: ' . $class->class_name;
+        $data['title'] = 'Horário da Turma: ' . $class['class_name'];
         $data['class'] = $class;
         $data['disciplines'] = $disciplines;
         $data['teachers'] = $teachers;
@@ -690,7 +690,7 @@ class Schedule extends BaseController
     private function getDisciplineName($disciplineId)
     {
         $discipline = $this->disciplineModel->find($disciplineId);
-        return $discipline ? $discipline->discipline_name : '';
+        return $discipline ? $discipline['discipline_name'] : '';
     }
     
     /**
@@ -700,6 +700,6 @@ class Schedule extends BaseController
     {
         if (!$teacherId) return 'Não atribuído';
         $teacher = $this->userModel->find($teacherId);
-        return $teacher ? $teacher->first_name . ' ' . $teacher->last_name : 'Não atribuído';
+        return $teacher ? $teacher['first_name'] . ' ' . $teacher['last_name'] : 'Não atribuído';
     }
 }

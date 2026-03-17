@@ -29,8 +29,8 @@
                     <div class="col-md-4 mb-4">
                         <div class="card h-100 border-success">
                             <div class="card-header bg-success text-white text-center py-3">
-                                <h5 class="mb-0"><?= $class->class_name ?></h5>
-                                <small><?= $class->class_code ?></small>
+                                <h5 class="mb-0"><?= $class['class_name'] ?></h5>
+                                <small><?= $class['class_code'] ?></small>
                             </div>
                             <div class="card-body text-center">
                                 <i class="fas fa-school fa-4x text-success mb-3"></i>
@@ -39,7 +39,7 @@
                                     // Contar disciplinas da turma
                                     $classDisciplineModel = new \App\Models\ClassDisciplineModel();
                                     $disciplineCount = $classDisciplineModel
-                                        ->where('class_id', $class->id)
+                                        ->where('class_id', $class['id'])
                                         ->where('is_active', 1)
                                         ->countAllResults();
                                     ?>
@@ -47,7 +47,7 @@
                                 </p>
                             </div>
                             <div class="card-footer bg-white text-center">
-                                <a href="<?= site_url('teachers/grades/report/' . $class->id) ?>" 
+                                <a href="<?= site_url('teachers/grades/report/' . $class['id']) ?>" 
                                    class="btn btn-success w-100">
                                     <i class="fas fa-chart-bar"></i> Ver Relatório
                                 </a>

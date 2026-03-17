@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Pauta da Turma - <?= $class->class_name ?></title>
+    <title>Pauta da Turma - <?= $class['class_name'] ?></title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,7 +88,7 @@
     <div class="header">
         <div class="school-name"><?= getSetting('school_name') ?></div>
         <h1>Pauta de Avaliações</h1>
-        <h2><?= $class->class_name ?> • <?= $class->level_name ?> • <?= $class->year_name ?></h2>
+        <h2><?= $class['class_name'] ?> • <?= $class->level_name ?> • <?= $class['year_name'] ?></h2>
         <h3><?= $semester->semester_name ?> (<?= $semester->semester_type ?>)</h3>
     </div>
     
@@ -96,9 +96,9 @@
         <table>
             <tr>
                 <td width="150"><strong>Turma:</strong></td>
-                <td width="300"><?= $class->class_name ?> (<?= $class->class_code ?>)</td>
+                <td width="300"><?= $class['class_name'] ?> (<?= $class['class_code'] ?>)</td>
                 <td width="150"><strong>Ano Letivo:</strong></td>
-                <td><?= $class->year_name ?></td>
+                <td><?= $class['year_name'] ?></td>
             </tr>
             <tr>
                 <td><strong>Nível:</strong></td>

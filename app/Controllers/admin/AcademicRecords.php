@@ -375,12 +375,12 @@ class AcademicRecords extends BaseController
             // Buscar média da disciplina usando o novo model
             $avg = $this->disciplineAverageModel
                 ->where('enrollment_id', $student->enrollment_id)
-                ->where('discipline_id', $discipline->id)
+                ->where('discipline_id', $discipline['id'])
                 ->where('semester_id', $semesterId)
                 ->first();
             
             if ($avg) {
-                $student->grades[$discipline->id] = [
+                $student->grades[$discipline['id']] = [
                     'ac_score' => $avg->ac_score,
                     'exam_score' => $avg->exam_score,
                     'final_score' => $avg->final_score,
@@ -390,7 +390,7 @@ class AcademicRecords extends BaseController
                 $totalMedia += $avg->final_score;
                 $disciplinasCount++;
             } else {
-                $student->grades[$discipline->id] = null;
+                $student->grades[$discipline['id']] = null;
             }
         }
         
@@ -508,9 +508,9 @@ public function class($classId)
         
         foreach ($data['disciplines'] as $discipline) {
             // Buscar notas da disciplina por trimestre
-            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline->id);
+            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline['id']);
             
-            $student->disciplinas[$discipline->id] = $notas;
+            $student->disciplinas[$discipline['id']] = $notas;
             
             // Somar para média geral
             if ($notas['mfd'] !== null && $notas['mfd'] > 0) {
@@ -763,13 +763,13 @@ private function gerarExcelFinal($class, $disciplines, $dados)
     $sheet = $spreadsheet->getActiveSheet();
     
     // Título
-    $sheet->setCellValue('A1', 'MAPA DE AVALIAÇÃO FINAL - ' . strtoupper($class->year_name));
+    $sheet->setCellValue('A1', 'MAPA DE AVALIAÇÃO FINAL - ' . strtoupper($class['year_name']));
     $sheet->mergeCells('A1:' . $this->getColumnLetter(2 + (count($disciplines) * 4)) . '1');
     $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
     
     // Informações
     $sheet->setCellValue('A2', 'Curso: ' . ($class->course_name ?? 'Ensino Geral'));
-    $sheet->setCellValue('A3', 'Classe: ' . $class->level_name . ' - Turma: ' . $class->class_name);
+    $sheet->setCellValue('A3', 'Classe: ' . $class->level_name . ' - Turma: ' . $class['class_name']);
     
     // Cabeçalho
     $sheet->setCellValue('A5', 'Nº');
@@ -823,7 +823,7 @@ private function gerarExcelFinal($class, $disciplines, $dados)
     }
     
     // Download
-    $filename = 'pauta_final_' . $class->class_code . '_' . date('Ymd') . '.xlsx';
+    $filename = 'pauta_final_' . $class['class_code'] . '_' . date('Ymd') . '.xlsx';
     
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="' . $filename . '"');
@@ -1222,8 +1222,8 @@ public function export()
         $sheet = $excel->getActiveSheet();
         
         // Título
-        $sheet->setCellValue('A1', 'Pauta de Avaliações - ' . $class->class_name);
-        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class->year_name);
+        $sheet->setCellValue('A1', 'Pauta de Avaliações - ' . $class['class_name']);
+        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class['year_name']);
         $sheet->mergeCells('A1:' . $this->getColumnLetter(3 + count($disciplines)) . '1');
         $sheet->mergeCells('A2:' . $this->getColumnLetter(3 + count($disciplines)) . '2');
         
@@ -1268,7 +1268,7 @@ public function export()
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
         
-        $filename = 'pauta_' . $class->class_code . '_' . $semester->semester_name . '.xlsx';
+        $filename = 'pauta_' . $class['class_code'] . '_' . $semester->semester_name . '.xlsx';
         
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
@@ -1497,15 +1497,15 @@ public function export()
             
             foreach ($data['disciplines'] as $discipline) {
                 // Buscar notas da disciplina por trimestre
-                $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline->id);
-                $student->disciplinas[$discipline->id] = $notas;
+                $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $discipline['id']);
+                $student->disciplinas[$discipline['id']] = $notas;
                 
                 if ($notas['mfd'] !== null) {
                     $totalMFD += $notas['mfd'];
                     $disciplinasCount++;
                     
                     if ($notas['mfd'] < 10) {
-                        $reprovadas[] = $discipline->discipline_name;
+                        $reprovadas[] = $discipline['discipline_name'];
                     }
                 }
             }

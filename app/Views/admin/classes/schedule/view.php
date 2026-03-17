@@ -643,7 +643,7 @@ body { background: var(--surface); }
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="<?= site_url('admin/schedule') ?>">Horários</a></li>
-                    <li class="breadcrumb-item active"><?= $class->class_name ?></li>
+                    <li class="breadcrumb-item active"><?= $class['class_name'] ?></li>
                 </ol>
             </nav>
         </div>
@@ -663,16 +663,16 @@ body { background: var(--surface); }
         <i class="fas fa-school"></i>
     </div>
     <div class="class-details">
-        <h2><?= $class->class_name ?> <small class="text-muted">(<?= $class->class_code ?>)</small></h2>
+        <h2><?= $class['class_name'] ?> <small class="text-muted">(<?= $class['class_code'] ?>)</small></h2>
         <div class="class-meta">
             <span class="meta-item">
                 <i class="fas fa-layer-group"></i> <?= $class->level_name ?>
             </span>
             <span class="meta-item">
-                <i class="fas fa-calendar"></i> <?= $class->year_name ?>
+                <i class="fas fa-calendar"></i> <?= $class['year_name'] ?>
             </span>
             <span class="meta-item">
-                <i class="fas fa-clock"></i> <?= $class->class_shift ?>
+                <i class="fas fa-clock"></i> <?= $class['class_shift'] ?>
             </span>
             <span class="meta-item">
                 <i class="fas fa-door-open"></i> Sala: <?= $class->class_room ?: 'Não definida' ?>
@@ -758,7 +758,7 @@ body { background: var(--surface); }
     
     <form action="<?= site_url('admin/classes/schedule/save') ?>" method="post" id="quickScheduleForm">
         <?= csrf_field() ?>
-        <input type="hidden" name="class_id" value="<?= $class->id ?>">
+        <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
         
         <div class="quick-form-grid">
             <div>
@@ -809,7 +809,7 @@ body { background: var(--surface); }
                     <option value="">Opcional</option>
                     <?php foreach ($teachers as $teacher): ?>
                         <option value="<?= $teacher->id ?>">
-                            <?= $teacher->first_name ?> <?= $teacher->last_name ?>
+                            <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -835,7 +835,7 @@ body { background: var(--surface); }
     <div class="schedule-header">
         <h5>
             <i class="fas fa-table"></i>
-            Horário Semanal - <?= $class->class_name ?>
+            Horário Semanal - <?= $class['class_name'] ?>
             <span class="badge bg-primary ms-2"><?= $totalSchedules ?> horários</span>
         </h5>
         <div class="schedule-actions">
@@ -1112,7 +1112,7 @@ window.editSchedule = function(id) {
         method: 'POST',
         data: {
             id: id,
-            class_id: <?= $class->id ?>,
+            class_id: <?= $class['id'] ?>,
             '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
         },
         dataType: 'json',
@@ -1255,7 +1255,7 @@ window.duplicateFromOtherClass = function() {
             method: 'POST',
             data: {
                 source_class_id: sourceClass,
-                target_class_id: <?= $class->id ?>,
+                target_class_id: <?= $class['id'] ?>,
                 '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
             },
             success: function(response) {
@@ -1273,11 +1273,11 @@ window.duplicateFromOtherClass = function() {
 // ============ FUNÇÕES DE EXPORTAÇÃO ============
 
 window.exportToExcel = function() {
-    window.location.href = '<?= site_url('admin/classes/schedule/export-excel/' . $class->id) ?>';
+    window.location.href = '<?= site_url('admin/classes/schedule/export-excel/' . $class['id']) ?>';
 };
 
 window.exportToPDF = function() {
-    window.location.href = '<?= site_url('admin/classes/schedule/export-pdf/' . $class->id) ?>';
+    window.location.href = '<?= site_url('admin/classes/schedule/export-pdf/' . $class['id']) ?>';
 };
 
 // ============ FUNÇÕES DE CONFIGURAÇÃO (placeholders) ============
@@ -1309,7 +1309,7 @@ $('#quickScheduleForm').on('submit', function(e) {
             url: '<?= site_url('admin/classes/schedule/check-availability') ?>',
             method: 'POST',
             data: {
-                class_id: <?= $class->id ?>,
+                class_id: <?= $class['id'] ?>,
                 day_of_week: day,
                 period: period,
                 '<?= csrf_token() ?>': '<?= csrf_hash() ?>'

@@ -241,9 +241,9 @@ div.dataTables_wrapper .dt-buttons { display:flex; gap:.4rem; }
 <?php
 /* ── Pre-compute stats ── */
 $total     = count($subjects ?? []);
-$active    = count(array_filter($subjects ?? [], fn($s) => $s->is_active));
+$active    = count(array_filter($subjects ?? [], fn($s) => $s['is_active']));
 $inactive  = $total - $active;
-$obrig     = count(array_filter($subjects ?? [], fn($s) => ($s->discipline_type ?? '') === 'Obrigatória'));
+$obrig     = count(array_filter($subjects ?? [], fn($s) => ($s['discipline_type'] ?? '') === 'Obrigatória'));
 ?>
 
 <!-- ── STAT CARDS ──────────────────────────────────────────── -->
@@ -304,25 +304,25 @@ $obrig     = count(array_filter($subjects ?? [], fn($s) => ($s->discipline_type 
                 <?php if (!empty($subjects)): ?>
                     <?php foreach ($subjects as $subject): ?>
                     <tr>
-                        <td><span class="id-chip">#<?= $subject->id ?></span></td>
+                        <td><span class="id-chip">#<?= $subject['id'] ?></span></td>
 
                         <td>
                             <span style="font-weight:600;color:var(--text-primary);font-size:.83rem;">
-                                <?= esc($subject->discipline_name) ?>
+                                <?= esc($subject['discipline_name']) ?>
                             </span>
                         </td>
 
-                        <td><span class="code-badge"><?= esc($subject->discipline_code) ?></span></td>
+                        <td><span class="code-badge"><?= esc($subject['discipline_code']) ?></span></td>
 
                         <td>
                             <?php
-                            $typeClass = match($subject->discipline_type ?? '') {
+                            $typeClass = match($subject['discipline_type ']?? '') {
                                 'Obrigatória'  => 'type-obrig',
                                 'Opcional'     => 'type-opcio',
                                 'Complementar' => 'type-compl',
                                 default        => 'type-obrig'
                             };
-                            $typeIcon = match($subject->discipline_type ?? '') {
+                            $typeIcon = match($subject['discipline_type ']?? '') {
                                 'Obrigatória'  => 'fa-lock',
                                 'Opcional'     => 'fa-unlock',
                                 'Complementar' => 'fa-plus-circle',
@@ -331,24 +331,24 @@ $obrig     = count(array_filter($subjects ?? [], fn($s) => ($s->discipline_type 
                             ?>
                             <span class="type-badge <?= $typeClass ?>">
                                 <i class="fas <?= $typeIcon ?>"></i>
-                                <?= esc($subject->discipline_type) ?>
+                                <?= esc($subject['discipline_type']) ?>
                             </span>
                         </td>
 
                         <td style="text-align:center;">
                             <span class="workload-chip">
-                                <?= $subject->workload_hours ? esc($subject->workload_hours).'h' : '—' ?>
+                                <?= $subject['workload_hours'] ? esc($subject['workload_hours']).'h' : '—' ?>
                             </span>
                         </td>
 
-                        <td style="text-align:center;"><span class="grade-chip"><?= esc($subject->min_grade) ?></span></td>
-                        <td style="text-align:center;"><span class="grade-chip"><?= esc($subject->max_grade) ?></span></td>
+                        <td style="text-align:center;"><span class="grade-chip"><?= esc($subject['min_grade']) ?></span></td>
+                        <td style="text-align:center;"><span class="grade-chip"><?= esc($subject['max_grade']) ?></span></td>
                         <td style="text-align:center;">
-                            <span class="grade-chip" style="color:var(--accent);font-weight:700;"><?= esc($subject->approval_grade) ?></span>
+                            <span class="grade-chip" style="color:var(--accent);font-weight:700;"><?= esc($subject['approval_grade']) ?></span>
                         </td>
 
                         <td style="text-align:center;">
-                            <?php if ($subject->is_active): ?>
+                            <?php if ($subject['is_active']): ?>
                                 <span class="status-dot"><span class="sd sd-active"></span><span class="st-active">Ativa</span></span>
                             <?php else: ?>
                                 <span class="status-dot"><span class="sd sd-inactive"></span><span class="st-inactive">Inativa</span></span>
@@ -359,22 +359,22 @@ $obrig     = count(array_filter($subjects ?? [], fn($s) => ($s->discipline_type 
                             <div class="row-actions" style="justify-content:center;">
                                 <button type="button" class="row-btn edit edit-subject"
                                         title="Editar"
-                                        data-id="<?= $subject->id ?>"
-                                        data-name="<?= esc($subject->discipline_name, 'attr') ?>"
-                                        data-code="<?= esc($subject->discipline_code, 'attr') ?>"
-                                        data-type="<?= esc($subject->discipline_type, 'attr') ?>"
-                                        data-hours="<?= esc($subject->workload_hours, 'attr') ?>"
-                                        data-min="<?= esc($subject->min_grade, 'attr') ?>"
-                                        data-max="<?= esc($subject->max_grade, 'attr') ?>"
-                                        data-approval="<?= esc($subject->approval_grade, 'attr') ?>"
-                                        data-description="<?= esc($subject->description, 'attr') ?>"
-                                        data-active="<?= $subject->is_active ?>">
+                                        data-id="<?= $subject['id'] ?>"
+                                        data-name="<?= esc($subject['discipline_name'], 'attr') ?>"
+                                        data-code="<?= esc($subject['discipline_code'], 'attr') ?>"
+                                        data-type="<?= esc($subject['discipline_type'], 'attr') ?>"
+                                        data-hours="<?= esc($subject['workload_hours'], 'attr') ?>"
+                                        data-min="<?= esc($subject['min_grade'], 'attr') ?>"
+                                        data-max="<?= esc($subject['max_grade'], 'attr') ?>"
+                                        data-approval="<?= esc($subject['approval_grade'], 'attr') ?>"
+                                        data-description="<?= esc($subject['description'], 'attr') ?>"
+                                        data-active="<?= $subject['is_active'] ?>">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <a href="<?= site_url('admin/classes/subjects/delete/' . $subject->id) ?>"
+                                <a href="<?= site_url('admin/classes/subjects/delete/' . $subject['id']) ?>"
                                    class="row-btn del"
                                    title="Eliminar"
-                                   onclick="return confirm('Eliminar a disciplina «<?= esc($subject->discipline_name, 'attr') ?>»? Esta ação não pode ser revertida.')">
+                                   onclick="return confirm('Eliminar a disciplina «<?= esc($subject['discipline_name'], 'attr') ?>»? Esta ação não pode ser revertida.')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </div>

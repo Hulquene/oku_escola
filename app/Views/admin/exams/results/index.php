@@ -57,8 +57,8 @@
                 <select class="form-select" name="class" onchange="this.form.submit()">
                     <option value="">Todas</option>
                     <?php foreach ($classes as $class): ?>
-                        <option value="<?= $class->id ?>" <?= $selectedClass == $class->id ? 'selected' : '' ?>>
-                            <?= $class->class_name ?>
+                        <option value="<?= $class['id'] ?>" <?= $selectedClass == $class['id'] ? 'selected' : '' ?>>
+                            <?= $class['class_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

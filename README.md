@@ -245,8 +245,8 @@ div.dt-container .dt-search input {
                     <select class="filter-select" name="grade_level" id="grade_level">
                         <option value="">Todos</option>
                         <?php foreach ($gradeLevels ?? [] as $level): ?>
-                            <option value="<?= $level->id ?>" <?= ($selectedLevel == $level->id) ? 'selected' : '' ?>>
-                                <?= esc($level->level_name) ?>
+                            <option value="<?= $level['id'] ?>" <?= ($selectedLevel == $level['id']) ? 'selected' : '' ?>>
+                                <?= esc($level['level_name']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -257,8 +257,8 @@ div.dt-container .dt-search input {
                         <option value="">Todos</option>
                         <option value="0" <?= (($selectedCourse === '0' || $selectedCourse === 0)) ? 'selected' : '' ?>>Ensino Geral</option>
                         <?php foreach ($courses ?? [] as $c): ?>
-                            <option value="<?= $c->id ?>" <?= ($selectedCourse == $c->id) ? 'selected' : '' ?>>
-                                <?= esc($c->course_name) ?> (<?= esc($c->course_code) ?>)
+                            <option value="<?= $c['id'] ?>" <?= ($selectedCourse == $c['id']) ? 'selected' : '' ?>>
+                                <?= esc($c['course_name']) ?> (<?= esc($c['course_code']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -286,8 +286,8 @@ div.dt-container .dt-search input {
                     <select class="filter-select" name="teacher" id="teacher">
                         <option value="">Todos</option>
                         <?php foreach ($teachers ?? [] as $t): ?>
-                            <option value="<?= $t->id ?>" <?= ($selectedTeacher == $t->id) ? 'selected' : '' ?>>
-                                <?= esc($t->first_name) ?> <?= esc($t->last_name) ?>
+                            <option value="<?= $t['id'] ?>" <?= ($selectedTeacher == $t['id']) ? 'selected' : '' ?>>
+                                <?= esc($t['first_name']) ?> <?= esc($t['last_name']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -315,8 +315,8 @@ div.dt-container .dt-search input {
             <?php endif; endforeach; ?>
         <?php endif; ?>
         <?php if (!empty($selectedCourse) && $selectedCourse != 0): ?>
-            <?php foreach ($courses as $c): if ($c->id == $selectedCourse): ?>
-                <span class="af-badge blue"><i class="fas fa-graduation-cap"></i><?= esc($c->course_name) ?><a href="<?= site_url('admin/classes/classes?remove=course') ?>"><i class="fas fa-times"></i></a></span>
+            <?php foreach ($courses as $c): if ($c['id'] == $selectedCourse): ?>
+                <span class="af-badge blue"><i class="fas fa-graduation-cap"></i><?= esc($c['course_name']) ?><a href="<?= site_url('admin/classes/classes?remove=course') ?>"><i class="fas fa-times"></i></a></span>
             <?php endif; endforeach; ?>
         <?php endif; ?>
         <?php if ($selectedCourse === '0'): ?>
@@ -329,8 +329,8 @@ div.dt-container .dt-search input {
             <span class="af-badge navy"><i class="fas fa-power-off"></i><?= $selectedStatus == 'active' ? 'Ativas' : 'Inativas' ?><a href="<?= site_url('admin/classes/classes?remove=status') ?>"><i class="fas fa-times"></i></a></span>
         <?php endif; ?>
         <?php if (!empty($selectedTeacher)): ?>
-            <?php foreach ($teachers as $t): if ($t->id == $selectedTeacher): ?>
-                <span class="af-badge navy"><i class="fas fa-user"></i><?= esc($t->first_name) ?> <?= esc($t->last_name) ?><a href="<?= site_url('admin/classes/classes?remove=teacher') ?>"><i class="fas fa-times"></i></a></span>
+            <?php foreach ($teachers as $t): if ($t['id'] == $selectedTeacher): ?>
+                <span class="af-badge navy"><i class="fas fa-user"></i><?= esc($t['first_name']) ?> <?= esc($t['last_name']) ?><a href="<?= site_url('admin/classes/classes?remove=teacher') ?>"><i class="fas fa-times"></i></a></span>
             <?php endif; endforeach; ?>
         <?php endif; ?>
     </div>

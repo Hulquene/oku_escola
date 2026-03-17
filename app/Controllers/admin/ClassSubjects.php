@@ -123,18 +123,18 @@ public function index()
     
     foreach ($data['assignments'] as $assignment) {
         // Estatísticas de professor
-        if ($assignment->teacher_id) {
+        if ($assignment['teacher_id']) {
             $withTeacherCount++;
         } else {
             $withoutTeacherCount++;
         }
         
         // Turmas únicas
-        $uniqueClasses[$assignment->class_id] = true;
+        $uniqueClasses[$assignment['class_id']] = true;
         
         // Estatísticas por período
-        if (isset($periodStats[$assignment->period_type])) {
-            $periodStats[$assignment->period_type]++;
+        if (isset($periodStats[$assignment['period_type']])) {
+            $periodStats[$assignment['period_type']]++;
         }
     }
     
@@ -345,10 +345,10 @@ public function assign()
                     'name' => $disc->discipline_name,
                     'code' => $disc->discipline_code,
                     'assigned' => $assigned,
-                    'assignment_id' => $assignment ? $assignment->id : null,
-                    'teacher_id' => $assignment ? $assignment->teacher_id : null,
-                    'teacher_name' => $assignment ? ($assignment->teacher_first_name . ' ' . $assignment->teacher_last_name) : null,
-                    'workload' => $assignment ? $assignment->workload_hours : null,
+                    'assignment_id' => $assignment ? $assignment['id'] : null,
+                    'teacher_id' => $assignment ? $assignment['teacher_id'] : null,
+                    'teacher_name' => $assignment ? ($assignment['teacher_first_name'] . ' ' . $assignment['teacher_last_name']) : null,
+                    'workload' => $assignment ? $assignment['workload_hours'] : null,
                     'suggested_workload' => $disc->suggested_workload ?? null,
                     'period_type' => $periodType,
                     'is_mandatory' => $disc->is_mandatory ?? false,
@@ -564,7 +564,7 @@ public function assignSave()
         
         $this->classDisciplineModel->delete($id);
         
-        return redirect()->to('/admin/classes/class-subjects?class=' . $assignment->class_id)
+        return redirect()->to('/admin/classes/class-subjects?class=' . $assignment['class_id'])
             ->with('success', 'Disciplina removida da turma com sucesso');
     }
 /**
@@ -701,8 +701,8 @@ public function saveTeachers()
             
             if ($course) {
                 $levels = $gradeLevelModel
-                    ->where('id >=', $course->start_grade_id)
-                    ->where('id <=', $course->end_grade_id)
+                    ->where('id >=', $course['start_grade_id'])
+                    ->where('id <=', $course['end_grade_id'])
                     ->where('is_active', 1)
                     ->orderBy('sort_order', 'ASC')
                     ->findAll();
@@ -862,10 +862,10 @@ public function saveTeachers()
                 'name' => $disc->discipline_name,
                 'code' => $disc->discipline_code,
                 'assigned' => $assigned,
-                'assignment_id' => $assignment ? $assignment->id : null,
-                'teacher_id' => $assignment ? $assignment->teacher_id : null,
-                'teacher_name' => $assignment ? ($assignment->teacher_first_name . ' ' . $assignment->teacher_last_name) : null,
-                'workload' => $assignment ? $assignment->workload_hours : null,
+                'assignment_id' => $assignment ? $assignment['id'] : null,
+                'teacher_id' => $assignment ? $assignment['teacher_id'] : null,
+                'teacher_name' => $assignment ? ($assignment['teacher_first_name'] . ' ' . $assignment['teacher_last_name']) : null,
+                'workload' => $assignment ? $assignment['workload_hours'] : null,
                 'suggested_workload' => null,
                 'is_mandatory' => false,
                 'is_active' => $assignment ? $assignment->is_active : false

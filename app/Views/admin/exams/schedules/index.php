@@ -63,8 +63,8 @@
                 <select class="form-select" name="class_id" onchange="this.form.submit()">
                     <option value="">Todas as turmas</option>
                     <?php foreach ($classes as $class): ?>
-                        <option value="<?= $class->id ?>" <?= request()->getGet('class_id') == $class->id ? 'selected' : '' ?>>
-                            <?= $class->class_name ?> (<?= $class->class_code ?>)
+                        <option value="<?= $class['id'] ?>" <?= request()->getGet('class_id') == $class['id'] ? 'selected' : '' ?>>
+                            <?= $class['class_name'] ?> (<?= $class['class_code'] ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>

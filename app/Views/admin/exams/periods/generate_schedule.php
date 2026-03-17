@@ -65,10 +65,10 @@
                                         <input class="form-check-input class-checkbox" 
                                                type="checkbox" 
                                                name="class_ids[]" 
-                                               value="<?= $class->id ?>" 
-                                               id="class_<?= $class->id ?>">
-                                        <label class="form-check-label" for="class_<?= $class->id ?>">
-                                            <?= $class->class_name ?> (<?= $class->class_code ?>)
+                                               value="<?= $class['id'] ?>" 
+                                               id="class_<?= $class['id'] ?>">
+                                        <label class="form-check-label" for="class_<?= $class['id'] ?>">
+                                            <?= $class['class_name'] ?> (<?= $class['class_code'] ?>)
                                             <small class="text-muted ms-2"><?= $class->level_name ?></small>
                                         </label>
                                     </div>

@@ -159,7 +159,7 @@ public function save()
         
         // Filter out assigned ones
         $available = array_filter($allDisciplines, function($discipline) use ($assignedIds) {
-            return !in_array($discipline->id, $assignedIds);
+            return !in_array($discipline['id'], $assignedIds);
         });
         
         return $this->response->setJSON(array_values($available));
@@ -241,9 +241,9 @@ public function search($term = null)
     // Formata os resultados para incluir informações úteis
     $formattedDisciplines = array_map(function($discipline) {
         return [
-            'id' => $discipline->id,
-            'name' => $discipline->discipline_name,
-            'code' => $discipline->discipline_code,
+            'id' => $discipline['id'],
+            'name' => $discipline['discipline_name'],
+            'code' => $discipline['discipline_code'],
             'type' => $discipline->discipline_type,
             'workload' => $discipline->workload_hours,
             'min_grade' => $discipline->min_grade,
@@ -251,7 +251,7 @@ public function search($term = null)
             'approval_grade' => $discipline->approval_grade,
             'description' => $discipline->description,
             'is_active' => $discipline->is_active,
-            'formatted' => $discipline->discipline_code . ' - ' . $discipline->discipline_name,
+            'formatted' => $discipline['discipline_code'] . ' - ' . $discipline['discipline_name'],
             'badge' => [
                 'type' => $discipline->is_active ? 'success' : 'secondary',
                 'text' => $discipline->is_active ? 'Ativa' : 'Inativa'

@@ -59,11 +59,11 @@
                 <select class="form-select" id="class_id" onchange="window.location.href='<?= site_url('admin/classes/class-subjects/assign') ?>?class='+this.value">
                     <option value="">-- Selecione uma turma --</option>
                     <?php foreach ($classes as $class): ?>
-                        <option value="<?= $class->id ?>" <?= ($selectedClassId == $class->id) ? 'selected' : '' ?>>
-                            <?= $class->class_name ?> (<?= $class->class_code ?>) - 
-                            <?= $class->class_shift ?> - 
+                        <option value="<?= $class['id'] ?>" <?= ($selectedClassId == $class['id']) ? 'selected' : '' ?>>
+                            <?= $class['class_name'] ?> (<?= $class['class_code'] ?>) - 
+                            <?= $class['class_shift'] ?> - 
                             <?= $class->level_name ?> - 
-                            <?= $class->year_name ?>
+                            <?= $class['year_name'] ?>
                             <?= $class->course_name ? ' - ' . $class->course_name : '' ?>
                         </option>
                     <?php endforeach; ?>
@@ -212,7 +212,7 @@
                                             <?php foreach ($teachers as $teacher): ?>
                                                 <option value="<?= $teacher->id ?>" 
                                                     <?= (isset($disc['teacher_id']) && $disc['teacher_id'] == $teacher->id) ? 'selected' : '' ?>>
-                                                    <?= $teacher->first_name ?> <?= $teacher->last_name ?>
+                                                    <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>

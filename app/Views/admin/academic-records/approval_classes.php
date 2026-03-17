@@ -245,15 +245,15 @@
     ?>
     <div class="col-md-6 col-lg-4 mb-4">
         <div class="class-card <?= $statusClass ?>" 
-             onclick="window.location.href='<?= site_url('admin/academic-records/approvals/' . $class->id) ?>'">
+             onclick="window.location.href='<?= site_url('admin/academic-records/approvals/' . $class['id']) ?>'">
             
             <div class="status-badge <?= $statusClass ?>">
                 <i class="fas fa-<?= $canApprove ? 'check-circle' : 'clock' ?> me-1"></i>
                 <?= $canApprove ? 'Pronto' : 'Pendente' ?>
             </div>
             
-            <div class="class-title"><?= $class->class_name ?></div>
-            <div class="class-code"><?= $class->class_code ?></div>
+            <div class="class-title"><?= $class['class_name'] ?></div>
+            <div class="class-code"><?= $class['class_code'] ?></div>
             
             <div class="mb-2">
                 <i class="fas fa-layer-group info-icon"></i> <?= $class->level_name ?>

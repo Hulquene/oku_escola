@@ -537,7 +537,7 @@
                                 <option value="">Todas as Turmas</option>
                                 <?php if (!empty($classes)): ?>
                                     <?php foreach ($classes as $class): ?>
-                                        <option value="<?= $class->id ?>"><?= $class->class_name ?></option>
+                                        <option value="<?= $class['id'] ?>"><?= $class['class_name'] ?></option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>

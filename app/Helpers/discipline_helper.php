@@ -104,16 +104,16 @@ if (!function_exists('formatDisciplineForSelect')) {
     function formatDisciplineForSelect($discipline)
     {
         return [
-            'id' => $discipline->id,
-            'name' => $discipline->discipline_name,
-            'code' => $discipline->discipline_code,
+            'id' => $discipline['id'],
+            'name' => $discipline['discipline_name'],
+            'code' => $discipline['discipline_code'],
             'type' => $discipline->discipline_type,
             'workload' => $discipline->workload_hours ?? 0,
             'min_grade' => $discipline->min_grade ?? 0,
             'max_grade' => $discipline->max_grade ?? 20,
             'approval' => $discipline->approval_grade ?? 10,
             'is_active' => $discipline->is_active ?? 1,
-            'formatted_text' => $discipline->discipline_code . ' - ' . $discipline->discipline_name
+            'formatted_text' => $discipline['discipline_code'] . ' - ' . $discipline['discipline_name']
         ];
     }
 }

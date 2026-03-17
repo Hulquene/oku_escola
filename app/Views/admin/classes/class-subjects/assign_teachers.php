@@ -25,12 +25,12 @@
                 <i class="fas fa-school fa-2x text-info"></i>
             </div>
             <div>
-                <h4 class="mb-1"><?= $class->class_name ?> (<?= $class->class_code ?>)</h4>
+                <h4 class="mb-1"><?= $class['class_name'] ?> (<?= $class['class_code'] ?>)</h4>
                 <p class="mb-0">
                     <span class="badge bg-primary me-2">Curso: <?= $class->course_name ?? 'Não definido' ?></span>
                     <span class="badge bg-success me-2">Nível: <?= $class->level_name ?></span>
-                    <span class="badge bg-info me-2">Turno: <?= $class->class_shift ?></span>
-                    <span class="badge bg-secondary">Ano Letivo: <?= $class->year_name ?? date('Y') ?></span>
+                    <span class="badge bg-info me-2">Turno: <?= $class['class_shift'] ?></span>
+                    <span class="badge bg-secondary">Ano Letivo: <?= $class['year_name'] ?? date('Y') ?></span>
                 </p>
             </div>
         </div>
@@ -78,7 +78,7 @@
     <div class="card-body">
         <form action="<?= site_url('admin/classes/class-subjects/save-teachers') ?>" method="post">
             <?= csrf_field() ?>
-            <input type="hidden" name="class_id" value="<?= $class->id ?>">
+            <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
             
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
@@ -138,7 +138,7 @@
                                             <?php foreach ($teachers as $teacher): ?>
                                                 <option value="<?= $teacher->id ?>" 
                                                     <?= $disc->teacher_id == $teacher->id ? 'selected' : '' ?>>
-                                                    <?= $teacher->first_name ?> <?= $teacher->last_name ?>
+                                                    <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
@@ -160,7 +160,7 @@
                                     <p class="text-muted mb-3">
                                         Esta turma ainda não tem disciplinas atribuídas.
                                     </p>
-                                    <a href="<?= site_url('admin/classes/class-subjects/assign?class=' . $class->id) ?>" 
+                                    <a href="<?= site_url('admin/classes/class-subjects/assign?class=' . $class['id']) ?>" 
                                        class="btn btn-primary">
                                         <i class="fas fa-plus-circle me-2"></i>Atribuir Disciplinas
                                     </a>

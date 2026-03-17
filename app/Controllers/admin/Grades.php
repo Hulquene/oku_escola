@@ -79,7 +79,7 @@ class Grades extends BaseController
                 foreach ($data['disciplines'] as $discipline) {
                     $assessments = $this->continuousModel
                         ->where('enrollment_id', $student->enrollment_id)
-                        ->where('discipline_id', $discipline->id)
+                        ->where('discipline_id', $discipline['id'])
                         ->where('semester_id', $currentSemester->id ?? null)
                         ->findAll();
                     
@@ -88,9 +88,9 @@ class Grades extends BaseController
                         $scores[$a->assessment_type] = $a->score;
                     }
                     
-                    $student->grades[$discipline->id]['ac1'] = $scores['AC1'] ?? null;
-                    $student->grades[$discipline->id]['ac2'] = $scores['AC2'] ?? null;
-                    $student->grades[$discipline->id]['ac3'] = $scores['AC3'] ?? null;
+                    $student->grades[$discipline['id']]['ac1'] = $scores['AC1'] ?? null;
+                    $student->grades[$discipline['id']]['ac2'] = $scores['AC2'] ?? null;
+                    $student->grades[$discipline['id']]['ac3'] = $scores['AC3'] ?? null;
                 }
             }
             
@@ -151,7 +151,7 @@ class Grades extends BaseController
             foreach ($data['disciplines'] as $discipline) {
                 $assessments = $this->continuousModel
                     ->where('enrollment_id', $student->enrollment_id)
-                    ->where('discipline_id', $discipline->id)
+                    ->where('discipline_id', $discipline['id'])
                     ->where('semester_id', $semesterId)
                     ->findAll();
                 
@@ -160,9 +160,9 @@ class Grades extends BaseController
                     $scores[$a->assessment_type] = $a->score;
                 }
                 
-                $student->grades[$discipline->id]['ac1'] = $scores['AC1'] ?? null;
-                $student->grades[$discipline->id]['ac2'] = $scores['AC2'] ?? null;
-                $student->grades[$discipline->id]['ac3'] = $scores['AC3'] ?? null;
+                $student->grades[$discipline['id']]['ac1'] = $scores['AC1'] ?? null;
+                $student->grades[$discipline['id']]['ac2'] = $scores['AC2'] ?? null;
+                $student->grades[$discipline['id']]['ac3'] = $scores['AC3'] ?? null;
             }
         }
         
@@ -214,11 +214,11 @@ class Grades extends BaseController
                 foreach ($semesters as $semester) {
                     $assessments = $this->continuousModel
                         ->where('enrollment_id', $enrollment['id'])
-                        ->where('discipline_id', $discipline->id)
+                        ->where('discipline_id', $discipline['id'])
                         ->where('semester_id', $semester->id)
                         ->findAll();
                     
-                    $enrollment->grades[$discipline->id][$semester->id] = $assessments;
+                    $enrollment->grades[$discipline['id']][$semester->id] = $assessments;
                 }
             }
         }

@@ -55,8 +55,8 @@
                     <select name="class" class="form-select" id="class">
                         <option value="">Selecione</option>
                         <?php foreach ($classes as $class): ?>
-                            <option value="<?= $class->id ?>" <?= ($selectedClass ?? '') == $class->id ? 'selected' : '' ?>>
-                                <?= $class->class_name ?> (<?= $class->year_name ?>)
+                            <option value="<?= $class['id'] ?>" <?= ($selectedClass ?? '') == $class['id'] ? 'selected' : '' ?>>
+                                <?= $class['class_name'] ?> (<?= $class['year_name'] ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>

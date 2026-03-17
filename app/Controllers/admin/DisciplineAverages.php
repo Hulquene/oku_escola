@@ -231,16 +231,16 @@ class DisciplineAverages extends BaseController
             $statusCount = ['Aprovado' => 0, 'Recurso' => 0, 'Reprovado' => 0];
 
             foreach ($studentAverages as $student) {
-                if (isset($student['averages'][$discipline->id])) {
-                    $score = $student['averages'][$discipline->id]['score'];
+                if (isset($student['averages'][$discipline['id']])) {
+                    $score = $student['averages'][$discipline['id']]['score'];
                     $scores[] = $score;
-                    $statusCount[$student['averages'][$discipline->id]['status']]++;
+                    $statusCount[$student['averages'][$discipline['id']]['status']]++;
                 }
             }
 
-            $disciplineStats[$discipline->id] = [
-                'name' => $discipline->discipline_name,
-                'code' => $discipline->discipline_code,
+            $disciplineStats[$discipline['id']] = [
+                'name' => $discipline['discipline_name'],
+                'code' => $discipline['discipline_code'],
                 'avg_score' => !empty($scores) ? round(array_sum($scores) / count($scores), 2) : 0,
                 'max_score' => !empty($scores) ? max($scores) : 0,
                 'min_score' => !empty($scores) ? min($scores) : 0,
@@ -254,7 +254,7 @@ class DisciplineAverages extends BaseController
         // Calculate class overall statistics
         $classStats = $this->calculateClassStats($studentAverages);
 
-        $data['title'] = 'Médias da Turma - ' . $class->class_name;
+        $data['title'] = 'Médias da Turma - ' . $class['class_name'];
         $data['class'] = $class;
         $data['semester'] = $semester;
         $data['students'] = $studentAverages;
@@ -446,8 +446,8 @@ class DisciplineAverages extends BaseController
         $sheet = $excel->getActiveSheet();
 
         // Set headers
-        $sheet->setCellValue('A1', 'Médias Disciplinares - ' . $class->class_name);
-        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class->year_name);
+        $sheet->setCellValue('A1', 'Médias Disciplinares - ' . $class['class_name']);
+        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class['year_name']);
         $sheet->mergeCells('A1:' . $this->getColumnLetter(count($disciplines) + 3) . '1');
         $sheet->mergeCells('A2:' . $this->getColumnLetter(count($disciplines) + 3) . '2');
 
@@ -458,7 +458,7 @@ class DisciplineAverages extends BaseController
 
         $col = 'D';
         foreach ($disciplines as $discipline) {
-            $sheet->setCellValue($col . '4', $discipline->discipline_name);
+            $sheet->setCellValue($col . '4', $discipline['discipline_name']);
             $col++;
         }
         $sheet->setCellValue($col . '4', 'Média Geral');
@@ -475,8 +475,8 @@ class DisciplineAverages extends BaseController
             $count = 0;
 
             foreach ($disciplines as $discipline) {
-                $score = isset($averages[$student->enrollment_id][$discipline->id]) 
-                    ? $averages[$student->enrollment_id][$discipline->id]->final_score 
+                $score = isset($averages[$student->enrollment_id][$discipline['id']]) 
+                    ? $averages[$student->enrollment_id][$discipline['id']]->final_score 
                     : '-';
                 
                 $sheet->setCellValue($col . $row, $score);
@@ -504,7 +504,7 @@ class DisciplineAverages extends BaseController
         }
 
         // Set filename
-        $filename = 'medias_' . $class->class_code . '_' . $semester->semester_name . '.xlsx';
+        $filename = 'medias_' . $class['class_code'] . '_' . $semester->semester_name . '.xlsx';
 
         // Output
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -527,7 +527,7 @@ class DisciplineAverages extends BaseController
         // Set document information
         $pdf->SetCreator('Sistema Escolar');
         $pdf->SetAuthor('Admin');
-        $pdf->SetTitle('Médias da Turma - ' . $class->class_name);
+        $pdf->SetTitle('Médias da Turma - ' . $class['class_name']);
 
         // Remove header/footer
         $pdf->setPrintHeader(false);
@@ -538,9 +538,9 @@ class DisciplineAverages extends BaseController
 
         // Title
         $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->Cell(0, 10, 'Médias Disciplinares - ' . $class->class_name, 0, 1, 'C');
+        $pdf->Cell(0, 10, 'Médias Disciplinares - ' . $class['class_name'], 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $semester->semester_name . ' - ' . $class->year_name, 0, 1, 'C');
+        $pdf->Cell(0, 10, $semester->semester_name . ' - ' . $class['year_name'], 0, 1, 'C');
         $pdf->Ln(5);
 
         // Table headers
@@ -555,7 +555,7 @@ class DisciplineAverages extends BaseController
                     <th width="25%">Nome do Aluno</th>';
 
         foreach ($disciplines as $discipline) {
-            $html .= '<th width="' . (60 / count($disciplines)) . '%">' . $discipline->discipline_name . '</th>';
+            $html .= '<th width="' . (60 / count($disciplines)) . '%">' . $discipline['discipline_name'] . '</th>';
         }
 
         $html .= '<th width="10%">Média</th>
@@ -576,8 +576,8 @@ class DisciplineAverages extends BaseController
             $count = 0;
 
             foreach ($disciplines as $discipline) {
-                $score = isset($averages[$student->enrollment_id][$discipline->id]) 
-                    ? number_format($averages[$student->enrollment_id][$discipline->id]->final_score, 1)
+                $score = isset($averages[$student->enrollment_id][$discipline['id']]) 
+                    ? number_format($averages[$student->enrollment_id][$discipline['id']]->final_score, 1)
                     : '-';
                 
                 $html .= '<td>' . $score . '</td>';
@@ -599,7 +599,7 @@ class DisciplineAverages extends BaseController
         $pdf->writeHTML($html, true, false, true, false, '');
 
         // Close and output PDF
-        $filename = 'medias_' . $class->class_code . '_' . $semester->semester_name . '.pdf';
+        $filename = 'medias_' . $class['class_code'] . '_' . $semester->semester_name . '.pdf';
         $pdf->Output($filename, 'D');
         exit;
     }
@@ -661,13 +661,13 @@ class DisciplineAverages extends BaseController
         foreach ($disciplines as $discipline) {
             $result = $this->disciplineAverageModel->calculate(
                 $enrollmentId,
-                $discipline->id,
+                $discipline['id'],
                 $semesterId,
                 session()->get('user_id')
             );
 
             if ($result) {
-                $calculated[] = $discipline->discipline_name;
+                $calculated[] = $discipline['discipline_name'];
             }
         }
 

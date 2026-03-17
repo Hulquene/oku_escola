@@ -9,14 +9,14 @@
             <h1 class="mb-2">Médias da Turma</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-users me-1"></i>
-                <?= $class->class_name ?> • <?= $class->level_name ?> • <?= $class->year_name ?>
+                <?= $class['class_name'] ?> • <?= $class->level_name ?> • <?= $class['year_name'] ?>
             </p>
         </div>
         <div class="d-flex gap-2">
-            <a href="<?= site_url('admin/exams/schedules?class_id=' . $class->id) ?>" class="btn btn-outline-info">
+            <a href="<?= site_url('admin/exams/schedules?class_id=' . $class['id']) ?>" class="btn btn-outline-info">
                 <i class="fas fa-calendar-alt me-1"></i> Ver Exames
             </a>
-            <a href="<?= site_url('admin/classes/view/' . $class->id) ?>" class="btn btn-outline-secondary">
+            <a href="<?= site_url('admin/classes/view/' . $class['id']) ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Voltar à Turma
             </a>
         </div>
@@ -25,7 +25,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/classes') ?>">Turmas</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/classes/view/' . $class->id) ?>"><?= $class->class_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/classes/view/' . $class['id']) ?>"><?= $class['class_name'] ?></a></li>
             <li class="breadcrumb-item active">Médias - <?= $semester->semester_name ?></li>
         </ol>
     </nav>
@@ -236,11 +236,11 @@
                 Médias Individuais por Aluno
             </h5>
             <div class="d-flex gap-2">
-                <a href="<?= site_url('admin/discipline-averages/export/' . $class->id . '/' . $semester->id) ?>?type=excel" 
+                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=excel" 
                    class="btn btn-sm btn-success">
                     <i class="fas fa-file-excel me-1"></i> Excel
                 </a>
-                <a href="<?= site_url('admin/discipline-averages/export/' . $class->id . '/' . $semester->id) ?>?type=pdf" 
+                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=pdf" 
                    class="btn btn-sm btn-danger">
                     <i class="fas fa-file-pdf me-1"></i> PDF
                 </a>
@@ -256,8 +256,8 @@
                         <th class="border-0 py-3">Nº Aluno</th>
                         <th class="border-0 py-3">Nome do Aluno</th>
                         <?php foreach ($disciplines as $discipline): ?>
-                            <th class="border-0 py-3 text-center" title="<?= $discipline->discipline_name ?>">
-                                <?= $discipline->discipline_code ?>
+                            <th class="border-0 py-3 text-center" title="<?= $discipline['discipline_name'] ?>">
+                                <?= $discipline['discipline_code'] ?>
                             </th>
                         <?php endforeach; ?>
                         <th class="border-0 py-3 text-center">Média</th>
@@ -298,9 +298,9 @@
                                 </td>
                                 <?php foreach ($disciplines as $discipline): ?>
                                     <td class="text-center">
-                                        <?php if (isset($student['averages'][$discipline->id])): ?>
+                                        <?php if (isset($student['averages'][$discipline['id']])): ?>
                                             <?php 
-                                            $score = $student['averages'][$discipline->id]['score'];
+                                            $score = $student['averages'][$discipline['id']]['score'];
                                             $scoreClass = $score >= 10 ? 'text-success' : ($score >= 7 ? 'text-warning' : 'text-danger');
                                             ?>
                                             <span class="fw-bold <?= $scoreClass ?>">
@@ -384,11 +384,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Export functions
 function exportToExcel() {
-    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class->id . '/' . $semester->id) ?>?type=excel';
+    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=excel';
 }
 
 function exportToPDF() {
-    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class->id . '/' . $semester->id) ?>?type=pdf';
+    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=pdf';
 }
 
 // Search functionality

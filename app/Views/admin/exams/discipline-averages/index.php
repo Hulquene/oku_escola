@@ -52,8 +52,8 @@
                 <select class="form-select" name="class_id" onchange="this.form.submit()">
                     <option value="">Todas as turmas</option>
                     <?php foreach ($classes as $class): ?>
-                        <option value="<?= $class->id ?>" <?= $selectedClass == $class->id ? 'selected' : '' ?>>
-                            <?= $class->class_name ?> (<?= $class->class_code ?>)
+                        <option value="<?= $class['id'] ?>" <?= $selectedClass == $class['id'] ? 'selected' : '' ?>>
+                            <?= $class['class_name'] ?> (<?= $class['class_code'] ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -64,8 +64,8 @@
                 <select class="form-select" name="discipline_id" onchange="this.form.submit()">
                     <option value="">Todas as disciplinas</option>
                     <?php foreach ($disciplines as $discipline): ?>
-                        <option value="<?= $discipline->id ?>" <?= $selectedDiscipline == $discipline->id ? 'selected' : '' ?>>
-                            <?= $discipline->discipline_name ?>
+                        <option value="<?= $discipline['id'] ?>" <?= $selectedDiscipline == $discipline['id'] ? 'selected' : '' ?>>
+                            <?= $discipline['discipline_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

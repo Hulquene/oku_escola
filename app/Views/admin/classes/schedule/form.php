@@ -372,13 +372,13 @@ textarea.form-control {
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="<?= site_url('admin/schedule') ?>">Horários</a></li>
-                    <li class="breadcrumb-item"><a href="<?= site_url('admin/schedule/view/' . $class->id) ?>"><?= $class->class_name ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/schedule/view/' . $class['id']) ?>"><?= $class['class_name'] ?></a></li>
                     <li class="breadcrumb-item active"><?= isset($schedule) ? 'Editar' : 'Novo' ?> Horário</li>
                 </ol>
             </nav>
         </div>
         <div class="hdr-actions">
-            <a href="<?= site_url('admin/schedule/view/' . $class->id) ?>" class="btn btn-secondary">
+            <a href="<?= site_url('admin/schedule/view/' . $class['id']) ?>" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-1"></i>Voltar
             </a>
         </div>
@@ -391,7 +391,7 @@ textarea.form-control {
 <div class="info-card">
     <div class="info-item">
         <i class="fas fa-school"></i>
-        <span>Turma: <strong><?= $class->class_name ?> (<?= $class->class_code ?>)</strong></span>
+        <span>Turma: <strong><?= $class['class_name'] ?> (<?= $class['class_code'] ?>)</strong></span>
     </div>
     <div class="info-item">
         <i class="fas fa-layer-group"></i>
@@ -399,7 +399,7 @@ textarea.form-control {
     </div>
     <div class="info-item">
         <i class="fas fa-clock"></i>
-        <span>Turno: <strong><?= $class->class_shift ?></strong></span>
+        <span>Turno: <strong><?= $class['class_shift'] ?></strong></span>
     </div>
     <div class="info-item">
         <i class="fas fa-door-open"></i>
@@ -458,7 +458,7 @@ textarea.form-control {
 <div class="form-card">
     <div class="form-header">
         <h5><i class="fas fa-clock me-2"></i><?= isset($schedule) ? 'Editar Horário' : 'Novo Horário' ?></h5>
-        <span class="badge bg-primary"><?= $class->class_name ?></span>
+        <span class="badge bg-primary"><?= $class['class_name'] ?></span>
     </div>
     
     <div class="form-body">
@@ -469,7 +469,7 @@ textarea.form-control {
                 <input type="hidden" name="id" value="<?= $schedule->id ?>">
             <?php endif; ?>
             
-            <input type="hidden" name="class_id" value="<?= $class->id ?>">
+            <input type="hidden" name="class_id" value="<?= $class['id'] ?>">
             
             <div class="form-grid">
                 <!-- Disciplina -->
@@ -558,7 +558,7 @@ textarea.form-control {
                             <option value="<?= $teacher->id ?>" 
                                 <?= isset($schedule) && $schedule->teacher_id == $teacher->id ? 'selected' : '' ?>
                                 <?= old('teacher_id') == $teacher->id ? 'selected' : '' ?>>
-                                <?= $teacher->first_name ?> <?= $teacher->last_name ?>
+                                <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -597,7 +597,7 @@ textarea.form-control {
             
             <!-- Ações -->
             <div class="form-actions">
-                <a href="<?= site_url('admin/schedule/view/' . $class->id) ?>" class="btn btn-secondary">
+                <a href="<?= site_url('admin/schedule/view/' . $class['id']) ?>" class="btn btn-secondary">
                     <i class="fas fa-times"></i>Cancelar
                 </a>
                 <button type="submit" class="btn btn-primary">

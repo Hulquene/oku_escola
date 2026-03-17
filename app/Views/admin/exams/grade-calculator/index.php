@@ -104,7 +104,7 @@
                 <select class="form-select" id="statusClass">
                     <option value="">Selecione a turma</option>
                     <?php foreach ($classes as $class): ?>
-                        <option value="<?= $class->id ?>"><?= $class->class_name ?> (<?= $class->level_name ?>)</option>
+                        <option value="<?= $class['id'] ?>"><?= $class['class_name'] ?> (<?= $class->level_name ?>)</option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -151,7 +151,7 @@
                         <select class="form-select" id="disciplineClass" required>
                             <option value="">Selecione</option>
                             <?php foreach ($classes as $class): ?>
-                                <option value="<?= $class->id ?>"><?= $class->class_name ?></option>
+                                <option value="<?= $class['id'] ?>"><?= $class['class_name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -211,7 +211,7 @@
                         <select class="form-select" id="studentClass" required>
                             <option value="">Selecione</option>
                             <?php foreach ($classes as $class): ?>
-                                <option value="<?= $class->id ?>"><?= $class->class_name ?></option>
+                                <option value="<?= $class['id'] ?>"><?= $class['class_name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -269,7 +269,7 @@
                         <select class="form-select" name="class_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($classes as $class): ?>
-                                <option value="<?= $class->id ?>"><?= $class->class_name ?> (<?= $class->level_name ?>)</option>
+                                <option value="<?= $class['id'] ?>"><?= $class['class_name'] ?> (<?= $class->level_name ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </div>

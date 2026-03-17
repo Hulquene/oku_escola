@@ -4,7 +4,7 @@
 
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Pauta Final - <?= $class->class_name ?></h1>
+        <h1>Pauta Final - <?= $class['class_name'] ?></h1>
         <div>
             <button class="btn btn-success" onclick="exportPauta()">
                 <i class="fas fa-file-excel"></i> Exportar Excel
@@ -21,7 +21,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/academic-records') ?>">Pautas</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $class->class_name ?></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $class['class_name'] ?></li>
         </ol>
     </nav>
 </div>
@@ -37,7 +37,7 @@
                 <table class="table table-sm table-borderless">
                     <tr>
                         <td width="150"><strong>Ano Lectivo:</strong></td>
-                        <td><?= $class->year_name ?></td>
+                        <td><?= $class['year_name'] ?></td>
                     </tr>
                     <tr>
                         <td><strong>Curso:</strong></td>
@@ -45,11 +45,11 @@
                     </tr>
                     <tr>
                         <td><strong>Classe:</strong></td>
-                        <td><?= $class->level_name ?> / <?= $class->class_shift ?></td>
+                        <td><?= $class->level_name ?> / <?= $class['class_shift'] ?></td>
                     </tr>
                     <tr>
                         <td><strong>Turma:</strong></td>
-                        <td><?= $class->class_name ?></td>
+                        <td><?= $class['class_name'] ?></td>
                     </tr>
                     <tr>
                         <td><strong>Professor:</strong></td>
@@ -267,7 +267,7 @@
 <?= $this->section('scripts') ?>
 <script>
 function exportPauta() {
-    const classId = '<?= $class->id ?>';
+    const classId = '<?= $class['id'] ?>';
     window.location.href = '<?= site_url('admin/academic-records/export-final/') ?>' + classId;
 }
 

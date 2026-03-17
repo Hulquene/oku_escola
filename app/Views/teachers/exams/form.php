@@ -67,8 +67,8 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($classes)): ?>
                                 <?php foreach ($classes as $class): ?>
-                                    <option value="<?= $class->id ?>" <?= old('class_id', $exam->class_id ?? '') == $class->id ? 'selected' : '' ?>>
-                                        <?= esc($class->class_name) ?> (<?= esc($class->class_code) ?>)
+                                    <option value="<?= $class['id'] ?>" <?= old('class_id', $exam->class_id ?? '') == $class['id'] ? 'selected' : '' ?>>
+                                        <?= esc($class['class_name']) ?> (<?= esc($class['class_code']) ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>

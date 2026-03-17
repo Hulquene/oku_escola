@@ -5,7 +5,7 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Relatório de Notas - <?= $class->class_name ?? '' ?></h1>
+        <h1>Relatório de Notas - <?= $class['class_name'] ?? '' ?></h1>
         <div>
             <a href="<?= site_url('teachers/grades/report/select') ?>" class="btn btn-secondary me-2">
                 <i class="fas fa-arrow-left"></i> Voltar
@@ -13,7 +13,7 @@
             <button onclick="window.print()" class="btn btn-success">
                 <i class="fas fa-print"></i> Imprimir
             </button>
-            <a href="<?= site_url('teachers/grades/export/' . $class->id . '?discipline=' . $discipline->id) ?>" 
+            <a href="<?= site_url('teachers/grades/export/' . $class['id'] . '?discipline=' . $discipline['id']) ?>" 
                class="btn btn-primary">
                 <i class="fas fa-file-excel"></i> Exportar
             </a>
@@ -24,7 +24,7 @@
             <li class="breadcrumb-item"><a href="<?= site_url('teachers/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('teachers/grades') ?>">Notas</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('teachers/grades/report/select') ?>">Relatórios</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $class->class_name ?? '' ?></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $class['class_name'] ?? '' ?></li>
         </ol>
     </nav>
 </div>
@@ -36,13 +36,13 @@
 <div class="alert alert-info mb-4">
     <div class="row">
         <div class="col-md-3">
-            <strong>Turma:</strong> <?= $class->class_name ?? 'N/A' ?>
+            <strong>Turma:</strong> <?= $class['class_name'] ?? 'N/A' ?>
         </div>
         <div class="col-md-3">
-            <strong>Disciplina:</strong> <?= $discipline->discipline_name ?? 'N/A' ?>
+            <strong>Disciplina:</strong> <?= $discipline['discipline_name'] ?? 'N/A' ?>
         </div>
         <div class="col-md-3">
-            <strong>Código:</strong> <?= $discipline->discipline_code ?? 'N/A' ?>
+            <strong>Código:</strong> <?= $discipline['discipline_code'] ?? 'N/A' ?>
         </div>
         <div class="col-md-3">
             <strong>Data:</strong> <?= date('d/m/Y') ?>

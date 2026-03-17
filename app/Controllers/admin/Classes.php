@@ -577,7 +577,7 @@ private function suggestDisciplinesFromGradeLevel($classId, $gradeLevelId)
         }
         
         // resto do código igual
-        $data['title'] = 'Alunos da Turma ' . $class->class_name;
+        $data['title'] = 'Alunos da Turma ' . $class['class_name'];
         $data['class'] = $class;
         $data['students'] = $this->enrollmentModel
             ->select('tbl_enrollments.*, tbl_students.student_number, tbl_users.first_name, tbl_users.last_name, tbl_users.email, tbl_users.phone')

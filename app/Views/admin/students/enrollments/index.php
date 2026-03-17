@@ -106,8 +106,8 @@
                     <option value="">Todos os níveis</option>
                     <?php if (!empty($gradeLevels)): ?>
                         <?php foreach ($gradeLevels as $level): ?>
-                            <option value="<?= $level->id ?>" <?= ($selectedGradeLevel ?? '') == $level->id ? 'selected' : '' ?>>
-                                <?= $level->level_name ?>
+                            <option value="<?= $level['id'] ?>" <?= ($selectedGradeLevel ?? '') == $level['id'] ? 'selected' : '' ?>>
+                                <?= $level['level_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

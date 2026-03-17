@@ -466,10 +466,10 @@ body { background: var(--surface); color: var(--text-primary); }
             foreach ($curriculum as $c) $grandTotal += count($c['disciplines']);
             ?>
             <?php foreach ($levels as $level): ?>
-                <?php $count = isset($curriculum[$level->id]) ? count($curriculum[$level->id]['disciplines']) : 0; ?>
-                <a href="#level-<?= $level->id ?>" class="level-nav-item">
+                <?php $count = isset($curriculum[$level['id']]) ? count($curriculum[$level['id']]['disciplines']) : 0; ?>
+                <a href="#level-<?= $level['id'] ?>" class="level-nav-item">
                     <span style="display:flex;align-items:center;gap:0.5rem;">
-                        <i class="fas fa-layer-group"></i> <?= $level->level_name ?>
+                        <i class="fas fa-layer-group"></i> <?= $level['level_name'] ?>
                     </span>
                     <span class="level-count <?= $count === 0 ? 'zero' : '' ?>"><?= $count ?></span>
                 </a>
@@ -484,22 +484,22 @@ body { background: var(--surface); color: var(--text-primary); }
     <!-- ── LEVEL CARDS ─────────────────────────────────── -->
     <div>
         <?php foreach ($levels as $index => $level): ?>
-        <div class="level-card" id="level-<?= $level->id ?>">
+        <div class="level-card" id="level-<?= $level['id'] ?>">
             <div class="level-card-header <?= $index % 2 !== 0 ? 'alt' : '' ?>">
                 <div class="level-card-title">
-                    <i class="fas fa-layer-group"></i> <?= $level->level_name ?>
+                    <i class="fas fa-layer-group"></i> <?= $level['level_name'] ?>
                 </div>
                 <button type="button" class="btn-add-discipline"
                         data-bs-toggle="modal" data-bs-target="#addDisciplineModal"
-                        onclick="setCourseLevel(<?= $course['id'] ?>, <?= $level->id ?>)">
+                        onclick="setCourseLevel(<?= $course['id'] ?>, <?= $level['id'] ?>)">
                     <i class="fas fa-plus"></i> Adicionar Disciplina
                 </button>
             </div>
 
-            <?php if (isset($curriculum[$level->id]) && !empty($curriculum[$level->id]['disciplines'])): ?>
+            <?php if (isset($curriculum[$level['id']]) && !empty($curriculum[$level['id']]['disciplines'])): ?>
                 <?php
                     $levelWorkload = 0;
-                    foreach ($curriculum[$level->id]['disciplines'] as $d)
+                    foreach ($curriculum[$level['id']]['disciplines'] as $d)
                         $levelWorkload += ($d->workload_hours ?? $d->default_workload ?? 0);
                 ?>
                 <div class="table-responsive">
@@ -514,15 +514,15 @@ body { background: var(--surface); color: var(--text-primary); }
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($curriculum[$level->id]['disciplines'] as $discipline):
+                            <?php foreach ($curriculum[$level['id']]['disciplines'] as $discipline):
                                 $workload = $discipline->workload_hours ?? $discipline->default_workload ?? 0;
                                 $sem      = $discipline->semester ?? 'Anual';
                                 $semClass = match((string)$sem) { '1' => 'sem-1', '2' => 'sem-2', 'Anual' => 'sem-anual', default => 'sem-other' };
                                 $semLabel = match((string)$sem) { '1' => '1º Trimestre', '2' => '2º Trimestre', default => $sem };
                             ?>
                             <tr>
-                                <td><span class="disc-code"><?= $discipline->discipline_code ?></span></td>
-                                <td><span class="disc-name"><?= $discipline->discipline_name ?></span></td>
+                                <td><span class="disc-code"><?= $discipline['discipline_code'] ?></span></td>
+                                <td><span class="disc-name"><?= $discipline['discipline_name'] ?></span></td>
                                 <td class="text-center">
                                     <span class="workload-chip"><?= $workload ?>h</span>
                                     <?php if ($discipline->workload_hours && $discipline->workload_hours != $discipline->default_workload): ?>
@@ -539,11 +539,11 @@ body { background: var(--surface); color: var(--text-primary); }
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-1">
-                                        <a href="<?= site_url('admin/courses/curriculum/edit/' . $discipline->id) ?>" class="row-btn edit" title="Editar">
+                                        <a href="<?= site_url('admin/courses/curriculum/edit/' . $discipline['id']) ?>" class="row-btn edit" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="row-btn del"
-                                                onclick="confirmRemoveDiscipline(<?= $discipline->id ?>, '<?= esc($discipline->discipline_name, 'js') ?>')"
+                                                onclick="confirmRemoveDiscipline(<?= $discipline['id'] ?>, '<?= esc($discipline['discipline_name'], 'js') ?>')"
                                                 title="Remover">
                                             <i class="fas fa-trash"></i>
                                         </button>

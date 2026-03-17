@@ -51,14 +51,14 @@
                         <?php foreach ($levels as $level): ?>
                             <?php 
                             // Determinar se é Ensino Médio (níveis que usam cursos)
-                            $isHighSchool = in_array($level->education_level, ['2º Ciclo', 'Ensino Médio']);
+                            $isHighSchool = in_array($level['education_level'], ['2º Ciclo', 'Ensino Médio']);
                             
                             // Contar disciplinas do nível (apenas para Ensino Geral)
                             $disciplineCount = 0;
                             if (!$isHighSchool) {
                                 $gradeDisciplineModel = new \App\Models\GradeDisciplineModel();
                                 $disciplineCount = $gradeDisciplineModel
-                                    ->where('grade_level_id', $level->id)
+                                    ->where('grade_level_id', $level['id'])
                                     ->countAllResults();
                             }
                             
@@ -67,27 +67,27 @@
                             if ($isHighSchool) {
                                 $courseModel = new \App\Models\CourseModel();
                                 $coursesCount = $courseModel
-                                    ->where('start_grade_id <=', $level->id)
-                                    ->where('end_grade_id >=', $level->id)
+                                    ->where('start_grade_id <=', $level['id'])
+                                    ->where('end_grade_id >=', $level['id'])
                                     ->where('is_active', 1)
                                     ->countAllResults();
                             }
                             ?>
                         <tr>
-                            <td><span class="badge-ci code"><?= $level->id ?></span></td>
-                            <td><span class="fw-bold"><?= esc($level->level_name) ?></span></td>
-                            <td><span class="badge-ci code"><?= esc($level->level_code) ?></span></td>
+                            <td><span class="badge-ci code"><?= $level['id'] ?></span></td>
+                            <td><span class="fw-bold"><?= esc($level['level_name']) ?></span></td>
+                            <td><span class="badge-ci code"><?= esc($level['level_code']) ?></span></td>
                             <td>
                                 <span class="badge-ci <?= $isHighSchool ? 'warning' : 'info' ?>">
-                                    <?= esc($level->education_level) ?>
+                                    <?= esc($level['education_level']) ?>
                                 </span>
                             </td>
                             <td class="text-center">
-                                <span class="fw-bold"><?= $level->grade_number ?><span class="text-muted">ª Classe</span></span>
+                                <span class="fw-bold"><?= $level['grade_number']?><span class="text-muted">ª Classe</span></span>
                             </td>
-                            <td class="text-center"><span class="font-mono"><?= $level->sort_order ?></span></td>
+                            <td class="text-center"><span class="font-mono"><?= $level['sort_order']?></span></td>
                             <td>
-                                <?php if ($level->is_active): ?>
+                                <?php if ($level['is_active']): ?>
                                     <span class="badge-ci success"><span class="status-dot"></span>Ativo</span>
                                 <?php else: ?>
                                     <span class="badge-ci secondary"><span class="status-dot"></span>Inativo</span>
@@ -96,7 +96,7 @@
                             <td class="text-center">
                                 <?php if ($isHighSchool): ?>
                                     <!-- Para 2º Ciclo e Ensino Médio - link para cursos -->
-                                    <a href="<?= site_url('admin/courses?grade_level_id=' . $level->id) ?>" 
+                                    <a href="<?= site_url('admin/courses?grade_level_id=' . $level['id']) ?>" 
                                        class="badge-ci warning text-decoration-none"
                                        data-bs-toggle="tooltip" title="Ver cursos deste nível">
                                         <i class="fas fa-graduation-cap"></i>
@@ -104,7 +104,7 @@
                                     </a>
                                 <?php else: ?>
                                     <!-- Para Ensino Geral - botão ver currículo -->
-                                    <a href="<?= site_url('admin/grade-curriculum/' . $level->id) ?>" 
+                                    <a href="<?= site_url('admin/grade-curriculum/' . $level['id']) ?>" 
                                        class="badge-ci info text-decoration-none"
                                        data-bs-toggle="tooltip" title="Ver disciplinas do nível">
                                         <i class="fas fa-book-open"></i>
@@ -117,13 +117,13 @@
                                     
                                     <!-- Botão Ver Currículo/Cursos (contextual) -->
                                     <?php if ($isHighSchool): ?>
-                                        <a href="<?= site_url('admin/courses?grade_level_id=' . $level->id) ?>" 
+                                        <a href="<?= site_url('admin/courses?grade_level_id=' . $level['id']) ?>" 
                                            class="row-btn" 
                                            data-bs-toggle="tooltip" title="Ver Cursos">
                                             <i class="fas fa-graduation-cap"></i>
                                         </a>
                                     <?php else: ?>
-                                        <a href="<?= site_url('admin/grade-curriculum/' . $level->id) ?>" 
+                                        <a href="<?= site_url('admin/grade-curriculum/' . $level['id']) ?>" 
                                            class="row-btn" 
                                            data-bs-toggle="tooltip" title="Ver Disciplinas">
                                             <i class="fas fa-book-open"></i>
@@ -132,19 +132,19 @@
                                     
                                     <!-- Botão Editar (sempre disponível) -->
                                     <button type="button" class="row-btn edit edit-level" data-bs-toggle="tooltip" title="Editar"
-                                            data-id="<?= $level->id ?>"
-                                            data-name="<?= esc($level->level_name) ?>"
-                                            data-code="<?= esc($level->level_code) ?>"
-                                            data-education="<?= esc($level->education_level) ?>"
-                                            data-grade="<?= $level->grade_number ?>"
-                                            data-order="<?= $level->sort_order ?>"
-                                            data-active="<?= $level->is_active ?>">
+                                            data-id="<?= $level['id'] ?>"
+                                            data-name="<?= esc($level['level_name']) ?>"
+                                            data-code="<?= esc($level['level_code']) ?>"
+                                            data-education="<?= esc($level['education_level']) ?>"
+                                            data-grade="<?= $level['grade_number']?>"
+                                            data-order="<?= $level['sort_order']?>"
+                                            data-active="<?= $level['is_active'] ?>">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     
                                     <!-- Botão Eliminar (apenas para ativos) -->
-                                    <?php if ($level->is_active): ?>
-                                        <a href="<?= site_url('admin/classes/levels/delete/' . $level->id) ?>"
+                                    <?php if ($level['is_active']): ?>
+                                        <a href="<?= site_url('admin/classes/levels/delete/' . $level['id']) ?>"
                                            class="row-btn del" data-bs-toggle="tooltip" title="Eliminar"
                                            onclick="return confirm('Tem certeza que deseja eliminar este nível?')">
                                             <i class="fas fa-trash"></i>
