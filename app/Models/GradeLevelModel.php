@@ -6,7 +6,7 @@ class GradeLevelModel extends BaseModel
 {
     protected $table = 'tbl_grade_levels';
     protected $primaryKey = 'id';
-      protected $returnType = 'array';
+    protected $returnType = 'array';
     protected $allowedFields = [
         'level_name',
         'level_code',
@@ -58,7 +58,7 @@ class GradeLevelModel extends BaseModel
             return null;
         }
         
-        return $this->where('sort_order >', $current->sort_order)
+        return $this->where('sort_order >', $current['sort_order'])
             ->where('is_active', 1)
             ->orderBy('sort_order', 'ASC')
             ->first();
@@ -75,7 +75,7 @@ class GradeLevelModel extends BaseModel
             return null;
         }
         
-        return $this->where('sort_order <', $current->sort_order)
+        return $this->where('sort_order <', $current['sort_order'])
             ->where('is_active', 1)
             ->orderBy('sort_order', 'DESC')
             ->first();
@@ -118,6 +118,6 @@ class GradeLevelModel extends BaseModel
     public function isCourseLevel($levelId)
     {
         $level = $this->find($levelId);
-        return $level && in_array($level->education_level, ['2º Ciclo', 'Ensino Médio']);
+        return $level && in_array($level['education_level'], ['2º Ciclo', 'Ensino Médio']);
     }
 }

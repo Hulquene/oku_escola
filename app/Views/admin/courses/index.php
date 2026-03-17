@@ -268,8 +268,8 @@
         <div class="d-flex flex-wrap gap-2">
             <?php foreach ($stats['by_type'] as $type): ?>
                 <div class="dist-chip">
-                    <span><?= $type->course_type ?></span>
-                    <span class="chip-count"><?= $type->total ?></span>
+                    <span><?= $type['course_type'] ?></span>
+                    <span class="chip-count"><?= $type['total'] ?></span>
                 </div>
             <?php endforeach; ?>
         </div>

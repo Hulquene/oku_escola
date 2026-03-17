@@ -246,53 +246,57 @@ class Courses extends BaseController
 
             foreach ($courses as $course) {
                 
-                // Buscar níveis com cache
+                // Buscar níveis com cache - ACESSANDO COMO OBJETO
                 $startLevel = $this->getCachedLevel($this->gradeLevelModel, $levelCache, $course->start_grade_id);
                 $endLevel = $this->getCachedLevel($this->gradeLevelModel, $levelCache, $course->end_grade_id);
                 
+                // Converter para array se necessário (para acesso consistente)
+                $startLevelArray = $startLevel ? (array)$startLevel : null;
+                $endLevelArray = $endLevel ? (array)$endLevel : null;
+                
                 $row = [];
 
-                // ID
-                $row['id_html'] = '<span class="row-id">' . $course['id'] . '</span>';
+                // ID - ACESSANDO COMO OBJETO
+                $row['id_html'] = '<span class="row-id">' . $course->id . '</span>';
 
-                // Código
-                $row['code_html'] = '<span class="code-badge">' . esc($course['course_code']) . '</span>';
+                // Código - ACESSANDO COMO OBJETO
+                $row['code_html'] = '<span class="code-badge">' . esc($course->course_code) . '</span>';
 
-                // Nome do Curso
-                $nameHtml = '<div class="course-name">' . esc($course['course_name']) . '</div>';
+                // Nome do Curso - ACESSANDO COMO OBJETO
+                $nameHtml = '<div class="course-name">' . esc($course->course_name) . '</div>';
                 if ($course->description) {
                     $nameHtml .= '<div class="course-desc">' . character_limiter(esc($course->description), 50) . '</div>';
                 }
                 $row['name_html'] = $nameHtml;
 
-                // Tipo com cor
-                $typeClass = $typeClassMap[$course['course_type']] ?? 'type-secondary';
-                $row['type_html'] = '<span class="type-badge ' . $typeClass . '">' . esc($course['course_type']) . '</span>';
+                // Tipo com cor - ACESSANDO COMO OBJETO
+                $typeClass = $typeClassMap[$course->course_type] ?? 'type-secondary';
+                $row['type_html'] = '<span class="type-badge ' . $typeClass . '">' . esc($course->course_type) . '</span>';
 
-                // Níveis com nomes (CORRIGIDO)
+                // Níveis com nomes - USANDO ARRAYS CONVERTIDOS
                 $row['levels_html'] = 
-                    '<div class="level-range">' . ($startLevel->level_name ?? 'N/A') . '</div>' .
-                    '<div class="level-sub">até ' . ($endLevel->level_name ?? 'N/A') . '</div>';
+                    '<div class="level-range">' . ($startLevelArray['level_name'] ?? 'N/A') . '</div>' .
+                    '<div class="level-sub">até ' . ($endLevelArray['level_name'] ?? 'N/A') . '</div>';
 
-                // Duração
+                // Duração - ACESSANDO COMO OBJETO
                 $row['duration_html'] = '<span class="num-chip">' . $course->duration_years . 'a</span>';
 
-                // Disciplinas
+                // Disciplinas - ACESSANDO COMO OBJETO
                 $row['disciplines_html'] = '<span class="num-chip blue">' . ($course->disciplines_count ?? 0) . '</span>';
 
-                // Status
+                // Status - ACESSANDO COMO OBJETO
                 if ($course->is_active) {
                     $row['status_html'] = '<span class="status-active"><span class="status-dot"></span>Ativo</span>';
                 } else {
                     $row['status_html'] = '<span class="status-inactive"><span class="status-dot"></span>Inativo</span>';
                 }
 
-               // Ações com rotas nomeadas
+                // Ações - ACESSANDO COMO OBJETO
                 $actions  = '<div class="action-group">';
-                $actions .= '<a href="' . route_to('admin.courses.view', $course['id']) . '" class="row-btn view" title="Ver Detalhes" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></a>';
-                $actions .= '<a href="' . route_to('admin.courses.form.edit', $course['id']) . '" class="row-btn edit" title="Editar" data-bs-toggle="tooltip"><i class="fas fa-edit"></i></a>';
-                $actions .= '<a href="' . route_to('admin.courses.curriculum', $course['id']) . '" class="row-btn curr" title="Currículo" data-bs-toggle="tooltip"><i class="fas fa-book-open"></i></a>';
-                $actions .= '<button type="button" class="row-btn del" onclick="confirmDelete(' . $course['id'] . ', \'' . esc($course['course_name'], 'js') . '\')" title="Eliminar" data-bs-toggle="tooltip"><i class="fas fa-trash"></i></button>';
+                $actions .= '<a href="' . route_to('admin.courses.view', $course->id) . '" class="row-btn view" title="Ver Detalhes" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></a>';
+                $actions .= '<a href="' . route_to('admin.courses.form.edit', $course->id) . '" class="row-btn edit" title="Editar" data-bs-toggle="tooltip"><i class="fas fa-edit"></i></a>';
+                $actions .= '<a href="' . route_to('admin.courses.curriculum', $course->id) . '" class="row-btn curr" title="Currículo" data-bs-toggle="tooltip"><i class="fas fa-book-open"></i></a>';
+                $actions .= '<button type="button" class="row-btn del" onclick="confirmDelete(' . $course->id . ', \'' . esc($course->course_name, 'js') . '\')" title="Eliminar" data-bs-toggle="tooltip"><i class="fas fa-trash"></i></button>';
                 $actions .= '</div>';
 
                 $row['actions'] = $actions;

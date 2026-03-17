@@ -215,7 +215,7 @@ class GradeLevels extends BaseController
             ]);
         }
 
-        $newStatus = $level->is_active ? 0 : 1;
+        $newStatus = $level['is_active'] ? 0 : 1;
         
         try {
             $this->gradeLevelModel->update($id, ['is_active' => $newStatus]);

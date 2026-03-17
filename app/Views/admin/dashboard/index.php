@@ -664,7 +664,7 @@ $this->section('content');
                     <li class="ci-list-item">
                         <div style="min-width:0;flex:1">
                             <div class="ci-list-item-name">
-                                <?= esc($enroll->first_name . ' ' . $enroll->last_name) ?>
+                                <?= esc($enroll['first_name'] . ' ' . $enroll['last_name']) ?>
                             </div>
                             <div class="ci-list-item-sub">
                                 <?php if (!empty($enroll->class_name)): ?>
@@ -682,10 +682,10 @@ $this->section('content');
                                     'Pendente' => ['class'=>'warning','label'=>'Pendente'],
                                     'Inativo'  => ['class'=>'danger', 'label'=>'Inativo'],
                                 ];
-                                $st = $statusMap[$enroll->status] ?? ['class'=>'secondary','label'=>$enroll->status];
+                                $st = $statusMap[$enroll['status']] ?? ['class'=>'secondary','label'=>$enroll['status']];
                             ?>
                             <span class="badge bg-<?= $st['class'] ?>-subtle text-<?= $st['class'] ?>" style="font-size:.68rem"><?= $st['label'] ?></span>
-                            <div class="ci-list-date"><?= date('d/m/Y', strtotime($enroll->created_at)) ?></div>
+                            <div class="ci-list-date"><?= date('d/m/Y', strtotime($enroll['created_at'])) ?></div>
                         </div>
                     </li>
                     <?php endforeach; ?>
