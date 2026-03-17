@@ -29,7 +29,8 @@ class Dashboard extends BaseController
                 s.student_number,
                 e.id as enrollment_id,
                 c.class_name,
-                c.class_shift
+                c.class_shift,
+                c.id as class_id
             ')
             ->join('tbl_students s', 's.id = sg.student_id')
             ->join('tbl_users u', 'u.id = s.user_id')
@@ -37,10 +38,55 @@ class Dashboard extends BaseController
             ->join('tbl_classes c', 'c.id = e.class_id', 'left')
             ->where('sg.guardian_id', $guardianId)
             ->get()
-            ->getResult();
+            ->getResultArray();
+        
+        // Para cada aluno, buscar estatísticas básicas
+        foreach ($students as &$student) {
+            // Últimas notas
+            $student['recent_grades'] = $db->table('tbl_exam_results r')
+                ->select('r.score, d.discipline_name, es.exam_date')
+                ->join('tbl_exam_schedules es', 'es.id = r.exam_schedule_id')
+                ->join('tbl_disciplines d', 'd.id = es.discipline_id')
+                ->where('r.enrollment_id', $student['enrollment_id'])
+                ->orderBy('es.exam_date', 'DESC')
+                ->limit(3)
+                ->get()
+                ->getResultArray();
+            
+            // Próximos exames
+            $student['upcoming_exams'] = $db->table('tbl_exam_schedules es')
+                ->select('es.*, d.discipline_name')
+                ->join('tbl_disciplines d', 'd.id = es.discipline_id')
+                ->where('es.class_id', $student['class_id'])
+                ->where('es.exam_date >=', date('Y-m-d'))
+                ->orderBy('es.exam_date', 'ASC')
+                ->limit(3)
+                ->get()
+                ->getResultArray();
+            
+            // Resumo de presenças
+            $attendance = $db->table('tbl_attendance a')
+                ->select('
+                    COUNT(*) as total,
+                    SUM(CASE WHEN a.status IN ("Presente", "Atrasado", "Falta Justificada") THEN 1 ELSE 0 END) as present
+                ')
+                ->where('a.enrollment_id', $student['enrollment_id'])
+                ->get()
+                ->getRowArray();
+            
+            $student['attendance_percentage'] = ($attendance['total'] > 0) 
+                ? round(($attendance['present'] / $attendance['total']) * 100, 1) 
+                : 0;
+        }
         
         $data['students'] = $students;
         $data['total_students'] = count($students);
+        
+        // Notificações não lidas
+        $data['unread_notifications'] = $db->table('tbl_notifications')
+            ->where('user_id', currentUserId())
+            ->where('is_read', 0)
+            ->countAllResults();
         
         return view('guardians/dashboard', $data);
     }
