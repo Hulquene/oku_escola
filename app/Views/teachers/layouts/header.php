@@ -48,26 +48,26 @@ $recentNotifications = get_recent_notifications(5);
                     <?php if (!empty($recentNotifications)): ?>
                         <?php foreach ($recentNotifications as $notif): ?>
                             <li>
-                                <a class="dropdown-item <?= !$notif->is_read ? 'bg-light' : '' ?>" 
-                                   href="<?= site_url('teachers/notifications/read/' . $notif->id) ?>">
+                                <a class="dropdown-item <?= !$notif['is_read'] ? 'bg-light' : '' ?>" 
+                                   href="<?= site_url('teachers/notifications/read/' . $notif['id']) ?>">
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             <?php 
                                             // Usar helpers para ícone e cor
                                             $icon = $notif->icon ?? get_notification_icon($notif->type ?? 'default');
-                                            $color = $notif->color ?? get_notification_color($notif->type ?? 'default');
+                                            $color = $notif['color'] ?? get_notification_color($notif->type ?? 'default');
                                             ?>
                                             <i class="fas <?= $icon ?> text-<?= $color ?> fa-lg"></i>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <div class="small fw-bold"><?= esc($notif->title) ?></div>
-                                            <div class="small text-muted"><?= esc($notif->message) ?></div>
+                                            <div class="small fw-bold"><?= esc($notif['title']) ?></div>
+                                            <div class="small text-muted"><?= esc($notif['message']) ?></div>
                                             <small class="text-muted d-block mt-1">
                                                 <i class="far fa-clock me-1"></i>
-                                                <?= format_notification_time($notif->created_at) ?>
+                                                <?= format_notification_time($notif['created_at']) ?>
                                             </small>
                                         </div>
-                                        <?php if (!$notif->is_read): ?>
+                                        <?php if (!$notif['is_read']): ?>
                                             <span class="badge bg-primary ms-2">Nova</span>
                                         <?php endif; ?>
                                     </div>

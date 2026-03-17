@@ -9,7 +9,7 @@
             <h1 class="mb-2">Exames de Recurso Agendados</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-calendar-check me-1"></i>
-                <?= $semester->semester_name ?? '' ?>
+                <?= $semester['semester_name'] ?? '' ?>
             </p>
         </div>
         <div>

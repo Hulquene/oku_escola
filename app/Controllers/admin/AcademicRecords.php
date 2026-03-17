@@ -1223,7 +1223,7 @@ public function export()
         
         // Título
         $sheet->setCellValue('A1', 'Pauta de Avaliações - ' . $class['class_name']);
-        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class['year_name']);
+        $sheet->setCellValue('A2', $semester['semester_name'] . ' - ' . $class['year_name']);
         $sheet->mergeCells('A1:' . $this->getColumnLetter(3 + count($disciplines)) . '1');
         $sheet->mergeCells('A2:' . $this->getColumnLetter(3 + count($disciplines)) . '2');
         
@@ -1268,7 +1268,7 @@ public function export()
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
         
-        $filename = 'pauta_' . $class['class_code'] . '_' . $semester->semester_name . '.xlsx';
+        $filename = 'pauta_' . $class['class_code'] . '_' . $semester['semester_name'] . '.xlsx';
         
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');

@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1>Pauta Trimestral - <?= $class['class_name'] ?></h1>
         <div>
-            <a href="<?= site_url('admin/mini-grade-sheet/exportTrimestral/' . $class['id'] . '?semester=' . $semester->id) ?>" 
+            <a href="<?= site_url('admin/mini-grade-sheet/exportTrimestral/' . $class['id'] . '?semester=' . $semester['id']) ?>" 
                class="btn btn-success me-2">
                 <i class="fas fa-file-excel"></i> Exportar Excel
             </a>
@@ -48,7 +48,7 @@
                     </div>
                     <div class="col-md-3">
                         <strong>Trimestre:</strong>
-                        <p><?= $semester->semester_name ?></p>
+                        <p><?= $semester['semester_name'] ?></p>
                     </div>
                 </div>
             </div>

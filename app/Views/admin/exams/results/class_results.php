@@ -33,7 +33,7 @@
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/students') ?>">Alunos</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/students/view/' . $student['id']) ?>"><?= $student['first_name'] ?> <?= $student['last_name'] ?></a></li>
-            <li class="breadcrumb-item active">Boletim - <?= $semester->semester_name ?? '' ?></li>
+            <li class="breadcrumb-item active">Boletim - <?= $semester['semester_name'] ?? '' ?></li>
         </ol>
     </nav>
 </div>
@@ -65,7 +65,7 @@
                 <table class="table table-borderless">
                     <tr>
                         <td width="120"><strong>Semestre:</strong></td>
-                        <td><?= $semester->semester_name ?? '' ?></td>
+                        <td><?= $semester['semester_name'] ?? '' ?></td>
                     </tr>
                     <tr>
                         <td><strong>Ano Letivo:</strong></td>

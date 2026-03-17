@@ -364,7 +364,7 @@ class GradeWeights extends BaseController
         
         $boardMap = [];
         foreach ($boards as $board) {
-            $boardMap[$board->board_code] = $board->id;
+            $boardMap[$board['board_code']] = $board['id'];
         }
         
         $inserted = 0;

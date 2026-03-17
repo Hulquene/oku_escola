@@ -26,7 +26,7 @@
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/classes') ?>">Turmas</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/classes/view/' . $class['id']) ?>"><?= $class['class_name'] ?></a></li>
-            <li class="breadcrumb-item active">Médias - <?= $semester->semester_name ?></li>
+            <li class="breadcrumb-item active">Médias - <?= $semester['semester_name'] ?></li>
         </ol>
     </nav>
 </div>
@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div class="flex-grow-1 ms-3">
-                        <h4 class="mb-1"><?= $semester->semester_name ?></h4>
+                        <h4 class="mb-1"><?= $semester['semester_name'] ?></h4>
                         <p class="text-muted mb-0">
                             <?= date('d/m/Y', strtotime($semester->start_date)) ?> a <?= date('d/m/Y', strtotime($semester->end_date)) ?>
                         </p>
@@ -236,11 +236,11 @@
                 Médias Individuais por Aluno
             </h5>
             <div class="d-flex gap-2">
-                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=excel" 
+                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=excel" 
                    class="btn btn-sm btn-success">
                     <i class="fas fa-file-excel me-1"></i> Excel
                 </a>
-                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=pdf" 
+                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=pdf" 
                    class="btn btn-sm btn-danger">
                     <i class="fas fa-file-pdf me-1"></i> PDF
                 </a>
@@ -291,7 +291,7 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="<?= site_url('admin/discipline-averages/student/' . $student['enrollment_id'] . '/' . $semester->id) ?>" 
+                                    <a href="<?= site_url('admin/discipline-averages/student/' . $student['enrollment_id'] . '/' . $semester['id']) ?>" 
                                        class="text-decoration-none fw-semibold">
                                         <?= $student['student_name'] ?>
                                     </a>
@@ -384,11 +384,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Export functions
 function exportToExcel() {
-    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=excel';
+    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=excel';
 }
 
 function exportToPDF() {
-    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester->id) ?>?type=pdf';
+    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=pdf';
 }
 
 // Search functionality

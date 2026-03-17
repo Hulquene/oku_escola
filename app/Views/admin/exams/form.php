@@ -53,9 +53,9 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($examBoards)): ?>
                                 <?php foreach ($examBoards as $board): ?>
-                                    <option value="<?= $board->id ?>" 
-                                        <?= (old('exam_board_id', $exam->exam_board_id ?? '') == $board->id) ? 'selected' : '' ?>>
-                                        <?= $board->board_name ?> (Peso: <?= $board->weight ?>)
+                                    <option value="<?= $board['id'] ?>" 
+                                        <?= (old('exam_board_id', $exam->exam_board_id ?? '') == $board['id']) ? 'selected' : '' ?>>
+                                        <?= $board['board_name'] ?> (Peso: <?= $board['weight'] ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -124,9 +124,9 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($semesters)): ?>
                                 <?php foreach ($semesters as $semester): ?>
-                                    <option value="<?= $semester->id ?>" 
-                                        <?= (old('semester_id', $exam->semester_id ?? '') == $semester->id) ? 'selected' : '' ?>>
-                                        <?= $semester->semester_name ?>
+                                    <option value="<?= $semester['id'] ?>" 
+                                        <?= (old('semester_id', $exam->semester_id ?? '') == $semester['id']) ? 'selected' : '' ?>>
+                                        <?= $semester['semester_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

@@ -277,7 +277,7 @@ class Exams extends BaseController
             $discipline = $this->disciplineModel->find($data['discipline_id']);
             $board = $this->examBoardModel->find($data['exam_board_id']);
             
-            $data['exam_name'] = $board->board_name . ' - ' . 
+            $data['exam_name'] = $board['board_name'] . ' - ' . 
                                 ($discipline['discipline_name'] ?? '') . ' - ' . 
                                 ($class['class_name'] ?? '');
         } else {
@@ -460,7 +460,7 @@ public function grade($examScheduleId)
         // ✅ BUSCAR O ASSESSMENT_TYPE DA TABELA exam_boards
         $boardModel = new \App\Models\ExamBoardModel();
         $board = $boardModel->find($exam->exam_board_id);
-        $assessmentType = $board ? $board->board_code : 'AC'; // Fallback para 'AC' se não encontrar
+        $assessmentType = $board ? $board['board_code'] : 'AC'; // Fallback para 'AC' se não encontrar
         
         $db = db_connect();
         $db->transStart();

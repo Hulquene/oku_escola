@@ -215,10 +215,10 @@ class Grades extends BaseController
                     $assessments = $this->continuousModel
                         ->where('enrollment_id', $enrollment['id'])
                         ->where('discipline_id', $discipline['id'])
-                        ->where('semester_id', $semester->id)
+                        ->where('semester_id', $semester['id'])
                         ->findAll();
                     
-                    $enrollment->grades[$discipline['id']][$semester->id] = $assessments;
+                    $enrollment->grades[$discipline['id']][$semester['id']] = $assessments;
                 }
             }
         }
@@ -441,7 +441,7 @@ public function period()
             ->with('error', 'Período ou ano letivo não encontrado');
     }
     
-    $data['title'] = 'Relatório por Período - ' . $semester->semester_name;
+    $data['title'] = 'Relatório por Período - ' . $semester['semester_name'];
     $data['semester'] = $semester;
     $data['academicYear'] = $academicYear;
     

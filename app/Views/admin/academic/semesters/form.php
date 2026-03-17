@@ -229,7 +229,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <form action="<?= site_url('admin/academic/semesters/save') ?>" method="post" id="semesterForm">
             <?= csrf_field() ?>
             <?php if ($semester): ?>
-                <input type="hidden" name="id" value="<?= $semester->id ?>">
+                <input type="hidden" name="id" value="<?= $semester['id'] ?>">
             <?php endif; ?>
 
             <!-- Dynamic alert -->
@@ -277,7 +277,7 @@ body { background: var(--surface); color: var(--text-primary); }
                         <input type="text"
                                class="form-input-ci <?= session('errors.semester_name') ? 'is-invalid' : '' ?>"
                                id="semester_name" name="semester_name"
-                               value="<?= old('semester_name', $semester->semester_name ?? '') ?>"
+                               value="<?= old('semester_name', $semester['semester_name'] ?? '') ?>"
                                placeholder="Ex: 1º Trimestre 2024"
                                required maxlength="100">
                         <?php if (session('errors.semester_name')): ?>

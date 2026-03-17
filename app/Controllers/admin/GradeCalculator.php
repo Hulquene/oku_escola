@@ -480,8 +480,8 @@ class GradeCalculator extends BaseController
         $boardsWithWeights = array_column($weights, 'exam_board_id');
         
         foreach ($allBoards as $board) {
-            if (!in_array($board->id, $boardsWithWeights)) {
-                $missingWeights[] = "Tipo de avaliação '{$board->board_name}' sem peso configurado";
+            if (!in_array($board['id'], $boardsWithWeights)) {
+                $missingWeights[] = "Tipo de avaliação '{$board['board_name']}' sem peso configurado";
             }
         }
 

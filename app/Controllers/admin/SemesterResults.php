@@ -361,7 +361,7 @@ public function index()
 
         // Set headers
         $sheet->setCellValue('A1', 'Resultados Semestrais - ' . $class['class_name']);
-        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class['year_name']);
+        $sheet->setCellValue('A2', $semester['semester_name'] . ' - ' . $class['year_name']);
         $sheet->mergeCells('A1:G1');
         $sheet->mergeCells('A2:G2');
 
@@ -413,7 +413,7 @@ public function index()
         }
 
         // Set filename
-        $filename = 'resultados_' . $class['class_code'] . '_' . $semester->semester_name . '.xlsx';
+        $filename = 'resultados_' . $class['class_code'] . '_' . $semester['semester_name'] . '.xlsx';
 
         // Output
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -449,7 +449,7 @@ public function index()
         $pdf->SetFont('helvetica', 'B', 16);
         $pdf->Cell(0, 10, 'Resultados Semestrais - ' . $class['class_name'], 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $semester->semester_name . ' - ' . $class['year_name'], 0, 1, 'C');
+        $pdf->Cell(0, 10, $semester['semester_name'] . ' - ' . $class['year_name'], 0, 1, 'C');
         $pdf->Ln(5);
 
         // Table
@@ -507,7 +507,7 @@ public function index()
         $pdf->writeHTML($html, true, false, true, false, '');
 
         // Close and output PDF
-        $filename = 'resultados_' . $class['class_code'] . '_' . $semester->semester_name . '.pdf';
+        $filename = 'resultados_' . $class['class_code'] . '_' . $semester['semester_name'] . '.pdf';
         $pdf->Output($filename, 'D');
         exit;
     }

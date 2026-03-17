@@ -63,12 +63,12 @@
                     <?php if (!empty($boards)): ?>
                         <?php foreach ($boards as $board): ?>
                             <tr>
-                                <td><span class="badge-ci code"><?= $board->id ?></span></td>
-                                <td><span class="fw-bold"><?= esc($board->board_name) ?></span></td>
-                                <td><span class="badge-ci info"><?= esc($board->board_code) ?></span></td>
+                                <td><span class="badge-ci code"><?= $board['id'] ?></span></td>
+                                <td><span class="fw-bold"><?= esc($board['board_name']) ?></span></td>
+                                <td><span class="badge-ci info"><?= esc($board['board_code']) ?></span></td>
                                 <td>
                                     <?php 
-                                    $typeClass = match($board->board_type) {
+                                    $typeClass = match($board['board_type']) {
                                         'Normal' => 'success',
                                         'Recurso' => 'warning',
                                         'Especial' => 'info',
@@ -77,11 +77,11 @@
                                         default => 'secondary'
                                     };
                                     ?>
-                                    <span class="badge-ci <?= $typeClass ?>"><?= esc($board->board_type) ?></span>
+                                    <span class="badge-ci <?= $typeClass ?>"><?= esc($board['board_type']) ?></span>
                                 </td>
-                                <td class="text-center"><span class="font-mono fw-bold"><?= number_format($board->weight, 1) ?></span></td>
+                                <td class="text-center"><span class="font-mono fw-bold"><?= number_format($board['weight'], 1) ?></span></td>
                                 <td class="text-center">
-                                    <?php if ($board->is_active): ?>
+                                    <?php if ($board['is_active']): ?>
                                         <span class="badge-ci success"><span class="status-dot"></span>Ativo</span>
                                     <?php else: ?>
                                         <span class="badge-ci secondary"><span class="status-dot"></span>Inativo</span>
@@ -92,17 +92,17 @@
                                         <!-- Botão Editar -->
                                         <button type="button" class="row-btn edit edit-board" 
                                                 data-bs-toggle="tooltip" title="Editar"
-                                                data-id="<?= $board->id ?>"
-                                                data-name="<?= esc($board->board_name) ?>"
-                                                data-code="<?= esc($board->board_code) ?>"
-                                                data-type="<?= esc($board->board_type) ?>"
-                                                data-weight="<?= $board->weight ?>"
-                                                data-active="<?= $board->is_active ?>">
+                                                data-id="<?= $board['id'] ?>"
+                                                data-name="<?= esc($board['board_name']) ?>"
+                                                data-code="<?= esc($board['board_code']) ?>"
+                                                data-type="<?= esc($board['board_type']) ?>"
+                                                data-weight="<?= $board['weight'] ?>"
+                                                data-active="<?= $board['is_active'] ?>">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         
                                         <!-- Botão Eliminar -->
-                                        <a href="<?= site_url('admin/exams/boards/delete/' . $board->id) ?>" 
+                                        <a href="<?= site_url('admin/exams/boards/delete/' . $board['id']) ?>" 
                                            class="row-btn del" 
                                            data-bs-toggle="tooltip" title="Eliminar"
                                            onclick="return confirm('Tem certeza que deseja eliminar este tipo de exame?')">

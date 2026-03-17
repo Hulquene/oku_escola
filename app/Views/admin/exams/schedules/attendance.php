@@ -79,7 +79,7 @@
                         <p class="text-muted mb-3">
                             Esta turma não possui alunos com matrícula ativa ou pendente.
                         </p>
-                        <a href="<?= site_url('admin/enrollments?class_id=' . $schedule->class_id) ?>" class="btn-ci primary">
+                        <a href="<?= site_url('admin/enrollments?class_id=' . $schedule['class_id']) ?>" class="btn-ci primary">
                             <i class="fas fa-plus me-1"></i> Matricular Alunos
                         </a>
                     </div>

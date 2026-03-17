@@ -51,8 +51,8 @@
                     <option value="">Todos</option>
                     <?php if (!empty($semesters)): ?>
                         <?php foreach ($semesters as $semester): ?>
-                            <option value="<?= $semester->id ?>" <?= ($selectedSemester == $semester->id) ? 'selected' : '' ?>>
-                                <?= $semester->semester_name ?>
+                            <option value="<?= $semester['id'] ?>" <?= ($selectedSemester == $semester['id']) ? 'selected' : '' ?>>
+                                <?= $semester['semester_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

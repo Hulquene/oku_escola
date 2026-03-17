@@ -249,9 +249,9 @@
                         <tbody>
                             <?php foreach ($examResults as $result): ?>
                                 <tr>
-                                    <td><?= $result->formatted_date ?? date('d/m/Y', strtotime($result->exam_date ?? 'now')) ?></td>
-                                    <td><?= esc($result->exam_name ?? $result->board_name ?? 'Exame') ?></td>
-                                    <td><?= esc($result->board_type ?? 'Normal') ?></td>
+                                    <td><?= $result->formatted_date ?? date('d/m/Y', strtotime($result['exam_date'] ?? 'now')) ?></td>
+                                    <td><?= esc($result->exam_name ?? $result['board_name'] ?? 'Exame') ?></td>
+                                    <td><?= esc($result['board_type'] ?? 'Normal') ?></td>
                                     <td><?= $result->weight ?? 1 ?>x</td>
                                     <td class="fw-bold <?= ($result['score'] ?? 0) >= ($result->approval_score ?? 10) ? 'text-success' : 'text-danger' ?>">
                                         <?= number_format($result['score'] ?? 0, 1, ',', '.') ?>

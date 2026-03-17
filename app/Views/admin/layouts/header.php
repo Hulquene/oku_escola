@@ -110,17 +110,17 @@
                     <div class="notif-list">
                         <?php if (!empty($recentNotifications)): ?>
                             <?php foreach ($recentNotifications as $notif): ?>
-                            <a class="notif-item <?= !$notif->is_read ? 'unread' : '' ?>"
-                               href="<?= site_url('admin/notifications/read/' . $notif->id) ?>">
-                                <span class="notif-icon-wrap text-<?= $notif->color ?? 'primary' ?>">
+                            <a class="notif-item <?= !$notif['is_read'] ? 'unread' : '' ?>"
+                               href="<?= site_url('admin/notifications/read/' . $notif['id']) ?>">
+                                <span class="notif-icon-wrap text-<?= $notif['color'] ?? 'primary' ?>">
                                     <i class="fas <?= $notif->icon ?? 'fa-info-circle' ?>"></i>
                                 </span>
                                 <div class="notif-content">
-                                    <div class="notif-title"><?= esc($notif->title) ?></div>
-                                    <div class="notif-msg"><?= esc($notif->message) ?></div>
-                                    <div class="notif-time"><?= time_elapsed_string($notif->created_at) ?></div>
+                                    <div class="notif-title"><?= esc($notif['title']) ?></div>
+                                    <div class="notif-msg"><?= esc($notif['message']) ?></div>
+                                    <div class="notif-time"><?= time_elapsed_string($notif['created_at']) ?></div>
                                 </div>
-                                <?php if (!$notif->is_read): ?>
+                                <?php if (!$notif['is_read']): ?>
                                     <span class="notif-new-dot"></span>
                                 <?php endif; ?>
                             </a>

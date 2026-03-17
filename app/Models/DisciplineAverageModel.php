@@ -150,7 +150,7 @@ class DisciplineAverageModel extends BaseModel
     {
         $boardModel = new ExamBoardModel();
         $board = $boardModel->find($boardId);
-        return $board ? $board->board_code : '';
+        return $board ? $board['board_code'] : '';
     }
     
     /**

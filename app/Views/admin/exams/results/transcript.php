@@ -75,7 +75,7 @@
                 <?php foreach ($yearData['semesters'] as $semData): ?>
                     <?php $semester = $semData['semester']; ?>
                     <div class="p-3 <?= !$loop->last ? 'border-bottom' : '' ?>">
-                        <h6 class="fw-semibold mb-3"><?= $semester->semester_name ?> (<?= $semester->semester_type ?>)</h6>
+                        <h6 class="fw-semibold mb-3"><?= $semester['semester_name'] ?> (<?= $semester->semester_type ?>)</h6>
                         
                         <?php if (!empty($semData['averages'])): ?>
                             <div class="table-responsive">

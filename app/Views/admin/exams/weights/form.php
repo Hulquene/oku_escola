@@ -93,10 +93,10 @@
                                         name="exam_board_id" required>
                                     <option value="">Selecione</option>
                                     <?php foreach ($examBoards as $board): ?>
-                                        <option value="<?= $board->id ?>" 
-                                            data-type="<?= $board->board_type ?>"
-                                            <?= (old('exam_board_id') ?: ($weight->exam_board_id ?? '')) == $board->id ? 'selected' : '' ?>>
-                                            <?= $board->board_name ?> (<?= $board->board_code ?> - <?= $board->board_type ?>)
+                                        <option value="<?= $board['id'] ?>" 
+                                            data-type="<?= $board['board_type'] ?>"
+                                            <?= (old('exam_board_id') ?: ($weight->exam_board_id ?? '')) == $board['id'] ? 'selected' : '' ?>>
+                                            <?= $board['board_name'] ?> (<?= $board['board_code'] ?> - <?= $board['board_type'] ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

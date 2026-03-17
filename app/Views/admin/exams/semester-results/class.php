@@ -9,7 +9,7 @@
             <h1 class="mb-2">Resultados Semestrais da Turma</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-users me-1"></i>
-                <?= $class['class_name'] ?> • <?= $class['level_name'] ?> • <?= $semester->semester_name ?>
+                <?= $class['class_name'] ?> • <?= $class['level_name'] ?> • <?= $semester['semester_name'] ?>
             </p>
         </div>
         <div class="d-flex gap-2">
@@ -32,7 +32,7 @@
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/classes') ?>">Turmas</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/classes/view/' . $class['id']) ?>"><?= $class['class_name'] ?></a></li>
-            <li class="breadcrumb-item active">Resultados - <?= $semester->semester_name ?></li>
+            <li class="breadcrumb-item active">Resultados - <?= $semester['semester_name'] ?></li>
         </ol>
     </nav>
 </div>
@@ -225,11 +225,11 @@
                                 </td>
                                 <td class="text-center pe-3">
                                     <div class="btn-group btn-group-sm">
-                                        <a href="<?= site_url('admin/semester-results/student/' . $result['enrollment_id'] . '/' . $semester->id) ?>" 
+                                        <a href="<?= site_url('admin/semester-results/student/' . $result['enrollment_id'] . '/' . $semester['id']) ?>" 
                                            class="btn btn-outline-primary" title="Ver detalhes">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="<?= site_url('admin/discipline-averages/student/' . $result['enrollment_id'] . '/' . $semester->id) ?>" 
+                                        <a href="<?= site_url('admin/discipline-averages/student/' . $result['enrollment_id'] . '/' . $semester['id']) ?>" 
                                            class="btn btn-outline-info" title="Ver médias">
                                             <i class="fas fa-chart-line"></i>
                                         </a>
@@ -293,20 +293,20 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
 
 // Export functions
 function exportToExcel() {
-    window.location.href = '<?= site_url('admin/semester-results/export/' . $class['id'] . '/' . $semester->id) ?>?type=excel';
+    window.location.href = '<?= site_url('admin/semester-results/export/' . $class['id'] . '/' . $semester['id']) ?>?type=excel';
 }
 
 function exportToPDF() {
-    window.location.href = '<?= site_url('admin/semester-results/export/' . $class['id'] . '/' . $semester->id) ?>?type=pdf';
+    window.location.href = '<?= site_url('admin/semester-results/export/' . $class['id'] . '/' . $semester['id']) ?>?type=pdf';
 }
 
 function generateReportCards() {
-    window.location.href = '<?= site_url('admin/semester-results/generate-report-cards/' . $class['id'] . '/' . $semester->id) ?>';
+    window.location.href = '<?= site_url('admin/semester-results/generate-report-cards/' . $class['id'] . '/' . $semester['id']) ?>';
 }
 
 function calculateClassResults() {
     $.ajax({
-        url: '<?= site_url('admin/semester-results/calculate-class/' . $class['id'] . '/' . $semester->id) ?>',
+        url: '<?= site_url('admin/semester-results/calculate-class/' . $class['id'] . '/' . $semester['id']) ?>',
         method: 'POST',
         data: {
             <?= csrf_token() ?>: '<?= csrf_hash() ?>'

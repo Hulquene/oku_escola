@@ -85,10 +85,10 @@
                         <select class="form-select" name="exam_board_id" required>
                             <option value="">Selecione o tipo de exame</option>
                             <?php foreach ($examBoards as $board): ?>
-                                <option value="<?= $board->id ?>" 
-                                        <?= ($period['period_type'] == 'Recurso' && $board->board_type == 'Recurso') ? 'selected' : '' ?>
-                                        <?= ($period['period_type'] == 'Normal' && $board->board_type == 'Normal') ? 'selected' : '' ?>>
-                                    <?= $board->board_name ?> (<?= $board->board_type ?>)
+                                <option value="<?= $board['id'] ?>" 
+                                        <?= ($period['period_type'] == 'Recurso' && $board['board_type'] == 'Recurso') ? 'selected' : '' ?>
+                                        <?= ($period['period_type'] == 'Normal' && $board['board_type'] == 'Normal') ? 'selected' : '' ?>>
+                                    <?= $board['board_name'] ?> (<?= $board['board_type'] ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>

@@ -323,7 +323,7 @@ class Profile extends BaseController
                     ')
                     ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_final_grades.discipline_id')
                     ->where('tbl_final_grades.enrollment_id', $enrollment['id'])
-                    ->where('tbl_final_grades.semester_id', $semester->id)
+                    ->where('tbl_final_grades.semester_id', $semester['id'])
                     ->findAll();
                 
                 if (!empty($grades)) {

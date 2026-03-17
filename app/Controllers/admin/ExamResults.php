@@ -407,16 +407,16 @@ public function index()
                         ')
                         ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_discipline_averages.discipline_id')
                         ->where('tbl_discipline_averages.enrollment_id', $enrollment['id'])
-                        ->where('tbl_discipline_averages.semester_id', $semester->id)
+                        ->where('tbl_discipline_averages.semester_id', $semester['id'])
                         ->orderBy('tbl_disciplines.discipline_name', 'ASC')
                         ->findAll();
                     
                     $semesterResult = $this->semesterResultModel
                         ->where('enrollment_id', $enrollment['id'])
-                        ->where('semester_id', $semester->id)
+                        ->where('semester_id', $semester['id'])
                         ->first();
                     
-                    $yearData['semesters'][$semester->id] = [
+                    $yearData['semesters'][$semester['id']] = [
                         'semester' => $semester,
                         'averages' => $averages,
                         'result' => $semesterResult

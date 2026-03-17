@@ -447,7 +447,7 @@ class DisciplineAverages extends BaseController
 
         // Set headers
         $sheet->setCellValue('A1', 'Médias Disciplinares - ' . $class['class_name']);
-        $sheet->setCellValue('A2', $semester->semester_name . ' - ' . $class['year_name']);
+        $sheet->setCellValue('A2', $semester['semester_name'] . ' - ' . $class['year_name']);
         $sheet->mergeCells('A1:' . $this->getColumnLetter(count($disciplines) + 3) . '1');
         $sheet->mergeCells('A2:' . $this->getColumnLetter(count($disciplines) + 3) . '2');
 
@@ -504,7 +504,7 @@ class DisciplineAverages extends BaseController
         }
 
         // Set filename
-        $filename = 'medias_' . $class['class_code'] . '_' . $semester->semester_name . '.xlsx';
+        $filename = 'medias_' . $class['class_code'] . '_' . $semester['semester_name'] . '.xlsx';
 
         // Output
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -540,7 +540,7 @@ class DisciplineAverages extends BaseController
         $pdf->SetFont('helvetica', 'B', 16);
         $pdf->Cell(0, 10, 'Médias Disciplinares - ' . $class['class_name'], 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, $semester->semester_name . ' - ' . $class['year_name'], 0, 1, 'C');
+        $pdf->Cell(0, 10, $semester['semester_name'] . ' - ' . $class['year_name'], 0, 1, 'C');
         $pdf->Ln(5);
 
         // Table headers
@@ -599,7 +599,7 @@ class DisciplineAverages extends BaseController
         $pdf->writeHTML($html, true, false, true, false, '');
 
         // Close and output PDF
-        $filename = 'medias_' . $class['class_code'] . '_' . $semester->semester_name . '.pdf';
+        $filename = 'medias_' . $class['class_code'] . '_' . $semester['semester_name'] . '.pdf';
         $pdf->Output($filename, 'D');
         exit;
     }

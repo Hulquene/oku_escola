@@ -49,7 +49,7 @@
     <div class="card-header">
         <i class="fas fa-file-alt"></i> Boletim de Notas
         <?php if ($semester): ?>
-            <span class="float-end"><?= $semester->semester_name ?> - <?= $semester->semester_type ?></span>
+            <span class="float-end"><?= $semester['semester_name'] ?> - <?= $semester->semester_type ?></span>
         <?php endif; ?>
     </div>
     <div class="card-body">
@@ -101,18 +101,18 @@
                         <?php 
                         $currentDiscipline = '';
                         foreach ($examResults as $result): 
-                            if ($currentDiscipline != $result->discipline_name):
-                                $currentDiscipline = $result->discipline_name;
+                            if ($currentDiscipline != $result['discipline_name']):
+                                $currentDiscipline = $result['discipline_name'];
                         ?>
                             <tr class="table-secondary">
-                                <td colspan="7" class="fw-bold"><?= $result->discipline_name ?></td>
+                                <td colspan="7" class="fw-bold"><?= $result['discipline_name'] ?></td>
                             </tr>
                         <?php endif; ?>
                             <tr>
                                 <td></td>
                                 <td><?= $result->exam_name ?></td>
-                                <td><span class="badge bg-info"><?= $result->board_type ?></span></td>
-                                <td><?= date('d/m/Y', strtotime($result->exam_date)) ?></td>
+                                <td><span class="badge bg-info"><?= $result['board_type'] ?></span></td>
+                                <td><?= date('d/m/Y', strtotime($result['exam_date'])) ?></td>
                                 <td class="text-center fw-bold"><?= number_format($result['score'], 1) ?></td>
                                 <td class="text-center"><?= number_format($result->score_percentage, 1) ?>%</td>
                                 <td class="text-center"><?= $result->grade ?: '-' ?></td>

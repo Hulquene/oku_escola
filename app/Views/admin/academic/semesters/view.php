@@ -159,7 +159,7 @@ body { background: var(--surface); color: var(--text-primary); }
         </div>
         <div class="d-flex gap-2 flex-wrap">
             <?php if (!isset($semester->has_results) || $semester->has_results == 0): ?>
-                <a href="<?= site_url('admin/academic/semesters/form-edit/' . $semester->id) ?>" class="hdr-btn accent">
+                <a href="<?= site_url('admin/academic/semesters/form-edit/' . $semester['id']) ?>" class="hdr-btn accent">
                     <i class="fas fa-edit"></i> Editar
                 </a>
             <?php else: ?>
@@ -227,11 +227,11 @@ body { background: var(--surface); color: var(--text-primary); }
                 <table class="info-table">
                     <tr>
                         <th>ID</th>
-                        <td><span class="id-tag"><?= $semester->id ?></span></td>
+                        <td><span class="id-tag"><?= $semester['id'] ?></span></td>
                     </tr>
                     <tr>
                         <th>Nome</th>
-                        <td style="font-weight:700;"><?= esc($semester->semester_name) ?></td>
+                        <td style="font-weight:700;"><?= esc($semester['semester_name']) ?></td>
                     </tr>
                     <tr>
                         <th>Tipo</th>

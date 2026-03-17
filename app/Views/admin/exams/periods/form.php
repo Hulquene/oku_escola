@@ -91,10 +91,10 @@
                                         name="semester_id" id="semester" required>
                                     <option value="">Selecione</option>
                                     <?php foreach ($semesters as $semester): ?>
-                                        <option value="<?= $semester->id ?>" 
+                                        <option value="<?= $semester['id'] ?>" 
                                             data-year="<?= $semester->academic_year_id ?>"
-                                            <?= (old('semester_id') ?: ($period->semester_id ?? '')) == $semester->id ? 'selected' : '' ?>>
-                                            <?= $semester->semester_name ?> (<?= $semester->semester_type ?>)
+                                            <?= (old('semester_id') ?: ($period->semester_id ?? '')) == $semester['id'] ? 'selected' : '' ?>>
+                                            <?= $semester['semester_name'] ?> (<?= $semester->semester_type ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 </select>

@@ -409,9 +409,9 @@ class Schedule extends BaseController
                             $data[$day][$period] = array_values($data[$day][$period]);
                             
                             // Atualizar o registro no banco
-                            $this->scheduleModel->updateSchedule($schedule->class_id, $data);
+                            $this->scheduleModel->updateSchedule($schedule['class_id'], $data);
                             
-                            $classId = $schedule->class_id;
+                            $classId = $schedule['class_id'];
                             $found = true;
                             break 4;
                         }

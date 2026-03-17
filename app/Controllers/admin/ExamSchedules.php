@@ -557,8 +557,8 @@ public function saveResults($id)
     }
     
     // ✅ Buscar o board para obter o assessment_type
-    $board = $this->examBoardModel->find($schedule->exam_board_id);
-    $assessmentType = $board ? $board->board_code : 'AC';
+    $board = $this->examBoardModel->find($schedule['exam_board_id']);
+    $assessmentType = $board ? $board['board_code'] : 'AC';
     
     $scores = $this->request->getPost('scores') ?? [];
     $action = $this->request->getPost('action');
@@ -1203,8 +1203,8 @@ private function notifyTeachers($scheduleId, $message)
     $classDisciplineModel = new \App\Models\ClassDisciplineModel();
     $teachers = $classDisciplineModel
         ->select('teacher_id')
-        ->where('class_id', $schedule->class_id)
-        ->where('discipline_id', $schedule->discipline_id)
+        ->where('class_id', $schedule['class_id'])
+        ->where('discipline_id', $schedule['discipline_id'])
         ->findAll();
     
     $teacherIds = array_column($teachers, 'teacher_id');

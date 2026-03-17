@@ -342,6 +342,15 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
             $routes->get('delete/(:num)', [ExamBoards::class, 'delete/$1'], ['as' => 'exams.boards.delete']);
         });
 
+        // === RESULTADOS E PAUTAS ===
+        $routes->group('results', function ($routes) {
+            $routes->get('', [ExamResults::class, 'index'], ["as" => 'exams.results']);
+            $routes->post('save', [ExamResults::class, 'save'], ["as" => 'exams.results.save']);
+            $routes->get('report-card/(:num)', [ExamResults::class, 'reportCard'], ["as" => 'exams.results.report/$1']);
+            $routes->get('transcript/(:num)', [ExamResults::class, 'transcript'], ["as" => 'exams.results.transcript/$1']);
+            $routes->get('class/(:num)', [ExamResults::class, 'classResults/$1'], ["as" => 'exams.results.class']);
+        });
+
         // === PERÍODOS DE EXAME ===
         $routes->group('periods', function ($routes) {
             $routes->get('', [ExamPeriods::class, 'index'], ['as' => 'exams.periods']);
@@ -375,7 +384,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
             $routes->get('attendance/(:num)', [ExamSchedules::class, 'attendance/$1'], ['as' => 'exams.schedules.attendance']);
             $routes->post('attendance/save/(:num)', [ExamSchedules::class, 'saveAttendance/$1'], ['as' => 'exams.schedules.saveAttendance']);
             $routes->get('results/(:num)', [ExamSchedules::class, 'results/$1'], ['as' => 'exams.schedules.results']);
-            $routes->post('results/save/(:num)', [ExamSchedules::class, 'saveResults/$1'], ['as' => 'exams.schedules.save-results']);
+            $routes->post('results/save/(:num)', [ExamSchedules::class, 'saveResults/$1'], ['as' => 'exams.schedules.results.post']);
             $routes->get('get-disciplines/(:num)', [ExamSchedules::class, 'getDisciplinesByClass/$1'], ['as' => 'exams.schedules.get-disciplines']);
         });
 
@@ -389,6 +398,14 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
             $routes->get('delete/(:num)', [GradeWeights::class, 'delete/$1'], ['as' => 'exams.weights.delete']);
             $routes->get('by-level/(:num)', [GradeWeights::class, 'getByLevel/$1'], ['as' => 'exams.weights.by-level']);
             $routes->post('copy', [GradeWeights::class, 'copyFromPrevious'], ['as' => 'exams.weights.copy']);
+        });
+
+        // === CÁLCULO DE MÉDIAS ===
+        $routes->group('calculate', function ($routes) {
+            $routes->get('discipline/(:num)/(:num)/(:num)', [\App\Controllers\admin\GradeCalculator::class, 'discipline/$1/$2/$3'], ['as' => 'exams.calculate.discipline']);
+            $routes->get('semester/(:num)/(:num)', [\App\Controllers\admin\GradeCalculator::class, 'semester/$1/$2'], ['as' => 'exams.calculate.semester']);
+            $routes->get('class/(:num)/(:num)', [\App\Controllers\admin\GradeCalculator::class, 'class/$1/$2'], ['as' => 'exams.calculate.class']);
+            $routes->post('run', [\App\Controllers\admin\GradeCalculator::class, 'runCalculation'], ['as' => 'exams.calculate.run']);
         });
 
         // === EXAMES DE RECURSO ===
@@ -406,6 +423,26 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         });
     });
 
+     // === MÉDIAS DISCIPLINARES ===
+    $routes->group('discipline-averages', function ($routes) {
+        // ROTA RAIZ - Listagem ou dashboard de médias
+        $routes->get('/', [\App\Controllers\admin\DisciplineAverages::class, 'index'], ['as' => 'discipline-averages.index']);
+
+        $routes->get('student/(:num)/(:num)', [\App\Controllers\admin\DisciplineAverages::class, 'student/$1/$2'], ['as' => 'discipline-averages.student']);
+        $routes->get('class/(:num)/(:num)', [\App\Controllers\admin\DisciplineAverages::class, 'class/$1/$2'], ['as' => 'discipline-averages.class']);
+        $routes->get('export/(:num)/(:num)', [\App\Controllers\admin\DisciplineAverages::class, 'export/$1/$2'], ['as' => 'discipline-averages.export']);
+    });
+
+    // === RESULTADOS SEMESTRAIS ===
+    $routes->group('semester-results', function ($routes) {
+        // ROTA RAIZ - Dashboard de resultados semestrais
+        $routes->get('/', [\App\Controllers\admin\SemesterResults::class, 'index'], ['as' => 'semester-results.index']);
+
+        $routes->get('student/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'student/$1/$2'], ['as' => 'semester-results.student']);
+        $routes->get('class/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'class/$1/$2'], ['as' => 'semester-results.class']);
+        $routes->get('summary/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'summary/$1/$2'], ['as' => 'semester-results.summary']);
+        $routes->get('export/(:num)/(:num)', [\App\Controllers\admin\SemesterResults::class, 'export/$1/$2'], ['as' => 'semester-results.export']);
+    });
     /**
      * =====================================================
      * GESTÃO DE ALUNOS

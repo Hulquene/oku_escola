@@ -194,7 +194,7 @@ class AppealExams extends BaseController
         if (!$examPeriodId) {
             $semester = $this->semesterModel->find($semesterId);
             $periodData = [
-                'period_name' => 'Exames de Recurso - ' . $semester->semester_name,
+                'period_name' => 'Exames de Recurso - ' . $semester['semester_name'],
                 'academic_year_id' => $semester->academic_year_id,
                 'semester_id' => $semesterId,
                 'period_type' => 'Recurso',
@@ -606,7 +606,7 @@ class AppealExams extends BaseController
         $sheet = $excel->getActiveSheet();
 
         // Headers
-        $sheet->setCellValue('A1', 'Alunos em Recurso - ' . $semester->semester_name);
+        $sheet->setCellValue('A1', 'Alunos em Recurso - ' . $semester['semester_name']);
         $sheet->mergeCells('A1:G1');
         $sheet->getStyle('A1')->getFont()->setBold(true);
 
@@ -619,10 +619,10 @@ class AppealExams extends BaseController
 
         $row = 4;
         foreach ($results as $result) {
-            $sheet->setCellValue('A' . $row, $result->class_name);
-            $sheet->setCellValue('B' . $row, $result->student_number);
-            $sheet->setCellValue('C' . $row, $result->first_name . ' ' . $result->last_name);
-            $sheet->setCellValue('D' . $row, $result->discipline_name);
+            $sheet->setCellValue('A' . $row, $result['class_name']);
+            $sheet->setCellValue('B' . $row, $result['student_number']);
+            $sheet->setCellValue('C' . $row, $result['first_name'] . ' ' . $result['last_name']);
+            $sheet->setCellValue('D' . $row, $result['discipline_name']);
             $sheet->setCellValue('E' . $row, number_format($result->final_score, 1));
             $sheet->setCellValue('F' . $row, $result->status);
             $row++;
@@ -635,7 +635,7 @@ class AppealExams extends BaseController
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        $filename = 'alunos_recurso_' . $semester->semester_name . '_' . date('Ymd') . '.xlsx';
+        $filename = 'alunos_recurso_' . $semester['semester_name'] . '_' . date('Ymd') . '.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
@@ -656,7 +656,7 @@ class AppealExams extends BaseController
         $pdf->setPrintFooter(false);
         $pdf->AddPage();
 
-        $html = '<h2>Alunos em Recurso - ' . $semester->semester_name . '</h2>
+        $html = '<h2>Alunos em Recurso - ' . $semester['semester_name'] . '</h2>
             <table border="1" cellpadding="5">
                 <thead>
                     <tr style="background-color: #f0f0f0;">
@@ -672,10 +672,10 @@ class AppealExams extends BaseController
 
         foreach ($results as $result) {
             $html .= '<tr>
-                <td>' . $result->class_name . '</td>
-                <td>' . $result->student_number . '</td>
-                <td>' . $result->first_name . ' ' . $result->last_name . '</td>
-                <td>' . $result->discipline_name . '</td>
+                <td>' . $result['class_name'] . '</td>
+                <td>' . $result['student_number'] . '</td>
+                <td>' . $result['first_name'] . ' ' . $result['last_name'] . '</td>
+                <td>' . $result['discipline_name'] . '</td>
                 <td align="center">' . number_format($result->final_score, 1) . '</td>
                 <td align="center">' . $result->status . '</td>
             </tr>';
@@ -684,7 +684,7 @@ class AppealExams extends BaseController
         $html .= '</tbody></table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');
-        $pdf->Output('alunos_recurso_' . $semester->semester_name . '.pdf', 'D');
+        $pdf->Output('alunos_recurso_' . $semester['semester_name'] . '.pdf', 'D');
         exit;
     }
 

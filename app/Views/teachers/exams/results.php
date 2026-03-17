@@ -153,8 +153,8 @@
                             $dateField = $result->created_at ?? $result->recorded_at ?? null;
                             ?>
                             <tr>
-                                <td><span class="badge bg-secondary"><?= $result->student_number ?></span></td>
-                                <td><?= $result->first_name ?> <?= $result->last_name ?></td>
+                                <td><span class="badge bg-secondary"><?= $result['student_number'] ?></span></td>
+                                <td><?= $result['first_name'] ?> <?= $result['last_name'] ?></td>
                                 <td>
                                     <strong><?= number_format($result['score'], 1) ?></strong> / <?= $exam->max_score ?>
                                 </td>

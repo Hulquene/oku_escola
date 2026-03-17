@@ -600,15 +600,15 @@ class Semesters extends BaseController
         
         if ($this->semesterModel->setCurrent($id)) {
             if (function_exists('log_action')) {
-                log_action('update', "Período '{$semester->semester_name}' definido como atual", $id, 'semester', [
+                log_action('update', "Período '{$semester['semester_name']}' definido como atual", $id, 'semester', [
                     'previous_current_id' => $currentSemester ? $currentSemester['id'] : null,
                     'previous_current_name' => $currentSemester ? $currentSemester->semester_name : null
                 ]);
             } else {
-                log_message('info', "Período '{$semester->semester_name}' definido como atual");
+                log_message('info', "Período '{$semester['semester_name']}' definido como atual");
             }
             
-            return redirect()->back()->with('success', "Período '{$semester->semester_name}' definido como atual.");
+            return redirect()->back()->with('success', "Período '{$semester['semester_name']}' definido como atual.");
         } else {
             log_message('error', "Erro ao definir período ID {$id} como atual");
             return redirect()->back()->with('error', 'Erro ao definir período como atual.');
@@ -731,13 +731,13 @@ class Semesters extends BaseController
         
         if ($this->semesterModel->delete($id)) {
             if (function_exists('log_delete')) {
-                log_delete('semester', $id, "Período eliminado: {$semester->semester_name}");
+                log_delete('semester', $id, "Período eliminado: {$semester['semester_name']}");
             } else {
-                log_message('info', "Período eliminado: {$semester->semester_name} (ID: {$id})");
+                log_message('info', "Período eliminado: {$semester['semester_name']} (ID: {$id})");
             }
             
             return redirect()->to('/admin/academic/semesters')
-                ->with('success', "Período '{$semester->semester_name}' eliminado com sucesso.");
+                ->with('success', "Período '{$semester['semester_name']}' eliminado com sucesso.");
         } else {
             log_message('error', "Erro ao eliminar período ID {$id}");
             return redirect()->back()->with('error', 'Erro ao eliminar período.');
@@ -917,8 +917,8 @@ class Semesters extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'data' => [
-                'id' => $semester->id,
-                'semester_name' => $semester->semester_name,
+                'id' => $semester['id'],
+                'semester_name' => $semester['semester_name'],
                 'semester_type' => $semester->semester_type,
                 'year_name' => $semester->year_name,
                 'start_date' => date('d/m/Y', strtotime($semester->start_date)),

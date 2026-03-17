@@ -89,7 +89,7 @@
         <div class="school-name"><?= getSetting('school_name') ?></div>
         <h1>Pauta de Avaliações</h1>
         <h2><?= $class['class_name'] ?> • <?= $class['level_name'] ?> • <?= $class['year_name'] ?></h2>
-        <h3><?= $semester->semester_name ?> (<?= $semester->semester_type ?>)</h3>
+        <h3><?= $semester['semester_name'] ?> (<?= $semester->semester_type ?>)</h3>
     </div>
     
     <div class="info">

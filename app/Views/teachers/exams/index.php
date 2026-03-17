@@ -67,8 +67,8 @@
                             <option value="">Todos</option>
                             <?php if (!empty($boards)): ?>
                                 <?php foreach ($boards as $board): ?>
-                                    <option value="<?= $board->id ?>" <?= ($filters['board'] ?? '') == $board->id ? 'selected' : '' ?>>
-                                        <?= $board->board_name ?>
+                                    <option value="<?= $board['id'] ?>" <?= ($filters['board'] ?? '') == $board['id'] ? 'selected' : '' ?>>
+                                        <?= $board['board_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

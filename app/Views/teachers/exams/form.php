@@ -47,8 +47,8 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($boards)): ?>
                                 <?php foreach ($boards as $board): ?>
-                                    <option value="<?= $board->id ?>" <?= old('exam_board_id', $exam->exam_board_id ?? '') == $board->id ? 'selected' : '' ?>>
-                                        <?= esc($board->board_name) ?>
+                                    <option value="<?= $board['id'] ?>" <?= old('exam_board_id', $exam->exam_board_id ?? '') == $board['id'] ? 'selected' : '' ?>>
+                                        <?= esc($board['board_name']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php else: ?>

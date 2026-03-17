@@ -154,7 +154,7 @@ class ExamScheduleModel extends BaseModel
                         ($period['period_type'] == 'Final' ? 'Final' : 'Normal');
             log_message('debug', 'Buscando exam board do tipo: ' . $boardType);
             $board = $boardModel->where('board_type', $boardType)->first();
-            $examBoardId = $board->id ?? 6;
+            $examBoardId = $board['id'] ?? 6;
             log_message('debug', 'Exam Board ID selecionado: ' . $examBoardId);
         }
         
@@ -365,7 +365,7 @@ class ExamScheduleModel extends BaseModel
 //                     ($period['period_type'] == 'Final' ? 'Final' : 'Normal');
 //         log_message('debug', 'Buscando exam board do tipo: ' . $boardType);
 //         $board = $boardModel->where('board_type', $boardType)->first();
-//         $examBoardId = $board->id ?? 6;
+//         $examBoardId = $board['id'] ?? 6;
 //         log_message('debug', 'Exam Board ID selecionado: ' . $examBoardId);
 //     }
     

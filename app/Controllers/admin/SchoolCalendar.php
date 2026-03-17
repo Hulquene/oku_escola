@@ -173,8 +173,8 @@ class SchoolCalendar extends BaseController
             }
             
             $formattedEvents[] = [
-                'id' => 'semester_end_' . $semester->id,
-                'title' => 'Fim: ' . $semester->semester_name,
+                'id' => 'semester_end_' . $semester['id'],
+                'title' => 'Fim: ' . $semester['semester_name'],
                 'start' => $semester->end_date,
                 'end' => $semester->end_date,
                 'allDay' => true,
@@ -183,12 +183,12 @@ class SchoolCalendar extends BaseController
                 'textColor' => '#ffffff',
                 'extendedProps' => [
                     'type' => 'semester_end',
-                    'semester_name' => $semester->semester_name,
+                    'semester_name' => $semester['semester_name'],
                     'semester_type' => $semester->semester_type,
                     'status' => $semester->status ?? ($semester->is_active ? 'ativo' : 'inativo'),
                     'is_current' => $semester->is_current,
                     'academic_year' => $semester->year_name,
-                    'description' => 'Término do ' . $semester->semester_name,
+                    'description' => 'Término do ' . $semester['semester_name'],
                     'can_edit' => false
                 ]
             ];

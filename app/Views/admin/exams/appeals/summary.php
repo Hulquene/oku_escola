@@ -9,7 +9,7 @@
             <h1 class="mb-2">Resumo dos Exames de Recurso</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-chart-bar me-1"></i>
-                <?= $semester->semester_name ?? '' ?>
+                <?= $semester['semester_name'] ?? '' ?>
             </p>
         </div>
         <div>
