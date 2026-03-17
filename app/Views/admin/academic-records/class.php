@@ -2,68 +2,92 @@
 
 <?= $this->section('content') ?>
 
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <h1>Pauta Final - <?= $class['class_name'] ?></h1>
+<!-- Page Header com estilo do sistema -->
+<div class="ci-page-header">
+    <div class="ci-page-header-inner">
         <div>
-            <button class="btn btn-success" onclick="exportPauta()">
-                <i class="fas fa-file-excel"></i> Exportar Excel
+            <h1><i class="fas fa-file-alt me-2"></i>Pauta Final - <?= $class['class_name'] ?></h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/academic-records') ?>">Pautas</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?= $class['class_name'] ?></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="hdr-actions">
+            <button class="hdr-btn success" onclick="exportPauta()">
+                <i class="fas fa-file-excel me-1"></i> Exportar Excel
             </button>
-            <button class="btn btn-secondary" onclick="window.print()">
-                <i class="fas fa-print"></i> Imprimir
+            <button class="hdr-btn secondary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Imprimir
             </button>
-            <a href="<?= site_url('admin/academic-records') ?>" class="btn btn-info">
-                <i class="fas fa-arrow-left"></i> Voltar
+            <a href="<?= site_url('admin/academic-records') ?>" class="hdr-btn info">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
             </a>
         </div>
     </div>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/academic-records') ?>">Pautas</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $class['class_name'] ?></li>
-        </ol>
-    </nav>
 </div>
 
+<!-- Alertas -->
+<?= view('admin/partials/alerts') ?>
+
 <!-- Cabeçalho da Pauta -->
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>MAPA DE AVALIAÇÃO FINAL</h5>
+<div class="ci-card mb-4">
+    <div class="ci-card-header" style="background: var(--primary);">
+        <div class="ci-card-title" style="color: #fff;">
+            <i class="fas fa-file-alt me-2"></i>
+            <span>MAPA DE AVALIAÇÃO FINAL</span>
+        </div>
     </div>
-    <div class="card-body">
+    <div class="ci-card-body">
         <div class="row">
             <div class="col-md-8">
-                <table class="table table-sm table-borderless">
+                <table class="ci-table table-borderless">
                     <tr>
-                        <td width="150"><strong>Ano Lectivo:</strong></td>
-                        <td><?= $class['year_name'] ?></td>
+                        <td width="150" class="text-muted">Ano Lectivo:</td>
+                        <td class="fw-semibold"><?= $class['year_name'] ?></td>
                     </tr>
                     <tr>
-                        <td><strong>Curso:</strong></td>
-                        <td><?= $class['course_name'] ?? 'Ensino Geral' ?></td>
+                        <td class="text-muted">Curso:</td>
+                        <td class="fw-semibold"><?= $class['course_name'] ?? 'Ensino Geral' ?></td>
                     </tr>
                     <tr>
-                        <td><strong>Classe:</strong></td>
-                        <td><?= $class['level_name'] ?> / <?= $class['class_shift'] ?></td>
+                        <td class="text-muted">Classe:</td>
+                        <td class="fw-semibold"><?= $class['level_name'] ?> / <?= $class['class_shift'] ?></td>
                     </tr>
                     <tr>
-                        <td><strong>Turma:</strong></td>
-                        <td><?= $class['class_name'] ?></td>
+                        <td class="text-muted">Turma:</td>
+                        <td class="fw-semibold"><?= $class['class_name'] ?></td>
                     </tr>
                     <tr>
-                        <td><strong>Professor:</strong></td>
-                        <td><?= ($class['teacher_first_name'] ?? 'Não') . ' ' . ($class['teacher_last_name'] ?? 'atribuído') ?></td>
+                        <td class="text-muted">Professor:</td>
+                        <td class="fw-semibold"><?= ($class['teacher_first_name'] ?? 'Não') . ' ' . ($class['teacher_last_name'] ?? 'atribuído') ?></td>
                     </tr>
                 </table>
             </div>
             <div class="col-md-4 text-end">
-                <p class="mb-1"><strong>Total de Alunos:</strong> <?= count($students) ?></p>
-                <p class="mb-0">
-                    <span class="badge bg-success me-1">Aprovados: 0</span>
-                    <span class="badge bg-warning me-1">Recurso: 0</span>
-                    <span class="badge bg-danger">Reprovados: 0</span>
-                </p>
+                <?php
+                // Calcular estatísticas
+                $aprovados = 0;
+                $recurso = 0;
+                $reprovados = 0;
+                
+                foreach ($students as $student) {
+                    $resultado = $student['resultado_final'] ?? 'Pendente';
+                    if ($resultado == 'Transita') $aprovados++;
+                    elseif ($resultado == 'Recurso') $recurso++;
+                    elseif ($resultado == 'Não Transita') $reprovados++;
+                }
+                ?>
+                <div class="mb-2">
+                    <span class="badge-ci primary p-2">Total de Alunos: <?= count($students) ?></span>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <span class="badge-ci success p-2">Aprovados: <?= $aprovados ?></span>
+                    <span class="badge-ci warning p-2">Recurso: <?= $recurso ?></span>
+                    <span class="badge-ci danger p-2">Reprovados: <?= $reprovados ?></span>
+                </div>
             </div>
         </div>
     </div>
@@ -107,7 +131,7 @@
                                 </td>
                                 
                                 <?php foreach ($disciplines as $disc): ?>
-                                    <?php $notas = $student->disciplinas[$disc['id']] ?? []; ?>
+                                    <?php $notas = $student['disciplinas'][$disc['id']] ?? []; ?>
                                     
                                     <!-- M1 (Média do 1º Trimestre) -->
                                     <td class="text-center <?= isset($notas['trimestre1']['mt']) ? '' : 'text-muted' ?>">
@@ -136,19 +160,26 @@
                                     </td>
                                 <?php endforeach; ?>
                                 
-                                <!-- Resultado Final -->
+                               <!-- Resultado Final -->
                                 <td class="text-center">
-                                    <?php if ($student->resultado_final == 'Transita'): ?>
+                                    <?php 
+                                    $resultadoFinal = $student['resultado_final'] ?? 'Pendente';
+                                    if ($resultadoFinal == 'Transita'): 
+                                    ?>
                                         <span class="badge bg-success px-3 py-2">
                                             <i class="fas fa-check me-1"></i> Transita
                                         </span>
-                                    <?php elseif ($student->resultado_final == 'Não Transita'): ?>
+                                    <?php elseif ($resultadoFinal == 'Não Transita'): ?>
                                         <span class="badge bg-danger px-3 py-2">
                                             <i class="fas fa-times me-1"></i> Não Transita
                                         </span>
+                                    <?php elseif ($resultadoFinal == 'Recurso'): ?>
+                                        <span class="badge bg-warning px-3 py-2">
+                                            <i class="fas fa-clock me-1"></i> Recurso
+                                        </span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary px-3 py-2">
-                                            <?= $student->resultado_final ?>
+                                            <i class="fas fa-question-circle me-1"></i> <?= $resultadoFinal ?>
                                         </span>
                                     <?php endif; ?>
                                 </td>
@@ -173,8 +204,8 @@
                             $somaMedias = 0;
                             $alunosComMedia = 0;
                             foreach ($students as $student) {
-                                if ($student->media_final_geral > 0) {
-                                    $somaMedias += $student->media_final_geral;
+                                if ($student['media_final_geral'] > 0) {
+                                    $somaMedias += $student['media_final_geral'];
                                     $alunosComMedia++;
                                 }
                             }

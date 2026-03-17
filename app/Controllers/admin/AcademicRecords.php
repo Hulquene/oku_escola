@@ -437,7 +437,7 @@ class AcademicRecords extends BaseController
     return view('admin/academic-records/class', $data);
 } */
 
-    /**
+/**
  * Visualizar pauta de uma turma específica (modelo pauta final)
  */
 public function class($classId)
@@ -467,7 +467,7 @@ public function class($classId)
             ->with('error', 'Turma não encontrada');
     }
     
-    // Buscar todas as disciplinas da turma (para exibir no cabeçalho)
+    // Buscar todas as disciplinas da turma
     $classDisciplineModel = new \App\Models\ClassDisciplineModel();
     $data['disciplines'] = $classDisciplineModel
         ->select('
@@ -500,9 +500,11 @@ public function class($classId)
         ->orderBy('tbl_users.first_name', 'ASC')
         ->findAll();
     
-    // Para cada aluno, buscar médias por disciplina e trimestre
-    foreach ($enrollments as $student) {
-        $student->disciplinas = [];
+    // Converter para array para consistência
+    $students = [];
+    foreach ($enrollments as $enrollment) {
+        $student = (array)$enrollment;
+        $student['disciplinas'] = [];
         $totalFinalScore = 0;
         $disciplinasCount = 0;
         
@@ -510,7 +512,7 @@ public function class($classId)
             // Buscar notas da disciplina por trimestre
             $notas = $this->getDisciplineTrimestralScores($student['enrollment_id'], $discipline['id']);
             
-            $student->disciplinas[$discipline['id']] = $notas;
+            $student['disciplinas'][$discipline['id']] = $notas;
             
             // Somar para média geral
             if ($notas['mfd'] !== null && $notas['mfd'] > 0) {
@@ -520,20 +522,19 @@ public function class($classId)
         }
         
         // Calcular média final do aluno (MFD geral)
-        $student->media_final_geral = $disciplinasCount > 0 ? 
+        $student['media_final_geral'] = $disciplinasCount > 0 ? 
             round($totalFinalScore / $disciplinasCount, 2) : 0;
         
         // Determinar resultado final (Transita ou Não Transita)
-        // No sistema angolano, normalmente precisa ter média >= 10 em todas as disciplinas
-        // ou critérios específicos definidos pela escola
-        $student->resultado_final = $this->determinarResultadoFinal($student->disciplinas);
+        $student['resultado_final'] = $this->determinarResultadoFinal($student['disciplinas']);
+        
+        $students[] = $student;
     }
     
-    $data['students'] = $enrollments;
+    $data['students'] = $students;
     
     return view('admin/academic-records/class', $data);
 }
-
 /**
  * Buscar notas de uma disciplina por trimestre
  */
@@ -575,13 +576,13 @@ private function getDisciplineTrimestralScores($enrollmentId, $disciplineId)
     
     // Agrupar notas por trimestre
     foreach ($results as $result) {
-        $trimestre = $semesterMap[$result->semester_type] ?? 1;
+        $trimestre = $semesterMap[$result['semester_type']] ?? 1;
         
-        if (!isset($trimestres[$trimestre]['notas'][$result->board_code])) {
-            $trimestres[$trimestre]['notas'][$result->board_code] = [];
+        if (!isset($trimestres[$trimestre]['notas'][$result['board_code']])) {
+            $trimestres[$trimestre]['notas'][$result['board_code']] = [];
         }
         
-        $trimestres[$trimestre]['notas'][$result->board_code][] = $result['score'];
+        $trimestres[$trimestre]['notas'][$result['board_code']][] = $result['score'];
     }
     
     // Calcular médias por trimestre
@@ -661,18 +662,23 @@ private function determinarResultadoFinal($disciplinas)
     }
     
     $disciplinasAprovadas = 0;
+    $disciplinasRecurso = 0;
     $totalDisciplinas = count($disciplinas);
     
     foreach ($disciplinas as $discId => $notas) {
         // Considera aprovado se MFD >= 10
         if (isset($notas['mfd']) && $notas['mfd'] >= 10) {
             $disciplinasAprovadas++;
+        } elseif (isset($notas['mfd']) && $notas['mfd'] >= 8 && $notas['mfd'] < 10) {
+            $disciplinasRecurso++;
         }
     }
     
     // Critério: precisa ter MFD >= 10 em todas as disciplinas
     if ($disciplinasAprovadas == $totalDisciplinas) {
         return 'Transita';
+    } elseif ($disciplinasRecurso > 0 && ($disciplinasAprovadas + $disciplinasRecurso) == $totalDisciplinas) {
+        return 'Recurso';
     } else {
         return 'Não Transita';
     }
@@ -1490,7 +1496,7 @@ public function export()
         
         // Para cada aluno, calcular MFD por disciplina e determinar resultado
         foreach ($enrollments as $student) {
-            $student->disciplinas = [];
+            $student['disciplinas'] = [];
             $totalMFD = 0;
             $disciplinasCount = 0;
             $reprovadas = [];
@@ -1498,7 +1504,7 @@ public function export()
             foreach ($data['disciplines'] as $discipline) {
                 // Buscar notas da disciplina por trimestre
                 $notas = $this->getDisciplineTrimestralScores($student['enrollment_id'], $discipline['id']);
-                $student->disciplinas[$discipline['id']] = $notas;
+                $student['disciplinas'][$discipline['id']] = $notas;
                 
                 if ($notas['mfd'] !== null) {
                     $totalMFD += $notas['mfd'];
@@ -1511,13 +1517,13 @@ public function export()
             }
             
             // Calcular média final geral
-            $student->media_final_geral = $disciplinasCount > 0 ? 
+            $student['media_final_geral'] = $disciplinasCount > 0 ? 
                 round($totalMFD / $disciplinasCount, 2) : 0;
             
             // Determinar resultado final (Transita/Não Transita)
-            $student->resultado_final = $this->determinarResultadoFinalAngolano(
-                $student->disciplinas, 
-                $student->media_final_geral,
+            $student['resultado_final'] = $this->determinarResultadoFinalAngolano(
+                $student['disciplinas'], 
+                $student['media_final_geral'],
                 $reprovadas
             );
             

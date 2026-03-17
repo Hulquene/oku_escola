@@ -559,6 +559,9 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->get('transcript/(:num)', [AcademicRecords::class, 'transcript/$1'], ['as' => 'academic.records.transcript']);
         $routes->get('certificate/(:num)', [AcademicRecords::class, 'certificate/$1'], ['as' => 'academic.records.certificate']);
         
+        // NOVA ROTA PARA EXPORTAÇÃO FINAL
+        $routes->get('export-final/(:num)', [AcademicRecords::class, 'exportFinal/$1'], ['as' => 'academic.records.export-final']);
+
         // Aprovações
         $routes->get('approvals', [AcademicRecords::class, 'approvalClasses'], ['as' => 'academic.approvals']);
         $routes->get('approvals/(:num)', [AcademicRecords::class, 'processApprovals/$1'], ['as' => 'academic.approvals.process']);

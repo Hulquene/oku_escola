@@ -1000,7 +1000,7 @@ public function disciplina()
         
         foreach ($resultados as $result) {
             $enrollmentId = $result['enrollment_id'];
-            $trimestre = $semesterMap[$result->semester_type] ?? 1;
+            $trimestre = $semesterMap[$result['semester_type']] ?? 1;
             
             if (!isset($data['resultados'][$enrollmentId])) {
                 $data['resultados'][$enrollmentId] = [
@@ -1158,7 +1158,7 @@ public function disciplinaView($classId, $disciplineId)
     
     foreach ($resultados as $result) {
         $enrollmentId = $result['enrollment_id'];
-        $trimestre = $semesterMap[$result->semester_type] ?? 1;
+        $trimestre = $semesterMap[$result['semester_type']] ?? 1;
         
         if (!isset($data['resultados'][$enrollmentId])) {
             $data['resultados'][$enrollmentId] = [
