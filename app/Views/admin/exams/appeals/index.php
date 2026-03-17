@@ -42,8 +42,8 @@
                 <label class="form-label fw-semibold">Semestre</label>
                 <select class="form-select" name="semester" onchange="this.form.submit()">
                     <?php foreach ($semesters as $sem): ?>
-                        <option value="<?= $sem->id ?>" <?= $selectedSemester == $sem->id ? 'selected' : '' ?>>
-                            <?= $sem->semester_name ?>
+                        <option value="<?= $sem['id'] ?>" <?= $selectedSemester == $sem['id'] ? 'selected' : '' ?>>
+                            <?= $sem['semester_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -216,8 +216,8 @@
                         <select class="form-select" name="semester_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($semesters as $sem): ?>
-                                <option value="<?= $sem->id ?>" <?= $selectedSemester == $sem->id ? 'selected' : '' ?>>
-                                    <?= $sem->semester_name ?>
+                                <option value="<?= $sem['id'] ?>" <?= $selectedSemester == $sem['id'] ? 'selected' : '' ?>>
+                                    <?= $sem['semester_name'] ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

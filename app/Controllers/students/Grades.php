@@ -153,7 +153,7 @@ public function reportCard()
     if (!$semesterId) {
         // Buscar o semestre atual
         $currentSemester = $this->semesterModel->where('is_current', 1)->first();
-        $semesterId = $currentSemester ? $currentSemester->id : null;
+        $semesterId = $currentSemester ? $currentSemester['id'] : null;
         
         // Se ainda assim não encontrar, pegar o primeiro semestre disponível
         if (!$semesterId) {

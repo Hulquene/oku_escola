@@ -68,7 +68,7 @@
                 <?= csrf_field() ?>
                 <input type="hidden" name="class_id" value="<?= $selectedClass ?>">
                 <input type="hidden" name="discipline_id" value="<?= $selectedDiscipline ?>">
-                <input type="hidden" name="semester_id" value="<?= $currentSemester->id ?? '' ?>">
+                <input type="hidden" name="semester_id" value="<?= $currentSemester['id'] ?? '' ?>">
                 
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">

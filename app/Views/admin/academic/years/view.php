@@ -263,14 +263,14 @@ body { background:var(--surface); color:var(--text-primary); }
                             $sc = $sem->status ?? 'ativo';
                         ?>
                         <tr>
-                            <td style="font-weight:600;"><?= esc($sem->semester_name) ?></td>
+                            <td style="font-weight:600;"><?= esc($sem['semester_name']) ?></td>
                             <td><span class="type-badge"><?= esc($sem->semester_type) ?></span></td>
                             <td style="font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--text-secondary);">
                                 <?= date('d/m/Y', strtotime($sem->start_date)) ?> → <?= date('d/m/Y', strtotime($sem->end_date)) ?>
                             </td>
                             <td>
                                 <div style="display:flex;gap:.3rem;flex-wrap:wrap;">
-                                    <?php if ($sem->is_current): ?>
+                                    <?php if ($sem['is_current']): ?>
                                         <span class="status-badge sb-current"><i class="fas fa-star" style="font-size:.55rem;"></i>Atual</span>
                                     <?php endif; ?>
                                     <span class="status-badge <?= $stMap[$sc] ?? 'sb-inactive' ?>">
@@ -279,7 +279,7 @@ body { background:var(--surface); color:var(--text-primary); }
                                 </div>
                             </td>
                             <td class="center">
-                                <a href="<?= site_url('admin/academic/semesters/view/' . $sem->id) ?>" class="view-btn" title="Ver">
+                                <a href="<?= site_url('admin/academic/semesters/view/' . $sem['id']) ?>" class="view-btn" title="Ver">
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </td>

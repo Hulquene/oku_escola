@@ -15,8 +15,8 @@
         <div class="d-flex gap-2">
             <select class="form-select form-select-sm" style="width: 200px;" onchange="changeSemester(this.value)">
                 <?php foreach ($semesters as $sem): ?>
-                    <option value="<?= $sem->id ?>" <?= $selectedSemester == $sem->id ? 'selected' : '' ?>>
-                        <?= $sem->semester_name ?>
+                    <option value="<?= $sem['id'] ?>" <?= $selectedSemester == $sem['id'] ? 'selected' : '' ?>>
+                        <?= $sem['semester_name'] ?>
                     </option>
                 <?php endforeach; ?>
             </select>

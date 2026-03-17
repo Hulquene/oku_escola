@@ -601,7 +601,7 @@ class Semesters extends BaseController
         if ($this->semesterModel->setCurrent($id)) {
             if (function_exists('log_action')) {
                 log_action('update', "Período '{$semester->semester_name}' definido como atual", $id, 'semester', [
-                    'previous_current_id' => $currentSemester ? $currentSemester->id : null,
+                    'previous_current_id' => $currentSemester ? $currentSemester['id'] : null,
                     'previous_current_name' => $currentSemester ? $currentSemester->semester_name : null
                 ]);
             } else {

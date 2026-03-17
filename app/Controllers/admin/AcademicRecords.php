@@ -293,7 +293,7 @@ class AcademicRecords extends BaseController
     $semesterId = $this->request->getGet('semester');
     if (!$semesterId) {
         $currentSemester = $this->semesterModel->getCurrent();
-        $semesterId = $currentSemester ? $currentSemester->id : null;
+        $semesterId = $currentSemester ? $currentSemester['id'] : null;
     }
     
     $data['selectedSemester'] = $semesterId;

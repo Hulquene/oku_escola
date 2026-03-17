@@ -38,7 +38,7 @@ public function index()
     
     // Get current semester
     $currentSemester = $this->semesterModel->getCurrent();
-    $semesterId = $this->request->getGet('semester') ?: ($currentSemester->id ?? null);
+    $semesterId = $this->request->getGet('semester') ?: ($currentSemester['id'] ?? null);
     
     // Get filters
     $classId = $this->request->getGet('class_id');

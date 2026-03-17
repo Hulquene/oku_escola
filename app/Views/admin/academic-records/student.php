@@ -109,7 +109,7 @@
                             <tbody>
                                 <?php foreach ($enrollment->semesters as $sem): ?>
                                     <tr>
-                                        <td class="ps-3 fw-semibold"><?= $sem->semester_name ?></td>
+                                        <td class="ps-3 fw-semibold"><?= $sem['semester_name'] ?></td>
                                         <td class="text-center">
                                             <span class="fw-bold <?= $sem->overall_average >= 10 ? 'text-success' : 'text-warning' ?>">
                                                 <?= number_format($sem->overall_average, 2) ?>

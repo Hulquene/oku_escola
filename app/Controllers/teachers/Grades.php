@@ -75,7 +75,7 @@ class Grades extends BaseController
         $data['currentSemester'] = $currentSemester;
         
         // DEBUG: Semestre atual
-        log_message('debug', "Semestre atual: " . ($currentSemester ? $currentSemester->id : 'NULL'));
+        log_message('debug', "Semestre atual: " . ($currentSemester ? $currentSemester['id'] : 'NULL'));
         
         // Buscar todas as avaliações AC para esta disciplina
         foreach ($data['students'] as $student) {
@@ -87,7 +87,7 @@ class Grades extends BaseController
                 ->where('tbl_exam_schedules.class_id', $classId)
                 ->where('tbl_exam_schedules.discipline_id', $disciplineId)
                 ->where('tbl_exam_boards.board_code', 'AC')
-                ->where('tbl_exam_periods.semester_id', $currentSemester->id ?? null)
+                ->where('tbl_exam_periods.semester_id', $currentSemester['id'] ?? null)
                 ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
                 ->findAll();
             
@@ -280,7 +280,7 @@ class Grades extends BaseController
             ->where('tbl_exam_schedules.class_id', $classId)
             ->where('tbl_exam_schedules.discipline_id', $disciplineId)
             ->where('tbl_exam_boards.board_code', 'AC')
-            ->where('tbl_exam_periods.semester_id', $currentSemester->id ?? null)
+            ->where('tbl_exam_periods.semester_id', $currentSemester['id'] ?? null)
             ->orderBy('tbl_exam_schedules.exam_date', 'ASC')
             ->findAll();
         

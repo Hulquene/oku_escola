@@ -136,7 +136,7 @@
                                 $semesterModel = new \App\Models\SemesterModel();
                                 foreach (array_keys($semestres) as $semId) {
                                     $sem = $semesterModel->find($semId);
-                                    $semesterNames[$semId] = $sem ? $sem->semester_name : 'Semestre ' . $semId;
+                                    $semesterNames[$semId] = $sem ? $sem['semester_name'] : 'Semestre ' . $semId;
                                 }
                                 ?>
                                 <?php foreach ($semesterNames as $semName): ?>

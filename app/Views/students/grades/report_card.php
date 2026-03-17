@@ -51,8 +51,8 @@
                 <select class="form-select" id="semester" name="semester" onchange="this.form.submit()">
                     <?php if (!empty($semesters)): ?>
                         <?php foreach ($semesters as $sem): ?>
-                            <option value="<?= $sem->id ?>" <?= ($selectedSemester ?? '') == $sem->id ? 'selected' : '' ?>>
-                                <?= $sem->semester_name ?? $sem->semester_type ?? 'Período' ?>
+                            <option value="<?= $sem['id'] ?>" <?= ($selectedSemester ?? '') == $sem['id'] ? 'selected' : '' ?>>
+                                <?= $sem['semester_name'] ?? $sem->semester_type ?? 'Período' ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

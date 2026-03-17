@@ -652,7 +652,7 @@ $data['studentsPerTeacher'] = ($data['totalTeachers'] ?? 0) > 0
                 SUM(CASE WHEN overall_average < 10 THEN 1 ELSE 0 END) as insuficiente
             FROM tbl_semester_results
             WHERE semester_id = ?
-        ", [$currentSemester->id])->getRow();
+        ", [$currentSemester['id']])->getRow();
         
         return [
             'excelente' => $result->excelente ?? 0,

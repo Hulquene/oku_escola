@@ -40,8 +40,8 @@
                     <option value="">Todos</option>
                     <?php if (!empty($semesters)): ?>
                         <?php foreach ($semesters as $sem): ?>
-                            <option value="<?= $sem->id ?>" <?= $selectedSemester == $sem->id ? 'selected' : '' ?>>
-                                <?= $sem->semester_name ?>
+                            <option value="<?= $sem['id'] ?>" <?= $selectedSemester == $sem['id'] ? 'selected' : '' ?>>
+                                <?= $sem['semester_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

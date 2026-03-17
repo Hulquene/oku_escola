@@ -81,8 +81,8 @@
                 <select class="form-select" name="semester" onchange="this.form.submit()">
                     <option value="">Todos</option>
                     <?php foreach ($semesters as $sem): ?>
-                        <option value="<?= $sem->id ?>" <?= $selectedSemester == $sem->id ? 'selected' : '' ?>>
-                            <?= $sem->semester_name ?>
+                        <option value="<?= $sem['id'] ?>" <?= $selectedSemester == $sem['id'] ? 'selected' : '' ?>>
+                            <?= $sem['semester_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

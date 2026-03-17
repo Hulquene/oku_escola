@@ -96,7 +96,7 @@
                 <select class="form-select" id="statusSemester">
                     <option value="">Selecione o semestre</option>
                     <?php foreach ($semesters as $sem): ?>
-                        <option value="<?= $sem->id ?>"><?= $sem->semester_name ?></option>
+                        <option value="<?= $sem['id'] ?>"><?= $sem['semester_name'] ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -141,7 +141,7 @@
                         <select class="form-select" name="semester_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($semesters as $sem): ?>
-                                <option value="<?= $sem->id ?>"><?= $sem->semester_name ?></option>
+                                <option value="<?= $sem['id'] ?>"><?= $sem['semester_name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -201,7 +201,7 @@
                         <select class="form-select" name="semester_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($semesters as $sem): ?>
-                                <option value="<?= $sem->id ?>"><?= $sem->semester_name ?></option>
+                                <option value="<?= $sem['id'] ?>"><?= $sem['semester_name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -259,7 +259,7 @@
                         <select class="form-select" name="semester_id" required>
                             <option value="">Selecione</option>
                             <?php foreach ($semesters as $sem): ?>
-                                <option value="<?= $sem->id ?>"><?= $sem->semester_name ?></option>
+                                <option value="<?= $sem['id'] ?>"><?= $sem['semester_name'] ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

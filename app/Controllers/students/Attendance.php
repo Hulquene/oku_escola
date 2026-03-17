@@ -50,7 +50,7 @@ class Attendance extends BaseController
         
         // Buscar semestre atual para filtrar
         $currentSemester = $this->semesterModel->where('is_current', 1)->first();
-        $semesterId = $currentSemester ? $currentSemester->id : null;
+        $semesterId = $currentSemester ? $currentSemester['id'] : null;
         
         // Presenças do mês
         $data['attendances'] = $this->attendanceModel

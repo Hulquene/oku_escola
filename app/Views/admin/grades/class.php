@@ -79,8 +79,8 @@
                         <option value="">Todos os semestres</option>
                         <?php if (!empty($semesters)): ?>
                             <?php foreach ($semesters as $sem): ?>
-                                <option value="<?= $sem->id ?>" <?= ($selectedSemester ?? '') == $sem->id ? 'selected' : '' ?>>
-                                    <?= $sem->semester_name ?>
+                                <option value="<?= $sem['id'] ?>" <?= ($selectedSemester ?? '') == $sem['id'] ? 'selected' : '' ?>>
+                                    <?= $sem['semester_name'] ?>
                                 </option>
                             <?php endforeach; ?>
                         <?php endif; ?>

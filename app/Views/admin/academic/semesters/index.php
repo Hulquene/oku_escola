@@ -321,10 +321,10 @@
                             <select class="form-select-ci" id="process_semester_id" required>
                                 <option value="">— Selecione um período —</option>
                                 <?php foreach ($semesters ?? [] as $sem): ?>
-                                    <option value="<?= $sem->id ?>"
-                                        data-year="<?= esc($sem->year_name ?? '') ?>">
-                                        <?= esc($sem->semester_name) ?> (<?= esc($sem->year_name ?? '') ?>)
-                                        <?= ($sem->is_current ?? false) ? ' — Atual' : '' ?>
+                                    <option value="<?= $sem['id'] ?>"
+                                        data-year="<?= esc($sem['year_name'] ?? '') ?>">
+                                        <?= esc($sem['semester_name']) ?> (<?= esc($sem['year_name'] ?? '') ?>)
+                                        <?= ($sem['is_current'] ?? false) ? ' — Atual' : '' ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

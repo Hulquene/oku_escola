@@ -80,7 +80,7 @@ class Grades extends BaseController
                     $assessments = $this->continuousModel
                         ->where('enrollment_id', $student->enrollment_id)
                         ->where('discipline_id', $discipline['id'])
-                        ->where('semester_id', $currentSemester->id ?? null)
+                        ->where('semester_id', $currentSemester['id'] ?? null)
                         ->findAll();
                     
                     $scores = [];
@@ -340,7 +340,7 @@ public function statistics()
         
         // Buscar semestre atual
         $currentSemester = $this->semesterModel->getCurrent();
-        $semesterId = $currentSemester ? $currentSemester->id : null;
+        $semesterId = $currentSemester ? $currentSemester['id'] : null;
         
         foreach ($alunos as $aluno) {
             // Buscar disciplinas da turma
