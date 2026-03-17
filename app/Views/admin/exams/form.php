@@ -80,7 +80,7 @@
                                 <?php foreach ($classes as $class): ?>
                                     <option value="<?= $class['id'] ?>" 
                                         <?= (old('class_id', $exam->class_id ?? '') == $class['id']) ? 'selected' : '' ?>>
-                                        <?= $class['class_name'] ?> - <?= $class->level_name ?>
+                                        <?= $class['class_name'] ?> - <?= $class['level_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

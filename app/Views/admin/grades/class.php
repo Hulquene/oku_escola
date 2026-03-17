@@ -65,8 +65,8 @@
                         <option value="">Todas as disciplinas</option>
                         <?php if (!empty($disciplines)): ?>
                             <?php foreach ($disciplines as $disc): ?>
-                                <option value="<?= $disc->id ?>" <?= ($selectedDiscipline ?? '') == $disc->id ? 'selected' : '' ?>>
-                                    <?= $disc->discipline_name ?> (<?= $disc->discipline_code ?>)
+                                <option value="<?= $disc['id'] ?>" <?= ($selectedDiscipline ?? '') == $disc['id'] ? 'selected' : '' ?>>
+                                    <?= $disc['discipline_name'] ?> (<?= $disc['discipline_code'] ?>)
                                 </option>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -116,11 +116,11 @@
                     $totalAlunos = count($students ?? []);
                     $notasDisciplina = [];
                     foreach ($students ?? [] as $student) {
-                        if (isset($student->grades[$disc->id])) {
+                        if (isset($student->grades[$disc['id']])) {
                             $notas = array_filter([
-                                $student->grades[$disc->id]['ac1'] ?? null,
-                                $student->grades[$disc->id]['ac2'] ?? null,
-                                $student->grades[$disc->id]['ac3'] ?? null
+                                $student->grades[$disc['id']]['ac1'] ?? null,
+                                $student->grades[$disc['id']]['ac2'] ?? null,
+                                $student->grades[$disc['id']]['ac3'] ?? null
                             ]);
                             if (!empty($notas)) {
                                 $media = array_sum($notas) / count($notas);
@@ -137,8 +137,8 @@
                     <div class="col-md-3 mb-3">
                         <div class="card h-100">
                             <div class="card-header bg-primary text-white">
-                                <h6 class="mb-0"><?= $disc->discipline_name ?></h6>
-                                <small><?= $disc->discipline_code ?></small>
+                                <h6 class="mb-0"><?= $disc['discipline_name'] ?></h6>
+                                <small><?= $disc['discipline_code'] ?></small>
                             </div>
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-2">
@@ -155,7 +155,7 @@
                                 </div>
                             </div>
                             <div class="card-footer bg-white text-center">
-                                <a href="?discipline=<?= $disc->id ?>" class="btn btn-sm btn-outline-primary">
+                                <a href="?discipline=<?= $disc['id'] ?>" class="btn btn-sm btn-outline-primary">
                                     Ver Detalhes
                                 </a>
                             </div>
@@ -204,8 +204,8 @@
                                 <?php if (!empty($disciplines)): ?>
                                     <?php foreach ($disciplines as $disc): ?>
                                         <th colspan="3" class="text-center bg-primary">
-                                            <?= $disc->discipline_name ?>
-                                            <small class="d-block text-white-50"><?= $disc->discipline_code ?></small>
+                                            <?= $disc['discipline_name'] ?>
+                                            <small class="d-block text-white-50"><?= $disc['discipline_code'] ?></small>
                                         </th>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -325,9 +325,9 @@
                                         <?php if (!empty($disciplines)): ?>
                                             <?php foreach ($disciplines as $disc): ?>
                                                 <?php
-                                                $ac1 = $student->grades[$disc->id]['ac1'] ?? null;
-                                                $ac2 = $student->grades[$disc->id]['ac2'] ?? null;
-                                                $ac3 = $student->grades[$disc->id]['ac3'] ?? null;
+                                                $ac1 = $student->grades[$disc['id']]['ac1'] ?? null;
+                                                $ac2 = $student->grades[$disc['id']]['ac2'] ?? null;
+                                                $ac3 = $student->grades[$disc['id']]['ac3'] ?? null;
                                                 
                                                 $notasDisc = array_filter([$ac1, $ac2, $ac3]);
                                                 if (!empty($notasDisc)) {
@@ -403,8 +403,8 @@
                                         
                                         foreach ($students as $student) {
                                             foreach (['ac1', 'ac2', 'ac3'] as $ac) {
-                                                if (isset($student->grades[$disc->id][$ac])) {
-                                                    $somas[$ac] += $student->grades[$disc->id][$ac];
+                                                if (isset($student->grades[$disc['id']][$ac])) {
+                                                    $somas[$ac] += $student->grades[$disc['id']][$ac];
                                                     $counts[$ac]++;
                                                 }
                                             }

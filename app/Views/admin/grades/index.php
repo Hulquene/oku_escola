@@ -59,7 +59,7 @@
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
                             <option value="<?= $class['id'] ?>" <?= ($selectedClass ?? '') == $class['id'] ? 'selected' : '' ?>>
-                                <?= $class['class_name'] ?> (<?= $class['class_code'] ?>) - <?= $class->level_name ?> - <?= $class['year_name'] ?>
+                                <?= $class['class_name'] ?> (<?= $class['class_code'] ?>) - <?= $class['level_name'] ?> - <?= $class['year_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -127,9 +127,9 @@
                             foreach ($students as $student) {
                                 foreach ($disciplines ?? [] as $disc) {
                                     $notas = array_filter([
-                                        $student->grades[$disc->id]['ac1'] ?? null,
-                                        $student->grades[$disc->id]['ac2'] ?? null,
-                                        $student->grades[$disc->id]['ac3'] ?? null
+                                        $student->grades[$disc['id']]['ac1'] ?? null,
+                                        $student->grades[$disc['id']]['ac2'] ?? null,
+                                        $student->grades[$disc['id']]['ac3'] ?? null
                                     ]);
                                     if (!empty($notas)) {
                                         $totalMedia += array_sum($notas) / count($notas);

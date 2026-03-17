@@ -121,7 +121,7 @@
                                         </p>
                                         <p class="mb-2">
                                             <i class="fas fa-graduation-cap text-success"></i> 
-                                            <strong>Nível:</strong> <?= $class->level_name ?? 'N/A' ?>
+                                            <strong>Nível:</strong> <?= $class['level_name'] ?? 'N/A' ?>
                                         </p>
                                         <p class="mb-0">
                                             <i class="fas fa-users text-success"></i> 

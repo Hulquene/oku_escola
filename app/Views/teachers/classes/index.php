@@ -130,9 +130,9 @@
                                 <div class="list-group-item px-0">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <strong><?= $disc->discipline_name ?></strong>
+                                            <strong><?= $disc['discipline_name'] ?></strong>
                                             <br>
-                                            <small class="text-muted">Cód: <?= $disc->discipline_code ?></small>
+                                            <small class="text-muted">Cód: <?= $disc['discipline_code'] ?></small>
                                         </div>
                                         <div>
                                             <span class="badge bg-info"><?= $disc->workload_hours ?>h</span>

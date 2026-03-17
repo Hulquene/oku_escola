@@ -82,8 +82,8 @@
                     <select name="disciplina" class="form-select" id="disciplina">
                         <option value="">Todas</option>
                         <?php foreach ($disciplinas as $disc): ?>
-                            <option value="<?= $disc->id ?>" <?= ($filters['disciplina'] ?? '') == $disc->id ? 'selected' : '' ?>>
-                                <?= $disc->discipline_name ?>
+                            <option value="<?= $disc['id'] ?>" <?= ($filters['disciplina'] ?? '') == $disc['id'] ? 'selected' : '' ?>>
+                                <?= $disc['discipline_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

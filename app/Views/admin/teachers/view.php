@@ -7,13 +7,13 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-            <a href="<?= site_url('admin/teachers/schedule/' . $teacher->id) ?>" class="btn btn-success me-2">
+            <a href="<?= site_url('admin/teachers/schedule/' . $teacher['id']) ?>" class="btn btn-success me-2">
                 <i class="fas fa-calendar-alt"></i> Ver Horário
             </a>
-            <a href="<?= site_url('admin/teachers/form-edit/' . $teacher->id) ?>" class="btn btn-info">
+            <a href="<?= site_url('admin/teachers/form-edit/' . $teacher['id']) ?>" class="btn btn-info">
                 <i class="fas fa-edit"></i> Editar
             </a>
-            <a href="<?= site_url('admin/teachers/assign-class/' . $teacher->id) ?>" class="btn btn-primary">
+            <a href="<?= site_url('admin/teachers/assign-class/' . $teacher['id']) ?>" class="btn btn-primary">
                 <i class="fas fa-tasks"></i> Atribuir Turmas
             </a>
             <a href="<?= site_url('admin/teachers') ?>" class="btn btn-secondary">
@@ -250,10 +250,10 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-school"></i> Turmas e Disciplinas</span>
                     <div>
-                        <a href="<?= site_url('admin/teachers/schedule/' . $teacher->id) ?>" class="btn btn-sm btn-light me-2">
+                        <a href="<?= site_url('admin/teachers/schedule/' . $teacher['id']) ?>" class="btn btn-sm btn-light me-2">
                             <i class="fas fa-calendar-alt"></i> Ver Horário
                         </a>
-                        <a href="<?= site_url('admin/teachers/assign-class/' . $teacher->id) ?>" class="btn btn-sm btn-light">
+                        <a href="<?= site_url('admin/teachers/assign-class/' . $teacher['id']) ?>" class="btn btn-sm btn-light">
                             <i class="fas fa-plus-circle"></i> Atribuir
                         </a>
                     </div>
@@ -398,7 +398,7 @@
                     <div class="text-center py-4">
                         <i class="fas fa-school fa-3x text-muted mb-3"></i>
                         <p class="text-muted">Este professor ainda não tem turmas atribuídas.</p>
-                        <a href="<?= site_url('admin/teachers/assign-class/' . $teacher->id) ?>" class="btn btn-primary">
+                        <a href="<?= site_url('admin/teachers/assign-class/' . $teacher['id']) ?>" class="btn btn-primary">
                             <i class="fas fa-plus-circle"></i> Atribuir Turmas
                         </a>
                     </div>

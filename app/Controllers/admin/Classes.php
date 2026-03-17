@@ -746,8 +746,8 @@ public function getByLevelAndYear($levelId, $yearId)
         $class['available_seats']  = $class['capacity']  - $class['enrolled_count'] ;
         
         // Garantir que level_name esteja presente
-        if (!isset($class->level_name)) {
-            $class->level_name = '';
+        if (!isset($class['level_name'])) {
+            $class['level_name'] = '';
         }
     }
     

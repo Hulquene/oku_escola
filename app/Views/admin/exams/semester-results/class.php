@@ -9,7 +9,7 @@
             <h1 class="mb-2">Resultados Semestrais da Turma</h1>
             <p class="text-muted mb-0">
                 <i class="fas fa-users me-1"></i>
-                <?= $class['class_name'] ?> • <?= $class->level_name ?> • <?= $semester->semester_name ?>
+                <?= $class['class_name'] ?> • <?= $class['level_name'] ?> • <?= $semester->semester_name ?>
             </p>
         </div>
         <div class="d-flex gap-2">

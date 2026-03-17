@@ -334,13 +334,13 @@
                         <div class="info-list">
                             <div class="info-item">
                                 <span class="info-label">Nível:</span>
-                                <span class="info-value"><?= $class->level_name ?></span>
+                                <span class="info-value"><?= $class['level_name'] ?></span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Curso:</span>
                                 <span class="info-value">
-                                    <?php if (isset($class->course_name) && $class->course_name): ?>
-                                        <?= $class->course_name ?>
+                                    <?php if (isset($class['course_name']) && $class['course_name']): ?>
+                                        <?= $class['course_name'] ?>
                                     <?php else: ?>
                                         <span class="text-muted">Ensino Geral</span>
                                     <?php endif; ?>

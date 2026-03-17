@@ -35,12 +35,12 @@
             <i class="fas fa-school fa-2x"></i>
         </div>
         <div>
-            <h5 class="mb-1"><?= $selectedClassInfo->class_name ?> (<?= $selectedClassInfo->class_code ?>)</h5>
+            <h5 class="mb-1"><?= $selectedClassInfo['class_name'] ?> (<?= $selectedClassInfo['class_code'] ?>)</h5>
             <p class="mb-0">
                 <span class="badge bg-primary me-2">Curso: <?= $selectedClassInfo->course_name ?? 'Não definido' ?></span>
-                <span class="badge bg-success me-2">Nível: <?= $selectedClassInfo->level_name ?></span>
-                <span class="badge bg-info me-2">Turno: <?= $selectedClassInfo->class_shift ?></span>
-                <span class="badge bg-secondary">Ano: <?= $selectedClassInfo->year_name ?></span>
+                <span class="badge bg-success me-2">Nível: <?= $selectedClassInfo['level_name'] ?></span>
+                <span class="badge bg-info me-2">Turno: <?= $selectedClassInfo['class_shift'] ?></span>
+                <span class="badge bg-secondary">Ano: <?= $selectedClassInfo['year_name'] ?></span>
             </p>
         </div>
     </div>
@@ -62,9 +62,9 @@
                         <option value="<?= $class['id'] ?>" <?= ($selectedClassId == $class['id']) ? 'selected' : '' ?>>
                             <?= $class['class_name'] ?> (<?= $class['class_code'] ?>) - 
                             <?= $class['class_shift'] ?> - 
-                            <?= $class->level_name ?> - 
+                            <?= $class['level_name'] ?> - 
                             <?= $class['year_name'] ?>
-                            <?= $class->course_name ? ' - ' . $class->course_name : '' ?>
+                            <?= $class['course_name'] ? ' - ' . $class['course_name'] : '' ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -84,7 +84,7 @@
             <div class="d-flex align-items-center">
                 <span class="badge bg-light text-dark me-2" id="selectedClassInfo">
                     <?php if ($selectedClassId && $selectedClassInfo): ?>
-                        <?= $selectedClassInfo->class_name ?> | 
+                        <?= $selectedClassInfo['class_name'] ?> | 
                         <span class="text-success"><?= count(array_filter($disciplines, fn($d) => $d['assigned'] ?? false)) ?></span> atribuídas / 
                         <span class="text-primary"><?= count($disciplines) ?></span> totais
                     <?php endif; ?>
@@ -210,8 +210,8 @@
                                         <select name="assignments[<?= $disc['id'] ?>_<?= $index ?>][teacher_id]" class="form-select form-select-sm">
                                             <option value="">-- Sem professor --</option>
                                             <?php foreach ($teachers as $teacher): ?>
-                                                <option value="<?= $teacher->id ?>" 
-                                                    <?= (isset($disc['teacher_id']) && $disc['teacher_id'] == $teacher->id) ? 'selected' : '' ?>>
+                                                <option value="<?= $teacher['id'] ?>" 
+                                                    <?= (isset($disc['teacher_id']) && $disc['teacher_id'] == $teacher['id']) ? 'selected' : '' ?>>
                                                     <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                                                 </option>
                                             <?php endforeach; ?>

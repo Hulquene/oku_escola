@@ -666,7 +666,7 @@ body { background: var(--surface); }
         <h2><?= $class['class_name'] ?> <small class="text-muted">(<?= $class['class_code'] ?>)</small></h2>
         <div class="class-meta">
             <span class="meta-item">
-                <i class="fas fa-layer-group"></i> <?= $class->level_name ?>
+                <i class="fas fa-layer-group"></i> <?= $class['level_name'] ?>
             </span>
             <span class="meta-item">
                 <i class="fas fa-calendar"></i> <?= $class['year_name'] ?>
@@ -767,7 +767,7 @@ body { background: var(--surface); }
                     <option value="">Selecione...</option>
                     <?php foreach ($disciplines as $disc): ?>
                         <option value="<?= $disc->discipline_id ?>">
-                            <?= $disc->discipline_name ?> (<?= $disc->discipline_code ?>)
+                            <?= $disc['discipline_name'] ?> (<?= $disc['discipline_code'] ?>)
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -808,7 +808,7 @@ body { background: var(--surface); }
                 <select name="teacher_id" class="form-select">
                     <option value="">Opcional</option>
                     <?php foreach ($teachers as $teacher): ?>
-                        <option value="<?= $teacher->id ?>">
+                        <option value="<?= $teacher['id'] ?>">
                             <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                         </option>
                     <?php endforeach; ?>

@@ -41,8 +41,8 @@
                     <option value="">Todas</option>
                     <?php if (!empty($disciplines)): ?>
                         <?php foreach ($disciplines as $disc): ?>
-                            <option value="<?= $disc->id ?>" <?= $selectedDiscipline == $disc->id ? 'selected' : '' ?>>
-                                <?= $disc->discipline_name ?>
+                            <option value="<?= $disc['id'] ?>" <?= $selectedDiscipline == $disc['id'] ? 'selected' : '' ?>>
+                                <?= $disc['discipline_name'] ?>
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>

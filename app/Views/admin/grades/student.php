@@ -161,7 +161,7 @@
                                 foreach (array_keys($enrollment->grades) as $discId) {
                                     $discModel = new \App\Models\DisciplineModel();
                                     $disc = $discModel->find($discId);
-                                    $disciplines[$discId] = $disc ? $disc->discipline_name : 'Disciplina ' . $discId;
+                                    $disciplines[$discId] = $disc ? $disc['discipline_name'] : 'Disciplina ' . $discId;
                                 }
                             }
                             ?>

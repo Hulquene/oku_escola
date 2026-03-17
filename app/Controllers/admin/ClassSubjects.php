@@ -239,9 +239,9 @@ public function assign()
             ->first();
         
         if ($data['assignment']) {
-            $data['selectedDisciplineId'] = $data['assignment']->discipline_id;
-            $data['selectedClassId'] = $data['assignment']->class_id;
-            $classId = $data['assignment']->class_id;
+            $data['selectedDisciplineId'] = $data['assignment']['discipline_id'];
+            $data['selectedClassId'] = $data['assignment']['class_id'];
+            $classId = $data['assignment']['class_id'];
         }
     }
     
@@ -259,7 +259,7 @@ public function assign()
         if ($data['selectedClassInfo']) {
             // ✅ ADICIONADO: Buscar semestres do ano letivo da turma
             $data['semesters'] = $this->semesterModel
-                ->where('academic_year_id', $data['selectedClassInfo']->academic_year_id)
+                ->where('academic_year_id', $data['selectedClassInfo']['academic_year_id'])
                 ->whereIn('status', ['ativo', 'processado'])
                 ->orderBy('start_date', 'ASC')
                 ->findAll();
@@ -267,7 +267,7 @@ public function assign()
             // Buscar TODAS as disciplinas do currículo do curso
             $courseDisciplines = [];
             
-            if ($data['selectedClassInfo']->course_id) {
+            if ($data['selectedClassInfo']['course_id']) {
                 // Tem curso definido - buscar disciplinas do currículo
                 $courseDisciplines = $this->courseDisciplineModel
                     ->select('
@@ -279,7 +279,7 @@ public function assign()
                         tbl_course_disciplines.is_mandatory
                     ')
                     ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_course_disciplines.discipline_id')
-                    ->where('tbl_course_disciplines.course_id', $data['selectedClassInfo']->course_id)
+                    ->where('tbl_course_disciplines.course_id', $data['selectedClassInfo']['course_id'])
                     ->where('tbl_course_disciplines.grade_level_id', $data['selectedClassInfo']->grade_level_id)
                     ->where('tbl_disciplines.is_active', 1)
                     ->orderBy('tbl_disciplines.discipline_name', 'ASC')
@@ -325,7 +325,7 @@ public function assign()
             // Mapear atribuições por chave: discipline_id + period_type
             $assignmentMap = [];
             foreach ($existingAssignments as $ass) {
-                $key = $ass->discipline_id . '_' . ($ass->period_type ?? 'Anual');
+                $key = $ass['discipline_id'] . '_' . ($ass['period_type'] ?? 'Anual');
                 $assignmentMap[$key] = $ass;
             }
             
@@ -336,23 +336,23 @@ public function assign()
                 $suggestedPeriod = $disc->suggested_semester ?? 'Anual';
                 $periodType = $periodMap[$suggestedPeriod] ?? 'Anual';
                 
-                $key = $disc->id . '_' . $periodType;
+                $key = $disc['id'] . '_' . $periodType;
                 $assignment = $assignmentMap[$key] ?? null;
                 $assigned = $assignment !== null;
                 
                 $data['disciplines'][] = [
-                    'id' => $disc->id,
-                    'name' => $disc->discipline_name,
-                    'code' => $disc->discipline_code,
+                    'id' => $disc['id'],
+                    'name' => $disc['discipline_name'],
+                    'code' => $disc['discipline_code'],
                     'assigned' => $assigned,
                     'assignment_id' => $assignment ? $assignment['id'] : null,
                     'teacher_id' => $assignment ? $assignment['teacher_id'] : null,
                     'teacher_name' => $assignment ? ($assignment['teacher_first_name'] . ' ' . $assignment['teacher_last_name']) : null,
                     'workload' => $assignment ? $assignment['workload_hours'] : null,
-                    'suggested_workload' => $disc->suggested_workload ?? null,
+                    'suggested_workload' => $disc['suggested_workload'] ?? null,
                     'period_type' => $periodType,
-                    'is_mandatory' => $disc->is_mandatory ?? false,
-                    'is_active' => $assignment ? $assignment->is_active : false,
+                    'is_mandatory' => $disc['is_mandatory'] ?? false,
+                    'is_active' => $assignment ? $assignment['is_active'] : false,
                     'display_info' => $this->getPeriodDisplayInfo($periodType)
                 ];
             }
@@ -848,19 +848,19 @@ public function saveTeachers()
         // Mapear atribuições por discipline_id
         $assignmentMap = [];
         foreach ($assignments as $ass) {
-            $assignmentMap[$ass->discipline_id] = $ass;
+            $assignmentMap[$ass['discipline_id']] = $ass;
         }
         
         // Construir resultado
         $result = [];
         foreach ($allDisciplines as $disc) {
-            $assigned = isset($assignmentMap[$disc->id]);
-            $assignment = $assigned ? $assignmentMap[$disc->id] : null;
+            $assigned = isset($assignmentMap[$disc['id']]);
+            $assignment = $assigned ? $assignmentMap[$disc['id']] : null;
             
             $result[] = [
-                'id' => $disc->id,
-                'name' => $disc->discipline_name,
-                'code' => $disc->discipline_code,
+                'id' => $disc['id'],
+                'name' => $disc['discipline_name'],
+                'code' => $disc['discipline_code'],
                 'assigned' => $assigned,
                 'assignment_id' => $assignment ? $assignment['id'] : null,
                 'teacher_id' => $assignment ? $assignment['teacher_id'] : null,
@@ -868,7 +868,7 @@ public function saveTeachers()
                 'workload' => $assignment ? $assignment['workload_hours'] : null,
                 'suggested_workload' => null,
                 'is_mandatory' => false,
-                'is_active' => $assignment ? $assignment->is_active : false
+                'is_active' => $assignment ? $assignment['is_active'] : false
             ];
         }
         

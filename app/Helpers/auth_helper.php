@@ -153,7 +153,7 @@ if (!function_exists('getTeacherIdFromUser')) {
             ->get()
             ->getRow();
         
-        return $teacher ? $teacher->id : null;
+        return $teacher ? $teacher['id'] : null;
     }
 }
 

@@ -256,12 +256,12 @@
             <div class="class-code"><?= $class['class_code'] ?></div>
             
             <div class="mb-2">
-                <i class="fas fa-layer-group info-icon"></i> <?= $class->level_name ?>
+                <i class="fas fa-layer-group info-icon"></i> <?= $class['level_name'] ?>
             </div>
             
-            <?php if ($class->course_name): ?>
+            <?php if ($class['course_name']): ?>
             <div class="mb-3">
-                <i class="fas fa-graduation-cap info-icon"></i> <?= $class->course_name ?>
+                <i class="fas fa-graduation-cap info-icon"></i> <?= $class['course_name'] ?>
             </div>
             <?php endif; ?>
             

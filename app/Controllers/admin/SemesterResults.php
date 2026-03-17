@@ -627,7 +627,7 @@ public function index()
             
             $html .= '
                     <tr>
-                        <td align="left">' . $disc->discipline_name . '</td>
+                        <td align="left">' . $disc['discipline_name'] . '</td>
                         <td><strong>' . number_format($disc->final_score, 1) . '</strong></td>
                         <td style="background-color: ' . $statusColor . ';">' . $disc->status . '</td>
                     </tr>';

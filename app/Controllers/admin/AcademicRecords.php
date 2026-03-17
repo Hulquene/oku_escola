@@ -737,12 +737,12 @@ public function exportFinal($classId)
         ];
         
         foreach ($disciplines as $disc) {
-            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $disc->id);
+            $notas = $this->getDisciplineTrimestralScores($student->enrollment_id, $disc['id']);
             
-            $row['disc_' . $disc->id . '_m1'] = $notas['trimestre1']['mt'] ?? '';
-            $row['disc_' . $disc->id . '_mt2'] = $notas['trimestre2']['mt'] ?? '';
-            $row['disc_' . $disc->id . '_mt3'] = $notas['trimestre3']['mt'] ?? '';
-            $row['disc_' . $disc->id . '_mfd'] = $notas['mfd'] ?? '';
+            $row['disc_' . $disc['id'] . '_m1'] = $notas['trimestre1']['mt'] ?? '';
+            $row['disc_' . $disc['id'] . '_mt2'] = $notas['trimestre2']['mt'] ?? '';
+            $row['disc_' . $disc['id'] . '_mt3'] = $notas['trimestre3']['mt'] ?? '';
+            $row['disc_' . $disc['id'] . '_mfd'] = $notas['mfd'] ?? '';
         }
         
         $row['resultado'] = $this->determinarResultadoFinal([$student->enrollment_id => []]); // Simplificado
@@ -768,8 +768,8 @@ private function gerarExcelFinal($class, $disciplines, $dados)
     $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
     
     // Informações
-    $sheet->setCellValue('A2', 'Curso: ' . ($class->course_name ?? 'Ensino Geral'));
-    $sheet->setCellValue('A3', 'Classe: ' . $class->level_name . ' - Turma: ' . $class['class_name']);
+    $sheet->setCellValue('A2', 'Curso: ' . ($class['course_name'] ?? 'Ensino Geral'));
+    $sheet->setCellValue('A3', 'Classe: ' . $class['level_name'] . ' - Turma: ' . $class['class_name']);
     
     // Cabeçalho
     $sheet->setCellValue('A5', 'Nº');
@@ -777,7 +777,7 @@ private function gerarExcelFinal($class, $disciplines, $dados)
     
     $col = 'C';
     foreach ($disciplines as $disc) {
-        $sheet->setCellValue($col . '5', $disc->discipline_name);
+        $sheet->setCellValue($col . '5', $disc['discipline_name']);
         $sheet->mergeCells($col . '5:' . $this->getColumnLetter($this->getColumnNumber($col) + 3) . '5');
         
         $sheet->setCellValue($col . '6', 'M1');
@@ -802,10 +802,10 @@ private function gerarExcelFinal($class, $disciplines, $dados)
         
         $col = 'C';
         foreach ($disciplines as $disc) {
-            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_m1']);
-            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_mt2']);
-            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_mt3']);
-            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc->id . '_mfd']);
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc['id'] . '_m1']);
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc['id'] . '_mt2']);
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc['id'] . '_mt3']);
+            $sheet->setCellValue($col++ . $row, $item['disc_' . $disc['id'] . '_mfd']);
         }
         
         $sheet->setCellValue($col++ . $row, $item['resultado']);
@@ -1193,11 +1193,11 @@ public function export()
         foreach ($disciplines as $disc) {
             $avg = $this->disciplineAverageModel
                 ->where('enrollment_id', $student->enrollment_id)
-                ->where('discipline_id', $disc->id)
+                ->where('discipline_id', $disc['id'])
                 ->where('semester_id', $semesterId)
                 ->first();
             
-            $row['disc_' . $disc->id] = $avg ? $avg->final_score : '';
+            $row['disc_' . $disc['id']] = $avg ? $avg->final_score : '';
         }
         
         $result = $this->semesterResultModel
@@ -1234,7 +1234,7 @@ public function export()
         
         $col = 'D';
         foreach ($disciplines as $disc) {
-            $sheet->setCellValue($col . '4', $disc->discipline_code);
+            $sheet->setCellValue($col . '4', $disc['discipline_code']);
             $col++;
         }
         $sheet->setCellValue($col . '4', 'Média');
@@ -1250,7 +1250,7 @@ public function export()
             
             $col = 'D';
             foreach ($disciplines as $disc) {
-                $sheet->setCellValue($col . $row, $item['disc_' . $disc->id] ?? '');
+                $sheet->setCellValue($col . $row, $item['disc_' . $disc['id']] ?? '');
                 $col++;
             }
             $sheet->setCellValue($col . $row, $item['average']);

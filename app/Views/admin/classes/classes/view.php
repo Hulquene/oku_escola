@@ -274,12 +274,12 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                     </tr>
                     <tr>
                         <td>Nível de Ensino</td>
-                        <td><?= esc($class->level_name) ?></td>
+                        <td><?= esc($class['level_name']) ?></td>
                     </tr>
-                    <?php if (!empty($class->course_name)): ?>
+                    <?php if (!empty($class['course_name'])): ?>
                     <tr>
                         <td>Curso</td>
-                        <td><?= esc($class->course_name) ?></td>
+                        <td><?= esc($class['course_name']) ?></td>
                     </tr>
                     <?php endif; ?>
                     <tr>
@@ -396,10 +396,10 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                         <?php foreach ($disciplines as $disc): ?>
                         <tr>
                             <td>
-                                <span class="disc-name"><?= esc($disc->discipline_name) ?></span>
+                                <span class="disc-name"><?= esc($disc['discipline_name']) ?></span>
                             </td>
                             <td>
-                                <span class="code-badge"><?= esc($disc->discipline_code) ?></span>
+                                <span class="code-badge"><?= esc($disc['discipline_code']) ?></span>
                             </td>
                             <td>
                                 <?php if (!empty($disc->teacher_id)): ?>

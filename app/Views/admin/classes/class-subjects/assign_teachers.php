@@ -27,8 +27,8 @@
             <div>
                 <h4 class="mb-1"><?= $class['class_name'] ?> (<?= $class['class_code'] ?>)</h4>
                 <p class="mb-0">
-                    <span class="badge bg-primary me-2">Curso: <?= $class->course_name ?? 'Não definido' ?></span>
-                    <span class="badge bg-success me-2">Nível: <?= $class->level_name ?></span>
+                    <span class="badge bg-primary me-2">Curso: <?= $class['course_name'] ?? 'Não definido' ?></span>
+                    <span class="badge bg-success me-2">Nível: <?= $class['level_name'] ?></span>
                     <span class="badge bg-info me-2">Turno: <?= $class['class_shift'] ?></span>
                     <span class="badge bg-secondary">Ano Letivo: <?= $class['year_name'] ?? date('Y') ?></span>
                 </p>
@@ -114,9 +114,9 @@
                                     
                                     <td class="text-center"><?= $index + 1 ?></td>
                                     <td>
-                                        <strong><?= $disc->discipline_name ?></strong>
+                                        <strong><?= $disc['discipline_name'] ?></strong>
                                     </td>
-                                    <td><span class="badge bg-info"><?= $disc->discipline_code ?></span></td>
+                                    <td><span class="badge bg-info"><?= $disc['discipline_code'] ?></span></td>
                                     <td class="text-center">
                                         <?php if ($disc->workload_hours): ?>
                                             <span class="badge bg-secondary"><?= $disc->workload_hours ?>h</span>
@@ -133,11 +133,11 @@
                                         <small class="text-muted"><?= $periodInfo['description'] ?? '' ?></small>
                                     </td>
                                     <td>
-                                        <select name="assignments[<?= $disc->id ?>]" class="form-select form-select-sm">
+                                        <select name="assignments[<?= $disc['id'] ?>]" class="form-select form-select-sm">
                                             <option value="">-- Sem professor --</option>
                                             <?php foreach ($teachers as $teacher): ?>
-                                                <option value="<?= $teacher->id ?>" 
-                                                    <?= $disc->teacher_id == $teacher->id ? 'selected' : '' ?>>
+                                                <option value="<?= $teacher['id'] ?>" 
+                                                    <?= $disc->teacher_id == $teacher['id'] ? 'selected' : '' ?>>
                                                     <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                                                 </option>
                                             <?php endforeach; ?>

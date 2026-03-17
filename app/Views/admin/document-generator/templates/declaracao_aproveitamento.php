@@ -129,7 +129,7 @@
                 <?php if (isset($disciplinas) && !empty($disciplinas)): ?>
                     <?php foreach ($disciplinas as $disc): ?>
                         <tr>
-                            <td><?= $disc->discipline_name ?? $disc['discipline_name'] ?? 'Matemática' ?></td>
+                            <td><?= $disc['discipline_name'] ?? $disc['discipline_name'] ?? 'Matemática' ?></td>
                             <td><?= $disc->final_score ?? $disc['final_score'] ?? '14.5' ?> valores</td>
                             <td><?= $disc->status ?? $disc['status'] ?? 'Aprovado' ?></td>
                         </tr>

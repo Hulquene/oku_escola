@@ -41,11 +41,11 @@
                     </tr>
                     <tr>
                         <td><strong>Curso:</strong></td>
-                        <td><?= $class->course_name ?? 'Ensino Geral' ?></td>
+                        <td><?= $class['course_name'] ?? 'Ensino Geral' ?></td>
                     </tr>
                     <tr>
                         <td><strong>Classe:</strong></td>
-                        <td><?= $class->level_name ?> / <?= $class['class_shift'] ?></td>
+                        <td><?= $class['level_name'] ?> / <?= $class['class_shift'] ?></td>
                     </tr>
                     <tr>
                         <td><strong>Turma:</strong></td>
@@ -80,7 +80,7 @@
                         <th rowspan="2" class="align-middle">NOME COMPLETO</th>
                         
                         <?php foreach ($disciplines as $disc): ?>
-                            <th colspan="4" class="text-center"><?= $disc->discipline_name ?></th>
+                            <th colspan="4" class="text-center"><?= $disc['discipline_name'] ?></th>
                         <?php endforeach; ?>
                         
                         <th rowspan="2" class="align-middle text-center" width="120">RESULTADO FINAL</th>
@@ -107,7 +107,7 @@
                                 </td>
                                 
                                 <?php foreach ($disciplines as $disc): ?>
-                                    <?php $notas = $student->disciplinas[$disc->id] ?? []; ?>
+                                    <?php $notas = $student->disciplinas[$disc['id']] ?? []; ?>
                                     
                                     <!-- M1 (Média do 1º Trimestre) -->
                                     <td class="text-center <?= isset($notas['trimestre1']['mt']) ? '' : 'text-muted' ?>">

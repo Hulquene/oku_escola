@@ -44,7 +44,7 @@
                     </div>
                     <div class="col-md-3">
                         <strong>Nível:</strong>
-                        <p><?= $class->level_name ?></p>
+                        <p><?= $class['level_name'] ?></p>
                     </div>
                     <div class="col-md-3">
                         <strong>Trimestre:</strong>
@@ -73,8 +73,8 @@
                     </tr>
                     <tr>
                         <?php foreach ($disciplinas as $disc): ?>
-                            <th class="text-center" title="<?= $disc->discipline_name ?>">
-                                <?= $disc->discipline_code ?><br>
+                            <th class="text-center" title="<?= $disc['discipline_name'] ?>">
+                                <?= $disc['discipline_code'] ?><br>
                                 <small><?= $disc->teacher_first_name ? substr($disc->teacher_first_name, 0, 1) . '.' : '' ?></small>
                             </th>
                         <?php endforeach; ?>

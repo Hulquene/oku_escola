@@ -69,8 +69,8 @@
                 <select class="form-select" name="discipline" onchange="this.form.submit()">
                     <option value="">Todas</option>
                     <?php foreach ($disciplines as $disc): ?>
-                        <option value="<?= $disc->id ?>" <?= $selectedDiscipline == $disc->id ? 'selected' : '' ?>>
-                            <?= $disc->discipline_name ?>
+                        <option value="<?= $disc['id'] ?>" <?= $selectedDiscipline == $disc['id'] ? 'selected' : '' ?>>
+                            <?= $disc['discipline_name'] ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

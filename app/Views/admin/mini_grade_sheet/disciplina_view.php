@@ -44,7 +44,7 @@
                     </div>
                     <div class="col-md-3">
                         <strong>Nível:</strong>
-                        <p><?= $class->level_name ?></p>
+                        <p><?= $class['level_name'] ?></p>
                     </div>
                     <div class="col-md-3">
                         <strong>Disciplina:</strong>

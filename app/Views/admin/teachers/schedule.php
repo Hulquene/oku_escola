@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-            <a href="<?= site_url('admin/teachers/view/' . $teacher->id) ?>" class="btn btn-info">
+            <a href="<?= site_url('admin/teachers/view/' . $teacher['id']) ?>" class="btn btn-info">
                 <i class="fas fa-eye"></i> Ver Perfil
             </a>
             <a href="<?= site_url('admin/teachers') ?>" class="btn btn-secondary">
@@ -19,7 +19,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers') ?>">Professores</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers/view/' . $teacher->id) ?>"><?= $teacher->full_name ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers/view/' . $teacher['id']) ?>"><?= $teacher->full_name ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Horário</li>
         </ol>
     </nav>
@@ -61,7 +61,7 @@
             <i class="fas fa-calendar-alt fa-4x text-muted mb-3"></i>
             <h4 class="text-muted">Nenhuma disciplina atribuída</h4>
             <p class="mb-3">Este professor ainda não tem disciplinas atribuídas para o ano letivo atual.</p>
-            <a href="<?= site_url('admin/teachers/assign-class/' . $teacher->id) ?>" class="btn btn-primary">
+            <a href="<?= site_url('admin/teachers/assign-class/' . $teacher['id']) ?>" class="btn btn-primary">
                 <i class="fas fa-plus-circle me-2"></i>Atribuir Disciplinas
             </a>
         </div>
@@ -208,7 +208,7 @@
                 <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
                     <i class="fas fa-print me-1"></i>Imprimir Horário
                 </button>
-                <a href="<?= site_url('admin/teachers/assign-class/' . $teacher->id) ?>" class="btn btn-sm btn-primary">
+                <a href="<?= site_url('admin/teachers/assign-class/' . $teacher['id']) ?>" class="btn btn-sm btn-primary">
                     <i class="fas fa-edit me-1"></i>Editar Atribuições
                 </a>
             </div>

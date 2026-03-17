@@ -7,10 +7,10 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1><?= $title ?></h1>
         <div>
-            <a href="<?= site_url('admin/teachers/schedule/' . $teacher->id) ?>" class="btn btn-success me-2">
+            <a href="<?= site_url('admin/teachers/schedule/' . $teacher['id']) ?>" class="btn btn-success me-2">
                 <i class="fas fa-calendar-alt"></i> Ver Horário
             </a>
-            <a href="<?= site_url('admin/teachers/view/' . $teacher->id) ?>" class="btn btn-info me-2">
+            <a href="<?= site_url('admin/teachers/view/' . $teacher['id']) ?>" class="btn btn-info me-2">
                 <i class="fas fa-eye"></i> Ver Professor
             </a>
             <a href="<?= site_url('admin/teachers') ?>" class="btn btn-secondary">
@@ -22,7 +22,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers') ?>">Professores</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers/view/' . $teacher->id) ?>"><?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?></a></li>
+            <li class="breadcrumb-item"><a href="<?= site_url('admin/teachers/view/' . $teacher['id']) ?>"><?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Atribuir Turmas</li>
         </ol>
     </nav>
@@ -78,7 +78,7 @@
     <div class="card-body">
         <form action="<?= site_url('admin/teachers/save-assignment') ?>" method="post" id="assignmentForm">
             <?= csrf_field() ?>
-            <input type="hidden" name="teacher_id" value="<?= $teacher->id ?>">
+            <input type="hidden" name="teacher_id" value="<?= $teacher['id'] ?>">
             
             <div class="alert alert-warning d-flex align-items-center">
                 <i class="fas fa-info-circle fa-2x me-3"></i>
@@ -156,12 +156,12 @@
                                                 </span>
                                             <?php endif; ?>
                                             
-                                            <small class="text-muted ms-2"><?= $class->level_name ?></small>
+                                            <small class="text-muted ms-2"><?= $class['level_name'] ?></small>
                                             
                                             <!-- Curso da Turma -->
-                                            <?php if (isset($class->course_name) && $class->course_name): ?>
+                                            <?php if (isset($class['course_name']) && $class['course_name']): ?>
                                                 <span class="badge bg-primary ms-2">
-                                                    <i class="fas fa-graduation-cap me-1"></i><?= $class->course_name ?>
+                                                    <i class="fas fa-graduation-cap me-1"></i><?= $class['course_name'] ?>
                                                 </span>
                                             <?php else: ?>
                                                 <span class="badge bg-secondary ms-2">Ensino Geral</span>
@@ -279,7 +279,7 @@
                     <span class="text-muted" id="selectionCounter">Nenhuma disciplina selecionada</span>
                 </div>
                 <div>
-                    <a href="<?= site_url('admin/teachers/view/' . $teacher->id) ?>" class="btn btn-secondary me-2">
+                    <a href="<?= site_url('admin/teachers/view/' . $teacher['id']) ?>" class="btn btn-secondary me-2">
                         <i class="fas fa-arrow-left me-1"></i>Cancelar
                     </a>
                     <button type="submit" class="btn btn-primary">

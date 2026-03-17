@@ -88,7 +88,7 @@
     <div class="header">
         <div class="school-name"><?= getSetting('school_name') ?></div>
         <h1>Pauta de Avaliações</h1>
-        <h2><?= $class['class_name'] ?> • <?= $class->level_name ?> • <?= $class['year_name'] ?></h2>
+        <h2><?= $class['class_name'] ?> • <?= $class['level_name'] ?> • <?= $class['year_name'] ?></h2>
         <h3><?= $semester->semester_name ?> (<?= $semester->semester_type ?>)</h3>
     </div>
     
@@ -102,7 +102,7 @@
             </tr>
             <tr>
                 <td><strong>Nível:</strong></td>
-                <td><?= $class->level_name ?></td>
+                <td><?= $class['level_name'] ?></td>
                 <td><strong>Data:</strong></td>
                 <td><?= date('d/m/Y') ?></td>
             </tr>
@@ -116,7 +116,7 @@
                 <th width="80">Matrícula</th>
                 <th width="200" class="student-name">Nome do Aluno</th>
                 <?php foreach ($disciplines as $disc): ?>
-                    <th><?= $disc->discipline_name ?></th>
+                    <th><?= $disc['discipline_name'] ?></th>
                 <?php endforeach; ?>
                 <th width="70">Média</th>
             </tr>
@@ -130,8 +130,8 @@
                     <td class="student-name"><?= $student['student_name'] ?></td>
                     <?php foreach ($disciplines as $disc): ?>
                         <td>
-                            <?php if (isset($student['averages'][$disc->id])): ?>
-                                <?= number_format($student['averages'][$disc->id], 1) ?>
+                            <?php if (isset($student['averages'][$disc['id']])): ?>
+                                <?= number_format($student['averages'][$disc['id']], 1) ?>
                             <?php else: ?>
                                 -
                             <?php endif; ?>
@@ -142,8 +142,8 @@
                         $total = 0;
                         $count = 0;
                         foreach ($disciplines as $disc) {
-                            if (isset($student['averages'][$disc->id])) {
-                                $total += $student['averages'][$disc->id];
+                            if (isset($student['averages'][$disc['id']])) {
+                                $total += $student['averages'][$disc['id']];
                                 $count++;
                             }
                         }

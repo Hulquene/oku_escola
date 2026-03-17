@@ -148,7 +148,7 @@ class Profile extends BaseController
         if (!empty($teacherData)) {
             if ($teacher) {
                 // Atualizar registro existente
-                $this->teacherModel->update($teacher->id, $teacherData);
+                $this->teacherModel->update($teacher['id'], $teacherData);
             } else {
                 // Criar novo registro
                 $teacherData['user_id'] = $userId;

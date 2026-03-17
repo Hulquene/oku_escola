@@ -395,7 +395,7 @@ textarea.form-control {
     </div>
     <div class="info-item">
         <i class="fas fa-layer-group"></i>
-        <span>Nível: <strong><?= $class->level_name ?? 'N/A' ?></strong></span>
+        <span>Nível: <strong><?= $class['level_name'] ?? 'N/A' ?></strong></span>
     </div>
     <div class="info-item">
         <i class="fas fa-clock"></i>
@@ -483,7 +483,7 @@ textarea.form-control {
                             <option value="<?= $disc->discipline_id ?>" 
                                 <?= isset($schedule) && $schedule->discipline_id == $disc->discipline_id ? 'selected' : '' ?>
                                 <?= old('discipline_id') == $disc->discipline_id ? 'selected' : '' ?>>
-                                <?= $disc->discipline_name ?> (<?= $disc->discipline_code ?>)
+                                <?= $disc['discipline_name'] ?> (<?= $disc['discipline_code'] ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -555,9 +555,9 @@ textarea.form-control {
                     <select name="teacher_id" class="form-select">
                         <option value="">Sem professor atribuído</option>
                         <?php foreach ($teachers as $teacher): ?>
-                            <option value="<?= $teacher->id ?>" 
-                                <?= isset($schedule) && $schedule->teacher_id == $teacher->id ? 'selected' : '' ?>
-                                <?= old('teacher_id') == $teacher->id ? 'selected' : '' ?>>
+                            <option value="<?= $teacher['id'] ?>" 
+                                <?= isset($schedule) && $schedule->teacher_id == $teacher['id'] ? 'selected' : '' ?>
+                                <?= old('teacher_id') == $teacher['id'] ? 'selected' : '' ?>>
                                 <?= $teacher['first_name'] ?> <?= $teacher['last_name'] ?>
                             </option>
                         <?php endforeach; ?>
