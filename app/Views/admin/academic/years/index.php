@@ -130,11 +130,198 @@
 
 <?= $this->section('scripts') ?>
 <script>
-$(document).ready(function () {
-    $('#yearsTable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json' },
-        order: [[1, 'desc']]
+$(document).ready(function() {
+    // Carregar estatísticas iniciais
+    loadStats();
+    
+    // Inicializar DataTable 2
+    var table = $('#usersTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '<?= site_url('admin/users/get-table-data') ?>',
+            type: 'POST',
+            data: function(d) {
+                // DataTables 2 envia os parâmetros automaticamente
+                // Adicionar filtros customizados
+                d.filter_role = $('#filter_role').val();
+                d.filter_type = $('#filter_type').val();
+                d.filter_status = $('#filter_status').val();
+                d['<?= csrf_token() ?>'] = '<?= csrf_hash() ?>';
+                
+                console.log('Enviando dados:', d);
+            },
+            error: function(xhr, error, thrown) {
+                console.log('Erro AJAX:', error);
+                console.log('Status:', xhr.status);
+                console.log('Resposta:', xhr.responseText);
+            }
+        },
+        columns: [
+            { data: 'id' },
+            { data: 'photo_html' },
+            { data: 'name_html' },
+            { data: 'username' },
+            { data: 'email' },
+            { data: 'role_badge' },
+            { data: 'type_badge' },
+            { data: 'last_login_html' },
+            { data: 'status_badge' },
+            { data: 'actions' }
+        ],
+        order: [[2, 'asc']],
+        pageLength: 25,
+        lengthMenu: [10, 25, 50, 100],
+       
+        drawCallback: function(settings) {
+            var info = settings.json;
+            if (info) {
+                $('#recordCount').text(info.recordsFiltered + ' registros');
+            }
+            
+            // Re-inicializar tooltips
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        },
+        initComplete: function() {
+            console.log('DataTable 2 inicializado com sucesso');
+        }
+    });
+    
+    // Filtrar ao clicar no botão
+    $('#btnFilter').on('click', function() {
+        table.ajax.reload();
+    });
+    
+    // Filtrar ao mudar selects
+    $('#filter_role, #filter_type, #filter_status').on('change', function() {
+        table.ajax.reload();
+    });
+    
+    // Busca com debounce
+    let searchTimer;
+    $('#search').on('keyup', function() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            // No DataTables 2, a busca é feita via parâmetro search
+            table.search($(this).val()).draw();
+        }, 500);
+    });
+    
+    // Limpar filtros
+    $('#btnClear').on('click', function() {
+        $('#search').val('');
+        $('#filter_role').val('');
+        $('#filter_type').val('');
+        $('#filter_status').val('');
+        table.search('').ajax.reload();
+    });
+    
+    // Toggle user status
+    $(document).on('click', '.toggle-status', function() {
+        const btn = $(this);
+        const userId = btn.data('id');
+        const userName = btn.data('name');
+        const currentStatus = btn.data('status');
+        const action = currentStatus ? 'desativar' : 'ativar';
+        
+        if (confirm(`Tem certeza que deseja ${action} o utilizador ${userName}?`)) {
+            $.ajax({
+                url: '<?= site_url('admin/users/toggle-active/') ?>' + userId,
+                type: 'POST',
+                data: {
+                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        table.ajax.reload(null, false);
+                        loadStats();
+                    } else {
+                        alert(response.message || 'Erro ao alterar status');
+                    }
+                },
+                error: function() {
+                    alert('Erro ao comunicar com o servidor');
+                }
+            });
+        }
+    });
+    
+    // Reset password
+    let resetUserId = null;
+    
+    $(document).on('click', '.reset-password', function() {
+        resetUserId = $(this).data('id');
+        const userName = $(this).data('name');
+        
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let password = '';
+        for (let i = 0; i < 8; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        
+        $('#newPassword').val(password);
+        $('#resetUserInfo').html(`Redefinir senha para <strong>${userName}</strong>`);
+        $('#resetPasswordModal').modal('show');
+    });
+    
+    $('#confirmReset').on('click', function() {
+        if (!resetUserId) return;
+        
+        const newPassword = $('#newPassword').val();
+        
+        $.ajax({
+            url: '<?= site_url('admin/users/reset-password/') ?>' + resetUserId,
+            type: 'POST',
+            data: {
+                password: newPassword,
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#resetPasswordModal').modal('hide');
+                    alert('Senha redefinida com sucesso!');
+                } else {
+                    alert(response.message || 'Erro ao redefinir senha');
+                }
+            },
+            error: function() {
+                alert('Erro ao comunicar com o servidor');
+            }
+        });
     });
 });
+
+// Função para carregar estatísticas
+function loadStats() {
+    $.ajax({
+        url: '<?= site_url('admin/users/get-stats') ?>',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            $('#totalUsers').text(data.totalUsers || 0);
+            $('#activeUsers').text(data.activeUsers || 0);
+            $('#adminUsers').text(data.adminUsers || 0);
+            $('#teacherUsers').text(data.teacherUsers || 0);
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao carregar estatísticas:', error);
+        }
+    });
+}
+
+// Função para confirmar eliminação
+function confirmDelete(id) {
+    $('#confirmDeleteBtn').attr('href', '<?= site_url('admin/users/delete/') ?>' + id);
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Exportar para Excel
+function exportToExcel() {
+    if (typeof exportTableData === 'function') {
+        exportTableData('usersTable', 'excel');
+    } else {
+        alert('Função de exportação não disponível');
+    }
+}
 </script>
 <?= $this->endSection() ?>

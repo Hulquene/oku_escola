@@ -43,15 +43,15 @@
                 <?php if (!empty($currencies)): ?>
                     <?php foreach ($currencies as $currency): ?>
                         <tr>
-                            <td><?= $currency->id ?></td>
+                            <td><?= $currency['id'] ?></td>
                             <td><?= $currency->currency_name ?></td>
-                            <td><span class="badge bg-info"><?= $currency->currency_code ?></span></td>
+                            <td><span class="badge bg-info"><?= $currency['currency_code'] ?></span></td>
                             <td><span class="fw-bold"><?= $currency->currency_symbol ?></span></td>
                             <td>
-                                <?php if ($currency->is_default): ?>
+                                <?php if ($currency['is_default']): ?>
                                     <span class="badge bg-success">Padrão</span>
                                 <?php else: ?>
-                                    <a href="<?= site_url('admin/financial/currencies/set-default/' . $currency->id) ?>" 
+                                    <a href="<?= site_url('admin/financial/currencies/set-default/' . $currency['id']) ?>" 
                                        class="btn btn-sm btn-outline-primary"
                                        onclick="return confirm('Definir esta moeda como padrão?')">
                                         Definir Padrão
@@ -60,16 +60,16 @@
                             </td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-info edit-currency" 
-                                        data-id="<?= $currency->id ?>"
+                                        data-id="<?= $currency['id'] ?>"
                                         data-name="<?= $currency->currency_name ?>"
-                                        data-code="<?= $currency->currency_code ?>"
+                                        data-code="<?= $currency['currency_code'] ?>"
                                         data-symbol="<?= $currency->currency_symbol ?>"
-                                        data-default="<?= $currency->is_default ?>"
+                                        data-default="<?= $currency['is_default'] ?>"
                                         title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <?php if (!$currency->is_default): ?>
-                                    <a href="<?= site_url('admin/financial/currencies/delete/' . $currency->id) ?>" 
+                                <?php if (!$currency['is_default']): ?>
+                                    <a href="<?= site_url('admin/financial/currencies/delete/' . $currency['id']) ?>" 
                                        class="btn btn-sm btn-danger" 
                                        onclick="return confirm('Tem certeza que deseja eliminar esta moeda?')"
                                        title="Eliminar">
@@ -153,9 +153,7 @@
 <script>
 $(document).ready(function() {
     $('#currenciesTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         order: [[0, 'asc']]
     });
     

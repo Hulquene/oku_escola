@@ -119,7 +119,7 @@ class Currencies extends BaseController
             return redirect()->back()->with('error', 'Moeda não encontrada');
         }
         
-        if ($currency->is_default) {
+        if ($currency['is_default']) {
             return redirect()->back()->with('error', 'Não é possível eliminar a moeda padrão');
         }
         

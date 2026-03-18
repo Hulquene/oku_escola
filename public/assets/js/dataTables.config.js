@@ -25,7 +25,7 @@
         "sInfoFiltered": "(filtrado de _MAX_ registros no total)",
         "sInfoPostFix": "",
         "sInfoThousands": ".",
-        "sLengthMenu": "Mostrar _MENU_ registros",
+        "sLengthMenu": "Mostrar _MENU_ registros por página",
         "sLoadingRecords": "Carregando...",
         "sProcessing": "Processando...",
         "sZeroRecords": "Nenhum registro encontrado",
@@ -64,33 +64,38 @@
     /* ======================================================
        CONFIGURAÇÕES PADRÃO
        ====================================================== */
-    DataTable.defaults = {
-        // Configurações básicas
-        responsive: true,
-        pageLength: 25,
-        lengthMenu: [10, 25, 50, 100, 250],
-        ordering: true,
-        searching: true,
-        processing: true,
-        
-        // IMPORTANTE: ServerSide deve ser configurado por tabela
-        // serverSide: true, // COMENTADO - Ativar apenas para tabelas grandes
-        
-        // Idioma (usando versão embutida para não depender de CDN)
-        language: ptBrLanguage,
-        
-        // Layout usando classes Bootstrap
-        layout: {
-            topStart: {
-                buttons: ['copy', 'excel', 'pdf', 'print']
-            },
-            topEnd: 'search',
-            bottomStart: 'info',
-            bottomEnd: 'paging'
-        },
+    // Verificar se DataTable.defaults existe
+    if (!DataTable.defaults) {
+        DataTable.defaults = {};
+    }
 
-        // Botões com classes Bootstrap
-        buttons: [
+    // Configurações básicas
+    DataTable.defaults.responsive = true;
+    DataTable.defaults.pageLength = 25;
+    DataTable.defaults.lengthMenu = [10, 25, 50, 100, 250];
+    DataTable.defaults.ordering = true;
+    DataTable.defaults.searching = true;
+    DataTable.defaults.processing = true;
+    
+    // Idioma (usando versão embutida para não depender de CDN)
+    DataTable.defaults.language = ptBrLanguage;
+    
+    // Layout usando classes Bootstrap (adaptado para DataTables 2)
+    DataTable.defaults.layout = {
+        topStart: {
+            pageLength: {
+                menu: [10, 25, 50, 100, 250] // Pode personalizar o menu aqui
+            },
+            buttons: ['copy', 'excel', 'pdf', 'print']
+        },
+        topEnd: 'search',
+        bottomStart: 'info',
+        bottomEnd: 'paging'
+    };
+
+    // Botões com classes Bootstrap (se o botões estiver disponível)
+    if (DataTable.Buttons) {
+        DataTable.defaults.buttons = [
             {
                 extend: 'copy',
                 text: '<i class="fa-regular fa-copy"></i> Copiar',
@@ -115,51 +120,54 @@
                 className: 'btn btn-info btn-sm',
                 titleAttr: 'Imprimir tabela'
             }
-        ],
+        ];
+    }
 
-        // Classes CSS personalizadas
-        classes: {
-            container: 'dt-container',
-            layout: 'dt-layout-row',
-            search: 'form-control form-control-sm',
-            length: 'form-select form-select-sm',
-            processing: 'dt-processing'
-        },
+    // Classes CSS personalizadas
+    DataTable.defaults.classes = {
+        container: 'dt-container',
+        layout: 'dt-layout-row',
+        search: 'form-control form-control-sm',
+        length: 'form-select form-select-sm',
+        processing: 'dt-processing'
+    };
 
-        // Configurações de responsividade
-        responsive: {
+    // Configurações de responsividade (verificar se o plugin existe)
+    if ($.fn.DataTable && $.fn.DataTable.Responsive) {
+        DataTable.defaults.responsive = {
             details: {
-                display: $.fn.dataTable.Responsive.display.modal({
+                display: $.fn.DataTable.Responsive.display.modal({
                     header: function(row) {
-                        const data = row.data();
                         return 'Detalhes do registro';
                     }
                 }),
-                renderer: $.fn.dataTable.Responsive.renderer.tableAll({
+                renderer: $.fn.DataTable.Responsive.renderer.tableAll({
                     tableClass: 'table table-sm table-borderless'
                 })
             }
+        };
+    }
+
+    // Configurações de colunas
+    DataTable.defaults.columnDefs = [
+        {
+            targets: 'no-sort',
+            orderable: false
         },
+        {
+            targets: 'no-search',
+            searchable: false
+        },
+        {
+            targets: 'text-center',
+            className: 'text-center'
+        }
+    ];
 
-        // Configurações de colunas
-        columnDefs: [
-            {
-                targets: 'no-sort',
-                orderable: false
-            },
-            {
-                targets: 'no-search',
-                searchable: false
-            },
-            {
-                targets: 'text-center',
-                className: 'text-center'
-            }
-        ],
-
-        // Callbacks padrão
-        drawCallback: function(settings) {
-            // Re-inicializar tooltips
+    // Callbacks padrão
+    DataTable.defaults.drawCallback = function(settings) {
+        // Re-inicializar tooltips
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
             $('[data-bs-toggle="tooltip"]').each(function() {
                 try {
                     const tooltip = bootstrap.Tooltip.getInstance(this);
@@ -171,8 +179,10 @@
                     console.warn('Erro ao inicializar tooltip:', e);
                 }
             });
+        }
 
-            // Re-inicializar popovers
+        // Re-inicializar popovers
+        if (typeof bootstrap !== 'undefined' && bootstrap.Popover) {
             $('[data-bs-toggle="popover"]').each(function() {
                 try {
                     const popover = bootstrap.Popover.getInstance(this);
@@ -182,17 +192,17 @@
                     new bootstrap.Popover(this);
                 } catch (e) {}
             });
-
-            // Log de debug (remover em produção)
-            if (window.CONFIG?.debug) {
-                console.log('DataTables redesenhou', settings);
-            }
-        },
-
-        // Inicialização
-        initComplete: function(settings, json) {
-            console.log('DataTables inicializado com sucesso');
         }
+
+        // Log de debug (remover em produção)
+        if (window.CONFIG?.debug) {
+            console.log('DataTables redesenhou', settings);
+        }
+    };
+
+    // Inicialização
+    DataTable.defaults.initComplete = function(settings, json) {
+        console.log('DataTables inicializado com sucesso');
     };
 
     /* ======================================================
@@ -219,12 +229,22 @@
             return null;
         }
 
-        // Configuração base
-        const config = {
-            ...DataTable.defaults,
-            ...options,
-            buttons: options.buttons || DataTable.defaults.buttons
-        };
+        // Configuração base - copiar apenas propriedades existentes
+        const config = {};
+        
+        // Copiar configurações padrão
+        for (let key in DataTable.defaults) {
+            if (DataTable.defaults.hasOwnProperty(key)) {
+                config[key] = DataTable.defaults[key];
+            }
+        }
+        
+        // Sobrescrever com opções personalizadas
+        for (let key in options) {
+            if (options.hasOwnProperty(key)) {
+                config[key] = options[key];
+            }
+        }
 
         // Se for tabela pequena, desabilitar serverSide
         if (options.serverSide === undefined) {
@@ -233,14 +253,25 @@
             config.serverSide = rowCount > 100; // ServerSide para mais de 100 registros
         }
 
+        // Garantir que buttons seja um array
+        if (config.buttons && !Array.isArray(config.buttons)) {
+            config.buttons = [config.buttons];
+        }
+
         // Inicializar e retornar instância
-        const table = element.DataTable(config);
-        
-        // Armazenar referência global
-        window.dataTables = window.dataTables || {};
-        window.dataTables[selector.replace(/[^a-zA-Z0-9]/g, '')] = table;
-        
-        return table;
+        try {
+            const table = element.DataTable(config);
+            
+            // Armazenar referência global
+            window.dataTables = window.dataTables || {};
+            const key = selector.replace(/[^a-zA-Z0-9]/g, '');
+            window.dataTables[key] = table;
+            
+            return table;
+        } catch (e) {
+            console.error('Erro ao inicializar DataTable:', e);
+            return null;
+        }
     };
 
     /**
@@ -260,10 +291,23 @@
      * Helper para exportar dados em diferentes formatos
      */
     window.exportTableData = function(tableId, format = 'excel') {
-        const table = window.dataTables?.[tableId] || $(tableId).DataTable();
+        let table;
+        
+        // Tentar encontrar a tabela
+        if (window.dataTables && window.dataTables[tableId]) {
+            table = window.dataTables[tableId];
+        } else {
+            table = $(tableId).DataTable();
+        }
         
         if (!table) {
             console.error('Tabela não encontrada:', tableId);
+            return;
+        }
+
+        // Verificar se os botões estão disponíveis
+        if (!table.button) {
+            console.error('Botões do DataTables não disponíveis');
             return;
         }
 
@@ -280,6 +324,8 @@
             case 'copy':
                 table.button('.buttons-copy').trigger();
                 break;
+            default:
+                console.warn('Formato não suportado:', format);
         }
     };
 
@@ -290,7 +336,9 @@
 
     // Log de inicialização
     console.log('✅ DataTables configurado com sucesso');
-    console.log('📊 Versão:', DataTable.version);
+    if (DataTable && DataTable.version) {
+        console.log('📊 Versão:', DataTable.version);
+    }
     console.log('🌐 Idioma: Português (Brasil)');
 
 })();

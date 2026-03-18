@@ -279,9 +279,7 @@
 $(document).ready(function() {
     // Inicializar DataTables
     $('.table').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         pageLength: 10,
         responsive: true,
         order: [[0, 'desc']]

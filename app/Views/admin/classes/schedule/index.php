@@ -403,9 +403,7 @@ $(document).ready(function() {
                 }
             }
         ],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         order: [[0, 'asc']],
         pageLength: 10,
         lengthMenu: [10, 25, 50, 100],

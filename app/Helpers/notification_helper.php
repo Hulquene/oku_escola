@@ -113,15 +113,6 @@ if (!function_exists('format_notification_time')) {
     }
 }
 
-if (!function_exists('time_elapsed_string')) {
-    /**
-     * Alias for format_notification_time (backward compatibility)
-     */
-    function time_elapsed_string($datetime) {
-        return format_notification_time($datetime);
-    }
-}
-
 if (!function_exists('notify_user')) {
     /**
      * Send notification to a single user

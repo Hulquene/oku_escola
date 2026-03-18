@@ -282,9 +282,7 @@ $(document).ready(function() {
             { data: 'created_at_html' },
             { data: 'actions' }
         ],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         order: [[2, 'asc']],
         pageLength: 25,
         lengthMenu: [10, 25, 50, 100],

@@ -38,7 +38,7 @@
                 <tbody>
                     <?php foreach ($types as $type): ?>
                         <tr>
-                            <td><?= $type->id ?></td>
+                            <td><?= $type['id'] ?></td>
                             <td><code><?= $type->document_code ?></code></td>
                             <td class="fw-semibold"><?= $type->document_name ?></td>
                             <td>
@@ -66,7 +66,7 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($type->is_active): ?>
+                                <?php if ($type['is_active']): ?>
                                     <span class="badge bg-success">Ativo</span>
                                 <?php else: ?>
                                     <span class="badge bg-danger">Inativo</span>
@@ -78,7 +78,7 @@
                                             onclick="editRequestableType(<?= htmlspecialchars(json_encode($type)) ?>)">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a href="<?= site_url('admin/documents/requestable/delete/' . $type->id) ?>" 
+                                    <a href="<?= site_url('admin/documents/requestable/delete/' . $type['id']) ?>" 
                                        class="btn btn-outline-danger" 
                                        onclick="return confirm('Tem certeza que deseja excluir este tipo?')">
                                         <i class="fas fa-trash"></i>
@@ -86,10 +86,10 @@
                                 </div>
                             </td>
                         </tr>
-                        <?php if ($type->description): ?>
+                        <?php if ($type['description']): ?>
                         <tr class="table-light">
                             <td colspan="10" class="py-1">
-                                <small><i class="fas fa-comment me-1 text-muted"></i> <?= $type->description ?></small>
+                                <small><i class="fas fa-comment me-1 text-muted"></i> <?= $type['description'] ?></small>
                             </td>
                         </tr>
                         <?php endif; ?>

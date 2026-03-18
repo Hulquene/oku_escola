@@ -343,8 +343,8 @@
     
     // Inicializar DataTable com server-side
     var table = $('#coursesTable').DataTable({
-        processing: true,
-        serverSide: true,
+        // processing: true,
+        // serverSide: true,
         ajax: {
             url: '<?= route_to('admin.courses.get-table-data') ?>', 
             type: 'POST',
@@ -369,12 +369,10 @@
             { data: 'status_html' },
             { data: 'actions', className: 'text-center' }
         ],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
-        order: [[0, 'desc']],
-        pageLength: 25,
-        lengthMenu: [10, 25, 50, 100],
+        
+        // order: [[0, 'desc']],
+        // pageLength: 25,
+        // lengthMenu: [10, 25, 50, 100],
         drawCallback: function(settings) {
             // Atualizar contador de registros
             var info = settings.json;

@@ -442,9 +442,7 @@ $(document).ready(function () {
             { data: 'current_html', className: 'text-center' },
             { data: 'actions', className: 'text-center' }
         ],
-        language: {
-            url: base_url + "assets/datatables/i18n/pt-BR.json",
-        },
+        
         order: [[1, 'asc'], [4, 'asc']],
         pageLength: 25,
         lengthMenu: [10, 25, 50, 100],

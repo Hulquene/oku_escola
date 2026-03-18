@@ -405,9 +405,7 @@ const csrfHash = '<?= csrf_hash() ?>';
 $(document).ready(function() {
     // Inicializar DataTable
     $('#examsTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         order: [[4, 'desc']], // Ordenar por data
         pageLength: 25,
         searching: true,

@@ -403,9 +403,7 @@ $(document).ready(function () {
                 d['<?= csrf_token() ?>'] = '<?= csrf_hash() ?>';
             }
         },
-        language: {
-            url: '//cdn.datatables.net/plug-ins/2.3.7/i18n/pt-PT.json'
-        },
+      
         order: [[1, 'asc']],
         columnDefs: [
             { 

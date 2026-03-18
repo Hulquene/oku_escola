@@ -693,6 +693,7 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
     $routes->group('users', function ($routes) {
         $routes->get('', [Users::class, 'index'], ['as' => 'users']);
         $routes->post('get-table-data', [Users::class, 'getTableData'], ['as' => 'users.get-table-data']);
+        $routes->get('get-stats', [Users::class, 'getStats'], ['as' => 'users.get-stats']);
         $routes->get('form-add', [Users::class, 'form'], ['as' => 'users.form-add']);
         $routes->get('form-edit/(:num)', [Users::class, 'form/$1'], ['as' => 'users.form-edit']);
         $routes->post('save', [Users::class, 'save'], ['as' => 'users.save']);
@@ -970,6 +971,7 @@ $routes->group('students', function ($routes) {
 
         // Minhas Propinas
         $routes->group('fees', function ($routes) {
+            
           $routes->get('', [StudentFees::class, 'index'], ["as" => 'students.fees']);
           $routes->get('history', [StudentFees::class, 'history'], ["as" => 'students.fees.history']);
           $routes->get('pay/(:num)', [StudentFees::class, 'pay'], ["as" => 'students.fees.pay/$1']);

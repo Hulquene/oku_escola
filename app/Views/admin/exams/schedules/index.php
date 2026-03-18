@@ -290,13 +290,7 @@ document.querySelectorAll('.filter-select').forEach(select => {
 // DataTable initialization
 $(document).ready(function() {
     $('#schedulesTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
-        order: [[0, 'asc']],
-        pageLength: 25,
-        dom: 'rtip',
-        buttons: []
+        
     });
     
     // Inicializar tooltips do Bootstrap

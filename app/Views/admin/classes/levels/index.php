@@ -312,7 +312,7 @@ $(document).ready(function () {
     } else {
         // Fallback caso o helper não exista
         $('#levelsTable').DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json' },
+            
             order: [[5, 'asc']],
             pageLength: 25,
             columnDefs: [

@@ -39,7 +39,7 @@
                 <tbody>
                     <?php foreach ($types as $type): ?>
                         <tr>
-                            <td><?= $type->id ?></td>
+                            <td><?= $type['id'] ?></td>
                             <td><code><?= $type['type_code'] ?></code></td>
                             <td class="fw-semibold"><?= $type['type_name'] ?></td>
                             <td>
@@ -50,7 +50,7 @@
                                     'pessoal' => 'Pessoal',
                                     'outro' => 'Outro'
                                 ];
-                                echo $categoryLabels[$type->type_category] ?? $type->type_category;
+                                echo $categoryLabels[$type['type_category']] ?? $type['type_category'];
                                 ?>
                             </td>
                             <td><?= strtoupper($type['allowed_extensions']) ?></td>
@@ -72,7 +72,7 @@
                             </td>
                             <td><?= $type->sort_order ?></td>
                             <td>
-                                <?php if ($type->is_active): ?>
+                                <?php if ($type['is_active']): ?>
                                     <span class="badge bg-success">Ativo</span>
                                 <?php else: ?>
                                     <span class="badge bg-danger">Inativo</span>
@@ -84,7 +84,7 @@
                                             onclick="editType(<?= htmlspecialchars(json_encode($type)) ?>)">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <a href="<?= site_url('admin/documents/types/delete/' . $type->id) ?>" 
+                                    <a href="<?= site_url('admin/documents/types/delete/' . $type['id']) ?>" 
                                        class="btn btn-outline-danger" 
                                        onclick="return confirm('Tem certeza que deseja excluir este tipo?')">
                                         <i class="fas fa-trash"></i>

@@ -127,9 +127,7 @@
 <script>
 $(document).ready(function() {
     $('#teachersTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         order: [[0, 'asc']],
         pageLength: 25
     });

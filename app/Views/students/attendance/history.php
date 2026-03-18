@@ -246,9 +246,7 @@
 <script>
 $(document).ready(function() {
     $('#attendanceTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         order: [[0, 'desc']],
         pageLength: 25,
         responsive: true

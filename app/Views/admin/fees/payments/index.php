@@ -275,12 +275,10 @@
 <script>
 $(document).ready(function() {
     $('#paymentsTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-        },
+        
         order: [[7, 'asc']],
         pageLength: 25,
-        searching: false
+        searching: true
     });
 });
 

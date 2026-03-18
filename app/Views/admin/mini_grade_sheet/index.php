@@ -281,21 +281,13 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<!-- DataTables -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
 $(document).ready(function() {
     // Inicializar DataTable com configuração padrão
     if (typeof initDataTable !== 'undefined') {
         initDataTable('#miniPautasTable', {
-            order: [[0, 'desc']],
-            pageLength: 25,
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-PT.json'
-            },
+            
             columnDefs: [
                 { orderable: false, targets: [11] }
             ]

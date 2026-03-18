@@ -46,202 +46,195 @@ class Teachers extends BaseController
         return view('admin/teachers/index', $data);
     }
     
-    /**
-     * Retorna dados para o DataTables (AJAX)
-     */
-    public function getTableData()
-    {
-        try {
-            $request = service('request');
-            
-            // Parâmetros do DataTables
-            $draw = (int)($request->getPost('draw') ?? 0);
-            $start = (int)($request->getPost('start') ?? 0);
-            $length = (int)($request->getPost('length') ?? 25);
-            
-            // Search
-            $search = $request->getPost('search');
-            $searchValue = is_array($search) ? ($search['value'] ?? '') : '';
-            
-            // Order
-            $order = $request->getPost('order');
-            $orderColumnIndex = 2; // padrão: nome
-            $orderDir = 'asc';
-            
-            if (is_array($order) && isset($order[0])) {
-                $orderColumnIndex = (int)($order[0]['column'] ?? 2);
-                $orderDir = $order[0]['dir'] ?? 'asc';
-            }
-            
-            // Filtros adicionais
-            $status = $request->getPost('status');
-            $department = $request->getPost('department');
-            $searchInput = $request->getPost('searchInput');
-            
-            // Colunas para ordenação
-            $columns = [
-                0 => 'tbl_users.id',
-                1 => 'tbl_users.id', // foto (não ordenável)
-                2 => 'tbl_users.first_name',
-                3 => 'tbl_users.phone',
-                4 => 'total_classes',
-                5 => 'total_workload',
-                6 => 'tbl_users.last_login',
-                7 => 'tbl_users.is_active',
-            ];
-            
-            $orderColumn = $columns[$orderColumnIndex] ?? 'tbl_users.first_name';
-            
-            // Buscar role_id de professor
-            $teacherRole = $this->roleModel->where('role_name', 'Professor')->first();
-            $teacherRoleId = $teacherRole ? $teacherRole->id : 0;
-            
-            // Query principal
-            $builder = $this->userModel
-                ->select('
-                    tbl_users.*,
-                    tbl_teachers.id as teacher_id,
-                    tbl_teachers.qualifications,
-                    tbl_teachers.specialization,
-                    tbl_teachers.bank_name,
-                    tbl_teachers.bank_account,
-                    (SELECT COUNT(*) FROM tbl_class_disciplines WHERE teacher_id = tbl_users.id AND is_active = 1) as total_disciplines,
-                    (SELECT COUNT(DISTINCT class_id) FROM tbl_class_disciplines WHERE teacher_id = tbl_users.id AND is_active = 1) as total_classes,
-                    (SELECT SUM(workload_hours) FROM tbl_class_disciplines WHERE teacher_id = tbl_users.id AND is_active = 1) as total_workload
-                ')
-                ->join('tbl_teachers', 'tbl_teachers.user_id = tbl_users.id', 'left')
-                ->where('tbl_users.role_id', $teacherRoleId)
-                ->where('tbl_users.user_type', 'teacher');
-            
-            // Aplicar filtros
-            if (!empty($status)) {
-                if ($status == 'active') {
-                    $builder->where('tbl_users.is_active', 1);
-                } elseif ($status == 'inactive') {
-                    $builder->where('tbl_users.is_active', 0);
-                }
-            }
-            
-            if (!empty($department)) {
-                $builder->where('tbl_teachers.specialization LIKE', "%{$department}%");
-            }
-            
-            // Aplicar busca global
-            if (!empty($searchValue)) {
-                $builder->groupStart()
-                    ->like('tbl_users.first_name', $searchValue)
-                    ->orLike('tbl_users.last_name', $searchValue)
-                    ->orLike('tbl_users.email', $searchValue)
-                    ->orLike('tbl_users.phone', $searchValue)
-                    ->orLike('CONCAT(tbl_users.first_name, " ", tbl_users.last_name)', $searchValue)
-                    ->groupEnd();
-            }
-            
-            // Contar total de registros filtrados
-            $recordsFiltered = $builder->countAllResults(false);
-            
-            // Aplicar ordenação e paginação
-            $data = $builder->orderBy($orderColumn, $orderDir)
-                ->limit($length, $start)
-                ->get()
-                ->getResult();
-            
-            // Processar dados para o DataTables
-            foreach ($data as &$row) {
-                // Iniciales para foto
-                $row->initials = strtoupper(substr($row->first_name, 0, 1) . substr($row->last_name, 0, 1));
-                
-                // Formatar última acesso
-                if ($row->last_login) {
-                    $row->last_login_formatted = date('d/m/Y', strtotime($row->last_login));
-                    $row->last_login_time = date('H:i', strtotime($row->last_login));
-                } else {
-                    $row->last_login_formatted = 'Nunca';
-                    $row->last_login_time = '';
-                }
-                
-                // Status com badge
-                $row->status_badge = $row->is_active 
-                    ? '<span class="badge bg-success">Ativo</span>' 
-                    : '<span class="badge bg-danger">Inativo</span>';
-                
-                // Ações
-                $row->actions = '
-                    <div class="btn-group" role="group">
-                        <a href="' . site_url('admin/teachers/view/' . ($row->teacher_id ?: $row->id)) . '" 
-                           class="btn btn-sm btn-outline-success" 
-                           title="Ver Detalhes">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a href="' . site_url('admin/teachers/form-edit/' . ($row->teacher_id ?: $row->id)) . '" 
-                           class="btn btn-sm btn-outline-info" 
-                           title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="' . site_url('admin/teachers/assign-class/' . ($row->teacher_id ?: $row->id)) . '" 
-                           class="btn btn-sm btn-outline-primary" 
-                           title="Atribuir Turmas">
-                            <i class="fas fa-tasks"></i>
-                        </a>
-                        <a href="' . site_url('admin/teachers/schedule/' . ($row->teacher_id ?: $row->id)) . '" 
-                           class="btn btn-sm btn-outline-warning" 
-                           title="Ver Horário">
-                            <i class="fas fa-calendar-alt"></i>
-                        </a>
-                        ' . ($row->is_active ? 
-                            '<button type="button" 
-                                    class="btn btn-sm btn-outline-danger" 
-                                    onclick="confirmDeactivate(' . ($row->teacher_id ?: $row->id) . ', \'' . $row->first_name . ' ' . $row->last_name . '\')"
-                                    title="Desativar">
-                                <i class="fas fa-user-slash"></i>
-                            </button>' : 
-                            '<a href="' . site_url('admin/teachers/activate/' . ($row->teacher_id ?: $row->id)) . '" 
-                               class="btn btn-sm btn-outline-success" 
-                               title="Reativar">
-                                <i class="fas fa-user-check"></i>
-                            </a>') . '
-                    </div>
-                ';
-                
-                // Foto
-                if ($row->photo) {
-                    $row->photo_html = '<img src="' . base_url('uploads/teachers/' . $row->photo) . '" 
-                                         alt="Foto" 
-                                         class="rounded-circle border"
-                                         style="width: 45px; height: 45px; object-fit: cover;">';
-                } else {
-                    $row->photo_html = '<div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold"
-                                          style="width: 45px; height: 45px; font-size: 1.2rem;">
-                                          ' . $row->initials . '
-                                        </div>';
-                }
-            }
-            
-            // Total de registros sem filtros
-            $totalRecords = $this->userModel
-                ->where('role_id', $teacherRoleId)
-                ->where('user_type', 'teacher')
-                ->countAllResults();
-            
-            return $this->response->setJSON([
-                'draw' => $draw,
-                'recordsTotal' => $totalRecords,
-                'recordsFiltered' => $recordsFiltered,
-                'data' => $data
-            ]);
-            
-        } catch (\Exception $e) {
-            log_message('error', 'Erro no DataTables de professores: ' . $e->getMessage());
-            
-            return $this->response->setStatusCode(500)->setJSON([
-                'error' => 'Erro interno: ' . $e->getMessage(),
-                'draw' => (int)($request->getPost('draw') ?? 0),
-                'recordsTotal' => 0,
-                'recordsFiltered' => 0,
-                'data' => []
-            ]);
+/**
+ * Retorna dados para o DataTables (AJAX)
+ */
+public function getTableData()
+{
+    try {
+        $request = service('request');
+        
+        // Parâmetros do DataTables
+        $draw = (int)($request->getPost('draw') ?? 0);
+        $start = (int)($request->getPost('start') ?? 0);
+        $length = (int)($request->getPost('length') ?? 25);
+        
+        // Search
+        $search = $request->getPost('search');
+        $searchValue = is_array($search) ? ($search['value'] ?? '') : '';
+        
+        // Order
+        $order = $request->getPost('order');
+        $orderColumnIndex = 2; // padrão: nome
+        $orderDir = 'asc';
+        
+        if (is_array($order) && isset($order[0])) {
+            $orderColumnIndex = (int)($order[0]['column'] ?? 2);
+            $orderDir = $order[0]['dir'] ?? 'asc';
         }
+        
+        // Filtros adicionais
+        $status = $request->getPost('status');
+        $department = $request->getPost('department');
+        $searchInput = $request->getPost('searchInput');
+        
+        // Colunas para ordenação
+        $columns = [
+            0 => 'tbl_users.id',
+            1 => 'tbl_users.id', // foto (não ordenável)
+            2 => 'tbl_users.first_name',
+            3 => 'tbl_users.phone',
+            4 => 'total_classes',
+            5 => 'total_workload',
+            6 => 'tbl_users.last_login',
+            7 => 'tbl_users.is_active',
+        ];
+        
+        $orderColumn = $columns[$orderColumnIndex] ?? 'tbl_users.first_name';
+        
+        // Buscar role_id de professor
+        $teacherRole = $this->roleModel->where('role_name', 'Professor')->first();
+        $teacherRoleId = $teacherRole ? ($teacherRole['id'] ?? 0) : 0; // Mudei para array
+        
+        // Query principal
+        $builder = $this->userModel
+            ->select('
+                tbl_users.*,
+                tbl_teachers.id as teacher_id,
+                tbl_teachers.qualifications,
+                tbl_teachers.specialization,
+                tbl_teachers.bank_name,
+                tbl_teachers.bank_account,
+                (SELECT COUNT(*) FROM tbl_class_disciplines WHERE teacher_id = tbl_users.id AND is_active = 1) as total_disciplines,
+                (SELECT COUNT(DISTINCT class_id) FROM tbl_class_disciplines WHERE teacher_id = tbl_users.id AND is_active = 1) as total_classes,
+                (SELECT SUM(workload_hours) FROM tbl_class_disciplines WHERE teacher_id = tbl_users.id AND is_active = 1) as total_workload
+            ')
+            ->join('tbl_teachers', 'tbl_teachers.user_id = tbl_users.id', 'left')
+            ->where('tbl_users.role_id', $teacherRoleId)
+            ->where('tbl_users.user_type', 'teacher');
+        
+        // Aplicar filtros
+        if (!empty($status)) {
+            if ($status == 'active') {
+                $builder->where('tbl_users.is_active', 1);
+            } elseif ($status == 'inactive') {
+                $builder->where('tbl_users.is_active', 0);
+            }
+        }
+        
+        if (!empty($department)) {
+            $builder->where('tbl_teachers.specialization LIKE', "%{$department}%");
+        }
+        
+        // Aplicar busca global
+        if (!empty($searchValue)) {
+            $builder->groupStart()
+                ->like('tbl_users.first_name', $searchValue)
+                ->orLike('tbl_users.last_name', $searchValue)
+                ->orLike('tbl_users.email', $searchValue)
+                ->orLike('tbl_users.phone', $searchValue)
+                ->orLike('CONCAT(tbl_users.first_name, " ", tbl_users.last_name)', $searchValue)
+                ->groupEnd();
+        }
+        
+        // Contar total de registros filtrados
+        $recordsFiltered = $builder->countAllResults(false);
+        
+        // Aplicar ordenação e paginação - Mudei para getResultArray()
+        $data = $builder->orderBy($orderColumn, $orderDir)
+            ->limit($length, $start)
+            ->get()
+            ->getResultArray();
+        
+        // Processar dados para o DataTables - AGORA COMO ARRAY
+        foreach ($data as &$row) {
+            // Iniciales para foto
+            $initials = strtoupper(substr($row['first_name'] ?? '', 0, 1) . substr($row['last_name'] ?? '', 0, 1));
+            
+            // Formatar última acesso
+            if (!empty($row['last_login'])) {
+                $row['last_login_formatted'] = date('d/m/Y', strtotime($row['last_login']));
+                $row['last_login_time'] = date('H:i', strtotime($row['last_login']));
+            } else {
+                $row['last_login_formatted'] = 'Nunca';
+                $row['last_login_time'] = '';
+            }
+            
+            // Status com badge
+            $row['status_badge'] = ($row['is_active'] ?? 0) 
+                ? '<span class="status-badge active"><i class="fas fa-circle me-1" style="font-size: 6px;"></i>Ativo</span>' 
+                : '<span class="status-badge inactive"><i class="fas fa-circle me-1" style="font-size: 6px;"></i>Inativo</span>';
+            
+            // Ações
+            $teacherId = $row['teacher_id'] ?? $row['id'];
+            
+            $actions = '<div class="action-group">';
+            $actions .= '<a href="' . site_url('admin/teachers/view/' . $teacherId) . '" class="row-btn view" title="Ver Detalhes" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></a>';
+            $actions .= '<a href="' . site_url('admin/teachers/form-edit/' . $teacherId) . '" class="row-btn edit" title="Editar" data-bs-toggle="tooltip"><i class="fas fa-edit"></i></a>';
+            $actions .= '<a href="' . site_url('admin/teachers/assign-class/' . $teacherId) . '" class="row-btn assign" title="Atribuir Turmas" data-bs-toggle="tooltip"><i class="fas fa-tasks"></i></a>';
+            $actions .= '<a href="' . site_url('admin/teachers/schedule/' . $teacherId) . '" class="row-btn schedule" title="Ver Horário" data-bs-toggle="tooltip"><i class="fas fa-calendar-alt"></i></a>';
+            
+            if ($row['is_active'] ?? 0) {
+                $actions .= '<button type="button" class="row-btn del" onclick="confirmDeactivate(' . $teacherId . ', \'' . esc($row['first_name'] . ' ' . $row['last_name'], 'js') . '\')" title="Desativar" data-bs-toggle="tooltip"><i class="fas fa-user-slash"></i></button>';
+            } else {
+                $actions .= '<a href="' . site_url('admin/teachers/activate/' . $teacherId) . '" class="row-btn activate" title="Reativar" data-bs-toggle="tooltip"><i class="fas fa-user-check"></i></a>';
+            }
+            $actions .= '</div>';
+            
+            $row['actions'] = $actions;
+            
+            // Foto
+            if (!empty($row['photo'])) {
+                $row['photo_html'] = '<img src="' . base_url('uploads/teachers/' . $row['photo']) . '" 
+                                         alt="Foto" 
+                                         class="user-avatar-table"
+                                         style="width: 45px; height: 45px; object-fit: cover;">';
+            } else {
+                $row['photo_html'] = '<div class="user-initials" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                                          ' . $initials . '
+                                        </div>';
+            }
+            
+            // Nome completo
+            $row['name_html'] = '<div class="fw-600">' . esc($row['first_name'] . ' ' . $row['last_name']) . '</div>';
+            
+            // Especialização
+            $row['specialization_html'] = !empty($row['specialization']) 
+                ? '<span class="badge-ci info">' . esc($row['specialization']) . '</span>'
+                : '<span class="text-muted">—</span>';
+            
+            // Classes
+            $row['classes_html'] = '<span class="badge-ci primary">' . (int)($row['total_classes'] ?? 0) . '</span>';
+            
+            // Carga horária
+            $row['workload_html'] = '<span class="code-badge">' . (int)($row['total_workload'] ?? 0) . 'h</span>';
+        }
+        
+        // Total de registros sem filtros
+        $totalRecords = $this->userModel
+            ->where('role_id', $teacherRoleId)
+            ->where('user_type', 'teacher')
+            ->countAllResults();
+        
+        return $this->response->setJSON([
+            'draw' => $draw,
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $data
+        ]);
+        
+    } catch (\Exception $e) {
+        log_message('error', 'Erro no DataTables de professores: ' . $e->getMessage());
+        
+        return $this->response->setStatusCode(500)->setJSON([
+            'error' => 'Erro interno: ' . $e->getMessage(),
+            'draw' => (int)($request->getPost('draw') ?? 0),
+            'recordsTotal' => 0,
+            'recordsFiltered' => 0,
+            'data' => []
+        ]);
     }
+}
     
     /**
      * Retorna estatísticas para os cards (AJAX)
@@ -254,7 +247,7 @@ class Teachers extends BaseController
         
         // Buscar role_id de professor
         $teacherRole = $this->roleModel->where('role_name', 'Professor')->first();
-        $teacherRoleId = $teacherRole ? $teacherRole->id : 0;
+        $teacherRoleId = $teacherRole ? $teacherRole['id'] : 0;
         
         // Total de professores
         $totalTeachers = $this->userModel
@@ -345,7 +338,7 @@ public function save()
                 ->with('error', 'Professor não encontrado');
         }
         
-        $userId = $teacher->user_id; // ID real do usuário
+        $userId = $teacher['user_id']; // ID real do usuário
         
         // IMPORTANTE: Incluir o ID nos dados para a validação
         $userData['id'] = $userId;
@@ -502,8 +495,8 @@ public function view($id)
     $totalStudents = 0;
     
     foreach ($allAssignments as $assignment) {
-        $yearId = $assignment->academic_year_id;
-        $courseId = $assignment->course_id ?? 0;
+        $yearId = $assignment['academic_year_id'];
+        $courseId = $assignment['course_id'] ?? 0;
         
         // Inicializar ano se não existir
         if (!isset($assignmentsByYear[$yearId])) {

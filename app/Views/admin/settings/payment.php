@@ -34,9 +34,9 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($currencies)): ?>
                                 <?php foreach ($currencies as $currency): ?>
-                                    <option value="<?= $currency->id ?>" 
-                                        <?= ($settings['payment_currency'] ?? '') == $currency->id ? 'selected' : '' ?>>
-                                        <?= $currency->currency_name ?> (<?= $currency->currency_code ?> - <?= $currency->currency_symbol ?>)
+                                    <option value="<?= $currency['id'] ?>" 
+                                        <?= ($settings['payment_currency'] ?? '') == $currency['id'] ? 'selected' : '' ?>>
+                                        <?= $currency->currency_name ?> (<?= $currency['currency_code'] ?> - <?= $currency->currency_symbol ?>)
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
