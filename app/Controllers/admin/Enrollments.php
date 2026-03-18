@@ -155,8 +155,9 @@ class Enrollments extends BaseController
                 ->join('tbl_classes', 'tbl_classes.id = tbl_enrollments.class_id', 'left')
                 ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_enrollments.grade_level_id', 'left')
                 ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_enrollments.academic_year_id')
-                ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left');
-            
+                ->join('tbl_courses', 'tbl_courses.id = tbl_enrollments.course_id', 'left')
+                ->where('tbl_users.user_type', 'student');
+                
             // Aplicar filtros
             if (!empty($academicYearId)) {
                 $builder->where('tbl_enrollments.academic_year_id', $academicYearId);

@@ -296,3 +296,27 @@ Transferências
 Certificados emitidos
 
 Frequência de alunos
+
+
+
+
+2º TRIMESTRE (períodos 4, 5, 6)
+❌ AC - 2º Trimestre (período_id = 4)
+
+❌ NPP - 2º Trimestre (período_id = 5)
+
+❌ NPT - 2º Trimestre (período_id = 6)
+
+3º TRIMESTRE (períodos 7, 8, 9)
+❌ AC - 3º Trimestre (período_id = 7)
+
+❌ NPP - 3º Trimestre (período_id = 8)
+
+❌ EX-FIN - 3º Trimestre (período_id = 9)
+
+RECURSO (períodos 10, 11, 12) - Opcional
+❌ REC - 1º Trimestre (período_id = 10)
+
+❌ REC - 2º Trimestre (período_id = 11)
+
+❌ REC - 3º Trimestre (período_id = 12)

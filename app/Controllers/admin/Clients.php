@@ -204,6 +204,7 @@ class Clients extends BaseController
                 ->join('tbl_academic_years as pending_year', 'pending_year.id = pending_enroll.academic_year_id', 'left')
                 ->join('tbl_grade_levels as pending_level', 'pending_level.id = pending_enroll.grade_level_id', 'left')
                 ->join('tbl_courses as pending_course', 'pending_course.id = pending_enroll.course_id', 'left')
+                ->where('tbl_users.user_type', 'student')
                 ->where('tbl_students.is_active', 1);
             
             // Aplicar filtros
