@@ -1,0 +1,33 @@
+[ ] Ano letivo configurado
+[ ] Períodos (trimestres/semestres) criados
+[ ] Turmas criadas
+[ ] Alunos matriculados
+[ ] Disciplinas associadas às turmas
+[ ] Professores atribuídos
+
+[ ] 1º Período: Registro de notas (AC, NPP, NPT)
+[ ] 1º Período: Cálculo das MTs
+[ ] 1º Período: Finalização
+
+[ ] 2º Período: Registro de notas
+[ ] 2º Período: Cálculo das MTs
+[ ] 2º Período: Finalização
+
+[ ] 3º Período: Registro de notas
+[ ] 3º Período: Cálculo das MTs
+[ ] 3º Período: Finalização
+
+[ ] Fim do ano: Cálculo das MFDs por disciplina
+[ ] Fim do ano: Cálculo da média final geral
+[ ] Fim do ano: Determinação do resultado (Transita/Não Transita/Recurso)
+
+[ ] Revisão dos resultados pelo diretor
+[ ] Aprovação oficial dos resultados
+[ ] Atualização do histórico acadêmico
+
+[ ] Alunos em recurso: realizam exames
+[ ] Resultados pós-recurso processados
+
+[ ] Progressão para próximo ano letivo
+[ ] Geração de certificados (graduados)
+[ ] Matrícula dos repetentes

@@ -1,0 +1,8 @@
+┌─────────────────────────────────────────────────────────────────┐
+│  1. Ano Letivo criado e ativo                                   │
+│  2. Períodos definidos (Trimestres ou Semestres)                │
+│  3. Turmas criadas                                              │
+│  4. Alunos matriculados nas turmas                              │
+│  5. Disciplinas associadas às turmas                            │
+│  6. Professores atribuídos às disciplinas                       │
+└─────────────────────────────────────────────────────────────────┘

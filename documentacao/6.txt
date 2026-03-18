@@ -1,0 +1,45 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PROCESSAR PAUTA FINAL DO ANO                          │
+│                                                                           │
+│  1. DIRETOR/COORDENADOR acessa:                                          │
+│     Menu → Pautas Acadêmicas → Pauta Final → Processar Aprovações        │
+│                                                                           │
+│  2. Seleciona: Ano Letivo + Turma                                        │
+│                                                                           │
+│  3. SISTEMA CALCULA para CADA ALUNO:                                     │
+│     ┌─────────────────────────────────────────────────────────────────┐ │
+│     │  Para CADA disciplina:                                           │ │
+│     │  ┌─────────────────────────────────────────────────────────────┐ │ │
+│     │  │ • Busca MT do 1º período                                    │ │ │
+│     │  │ • Busca MT do 2º período                                    │ │ │
+│     │  │ • Busca MT do 3º período (se houver)                        │ │ │
+│     │  │ • MFD (Média Final Disciplina) = (MT1 + MT2 + MT3) / 3      │ │ │
+│     │  │ • Classifica disciplina:                                     │ │ │
+│     │  │   - MFD ≥ 10  → Aprovado na disciplina                       │ │ │
+│     │  │   - MFD 7-9.9 → Recurso na disciplina                        │ │ │
+│     │  │   - MFD < 7   → Reprovado na disciplina                      │ │ │
+│     │  └─────────────────────────────────────────────────────────────┘ │ │
+│     │                                                                   │ │
+│     │  • Média Final Geral = (soma MFDs) / (total disciplinas)         │ │ │
+│     │                                                                   │ │
+│     │  • RESULTADO FINAL DO ANO:                                        │ │ │
+│     │    ┌─────────────────────────────────┐                           │ │ │
+│     │    │ Se TODAS MFDs ≥ 10              │ → TRANSITA                 │ │ │
+│     │    │ Se MFDs 7-9.9 em até 2 disc.    │ → RECURSO (exame)          │ │ │
+│     │    │ Se MFDs 7-9.9 em 3+ disc.       │ → NÃO TRANSITA             │ │ │
+│     │    │ Se alguma MFD < 7                │ → NÃO TRANSITA             │ │ │
+│     │    └─────────────────────────────────┘                           │ │ │
+│     └─────────────────────────────────────────────────────────────────┘ │ │
+│                                                                           │ │
+│  4. SISTEMA EXIBE:                                                        │
+│     • Lista de alunos com:                                               │
+│       - Notas por disciplina (MFD)                                       │
+│       - Média final geral                                                │
+│       - Resultado proposto (Transita/Não Transita/Recurso)               │
+│     • Estatísticas da turma:                                             │
+│       - Total de alunos                                                  │
+│       - Transitam direto                                                 │
+│       - Vão a Recurso                                                     │
+│       - Não Transitam                                                    │
+│       - Taxa de aprovação                                                │
+└─────────────────────────────────────────────────────────────────────────┘

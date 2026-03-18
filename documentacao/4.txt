@@ -1,0 +1,25 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PAUTA TRIMESTRAL/SEMESTRAL                            │
+│                                                                           │
+│  Coordenador/Diretor acessa:                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │ 1. Menu → Pautas Acadêmicas → Pautas Trimestrais                   │ │
+│  │ 2. Filtros: Ano Letivo + Período + Turma                           │ │
+│  │ 3. Sistema exibe:                                                    │ │
+│  │    • Cabeçalho: Escola, Ano, Período, Turma                         │ │
+│  │    • Lista de alunos com:                                            │ │
+│  │      - Nome do aluno                                                 │ │
+│  │      - Para CADA disciplina: AC, NPP, NPT, MT calculada             │ │
+│  │      - Média geral do período                                       │ │
+│  │    • Estatísticas:                                                   │ │
+│  │      - Total de alunos                                               │ │
+│  │      - Aprovados (MT ≥ 10)                                           │ │
+│  │      - Recurso (MT 7-9.9)                                            │ │
+│  │      - Reprovados (MT < 7)                                           │ │
+│  │      - Média da turma                                                │ │
+│  │ 4. Ações disponíveis:                                                │ │
+│  │    • Imprimir pauta                                                  │ │
+│  │    • Exportar Excel                                                  │ │
+│  │    • Finalizar período (trancar notas)                               │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘

@@ -80,7 +80,7 @@
                         <th rowspan="2" class="align-middle text-center">Nº</th>
                         <th rowspan="2" class="align-middle">Nome do Aluno</th>
                         <th colspan="<?= count($disciplinas) ?>" class="text-center">Disciplinas</th>
-                        <th rowspan="2" class="align-middle text-center">Média Geral</th>
+                        <th rowspan="2" class="align-middle text-center">Média do Período</th>
                     </tr>
                     <tr>
                         <?php foreach ($disciplinas as $disc): ?>
@@ -111,7 +111,7 @@
                                 <?php endforeach; ?>
                                 
                                 <td class="text-center">
-                                    <strong><?= $aluno['media_geral'] ?></strong>
+                                     <strong><?= $aluno['media_periodo'] ?? '—' ?></strong>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

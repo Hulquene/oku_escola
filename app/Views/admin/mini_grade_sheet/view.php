@@ -171,40 +171,37 @@
 </div>
 
 <!-- Lista de Alunos e Notas -->
-<div class="ci-card">
-    <div class="ci-card-header" style="background: var(--success);">
-        <div class="ci-card-title" style="color: #fff;">
-            <i class="fas fa-users me-2"></i>
-            <span>Alunos e Notas</span>
-        </div>
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Alunos e Notas</h5>
     </div>
-    <div class="ci-card-body p0">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="ci-table" style="min-width: 1800px;">
-                <thead>
+            <table class="table table-bordered table-hover mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th rowspan="2" class="align-middle center" width="50">Nº</th>
+                        <th rowspan="2" class="align-middle text-center" width="50">Nº</th>
                         <th rowspan="2" class="align-middle">Nome do Aluno</th>
-                        <th rowspan="2" class="align-middle center" width="80">Nº Processo</th>
-                        <th colspan="4" class="center">1º TRIMESTRE</th>
-                        <th colspan="4" class="center">2º TRIMESTRE</th>
-                        <th colspan="4" class="center">3º TRIMESTRE</th>
-                        <th rowspan="2" class="align-middle center" width="60">MDF</th>
-                        <th rowspan="2" class="align-middle center" width="100">Situação</th>
+                        <th rowspan="2" class="align-middle text-center" width="80">Nº Processo</th>
+                        <th colspan="4" class="text-center">1º TRIMESTRE</th>
+                        <th colspan="4" class="text-center">2º TRIMESTRE</th>
+                        <th colspan="4" class="text-center">3º TRIMESTRE</th>
+                        <th rowspan="2" class="align-middle text-center" width="60">MDF</th>
+                        <th rowspan="2" class="align-middle text-center" width="100">Situação</th>
                     </tr>
                     <tr>
-                        <th class="center" width="45" title="Média Avaliações Contínuas">MAC</th>
-                        <th class="center" width="45" title="Nota Prova Professor">NPP</th>
-                        <th class="center" width="45" title="Nota Prova Trimestral">NPT</th>
-                        <th class="center" width="45" title="Média Trimestral">MT</th>
-                        <th class="center" width="45" title="Média Avaliações Contínuas">MAC</th>
-                        <th class="center" width="45" title="Nota Prova Professor">NPP</th>
-                        <th class="center" width="45" title="Nota Prova Trimestral">NPT</th>
-                        <th class="center" width="45" title="Média Trimestral">MT</th>
-                        <th class="center" width="45" title="Média Avaliações Contínuas">MAC</th>
-                        <th class="center" width="45" title="Nota Prova Professor">NPP</th>
-                        <th class="center" width="45" title="Nota Prova Trimestral">NPT</th>
-                        <th class="center" width="45" title="Média Trimestral">MT</th>
+                        <th class="text-center" width="50" title="Média Avaliações Contínuas">MAC</th>
+                        <th class="text-center" width="50" title="Nota Prova Professor">NPP</th>
+                        <th class="text-center" width="50" title="Nota Prova Trimestral">NPT</th>
+                        <th class="text-center" width="50" title="Média Trimestral">MT</th>
+                        <th class="text-center" width="50" title="Média Avaliações Contínuas">MAC</th>
+                        <th class="text-center" width="50" title="Nota Prova Professor">NPP</th>
+                        <th class="text-center" width="50" title="Nota Prova Trimestral">NPT</th>
+                        <th class="text-center" width="50" title="Média Trimestral">MT</th>
+                        <th class="text-center" width="50" title="Média Avaliações Contínuas">MAC</th>
+                        <th class="text-center" width="50" title="Nota Prova Professor">NPP</th>
+                        <th class="text-center" width="50" title="Nota Prova Trimestral">NPT</th>
+                        <th class="text-center" width="50" title="Média Trimestral">MT</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -213,49 +210,50 @@
                         <?php foreach ($alunos as $aluno): ?>
                             <?php $mediasAluno = $medias[$aluno['enrollment_id']] ?? []; ?>
                             <tr>
-                                <td class="center"><span class="id-chip"><?= str_pad($counter++, 2, '0', STR_PAD_LEFT) ?></span></td>
+                                <td class="text-center"><?= $counter++ ?></td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="teacher-initials me-2" style="width: 30px; height: 30px; font-size: 0.8rem; background: var(--accent);">
-                                            <?= strtoupper(substr($aluno['first_name'] ?? '', 0, 1) . substr($aluno['last_name'] ?? '', 0, 1)) ?>
-                                        </div>
-                                        <strong><?= $aluno['full_name'] ?? $aluno['first_name'] . ' ' . $aluno['last_name'] ?></strong>
-                                    </div>
+                                    <strong><?= $aluno['full_name'] ?? $aluno->first_name . ' ' . $aluno['last_name'] ?></strong>
                                 </td>
-                                <td class="center"><span class="code-badge"><?= $aluno['student_number'] ?? '—' ?></span></td>
+                                <td class="text-center"><?= $aluno['student_number'] ?? '—' ?></td>
                                 
                                 <!-- 1º Trimestre -->
-                                <td class="center"><?= $mediasAluno['trimestres'][1]['AC'] ?? '—' ?></td>
-                                <td class="center"><?= $mediasAluno['trimestres'][1]['NPP'] ?? '—' ?></td>
-                                <td class="center"><?= $mediasAluno['trimestres'][1]['NPT'] ?? '—' ?></td>
-                                <td class="center bg-light"><?= $mediasAluno['trimestres'][1]['MT'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][1]['AC'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][1]['NPP'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][1]['NPT'] ?? '—' ?></td>
+                                <td class="text-center <?= ($mediasAluno['trimestres'][1]['MT'] ?? '—') !== '—' ? 'bg-light' : '' ?>">
+                                    <strong><?= $mediasAluno['trimestres'][1]['MT'] ?? '—' ?></strong>
+                                </td>
                                 
                                 <!-- 2º Trimestre -->
-                                <td class="center"><?= $mediasAluno['trimestres'][2]['AC'] ?? '—' ?></td>
-                                <td class="center"><?= $mediasAluno['trimestres'][2]['NPP'] ?? '—' ?></td>
-                                <td class="center"><?= $mediasAluno['trimestres'][2]['NPT'] ?? '—' ?></td>
-                                <td class="center bg-light"><?= $mediasAluno['trimestres'][2]['MT'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][2]['AC'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][2]['NPP'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][2]['NPT'] ?? '—' ?></td>
+                                <td class="text-center <?= ($mediasAluno['trimestres'][2]['MT'] ?? '—') !== '—' ? 'bg-light' : '' ?>">
+                                    <strong><?= $mediasAluno['trimestres'][2]['MT'] ?? '—' ?></strong>
+                                </td>
                                 
                                 <!-- 3º Trimestre -->
-                                <td class="center"><?= $mediasAluno['trimestres'][3]['AC'] ?? '—' ?></td>
-                                <td class="center"><?= $mediasAluno['trimestres'][3]['NPP'] ?? '—' ?></td>
-                                <td class="center"><?= $mediasAluno['trimestres'][3]['NPT'] ?? '—' ?></td>
-                                <td class="center bg-light"><?= $mediasAluno['trimestres'][3]['MT'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][3]['AC'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][3]['NPP'] ?? '—' ?></td>
+                                <td class="text-center"><?= $mediasAluno['trimestres'][3]['NPT'] ?? '—' ?></td>
+                                <td class="text-center <?= ($mediasAluno['trimestres'][3]['MT'] ?? '—') !== '—' ? 'bg-light' : '' ?>">
+                                    <strong><?= $mediasAluno['trimestres'][3]['MT'] ?? '—' ?></strong>
+                                </td>
                                 
                                 <!-- MDF -->
-                                <td class="center">
+                                <td class="text-center">
                                     <?php if (($mediasAluno['MDF'] ?? '—') !== '—'): ?>
-                                        <span class="num-chip <?= $mediasAluno['MDF'] >= 10 ? 'success' : ($mediasAluno['MDF'] >= 7 ? 'warning' : 'danger') ?>">
+                                        <strong class="<?= $mediasAluno['MDF'] >= 10 ? 'text-success' : ($mediasAluno['MDF'] >= 7 ? 'text-warning' : 'text-danger') ?>">
                                             <?= $mediasAluno['MDF'] ?>
-                                        </span>
+                                        </strong>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
                                     <?php endif; ?>
                                 </td>
                                 
                                 <!-- Situação -->
-                                <td class="center">
-                                    <span class="badge-ci <?= $mediasAluno['situacaoClass'] ?? 'secondary' ?>">
+                                <td class="text-center">
+                                    <span class="badge bg-<?= $mediasAluno['situacaoClass'] ?? 'secondary' ?>">
                                         <?= $mediasAluno['situacao'] ?? 'Pendente' ?>
                                     </span>
                                 </td>
@@ -263,11 +261,9 @@
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="19" class="center py-4">
-                                <div class="empty-state">
-                                    <i class="fas fa-users"></i>
-                                    <p class="text-muted">Nenhum aluno matriculado nesta turma.</p>
-                                </div>
+                            <td colspan="19" class="text-center py-4">
+                                <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">Nenhum aluno matriculado nesta turma.</p>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -275,11 +271,11 @@
             </table>
         </div>
     </div>
-    <div class="ci-card-footer bg-light">
+    <div class="card-footer bg-light">
         <div class="row">
             <div class="col-md-12 text-end">
                 <small class="text-muted">
-                    <i class="fas fa-info-circle me-1"></i>
+                    <i class="fas fa-info-circle"></i>
                     MAC = Média das Avaliações Contínuas | NPP = Nota Prova Professor | NPT = Nota Prova Trimestral | 
                     MT = Média Trimestral (MAC+NPP+NPT)/3 | MDF = Média Final (MT1+MT2+MT3)/3
                 </small>
@@ -287,126 +283,4 @@
         </div>
     </div>
 </div>
-
-<?= $this->endSection() ?>
-
-<?= $this->section('scripts') ?>
-<script>
-$(document).ready(function() {
-    // Inicializar tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-});
-</script>
-
-<style>
-/* Estilos adicionais específicos para esta página */
-.info-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--text-muted);
-    margin-bottom: 0.15rem;
-}
-
-.info-value {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-}
-
-.teacher-initials {
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: white;
-    flex-shrink: 0;
-}
-
-.id-chip {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 600;
-    background: rgba(27,43,75,0.07);
-    color: var(--primary);
-    padding: 0.15rem 0.45rem;
-    border-radius: 5px;
-}
-
-.code-badge {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 600;
-    background: rgba(59,127,232,0.1);
-    color: var(--accent);
-    padding: 0.15rem 0.45rem;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-.num-chip {
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    font-weight: 700;
-    padding: 0.2rem 0.5rem;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-.num-chip.success {
-    background: rgba(22,168,125,0.15);
-    color: var(--success);
-}
-
-.num-chip.warning {
-    background: rgba(232,160,32,0.15);
-    color: var(--warning);
-}
-
-.num-chip.danger {
-    background: rgba(232,70,70,0.15);
-    color: var(--danger);
-}
-
-.bg-light {
-    background: var(--surface) !important;
-    font-weight: 600;
-}
-
-/* Ajustes para a tabela */
-.ci-table th {
-    white-space: nowrap;
-    font-size: 0.7rem;
-}
-
-.ci-table td {
-    white-space: nowrap;
-}
-
-/* Animações */
-.ci-card {
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .stat-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .hdr-actions {
-        flex-wrap: wrap;
-    }
-}
-</style>
 <?= $this->endSection() ?>

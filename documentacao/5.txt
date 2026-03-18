@@ -1,0 +1,25 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    FINALIZAR TRIMESTRE/SEMESTRE                          │
+│                                                                           │
+│  Coordenador clica em "Finalizar Período":                               │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │  SISTEMA AUTOMATICAMENTE:                                            │ │
+│  │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│  │  │ 1. Verifica se TODOS os alunos têm notas em TODAS disciplinas  │ │ │
+│  │  │ 2. Calcula para CADA aluno:                                      │ │ │
+│  │  │    • Média do período por disciplina (MT)                        │ │ │
+│  │  │    • Média geral do período                                      │ │ │
+│  │  │ 3. Salva resultados na tabela "semester_results":                │ │ │
+│  │  │    • enrollment_id (ID da matrícula)                             │ │ │
+│  │  │    • semester_id (ID do período)                                 │ │ │
+│  │  │    • overall_average (média geral)                               │ │ │
+│  │  │    • status: "Aprovado", "Recurso" ou "Reprovado"                │ │ │
+│  │  │ 4. Marca período como "Concluído"                                │ │ │
+│  │  │ 5. Registra data e usuário que finalizou                         │ │ │
+│  │  └─────────────────────────────────────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│  ⚠️ APÓS FINALIZADO: Não é possível alterar notas deste período          │
+│     (apenas com autorização especial)                                    │
+└─────────────────────────────────────────────────────────────────────────┘

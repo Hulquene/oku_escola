@@ -1,0 +1,25 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          REGISTRO DE NOTAS                                │
+│                                                                           │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                │
+│  │ 1º TRIMESTRE │    │ 2º TRIMESTRE │    │ 3º TRIMESTRE │                │
+│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘                │
+│         │                   │                   │                         │
+│         ▼                   ▼                   ▼                         │
+│  ┌─────────────────────────────────────────────────────┐                 │
+│  │  Para cada período:                                   │                 │
+│  │  ┌─────────────────────────────────────────────────┐ │                 │
+│  │  │ 1. Professor acessa "Mini Pauta"                │ │                 │
+│  │  │ 2. Seleciona: Turma + Disciplina + Período      │ │                 │
+│  │  │ 3. Visualiza lista de alunos                     │ │                 │
+│  │  │ 4. Para CADA aluno, registra:                    │ │                 │
+│  │  │    • AC (Avaliação Contínua) - uma ou mais notas │ │                 │
+│  │  │    • NPP (Prova Professor) - uma nota            │ │                 │
+│  │  │    • NPT (Prova Trimestral) - uma nota           │ │                 │
+│  │  │ 5. Sistema calcula automaticamente:              │ │                 │
+│  │  │    • Média AC = (soma ACs) / (quantidade)        │ │                 │
+│  │  │    • MT = (Média AC + NPP + NPT) / 3             │ │                 │
+│  │  │ 6. Professor confirma e salva                     │ │                 │
+│  │  └─────────────────────────────────────────────────┘ │                 │
+│  └─────────────────────────────────────────────────────┘                 │
+└─────────────────────────────────────────────────────────────────────────┘

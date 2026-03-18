@@ -1,0 +1,39 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    PROGRESSÃO PARA PRÓXIMO ANO                           │
+│                                                                           │
+│  APÓS TODOS RESULTADOS CONFIRMADOS:                                      │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │ 1. DIRETOR acessa: "Progressão de Alunos"                           │ │
+│  │ 2. Seleciona: Ano Atual + Ano Seguinte                              │ │
+│  │ 3. SISTEMA processa:                                                 │ │
+│  │    ┌───────────────────────────────────────────────────────────────┐ │ │
+│  │    │ Para CADA aluno APROVADO:                                     │ │ │
+│  │    │ • Identifica próximo nível (ex: 10ª → 11ª)                    │ │ │
+│  │    │ • Se houver curso: mantém o mesmo curso                       │ │ │
+│  │    │ • Busca turma disponível no próximo nível                     │ │ │
+│  │    │ • Verifica vagas na turma                                     │ │ │
+│  │    │ • Se houver vaga:                                             │ │ │
+│  │    │   - Cria NOVA matrícula no próximo ano                        │ │ │
+│  │    │   - Marca matrícula antiga como "Concluída"                   │ │ │
+│  │    │   - Registra referência entre matrículas                      │ │ │
+│  │    │ • Se NÃO houver vaga:                                         │ │ │
+│  │    │   - Aluno fica "Pendente" para alocação manual                │ │ │
+│  │    │                                                               │ │ │
+│  │    │ Para CADA aluno GRADUADO (último nível):                      │ │ │
+│  │    │ • Marca matrícula como "Concluído"                            │ │ │
+│  │    │ • Gera certificado de conclusão                               │ │ │
+│  │    │ • Arquiva histórico                                           │ │ │
+│  │    │                                                               │ │ │
+│  │    │ Para alunos REPROVADOS:                                       │ │ │
+│  │    │ • Mantém na mesma classe no próximo ano                       │ │ │
+│  │    │ • Cria nova matrícula com status "Repetente"                  │ │ │
+│  │    └───────────────────────────────────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│  4. Relatório de progressão gerado com:                                  │
+│     • Promovidos (nova turma)                                            │
+│     • Graduados (concluíram ciclo)                                      │
+│     • Retidos (sem turma disponível)                                    │
+│     • Reprovados (repetem ano)                                          │
+└─────────────────────────────────────────────────────────────────────────┘

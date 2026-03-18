@@ -1,0 +1,15 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    EXAMES DE RECURSO                                     │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │ 1. Alunos em RECURSO fazem exame nas disciplinas pendentes          │ │
+│  │ 2. Nota do exame de recurso SUBSTITUI a MFD anterior?               │ │
+│  │    → Configurável no sistema                                         │ │
+│  │      Opção A: Nota do exame = nova MFD                              │ │
+│  │      Opção B: Média entre MFD e exame                               │ │
+│  │ 3. Recálculo da média geral                                          │ │
+│  │ 4. Resultado pós-recurso:                                            │ │
+│  │    • Se nota ≥ 10 → Aprovado                                        │ │
+│  │    • Se nota < 10 → Reprovado                                       │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘

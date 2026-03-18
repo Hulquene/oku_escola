@@ -1,0 +1,42 @@
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    REGISTRO OFICIAL DOS RESULTADOS                        │
+│                                                                           │
+│  DIRETOR ESCOLAR revisa e confirma:                                      │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │  Opção 1: Aprovar individualmente                                    │ │
+│  │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│  │  │ • Para cada aluno:                                               │ │ │
+│  │  │   ☐ Confirmar resultado                                          │ │ │
+│  │  │   ☐ Alterar manualmente (casos especiais)                        │ │ │
+│  │  │   ☐ Adicionar observações                                        │ │ │
+│  │  └─────────────────────────────────────────────────────────────────┘ │ │
+│  │                                                                       │ │
+│  │  Opção 2: Aprovação em lote                                          │ │
+│  │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│  │  │ • Selecionar todos                                                │ │ │
+│  │  │ • Clicar "Confirmar Resultados"                                  │ │ │
+│  │  └─────────────────────────────────────────────────────────────────┘ │ │
+│  │                                                                       │ │
+│  │  Opção 3: Recurso (Exames)                                           │ │
+│  │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│  │  │ • Alunos que vão a recurso são automaticamente:                  │ │ │
+│  │  │   - Matriculados para exame de recurso                           │ │ │
+│  │  │   - Status mantido como "Pendente"                               │ │ │
+│  │  │   - Notificações geradas                                          │ │ │
+│  │  └─────────────────────────────────────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│  APÓS CONFIRMAÇÃO:                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────┐ │
+│  │ • Tabela "enrollments" atualizada com:                              │ │
+│  │   - final_result (Aprovado/Reprovado/Recurso)                       │ │
+│  │   - final_average (média final geral)                               │ │
+│  │   - is_approved (1/0)                                               │ │
+│  │   - approved_at (data da aprovação)                                 │ │
+│  │   - approved_by (quem aprovou)                                      │ │
+│  │ • Tabela "academic_history" criada/atualizada                       │ │
+│  │ • Alunos aprovados marcados para progressão                         │ │
+│  │ • Alunos reprovados mantidos na mesma classe                        │ │
+│  └─────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘
