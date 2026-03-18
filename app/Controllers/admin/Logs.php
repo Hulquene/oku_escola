@@ -274,12 +274,12 @@ class Logs extends BaseController
             
             fputcsv($output, [
                 $log->id,
-                date('d/m/Y H:i:s', strtotime($log->created_at)),
+                date('d/m/Y H:i:s', strtotime($log['created_at'])),
                 $log->first_name ? $log->first_name . ' ' . $log->last_name . ' (' . $log->username . ')' : 'Sistema',
                 $log->email ?: '-',
-                $log->action,
+                $log['action'],
                 $log->description ?: '-',
-                $log->ip_address ?: '-',
+                $log['ip_address'] ?: '-',
                 $log->target_type ?: '-',
                 $log->target_id ?: '-',
                 $details ?: '-'

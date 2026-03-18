@@ -54,8 +54,8 @@
                     <div class="col-md-3 text-center">
                         <div class="profile-photo mb-3">
                             <div class="position-relative d-inline-block">
-                                <?php if ($user->photo): ?>
-                                    <img src="<?= base_url('uploads/teachers/' . $user->photo) ?>" 
+                                <?php if ($user['photo']): ?>
+                                    <img src="<?= base_url('uploads/teachers/' . $user['photo']) ?>" 
                                          alt="Foto do Professor" 
                                          class="rounded-circle border border-4 border-white shadow" 
                                          style="width: 150px; height: 150px; object-fit: cover;">
@@ -91,7 +91,7 @@
                             <div class="col-sm-6">
                                 <div class="d-flex align-items-center text-muted">
                                     <i class="fas fa-envelope me-2" style="width: 20px;"></i>
-                                    <span><?= $user->email ?></span>
+                                    <span><?= $user['email'] ?></span>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -389,7 +389,7 @@
                                     <label for="email" class="form-label fw-semibold">Email</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                                        <input type="email" class="form-control border-start-0" id="email" value="<?= $user->email ?>" disabled>
+                                        <input type="email" class="form-control border-start-0" id="email" value="<?= $user['email'] ?>" disabled>
                                     </div>
                                     <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Para alterar o email, contacte a secretaria</small>
                                 </div>
@@ -588,8 +588,8 @@
                 <div class="modal-body">
                     <div class="text-center mb-4">
                         <div class="current-photo mb-3">
-                            <?php if ($user->photo): ?>
-                                <img src="<?= base_url('uploads/teachers/' . $user->photo) ?>" 
+                            <?php if ($user['photo']): ?>
+                                <img src="<?= base_url('uploads/teachers/' . $user['photo']) ?>" 
                                      alt="Foto Atual" class="rounded-circle border" style="width: 100px; height: 100px; object-fit: cover;">
                             <?php else: ?>
                                 <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center text-white"

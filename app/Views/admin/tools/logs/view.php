@@ -34,19 +34,19 @@
                     </tr>
                     <tr>
                         <th>Data/Hora</th>
-                        <td><?= date('d/m/Y H:i:s', strtotime($log->created_at)) ?></td>
+                        <td><?= date('d/m/Y H:i:s', strtotime($log['created_at'])) ?></td>
                     </tr>
                     <tr>
                         <th>Ação</th>
                         <td>
-                            <span class="badge bg-<?= getActionColor($log->action) ?> p-2">
-                                <?= ucfirst($log->action) ?>
+                            <span class="badge bg-<?= getActionColor($log['action']) ?> p-2">
+                                <?= ucfirst($log['action']) ?>
                             </span>
                         </td>
                     </tr>
                     <tr>
                         <th>IP Address</th>
-                        <td><?= $log->ip_address ?: '-' ?></td>
+                        <td><?= $log['ip_address'] ?: '-' ?></td>
                     </tr>
                 </table>
             </div>

@@ -35,8 +35,8 @@
                 <i class="fas fa-user-circle"></i> Perfil
             </div>
             <div class="card-body text-center">
-                <?php if ($user->photo): ?>
-                    <img src="<?= base_url('uploads/users/' . $user->photo) ?>" 
+                <?php if ($user['photo']): ?>
+                    <img src="<?= base_url('uploads/users/' . $user['photo']) ?>" 
                          alt="Foto" 
                          class="rounded-circle img-fluid mb-3"
                          style="width: 150px; height: 150px; object-fit: cover;">
@@ -48,7 +48,7 @@
                 <?php endif; ?>
                 
                 <h4><?= $user['first_name'] ?> <?= $user['last_name'] ?></h4>
-                <p class="text-muted"><?= $user->email ?></p>
+                <p class="text-muted"><?= $user['email'] ?></p>
                 
                 <div class="mt-3">
                     <?php if ($user->is_active): ?>
@@ -82,15 +82,15 @@
                 <table class="table table-sm">
                     <tr>
                         <th>Username:</th>
-                        <td><?= $user->username ?></td>
+                        <td><?= $user['username'] ?></td>
                     </tr>
                     <tr>
                         <th>Último Acesso:</th>
-                        <td><?= $user->last_login ? date('d/m/Y H:i', strtotime($user->last_login)) : 'Nunca' ?></td>
+                        <td><?= $user['last_login'] ? date('d/m/Y H:i', strtotime($user['last_login'])) : 'Nunca' ?></td>
                     </tr>
                     <tr>
                         <th>Criado em:</th>
-                        <td><?= date('d/m/Y H:i', strtotime($user->created_at)) ?></td>
+                        <td><?= date('d/m/Y H:i', strtotime($user['created_at'])) ?></td>
                     </tr>
                     <tr>
                         <th>Atualizado em:</th>
@@ -117,7 +117,7 @@
                             </tr>
                             <tr>
                                 <th>Email:</th>
-                                <td><?= $user->email ?></td>
+                                <td><?= $user['email'] ?></td>
                             </tr>
                             <tr>
                                 <th>Telefone:</th>
@@ -162,13 +162,13 @@
                             <div class="list-group-item">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <strong><?= ucfirst($log->action) ?></strong>
+                                        <strong><?= ucfirst($log['action']) ?></strong>
                                         <p class="mb-0 small text-muted">
-                                            <i class="fas fa-globe"></i> IP: <?= $log->ip_address ?: 'Desconhecido' ?>
+                                            <i class="fas fa-globe"></i> IP: <?= $log['ip_address'] ?: 'Desconhecido' ?>
                                         </p>
                                     </div>
                                     <small class="text-muted">
-                                        <?= date('d/m/Y H:i', strtotime($log->created_at)) ?>
+                                        <?= date('d/m/Y H:i', strtotime($log['created_at'])) ?>
                                     </small>
                                 </div>
                             </div>

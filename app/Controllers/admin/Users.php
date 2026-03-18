@@ -251,7 +251,7 @@ public function save()
             return redirect()->back()->with('error', 'Não é possível eliminar o administrador principal');
         }
         
-        $username = $user->username;
+        $username = $user['username'];
         $this->userModel->delete($id);
         
         // Log de eliminação
@@ -402,12 +402,12 @@ public function updateProfile()
         $statusText = $newStatus ? 'ativado' : 'desativado';
         
         // Log de alteração de status
-        log_action('update', "Utilizador '{$user->username}' {$statusText}", $id, 'user', [
+        log_action('update', "Utilizador '{$user['username']}' {$statusText}", $id, 'user', [
             'old_status' => $user->is_active,
             'new_status' => $newStatus
         ]);
         
-        return redirect()->back()->with('success', "Utilizador '{$user->username}' {$statusText} com sucesso");
+        return redirect()->back()->with('success', "Utilizador '{$user['username']}' {$statusText} com sucesso");
     }
     
     /**
@@ -434,7 +434,7 @@ public function updateProfile()
         ]);
         
         // Log de reset de password
-        log_action('update', "Password do utilizador '{$user->username}' redefinida", $id, 'user');
+        log_action('update', "Password do utilizador '{$user['username']}' redefinida", $id, 'user');
         
         // TODO: Enviar email com a nova password
         

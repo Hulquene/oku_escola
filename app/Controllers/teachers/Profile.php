@@ -192,8 +192,8 @@ class Profile extends BaseController
             
             // Remover foto antiga se existir
             $user = $this->userModel->find($userId);
-            if ($user && $user->photo && file_exists($uploadPath . '/' . $user->photo)) {
-                unlink($uploadPath . '/' . $user->photo);
+            if ($user && $user['photo'] && file_exists($uploadPath . '/' . $user['photo'])) {
+                unlink($uploadPath . '/' . $user['photo']);
             }
             
             // Atualizar na tabela de usuários

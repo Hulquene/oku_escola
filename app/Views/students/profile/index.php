@@ -436,7 +436,7 @@
                                     <label for="email" class="form-label fw-semibold">Email</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
-                                        <input type="email" class="form-control border-start-0" id="email" value="<?= $student['email'] ?? $user->email ?>" disabled>
+                                        <input type="email" class="form-control border-start-0" id="email" value="<?= $student['email'] ?? $user['email'] ?>" disabled>
                                     </div>
                                     <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Para alterar o email, contacte a secretaria</small>
                                 </div>

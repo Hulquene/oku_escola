@@ -104,7 +104,7 @@
                     <?php if (!empty($users)): ?>
                         <?php foreach ($users as $user): ?>
                             <option value="<?= $user['id'] ?>" <?= $selectedUser == $user['id'] ? 'selected' : '' ?>>
-                                <?= $user['first_name'] ?> <?= $user['last_name'] ?> (<?= $user->username ?>)
+                                <?= $user['first_name'] ?> <?= $user['last_name'] ?> (<?= $user['username'] ?>)
                             </option>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -194,7 +194,7 @@
                                 </td>
                                 <td>
                                     <i class="far fa-clock me-1 text-muted"></i>
-                                    <?= date('d/m/Y H:i:s', strtotime($log->created_at)) ?>
+                                    <?= date('d/m/Y H:i:s', strtotime($log['created_at'])) ?>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -214,7 +214,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <?= get_action_badge($log->action) ?>
+                                    <?= get_action_badge($log['action']) ?>
                                 </td>
                                 <td>
                                     <?php 
@@ -224,7 +224,7 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark">
-                                        <?= $log->ip_address ?: '-' ?>
+                                        <?= $log['ip_address'] ?: '-' ?>
                                     </span>
                                 </td>
                                 <td>
