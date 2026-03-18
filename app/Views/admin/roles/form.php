@@ -6,8 +6,8 @@
 <?php if (isset($role)): ?>
    <!--  <div class="alert alert-info">
         <strong>DEBUG:</strong> Role encontrado: 
-        ID: <?= $role->id ?? 'não definido' ?>, 
-        Nome: <?= $role->role_name ?? 'não definido' ?>, 
+        ID: <?= $role['id'] ?? 'não definido' ?>, 
+        Nome: <?= $role['role_name'] ?? 'não definido' ?>, 
         Descrição: <?= $role->role_description ?? 'não definido' ?>
     </div> -->
 <?php else: ?>
@@ -52,7 +52,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form action="<?= site_url('admin/roles/save' . (isset($role) && $role ? '/' . $role->id : '')) ?>" method="post">
+                <form action="<?= site_url('admin/roles/save' . (isset($role) && $role ? '/' . $role['id'] : '')) ?>" method="post">
                     <?= csrf_field() ?>
                     
                     <div class="mb-3">
@@ -61,7 +61,7 @@
                                class="form-control <?= session('errors.role_name') ? 'is-invalid' : '' ?>" 
                                id="role_name" 
                                name="role_name" 
-                               value="<?= old('role_name', (isset($role) && $role ? $role->role_name : '')) ?>"
+                               value="<?= old('role_name', (isset($role) && $role ? $role['role_name'] : '')) ?>"
                                placeholder="Ex: Administrador, Professor, Secretário..."
                                required>
                         <?php if (session('errors.role_name')): ?>
@@ -156,14 +156,14 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    <a href="<?= site_url('admin/roles/permission/' . $role->id) ?>" class="btn btn-outline-primary">
+                    <a href="<?= site_url('admin/roles/permission/' . $role['id']) ?>" class="btn btn-outline-primary">
                         <i class="fas fa-key me-2"></i> Gerir Permissões
                     </a>
                     
-                    <?php if ($role->id != 1 && has_permission('roles.delete')): ?>
+                    <?php if ($role['id'] != 1 && has_permission('roles.delete')): ?>
                         <button type="button" 
                                 class="btn btn-outline-danger" 
-                                onclick="confirmDelete(<?= $role->id ?>, '<?= $role->role_name ?>')">
+                                onclick="confirmDelete(<?= $role['id'] ?>, '<?= $role['role_name'] ?>')">
                             <i class="fas fa-trash me-2"></i> Eliminar Perfil
                         </button>
                     <?php endif; ?>
@@ -175,7 +175,7 @@
 </div>
 
 <!-- Modal de Confirmação de Eliminação (apenas se estiver editando) -->
-<?php if (isset($role) && $role && $role->id != 1 && has_permission('roles.delete')): ?>
+<?php if (isset($role) && $role && $role['id'] != 1 && has_permission('roles.delete')): ?>
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -194,7 +194,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="<?= site_url('admin/roles/delete/' . $role->id) ?>" method="post" id="deleteForm" style="display: inline;">
+                <form action="<?= site_url('admin/roles/delete/' . $role['id']) ?>" method="post" id="deleteForm" style="display: inline;">
                     <?= csrf_field() ?>
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash me-1"></i>Eliminar

@@ -134,9 +134,9 @@
                             <option value="">Selecione...</option>
                             <?php if (!empty($roles)): ?>
                                 <?php foreach ($roles as $role): ?>
-                                    <option value="<?= $role->id ?>" 
-                                        <?= (old('role_id', $user['role_id'] ?? '') == $role->id) ? 'selected' : '' ?>>
-                                        <?= $role->role_name ?>
+                                    <option value="<?= $role['id'] ?>" 
+                                        <?= (old('role_id', $user['role_id'] ?? '') == $role['id']) ? 'selected' : '' ?>>
+                                        <?= $role['role_name'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             <?php endif; ?>

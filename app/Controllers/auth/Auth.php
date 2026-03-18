@@ -204,7 +204,7 @@ class Auth extends BaseController
             'first_name' => $user['first_name'] ?? '',
             'last_name' => $user['last_name'] ?? '',
             'email' => $user['email'] ?? '',
-            'role' => ($role ? (is_array($role) ? ($role['role_name'] ?? 'Sem Perfil') : ($role->role_name ?? 'Sem Perfil')) : 'Sem Perfil'),
+            'role' => ($role ? (is_array($role) ? ($role['role_name'] ?? 'Sem Perfil') : ($role['role_name'] ?? 'Sem Perfil')) : 'Sem Perfil'),
             'role_id' => $user['role_id'],
             'role_type' => $roleType ?? 'staff', // IMPORTANTE: Adicionar role_type
             'user_type' => $user['user_type'] ?? 'staff',

@@ -698,6 +698,15 @@ $routes->group('admin', ['filter' => 'auth:admin'], function ($routes) {
         $routes->post('save', [Users::class, 'save'], ['as' => 'users.save']);
         $routes->get('profile', [Users::class, 'profile'], ['as' => 'users.profile']);
         $routes->get('view/(:num)', [Users::class, 'view_user/$1'], ['as' => 'users.view']);
+        
+        // NOVAS ROTAS PARA PERFIL
+        $routes->post('update-profile', [Users::class, 'updateProfile'], ['as' => 'users.update-profile']);
+        $routes->post('update-photo', [Users::class, 'updatePhoto'], ['as' => 'users.update-photo']);
+        $routes->post('change-password', [Users::class, 'changePassword'], ['as' => 'users.change-password']);
+        
+        // NOVAS ROTAS PARA AÇÕES ADMIN
+        $routes->post('toggle-active/(:num)', [Users::class, 'toggleActive/$1'], ['as' => 'users.toggle-active']);
+        $routes->post('reset-password/(:num)', [Users::class, 'resetPassword/$1'], ['as' => 'users.reset-password']);
     });
 
     $routes->group('roles', function ($routes) {

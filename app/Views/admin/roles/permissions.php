@@ -5,7 +5,7 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-center">
-        <h1><?= $title ?>: <?= $role->role_name ?? 'N/A' ?></h1>
+        <h1><?= $title ?>: <?= $role['role_name'] ?? 'N/A' ?></h1>
         <a href="<?= site_url('admin/roles') ?>" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
@@ -25,7 +25,7 @@
 <!-- Info Card -->
 <div class="alert alert-info mb-4">
     <i class="fas fa-info-circle"></i>
-    <strong>Perfil:</strong> <?= $role->role_name ?? 'N/A' ?> - 
+    <strong>Perfil:</strong> <?= $role['role_name'] ?? 'N/A' ?> - 
     <strong>Descrição:</strong> <?= $role->role_description ?: 'Sem descrição' ?>
 </div>
 
@@ -43,7 +43,7 @@
         <?php else: ?>
             <form action="<?= site_url('admin/roles/update-permissions') ?>" method="post" id="permissionsForm">
                 <?= csrf_field() ?>
-                <input type="hidden" name="role_id" value="<?= $role->id ?>">
+                <input type="hidden" name="role_id" value="<?= $role['id'] ?>">
                 
                 <div class="row mb-3">
                     <div class="col-md-12">

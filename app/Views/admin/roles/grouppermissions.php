@@ -29,7 +29,7 @@
                     <option value="">Selecione um perfil...</option>
                     <?php if (!empty($roles)): ?>
                         <?php foreach ($roles as $role): ?>
-                            <option value="<?= $role->id ?>"><?= $role->role_name ?></option>
+                            <option value="<?= $role['id'] ?>"><?= $role['role_name'] ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

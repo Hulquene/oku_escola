@@ -48,7 +48,7 @@ abstract class BaseController extends Controller
     /**
      * Helpers to load
      */
-    protected $helpers = ['url', 'form', 'html', 'text', 'log','date', 'student','teacher','auth','academic','notification','permission', 'settings','discipline','csrf','upload','email'];
+    protected $helpers = ['url', 'form', 'html', 'text', 'log','date', 'student','teacher','auth','academic','notification','permission', 'settings','discipline','csrf','upload','email','activity'];
     
     /**
      * Data to be passed to views

@@ -100,7 +100,7 @@
                     <?php if (!empty($roles)): ?>
                         <?php foreach ($roles as $role): ?>
                             <tr>
-                                <td><span class="badge bg-secondary"><?= $role->id ?></span></td>
+                                <td><span class="badge bg-secondary"><?= $role['id'] ?></span></td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="bg-primary rounded-circle text-white d-flex align-items-center justify-content-center me-2"
@@ -108,7 +108,7 @@
                                             <i class="fas fa-shield-alt"></i>
                                         </div>
                                         <div>
-                                            <strong><?= $role->role_name ?></strong>
+                                            <strong><?= $role['role_name'] ?></strong>
                                             
                                             <?php if ($role['role_type'] == 'admin'): ?>
                                                 <span class="badge bg-warning ms-2">Administrador</span>
@@ -134,7 +134,7 @@
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="<?= site_url('admin/roles/permission/' . $role->id) ?>" 
+                                        <a href="<?= site_url('admin/roles/permission/' . $role['id']) ?>" 
                                         class="btn btn-sm btn-primary" 
                                         title="Gerir Permissões"
                                         data-bs-toggle="tooltip">
@@ -143,7 +143,7 @@
                                         
                                         <!-- Proteger edição: não permitir editar perfis de sistema (admin, teacher, student) -->
                                         <?php if (!in_array($role['role_type'], ['admin', 'teacher', 'student']) && has_permission('roles.edit')): ?>
-                                            <a href="<?= site_url('admin/roles/form/' . $role->id) ?>" 
+                                            <a href="<?= site_url('admin/roles/form/' . $role['id']) ?>" 
                                             class="btn btn-sm btn-outline-info" 
                                             title="Editar"
                                             data-bs-toggle="tooltip">
@@ -153,11 +153,11 @@
                                         
                                         <!-- Proteger exclusão: não permitir excluir perfis de sistema -->
                                         <?php if (!in_array($role['role_type'], ['admin', 'teacher', 'student']) && has_permission('roles.delete')): ?>
-                                            <form action="<?= site_url('admin/roles/delete/' . $role->id) ?>" method="post" style="display: inline;">
+                                            <form action="<?= site_url('admin/roles/delete/' . $role['id']) ?>" method="post" style="display: inline;">
                                                 <?= csrf_field() ?>
                                                 <button type="submit" 
                                                         class="btn btn-sm btn-outline-danger" 
-                                                        onclick="return confirm('Tem certeza que deseja eliminar o perfil <?= $role->role_name ?>?')"
+                                                        onclick="return confirm('Tem certeza que deseja eliminar o perfil <?= $role['role_name'] ?>?')"
                                                         title="Eliminar"
                                                         data-bs-toggle="tooltip">
                                                     <i class="fas fa-trash"></i>

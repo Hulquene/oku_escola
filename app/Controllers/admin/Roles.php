@@ -183,7 +183,7 @@ public function delete($id = null)
     
     // Verificar se é um perfil de sistema (protegido)
     if (in_array($role['role_type'], ['admin', 'teacher', 'student'])) {
-        return redirect()->to('/admin/roles')->with('error', 'O perfil ' . $role->role_name . ' é um perfil de sistema e não pode ser eliminado');
+        return redirect()->to('/admin/roles')->with('error', 'O perfil ' . $role['role_name'] . ' é um perfil de sistema e não pode ser eliminado');
     }
     
     // Verificar se existem usuários com este perfil

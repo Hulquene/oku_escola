@@ -783,8 +783,8 @@ input[type="file"].media-file { display:none; }
                                     <select class="f-select" name="semester_id" required>
                                         <option value="">Selecione...</option>
                                         <?php foreach ($semesters ?? [] as $s): ?>
-                                        <option value="<?= $s->id ?>" <?= (old('semester_id', $settings['current_semester'] ?? '') == $s->id) ? 'selected' : '' ?>>
-                                            <?= esc($s->semester_name) ?>
+                                        <option value="<?= $s['id'] ?>" <?= (old('semester_id', $settings['current_semester'] ?? '') == $s['id']) ? 'selected' : '' ?>>
+                                            <?= esc($s['semester_name']) ?>
                                         </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -874,7 +874,7 @@ input[type="file"].media-file { display:none; }
                                         <option value="">Selecione...</option>
                                         <?php foreach ($currencies ?? [] as $c): ?>
                                         <option value="<?= $c['id'] ?>" <?= (old('default_currency', $settings['default_currency'] ?? '') == $c['id']) ? 'selected' : '' ?>>
-                                            <?= esc($c->currency_name) ?> (<?= esc($c->currency_code) ?>)
+                                            <?= esc($c['currency_name']) ?> (<?= esc($c['currency_code']) ?>)
                                         </option>
                                         <?php endforeach; ?>
                                     </select>
