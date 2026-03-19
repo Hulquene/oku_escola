@@ -2,6 +2,8 @@
  * CONFIGURAÇÃO GLOBAL DO DATATABLES
  * Sistema de Gestão Escolar
  * 
+ * Adaptado para usar os mesmos estilos do sistema (.form-input-ci, .btn-ci, etc.)
+ * 
  * @author Sistema Escolar
  * @version 2.0
  */
@@ -16,7 +18,7 @@
     }
 
     /* ======================================================
-       IDIOMA PORTUGUÊS (PT-BR) - EMBUTIDO
+       IDIOMA PORTUGUÊS (PT-BR)
        ====================================================== */
     const ptBrLanguage = {
         "sEmptyTable": "Nenhum registro encontrado",
@@ -27,7 +29,6 @@
         "sInfoThousands": ".",
         "sLengthMenu": "Mostrar _MENU_ registros por página",
         "sLoadingRecords": "Carregando...",
-        "sProcessing": "Processando...",
         "sZeroRecords": "Nenhum registro encontrado",
         "sSearch": "Pesquisar:",
         "oPaginate": {
@@ -64,7 +65,6 @@
     /* ======================================================
        CONFIGURAÇÕES PADRÃO
        ====================================================== */
-    // Verificar se DataTable.defaults existe
     if (!DataTable.defaults) {
         DataTable.defaults = {};
     }
@@ -77,78 +77,121 @@
     DataTable.defaults.searching = true;
     DataTable.defaults.processing = true;
     
-    // Idioma (usando versão embutida para não depender de CDN)
+    // Idioma
     DataTable.defaults.language = ptBrLanguage;
+
+    /* ======================================================
+       PERSONALIZAÇÃO COM CLASSES DO SISTEMA
+       ====================================================== */
     
-    // Layout usando classes Bootstrap (adaptado para DataTables 2)
+    // Classes personalizadas para elementos do DataTables
+    DataTable.defaults.classes = {
+        // Container principal
+        container: 'dt-container',
+        
+        // Layout rows
+        layout: 'dt-layout-row',
+        
+        // Elementos de filtro e paginação
+        search: {
+            input: 'form-input-ci', // Usando a classe do seu sistema
+            container: 'dt-search'
+        },
+        length: {
+            select: 'form-select-ci', // Usando a classe do seu sistema
+            container: 'dt-length'
+        },
+        processing: 'dt-processing',
+        
+        // Paginação
+        paging: {
+            button: 'btn-ci small outline', // Usando seus botões
+            container: 'dt-paging',
+            active: 'active'
+        },
+        
+        // Informação
+        info: 'dt-info'
+    };
+
+    /* ======================================================
+       CONFIGURAÇÃO DOS BOTÕES COM ESTILO DO SISTEMA
+       ====================================================== */
+    
+    // Botões com as classes do seu sistema (.btn-ci)
+    if (DataTable.Buttons) {
+        DataTable.defaults.buttons = [
+            {
+                extend: 'copy',
+                text: '<i class="fa-regular fa-copy"></i> Copiar',
+                className: 'btn-ci primary small', // Usando btn-ci primary small
+                titleAttr: 'Copiar para área de transferência',
+                init: function(dt, node, config) {
+                    // Forçar a classe btn-ci primary small
+                    $(node).removeClass('dt-button buttons-copy').addClass('btn-ci primary small');
+                }
+            },
+            {
+                extend: 'excel',
+                text: '<i class="fa-regular fa-file-excel"></i> Excel',
+                className: 'btn-ci success small', // Usando btn-ci success small
+                titleAttr: 'Exportar para Excel',
+                init: function(dt, node, config) {
+                    $(node).removeClass('dt-button buttons-excel').addClass('btn-ci success small');
+                }
+            },
+            {
+                extend: 'pdf',
+                text: '<i class="fa-regular fa-file-pdf"></i> PDF',
+                className: 'btn-ci warning small', // Usando btn-ci warning small
+                titleAttr: 'Exportar para PDF',
+                init: function(dt, node, config) {
+                    $(node).removeClass('dt-button buttons-pdf').addClass('btn-ci warning small');
+                }
+            },
+            {
+                extend: 'print',
+                text: '<i class="fa-regular fa-print"></i> Imprimir',
+                className: 'btn-ci outline small', // Usando btn-ci outline small
+                titleAttr: 'Imprimir tabela',
+                init: function(dt, node, config) {
+                    $(node).removeClass('dt-button buttons-print').addClass('btn-ci outline small');
+                }
+            },
+            {
+                extend: 'colvis',
+                text: '<i class="fa-regular fa-columns"></i> Colunas',
+                className: 'btn-ci outline small', // Usando btn-ci outline small
+                titleAttr: 'Visibilidade das colunas',
+                init: function(dt, node, config) {
+                    $(node).removeClass('dt-button buttons-colvis').addClass('btn-ci outline small');
+                }
+            }
+        ];
+    }
+
+    /* ======================================================
+       LAYOUT PERSONALIZADO
+       ====================================================== */
+    
+    // Layout usando os elementos do sistema
     DataTable.defaults.layout = {
         topStart: {
+            buttons: ['copy', 'excel', 'pdf', 'print', 'colvis'],
             pageLength: {
-                menu: [10, 25, 50, 100, 250] // Pode personalizar o menu aqui
-            },
-            buttons: ['copy', 'excel', 'pdf', 'print']
+                menu: [10, 25, 50, 100, 250],
+                text: 'Mostrar _MENU_ por página' // Texto personalizado
+            }
         },
         topEnd: 'search',
         bottomStart: 'info',
         bottomEnd: 'paging'
     };
 
-    // Botões com classes Bootstrap (se o botões estiver disponível)
-    if (DataTable.Buttons) {
-        DataTable.defaults.buttons = [
-            {
-                extend: 'copy',
-                text: '<i class="fa-regular fa-copy"></i> Copiar',
-                className: 'btn btn-outline-secondary btn-sm',
-                titleAttr: 'Copiar para área de transferência'
-            },
-            {
-                extend: 'excel',
-                text: '<i class="fa-regular fa-file-excel"></i> Excel',
-                className: 'btn btn-success btn-sm',
-                titleAttr: 'Exportar para Excel'
-            },
-            {
-                extend: 'pdf',
-                text: '<i class="fa-regular fa-file-pdf"></i> PDF',
-                className: 'btn btn-danger btn-sm',
-                titleAttr: 'Exportar para PDF'
-            },
-            {
-                extend: 'print',
-                text: '<i class="fa-regular fa-print"></i> Imprimir',
-                className: 'btn btn-info btn-sm',
-                titleAttr: 'Imprimir tabela'
-            }
-        ];
-    }
-
-    // Classes CSS personalizadas
-    DataTable.defaults.classes = {
-        container: 'dt-container',
-        layout: 'dt-layout-row',
-        search: 'form-control form-control-sm',
-        length: 'form-select form-select-sm',
-        processing: 'dt-processing'
-    };
-
-    // Configurações de responsividade (verificar se o plugin existe)
-    if ($.fn.DataTable && $.fn.DataTable.Responsive) {
-        DataTable.defaults.responsive = {
-            details: {
-                display: $.fn.DataTable.Responsive.display.modal({
-                    header: function(row) {
-                        return 'Detalhes do registro';
-                    }
-                }),
-                renderer: $.fn.DataTable.Responsive.renderer.tableAll({
-                    tableClass: 'table table-sm table-borderless'
-                })
-            }
-        };
-    }
-
-    // Configurações de colunas
+    /* ======================================================
+       CONFIGURAÇÕES DE COLUNAS
+       ====================================================== */
+    
     DataTable.defaults.columnDefs = [
         {
             targets: 'no-sort',
@@ -161,12 +204,23 @@
         {
             targets: 'text-center',
             className: 'text-center'
+        },
+        {
+            targets: 'text-right',
+            className: 'text-right'
         }
     ];
 
-    // Callbacks padrão
+    /* ======================================================
+       CALLBACKS PERSONALIZADOS
+       ====================================================== */
+    
+    // Callback após desenho da tabela
     DataTable.defaults.drawCallback = function(settings) {
-        // Re-inicializar tooltips
+        // Adicionar classe ci-table à tabela
+        $(settings.nTable).addClass('ci-table');
+        
+        // Re-inicializar tooltips do Bootstrap
         if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
             $('[data-bs-toggle="tooltip"]').each(function() {
                 try {
@@ -194,14 +248,27 @@
             });
         }
 
-        // Log de debug (remover em produção)
+        // Log de debug
         if (window.CONFIG?.debug) {
             console.log('DataTables redesenhou', settings);
         }
     };
 
-    // Inicialização
+    // Callback de inicialização
     DataTable.defaults.initComplete = function(settings, json) {
+        const table = this;
+        
+        // Adicionar classe ci-table se não tiver
+        if (!table.table().node().classList.contains('ci-table')) {
+            table.table().node().classList.add('ci-table');
+        }
+        
+        // Ajustar selects de página para usar form-select-ci
+        setTimeout(function() {
+            $('.dt-length select').addClass('form-select-ci').removeClass('dt-input');
+            $('.dt-search input').addClass('form-input-ci').removeClass('dt-input');
+        }, 100);
+        
         console.log('DataTables inicializado com sucesso');
     };
 
@@ -229,7 +296,7 @@
             return null;
         }
 
-        // Configuração base - copiar apenas propriedades existentes
+        // Configuração base
         const config = {};
         
         // Copiar configurações padrão
@@ -248,9 +315,8 @@
 
         // Se for tabela pequena, desabilitar serverSide
         if (options.serverSide === undefined) {
-            // Auto-detectar se deve usar serverSide
             const rowCount = element.find('tbody tr').length;
-            config.serverSide = rowCount > 100; // ServerSide para mais de 100 registros
+            config.serverSide = rowCount > 100;
         }
 
         // Garantir que buttons seja um array
@@ -258,7 +324,7 @@
             config.buttons = [config.buttons];
         }
 
-        // Inicializar e retornar instância
+        // Inicializar
         try {
             const table = element.DataTable(config);
             
@@ -266,6 +332,32 @@
             window.dataTables = window.dataTables || {};
             const key = selector.replace(/[^a-zA-Z0-9]/g, '');
             window.dataTables[key] = table;
+            
+            // Aplicar classes personalizadas
+            setTimeout(function() {
+                // Aplicar classe aos selects de length
+                $('.dt-length select').addClass('form-select-ci');
+                
+                // Aplicar classe aos inputs de search
+                $('.dt-search input').addClass('form-input-ci');
+                
+                // Aplicar classe aos botões
+                $('.dt-buttons .dt-button').each(function() {
+                    const $btn = $(this);
+                    if ($btn.hasClass('buttons-copy')) {
+                        $btn.addClass('btn-ci primary small');
+                    } else if ($btn.hasClass('buttons-excel')) {
+                        $btn.addClass('btn-ci success small');
+                    } else if ($btn.hasClass('buttons-pdf')) {
+                        $btn.addClass('btn-ci warning small');
+                    } else if ($btn.hasClass('buttons-print')) {
+                        $btn.addClass('btn-ci outline small');
+                    } else if ($btn.hasClass('buttons-colvis')) {
+                        $btn.addClass('btn-ci outline small');
+                    }
+                    $btn.removeClass('dt-button');
+                });
+            }, 200);
             
             return table;
         } catch (e) {
@@ -288,12 +380,11 @@
     };
 
     /**
-     * Helper para exportar dados em diferentes formatos
+     * Helper para exportar dados
      */
     window.exportTableData = function(tableId, format = 'excel') {
         let table;
         
-        // Tentar encontrar a tabela
         if (window.dataTables && window.dataTables[tableId]) {
             table = window.dataTables[tableId];
         } else {
@@ -305,7 +396,6 @@
             return;
         }
 
-        // Verificar se os botões estão disponíveis
         if (!table.button) {
             console.error('Botões do DataTables não disponíveis');
             return;
@@ -329,13 +419,8 @@
         }
     };
 
-    /* ======================================================
-       VERSÃO DO IDIOMA EM FORMATO JSON (para referência)
-       ====================================================== */
-    window.DT_LANGUAGE_PT_BR = ptBrLanguage;
-
     // Log de inicialização
-    console.log('✅ DataTables configurado com sucesso');
+    console.log('✅ DataTables configurado com sucesso (usando classes do sistema)');
     if (DataTable && DataTable.version) {
         console.log('📊 Versão:', DataTable.version);
     }
@@ -343,7 +428,7 @@
 
 })();
 
-// Exportar para módulos (se estiver usando ES6)
+// Exportar para módulos
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         initDataTable: window.initDataTable,

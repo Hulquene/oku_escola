@@ -30,13 +30,17 @@ class ExamPeriods extends BaseController
     {
         $data['title'] = 'Períodos de Exame';
         
+       
         // Buscar ano letivo da URL ou usar o ano corrente
         $academicYearId = $this->request->getGet('academic_year');
-        
+        // var_dump(current_academic_year()); die;
+       
         // Se não veio da URL, usar o ano corrente
-        if (empty($academicYearId)) {
+        if (empty($academicYearId) || !is_numeric($academicYearId)) {
             $academicYearId = current_academic_year();
         }
+
+        // var_dump($academicYearId); die;
         
         $data['periods'] = $this->examPeriodModel->getActivePeriods($academicYearId);
         $data['academicYears'] = $this->academicYearModel->where('is_active', 1)->findAll();

@@ -1878,8 +1878,6 @@ div.dataTables_wrapper {
 
 
 
-
-<style>
 /* Header action buttons */
 .hdr-actions { display:flex; gap:.5rem; flex-wrap:wrap; }
 .hdr-btn {
@@ -2298,4 +2296,399 @@ div.dataTables_wrapper {
         grid-template-columns:1fr;
     }
 }
-</style>
+
+
+
+
+
+
+
+
+
+
+/* ============================================================================
+   DATATABLES - ESTILIZAÇÃO PERSONALIZADA
+   ============================================================================ */
+
+/* Container principal */
+.dataTables_wrapper {
+    padding: 1rem;
+    font-family: var(--font);
+}
+
+/* ======================================================
+   BOTÕES DO DATATABLES - USANDO btn-ci
+   ====================================================== */
+
+/* Container dos botões */
+.dt-buttons {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem !important;
+}
+
+/* Remove estilos padrão dos botões */
+.dt-button {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Aplica os estilos do sistema aos botões */
+.dt-button.buttons-copy,
+.dt-button.buttons-excel,
+.dt-button.buttons-pdf,
+.dt-button.buttons-print,
+.dt-button.buttons-colvis {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.5rem 1.1rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.18s !important;
+    font-family: var(--font) !important;
+    text-decoration: none !important;
+    border: none !important;
+    background: transparent !important;
+    color: inherit !important;
+}
+
+/* Botão Copiar - primary */
+.dt-button.buttons-copy {
+    background: var(--accent) !important;
+    color: #fff !important;
+}
+.dt-button.buttons-copy:hover {
+    background: var(--accent-hover) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Botão Excel - success */
+.dt-button.buttons-excel {
+    background: var(--success) !important;
+    color: #fff !important;
+}
+.dt-button.buttons-excel:hover {
+    background: #0E8A64 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Botão PDF - warning */
+.dt-button.buttons-pdf {
+    background: var(--warning) !important;
+    color: #fff !important;
+}
+.dt-button.buttons-pdf:hover {
+    background: #d18c1c !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Botão Imprimir - outline */
+.dt-button.buttons-print {
+    background: transparent !important;
+    border: 1.5px solid var(--border) !important;
+    color: var(--text-secondary) !important;
+}
+.dt-button.buttons-print:hover {
+    background: #fff !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+/* Botão Colunas - outline */
+.dt-button.buttons-colvis {
+    background: transparent !important;
+    border: 1.5px solid var(--border) !important;
+    color: var(--text-secondary) !important;
+}
+.dt-button.buttons-colvis:hover {
+    background: #fff !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+/* ======================================================
+   SELECT "Mostrar X registros" - USANDO form-select-ci
+   ====================================================== */
+
+/* Container do length */
+.dt-length {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Label "Mostrar" */
+.dt-length label {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Select - aplica form-select-ci */
+.dt-length select {
+    width: auto !important;
+    min-width: 70px;
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.42rem 2rem 0.42rem 0.65rem !important;
+    font-size: 0.8rem !important;
+    font-family: var(--font) !important;
+    color: var(--text-primary) !important;
+    background: var(--surface) !important;
+    transition: border-color 0.18s !important;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7A99' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    margin-left: 0.5rem;
+}
+
+.dt-length select:focus {
+    outline: none !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(59,127,232,0.12) !important;
+    background: #fff !important;
+}
+
+/* ======================================================
+   INPUT DE PESQUISA - USANDO form-input-ci
+   ====================================================== */
+
+/* Container da pesquisa */
+.dt-search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Label "Pesquisar:" */
+.dt-search label {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Input - aplica form-input-ci */
+.dt-search input {
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.42rem 0.65rem !important;
+    font-size: 0.8rem !important;
+    font-family: var(--font) !important;
+    color: var(--text-primary) !important;
+    background: var(--surface) !important;
+    transition: border-color 0.18s, box-shadow 0.18s !important;
+    width: 250px !important;
+}
+
+.dt-search input:focus {
+    outline: none !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(59,127,232,0.12) !important;
+    background: #fff !important;
+}
+
+/* ======================================================
+   PAGINAÇÃO - USANDO btn-ci small outline
+   ====================================================== */
+
+/* Container da paginação */
+.dt-paging {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+/* Botões de paginação */
+.dt-paging .paging_button,
+.dt-paging button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.25rem !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 0.35rem 0.8rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.18s !important;
+    font-family: var(--font) !important;
+    background: transparent !important;
+    border: 1.5px solid var(--border) !important;
+    color: var(--text-secondary) !important;
+    min-width: 36px;
+    text-decoration: none !important;
+}
+
+.dt-paging .paging_button:hover,
+.dt-paging button:hover {
+    background: #fff !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+/* Botão ativo (página atual) */
+.dt-paging .paging_button.current,
+.dt-paging button.current {
+    background: var(--accent) !important;
+    color: #fff !important;
+    border-color: var(--accent) !important;
+}
+
+/* Botão first/previous/next/last */
+.dt-paging .paging_button.first,
+.dt-paging .paging_button.previous,
+.dt-paging .paging_button.next,
+.dt-paging .paging_button.last {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+
+/* ======================================================
+   INFORMAÇÃO
+   ====================================================== */
+
+.dt-info {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    padding: 0.5rem 0;
+}
+
+/* ======================================================
+   PROCESSING
+   ====================================================== */
+
+.dt-processing {
+    background: rgba(255,255,255,0.9) !important;
+    backdrop-filter: blur(2px);
+    border-radius: var(--radius);
+}
+
+.dt-processing > div {
+    background: var(--accent) !important;
+}
+
+/* ======================================================
+   LAYOUT RESPONSIVO
+   ====================================================== */
+
+@media (max-width: 768px) {
+    .dataTables_wrapper .row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .dt-length,
+    .dt-search {
+        width: 100%;
+    }
+    
+    .dt-search input {
+        width: 100% !important;
+    }
+    
+    .dt-buttons {
+        justify-content: flex-start;
+    }
+    
+    .dt-paging {
+        justify-content: center;
+    }
+}
+
+/* ======================================================
+   CORREÇÕES PARA O DATATABLES DEFAULT
+   ====================================================== */
+
+/* Remove estilos padrão */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+    float: none;
+    text-align: left;
+}
+
+/* Alinhamento dos botões com o select */
+.dt-buttons,
+.dt-length {
+    float: left;
+}
+
+.dt-search {
+    float: right;
+}
+
+.dt-info {
+    float: left;
+    padding-top: 0.5rem;
+}
+
+.dt-paging {
+    float: right;
+}
+
+/* Clearfix */
+.dataTables_wrapper::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Ícones nos botões */
+.dt-button i,
+.dt-button svg {
+    font-size: 0.9rem;
+}
+
+/* Ajuste para o dropdown do colvis */
+.dt-button-colvis {
+    position: relative;
+}
+
+.dt-button-colvis .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    min-width: 200px;
+    padding: 0.5rem 0;
+    margin-top: 0.25rem;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+}
+
+.dt-button-colvis .dropdown-menu a {
+    display: block;
+    padding: 0.4rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+.dt-button-colvis .dropdown-menu a:hover {
+    background: var(--surface);
+    color: var(--accent);
+}
+
+.dt-button-colvis .dropdown-menu a.active {
+    background: rgba(59,127,232,0.1);
+    color: var(--accent);
+}
