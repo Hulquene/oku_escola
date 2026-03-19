@@ -671,10 +671,7 @@ INSERT INTO `tbl_exam_results` (`enrollment_id`, `assessment_type`, `score`, `re
 -- UNION ALL
 -- SELECT 'NOTAS AC', COUNT(*) FROM tbl_exam_results WHERE assessment_type = 'AC';
 
--- ========================================================
--- FIM DO SCRIPT
--- ========================================================
-COMMIT;
+
 -- ========================================================
 -- 5. CONSULTA PARA VERIFICAR OS DADOS INSERIDOS
 -- ========================================================
