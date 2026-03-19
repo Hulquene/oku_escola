@@ -104,7 +104,7 @@
                                     </a>
                                 <?php else: ?>
                                     <!-- Para Ensino Geral - botão ver currículo -->
-                                    <a href="<?= site_url('admin/grade-curriculum/' . $level['id']) ?>" 
+                                    <a href="<?= site_url('admin/academic/grade-curriculum/' . $level['id']) ?>" 
                                        class="badge-ci info text-decoration-none"
                                        data-bs-toggle="tooltip" title="Ver disciplinas do nível">
                                         <i class="fas fa-book-open"></i>
@@ -117,13 +117,13 @@
                                     
                                     <!-- Botão Ver Currículo/Cursos (contextual) -->
                                     <?php if ($isHighSchool): ?>
-                                        <a href="<?= site_url('admin/courses?grade_level_id=' . $level['id']) ?>" 
+                                        <a href="<?= site_url('admin/academic/courses?grade_level_id=' . $level['id']) ?>" 
                                            class="row-btn" 
                                            data-bs-toggle="tooltip" title="Ver Cursos">
                                             <i class="fas fa-graduation-cap"></i>
                                         </a>
                                     <?php else: ?>
-                                        <a href="<?= site_url('admin/grade-curriculum/' . $level['id']) ?>" 
+                                        <a href="<?= site_url('admin/academic/grade-curriculum/' . $level['id']) ?>" 
                                            class="row-btn" 
                                            data-bs-toggle="tooltip" title="Ver Disciplinas">
                                             <i class="fas fa-book-open"></i>

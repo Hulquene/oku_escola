@@ -403,7 +403,7 @@ textarea.form-control {
     </div>
     <div class="info-item">
         <i class="fas fa-door-open"></i>
-        <span>Sala: <strong><?= $class->class_room ?: 'Não definida' ?></strong></span>
+        <span>Sala: <strong><?= $class['class_room'] ?: 'Não definida' ?></strong></span>
     </div>
 </div>
 

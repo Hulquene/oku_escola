@@ -256,9 +256,9 @@ body { background: var(--surface); color: var(--text-primary); }
                         <th>Período</th>
                         <td>
                             <div class="period-row">
-                                <span class="period-date"><?= date('d/m/Y', strtotime($semester->start_date)) ?></span>
+                                <span class="period-date"><?= date('d/m/Y', strtotime($semester['start_date'])) ?></span>
                                 <i class="fas fa-arrow-right period-arrow"></i>
-                                <span class="period-date"><?= date('d/m/Y', strtotime($semester->end_date)) ?></span>
+                                <span class="period-date"><?= date('d/m/Y', strtotime($semester['end_date'])) ?></span>
                             </div>
                         </td>
                     </tr>
@@ -266,7 +266,7 @@ body { background: var(--surface); color: var(--text-primary); }
                         <th>Duração</th>
                         <td>
                             <?php
-                            $days = (int) ceil((strtotime($semester->end_date) - strtotime($semester->start_date)) / 86400) + 1;
+                            $days = (int) ceil((strtotime($semester['end_date']) - strtotime($semester['start_date'])) / 86400) + 1;
                             ?>
                             <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--accent);"><?= $days ?></span>
                             <span style="font-size:.8rem;color:var(--text-muted);"> dias</span>

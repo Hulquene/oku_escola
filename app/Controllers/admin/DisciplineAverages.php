@@ -420,6 +420,21 @@ class DisciplineAverages extends BaseController
     private function getClassDisciplines($classId, $semesterId)
     {
         $classDisciplineModel = new \App\Models\ClassDisciplineModel();
+        
+        // Get semester info to determine which disciplines to include
+        $semester = $this->semesterModel->find($semesterId);
+        
+        // Determine period type based on semester
+        $periodType = 'Anual'; // Default
+        
+        if ($semester) {
+            if (strpos($semester['semester_name'], '1º') !== false) {
+                $periodType = '1º Semestre';
+            } elseif (strpos($semester['semester_name'], '2º') !== false) {
+                $periodType = '2º Semestre';
+            }
+            // 3º Trimestre pode ser considerado Anual ou pode-se ajustar conforme necessidade
+        }
 
         return $classDisciplineModel
             ->select('
@@ -430,7 +445,10 @@ class DisciplineAverages extends BaseController
             ')
             ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
             ->where('tbl_class_disciplines.class_id', $classId)
-            ->where('tbl_class_disciplines.semester_id', $semesterId)
+            ->groupStart()
+                ->where('tbl_class_disciplines.period_type', 'Anual')
+                ->orWhere('tbl_class_disciplines.period_type', $periodType)
+            ->groupEnd()
             ->where('tbl_class_disciplines.is_active', 1)
             ->orderBy('tbl_disciplines.discipline_name', 'ASC')
             ->findAll();

@@ -622,7 +622,7 @@ class MiniGradeSheet extends BaseController
         } else {
             $data['semesters'] = [];
         }
-        
+
         // Buscar todas as turmas ativas
         $data['classes'] = $this->classModel
             ->select('tbl_classes.*, tbl_academic_years.year_name')
@@ -639,7 +639,7 @@ class MiniGradeSheet extends BaseController
         $data['selectedYear'] = $academicYearId;
         $data['selectedSemester'] = $semesterId;
         $data['selectedClass'] = $classId;
-        
+       
         return view('admin/mini_grade_sheet/trimestral', $data);
     }
     
@@ -707,6 +707,11 @@ class MiniGradeSheet extends BaseController
             ->where('tbl_class_disciplines.is_active', 1)
             ->orderBy('tbl_disciplines.discipline_name', 'ASC')
             ->findAll();
+        
+                    
+ /*        echo "<pre>";
+        var_dump($disciplinas);die; */
+
         
         // Processar alunos e suas notas
         $alunosProcessados = [];

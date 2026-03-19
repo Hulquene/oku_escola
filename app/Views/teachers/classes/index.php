@@ -106,7 +106,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <span class="badge bg-info me-1"><?= $class['class_shift'] ?></span>
-                        <span class="badge bg-secondary">Sala: <?= $class->class_room ?: 'N/A' ?></span>
+                        <span class="badge bg-secondary">Sala: <?= $class['class_room'] ?: 'N/A' ?></span>
                     </div>
                     
                     <div class="row text-center mb-3">
@@ -197,7 +197,7 @@
                                 <td><span class="badge bg-info"><?= $class->discipline_code ?></span></td>
                                 <td><?= $class->workload_hours ?? 'N/A' ?>h</td>
                                 <td><?= $class['class_shift'] ?></td>
-                                <td><?= $class->class_room ?: '-' ?></td>
+                                <td><?= $class['class_room'] ?: '-' ?></td>
                                 <td>
                                     <div class="btn-group">
                                         <a href="<?= site_url('teachers/grades?class=' . $class->class_id . '&discipline=' . $class->discipline_id) ?>" 

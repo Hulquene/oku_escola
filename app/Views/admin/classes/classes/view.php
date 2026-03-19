@@ -252,7 +252,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
         <div class="ci-card">
             <div class="ci-card-header">
                 <div class="ci-card-title"><i class="fas fa-info-circle"></i> Informações da Turma</div>
-                <?php if ($class->is_active): ?>
+                <?php if ($class['is_active']): ?>
                     <span class="status-dot"><span class="sd sd-active"></span><span class="st-active">Ativa</span></span>
                 <?php else: ?>
                     <span class="status-dot"><span class="sd sd-inactive"></span><span class="st-inactive">Inativa</span></span>
@@ -297,7 +297,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                     </tr>
                     <tr>
                         <td>Sala</td>
-                        <td><?= $class->class_room ? esc($class->class_room) : '<span style="color:var(--text-muted)">—</span>' ?></td>
+                        <td><?= $class['class_room'] ? esc($class['class_room']) : '<span style="color:var(--text-muted)">—</span>' ?></td>
                     </tr>
                     <tr>
                         <td>Ocupação</td>
@@ -325,7 +325,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                                 <div class="teacher-avatar"><i class="fas fa-chalkboard-teacher"></i></div>
                                 <div>
                                     <div class="teacher-name"><?= esc($class['teacher_first_name']) ?> <?= esc($class['teacher_last_name']) ?></div>
-                                    <div class="teacher-email"><?= esc($class->teacher_email) ?></div>
+                                    <div class="teacher-email"><?= esc($class['teacher_email']) ?></div>
                                 </div>
                             </div>
                             <?php else: ?>
@@ -336,7 +336,7 @@ $shiftIcon  = ['Manhã'=>'fa-sun','Tarde'=>'fa-cloud-sun','Noite'=>'fa-moon','In
                     <tr>
                         <td>Criado em</td>
                         <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text-muted);">
-                            <?= date('d/m/Y H:i', strtotime($class->created_at)) ?>
+                            <?= date('d/m/Y H:i', strtotime($class['created_at'])) ?>
                         </td>
                     </tr>
                 </table>

@@ -547,8 +547,8 @@ private function suggestDisciplinesFromGradeLevel($classId, $gradeLevelId)
         }
         
         // Buscar informações do curso
-        if ($data['class']->course_id) {
-            $data['course'] = $this->courseModel->find($data['class']->course_id);
+        if ($data['class']['course_id']) {
+            $data['course'] = $this->courseModel->find($data['class']['course_id']);
         } else {
             $data['course'] = null;
         }

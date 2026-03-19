@@ -767,8 +767,8 @@ class Semesters extends BaseController
         
         return $this->response->setJSON([
             'success' => true,
-            'start_date' => $semester->start_date,
-            'end_date' => $semester->end_date,
+            'start_date' => $semester['start_date'],
+            'end_date' => $semester['end_date'],
             'academic_year_id' => $semester->academic_year_id
         ]);
     }
@@ -841,8 +841,8 @@ class Semesters extends BaseController
         
         // Formatar datas para o formato ISO
         foreach ($semesters as $semester) {
-            $semester->start_date_formatted = date('d/m/Y', strtotime($semester->start_date));
-            $semester->end_date_formatted = date('d/m/Y', strtotime($semester->end_date));
+            $semester['start_date']_formatted = date('d/m/Y', strtotime($semester['start_date']));
+            $semester['end_date']_formatted = date('d/m/Y', strtotime($semester['end_date']));
         }
         
         return $this->response->setJSON([
@@ -921,8 +921,8 @@ class Semesters extends BaseController
                 'semester_name' => $semester['semester_name'],
                 'semester_type' => $semester->semester_type,
                 'year_name' => $semester->year_name,
-                'start_date' => date('d/m/Y', strtotime($semester->start_date)),
-                'end_date' => date('d/m/Y', strtotime($semester->end_date)),
+                'start_date' => date('d/m/Y', strtotime($semester['start_date'])),
+                'end_date' => date('d/m/Y', strtotime($semester['end_date'])),
                 'is_current' => $semester->is_current
             ],
             'stats' => [

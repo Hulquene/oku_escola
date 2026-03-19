@@ -316,7 +316,7 @@ body { background: var(--surface); color: var(--text-primary); }
                         <input type="date"
                                class="form-input-ci <?= session('errors.start_date') ? 'is-invalid' : '' ?>"
                                id="start_date" name="start_date"
-                               value="<?= old('start_date', $semester->start_date ?? '') ?>"
+                               value="<?= old('start_date', $semester['start_date'] ?? '') ?>"
                                required>
                         <?php if (session('errors.start_date')): ?>
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i><?= session('errors.start_date') ?></div>
@@ -331,7 +331,7 @@ body { background: var(--surface); color: var(--text-primary); }
                         <input type="date"
                                class="form-input-ci <?= session('errors.end_date') ? 'is-invalid' : '' ?>"
                                id="end_date" name="end_date"
-                               value="<?= old('end_date', $semester->end_date ?? '') ?>"
+                               value="<?= old('end_date', $semester['end_date'] ?? '') ?>"
                                required>
                         <?php if (session('errors.end_date')): ?>
                             <div class="form-error"><i class="fas fa-exclamation-circle"></i><?= session('errors.end_date') ?></div>

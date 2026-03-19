@@ -320,7 +320,7 @@ body { background:var(--surface); color:var(--text-primary); }
                             <td class="center"><span class="count-chip"><?= $class->student_count ?? 0 ?></span></td>
                             <td class="center" style="font-size:.8rem;color:var(--text-secondary);"><?= $class['capacity']  ?? '—' ?></td>
                             <td>
-                                <?php if ($class->is_active): ?>
+                                <?php if ($class['is_active']): ?>
                                     <span class="status-badge sb-active">Ativo</span>
                                 <?php else: ?>
                                     <span class="status-badge sb-inactive">Inativo</span>

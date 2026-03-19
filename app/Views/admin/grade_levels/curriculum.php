@@ -297,7 +297,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
             <li class="breadcrumb-item"><a href="<?= site_url('admin/grade-levels') ?>">Níveis de Ensino</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= $gradeLevel->level_name ?></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= $gradeLevel['level_name'] ?></li>
         </ol>
     </nav>
 </div>
@@ -310,11 +310,11 @@ body { background: var(--surface); color: var(--text-primary); }
     <div class="level-banner-info">
         <div class="level-banner-icon"><i class="fas fa-layer-group"></i></div>
         <div>
-            <div class="level-banner-name"><?= $gradeLevel->level_name ?></div>
+            <div class="level-banner-name"><?= $gradeLevel['level_name'] ?></div>
             <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
-                <span class="level-banner-code"><?= $gradeLevel->level_code ?></span>
-                <span class="education-level-badge"><?= $gradeLevel->education_level ?></span>
-                <?php if ($gradeLevel->is_active): ?>
+                <span class="level-banner-code"><?= $gradeLevel['level_code'] ?></span>
+                <span class="education-level-badge"><?= $gradeLevel['education_level'] ?></span>
+                <?php if ($gradeLevel['is_active']): ?>
                     <span class="status-pill-active"><span class="status-dot"></span>Ativo</span>
                 <?php endif; ?>
             </div>
@@ -347,7 +347,7 @@ body { background: var(--surface); color: var(--text-primary); }
             <?php foreach ($allLevels as $level): ?>
                 <?php $count = $disciplineCounts[$level['id']] ?? 0; ?>
                 <a href="<?= site_url('admin/grade-curriculum/' . $level['id']) ?>" 
-                   class="level-nav-item <?= ($level['id'] == $gradeLevel->id) ? 'active-level' : '' ?>">
+                   class="level-nav-item <?= ($level['id'] == $gradeLevel['id']) ? 'active-level' : '' ?>">
                     <span style="display:flex;align-items:center;gap:0.5rem;">
                         <i class="fas fa-layer-group"></i> <?= $level['level_name'] ?>
                     </span>
@@ -362,7 +362,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <div class="level-card">
             <div class="level-card-header">
                 <div class="level-card-title">
-                    <i class="fas fa-layer-group"></i> Disciplinas - <?= $gradeLevel->level_name ?>
+                    <i class="fas fa-layer-group"></i> Disciplinas - <?= $gradeLevel['level_name'] ?>
                 </div>
                 <button type="button" class="btn-add-discipline"
                         data-bs-toggle="modal" data-bs-target="#addDisciplineModal">
@@ -385,7 +385,7 @@ body { background: var(--surface); color: var(--text-primary); }
                         </thead>
                         <tbody>
                             <?php foreach ($disciplines as $discipline):
-                                $workload = $discipline->workload_hours ?? $discipline->default_workload ?? 0;
+                                $workload = $discipline['workload_hours'] ?? $discipline['default_workload'] ?? 0;
                                 $sem = $discipline->semester ?? 'Anual';
                                 $semClass = match($sem) {
                                     '1º Semestre' => 'sem-1',
@@ -398,13 +398,13 @@ body { background: var(--surface); color: var(--text-primary); }
                                 <td><span class="disc-name"><?= $discipline['discipline_name'] ?></span></td>
                                 <td class="text-center">
                                     <span class="workload-chip"><?= $workload ?>h</span>
-                                    <?php if ($discipline->workload_hours && $discipline->workload_hours != $discipline->default_workload): ?>
-                                        <div class="workload-default">Padrão: <?= $discipline->default_workload ?>h</div>
+                                    <?php if ($discipline['workload_hours'] && $discipline['workload_hours'] != $discipline['default_workload']): ?>
+                                        <div class="workload-default">Padrão: <?= $discipline['default_workload'] ?>h</div>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center"><span class="sem-badge <?= $semClass ?>"><?= $sem ?></span></td>
                                 <td class="text-center">
-                                    <?php if ($discipline->is_mandatory): ?>
+                                    <?php if ($discipline['is_mandatory']): ?>
                                         <span class="mand-yes"><i class="fas fa-check"></i> Sim</span>
                                     <?php else: ?>
                                         <span class="mand-no"><i class="fas fa-minus"></i> Não</span>
@@ -451,7 +451,7 @@ body { background: var(--surface); color: var(--text-primary); }
         <div class="modal-content">
             <form action="<?= site_url('admin/grade-curriculum/add-discipline') ?>" method="post">
                 <?= csrf_field() ?>
-                <input type="hidden" name="grade_level_id" value="<?= $gradeLevel->id ?>">
+                <input type="hidden" name="grade_level_id" value="<?= $gradeLevel['id'] ?>">
 
                 <div class="modal-header primary-header">
                     <h5 class="modal-title">
@@ -487,11 +487,11 @@ body { background: var(--surface); color: var(--text-primary); }
                                 
                                 foreach ($allDisciplines as $d):
                                 ?>
-                                    <option value="<?= $d->id ?>"
-                                            data-code="<?= esc($d->discipline_code) ?>"
-                                            data-workload="<?= (int)($d->workload_hours ?? 0) ?>"
-                                            data-approval="<?= (int)($d->approval_grade ?? 10) ?>">
-                                        <?= esc($d->discipline_name) ?>
+                                    <option value="<?= $d['id'] ?>"
+                                            data-code="<?= esc($d['discipline_code']) ?>"
+                                            data-workload="<?= (int)($d['workload_hours'] ?? 0) ?>"
+                                            data-approval="<?= (int)($d['approval_grade'] ?? 10) ?>">
+                                        <?= esc($d['discipline_name']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

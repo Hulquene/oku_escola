@@ -426,11 +426,11 @@
                         <i class="fas fa-calendar-alt"></i> Pautas Trimestrais
                     </a>
                 </li>
-                <li>
+               <!--  <li>
                     <a href="<?= site_url('admin/mini-grade-sheet/disciplina') ?>" class="<?= uri_string() == 'admin/mini-grade-sheet/disciplina' ? 'active' : '' ?>">
                         <i class="fas fa-book-open"></i> Pautas por Disciplina
                     </a>
-                </li>
+                </li> -->
                 <?php endif; ?>
                 
                 <!-- Aprovações e Progressão -->

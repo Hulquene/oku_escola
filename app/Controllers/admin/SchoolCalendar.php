@@ -175,8 +175,8 @@ class SchoolCalendar extends BaseController
             $formattedEvents[] = [
                 'id' => 'semester_end_' . $semester['id'],
                 'title' => 'Fim: ' . $semester['semester_name'],
-                'start' => $semester->end_date,
-                'end' => $semester->end_date,
+                'start' => $semester['end_date'],
+                'end' => $semester['end_date'],
                 'allDay' => true,
                 'backgroundColor' => $color,
                 'borderColor' => $color,

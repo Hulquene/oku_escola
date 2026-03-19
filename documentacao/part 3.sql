@@ -157,32 +157,36 @@ INSERT INTO `tbl_users` (`id`, `username`, `email`, `password`, `first_name`, `l
 (164, 'aluno144', 'rita.andrade@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Rita', 'Andrade', '+244 923 456 244', 5, 'student', 1, NOW()),
 (165, 'aluno145', 'sandro.miguel@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sandro', 'Miguel', '+244 923 456 245', 5, 'student', 1, NOW());
 
+INSERT INTO `tbl_users` (`id`, `username`, `email`, `password`, `first_name`, `last_name`, `phone`, `role_id`, `user_type`, `is_active`, `created_at`) VALUES
+(166, 'aluno146', 'teofilo.costa@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Teófilo', 'Costa', '+244 923 456 246', 5, 'student', 1, NOW()),
+(167, 'aluno147', 'ursula.maria@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Úrsula', 'Maria', '+244 923 456 247', 5, 'student', 1, NOW()),
+(168, 'aluno148', 'valdemar.jose@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Valdemar', 'José', '+244 923 456 248', 5, 'student', 1, NOW()),
+(169, 'aluno149', 'wanderleya.santos@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Wanderleya', 'Santos', '+244 923 456 249', 5, 'student', 1, NOW()),
+(170, 'aluno150', 'xavier.nunes@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Xavier', 'Nunes', '+244 923 456 250', 5, 'student', 1, NOW()),
+(171, 'aluno151', 'yara.luiza@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Yara', 'Luíza', '+244 923 456 251', 5, 'student', 1, NOW()),
+(172, 'aluno152', 'zacarias.martins@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Zacarias', 'Martins', '+244 923 456 252', 5, 'student', 1, NOW()),
+(173, 'aluno153', 'alcides.paulo@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Álcides', 'Paulo', '+244 923 456 253', 5, 'student', 1, NOW()),
+(174, 'aluno154', 'bela.rodrigues@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bela', 'Rodrigues', '+244 923 456 254', 5, 'student', 1, NOW()),
+(175, 'aluno155', 'cassiano.fernandes@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Cassiano', 'Fernandes', '+244 923 456 255', 5, 'student', 1, NOW()),
+(176, 'aluno156', 'dulce.almeida@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Dulce', 'Almeida', '+244 923 456 256', 5, 'student', 1, NOW()),
+(177, 'aluno157', 'eurico.mendes@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Eurico', 'Mendes', '+244 923 456 257', 5, 'student', 1, NOW()),
+(178, 'aluno158', 'florinda.campos@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Florinda', 'Campos', '+244 923 456 258', 5, 'student', 1, NOW()),
+(179, 'aluno159', 'genivaldo.lopes@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Genivaldo', 'Lopes', '+244 923 456 259', 5, 'student', 1, NOW()),
+(180, 'aluno160', 'herminia.costa@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hermínia', 'Costa', '+244 923 456 260', 5, 'student', 1, NOW()),
+(181, 'aluno161', 'isaura.maria@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Isaura', 'Maria', '+244 923 456 261', 5, 'student', 1, NOW()),
+(182, 'aluno162', 'januario.mateus@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Januário', 'Mateus', '+244 923 456 262', 5, 'student', 1, NOW()),
+(183, 'aluno163', 'klesia.silva@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Klésia', 'Silva', '+244 923 456 263', 5, 'student', 1, NOW()),
+(184, 'aluno164', 'laurindo.joao@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Laurindo', 'João', '+244 923 456 264', 5, 'student', 1, NOW()),
+(185, 'aluno165', 'marilza.domingos@aluno.ao', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Marilza', 'Domingos', '+244 923 456 265', 5, 'student', 1, NOW());
+
 
 -- ========================================================
 -- COMPLETAR DADOS DOS ESTUDANTES (IDs 71-120)
 -- ========================================================
 
+
+
 INSERT INTO `tbl_students` (`user_id`, `student_number`, `birth_date`, `gender`, `nationality`, `identity_document`, `address`, `city`, `province`, `phone`, `is_active`) VALUES
-(1, 'AL2023001', '2010-05-10', 'Masculino', 'Angolana', '012345678LA001', 'Rua 1, 123', 'Luanda', 'Luanda', '+244 923 456 001', 1),
-(2, 'AL2023002', '2010-08-15', 'Feminino', 'Angolana', '012345678LA002', 'Rua 2, 456', 'Luanda', 'Luanda', '+244 923 456 002', 1),
-(3, 'AL2023003', '2009-03-22', 'Masculino', 'Angolana', '012345678LA003', 'Rua 3, 789', 'Luanda', 'Luanda', '+244 923 456 003', 1),
-(4, 'AL2023004', '2009-11-30', 'Feminino', 'Angolana', '012345678LA004', 'Rua 4, 321', 'Luanda', 'Luanda', '+244 923 456 004', 1),
-(5, 'AL2023005', '2008-07-18', 'Masculino', 'Angolana', '012345678LA005', 'Rua 5, 654', 'Luanda', 'Luanda', '+244 923 456 005', 1),
-(6, 'AL2023006', '2008-09-25', 'Feminino', 'Angolana', '012345678LA006', 'Rua 6, 987', 'Luanda', 'Luanda', '+244 923 456 006', 1),
-(7, 'AL2023007', '2007-02-14', 'Masculino', 'Angolana', '012345678LA007', 'Rua 7, 147', 'Luanda', 'Luanda', '+244 923 456 007', 1),
-(8, 'AL2023008', '2007-12-03', 'Feminino', 'Angolana', '012345678LA008', 'Rua 8, 258', 'Luanda', 'Luanda', '+244 923 456 008', 1),
-(9, 'AL2023009', '2006-06-21', 'Masculino', 'Angolana', '012345678LA009', 'Rua 9, 369', 'Luanda', 'Luanda', '+244 923 456 009', 1),
-(10, 'AL2023010', '2006-10-08', 'Feminino', 'Angolana', '012345678LA010', 'Rua 10, 741', 'Luanda', 'Luanda', '+244 923 456 010', 1),
-(11, 'AL2023011', '2005-04-17', 'Masculino', 'Angolana', '012345678LA011', 'Rua 11, 852', 'Luanda', 'Luanda', '+244 923 456 011', 1),
-(12, 'AL2023012', '2005-08-29', 'Feminino', 'Angolana', '012345678LA012', 'Rua 12, 963', 'Luanda', 'Luanda', '+244 923 456 012', 1),
-(13, 'AL2023013', '2004-01-12', 'Masculino', 'Angolana', '012345678LA013', 'Rua 13, 159', 'Luanda', 'Luanda', '+244 923 456 013', 1),
-(14, 'AL2023014', '2004-05-27', 'Feminino', 'Angolana', '012345678LA014', 'Rua 14, 753', 'Luanda', 'Luanda', '+244 923 456 014', 1),
-(15, 'AL2023015', '2003-09-09', 'Masculino', 'Angolana', '012345678LA015', 'Rua 15, 951', 'Luanda', 'Luanda', '+244 923 456 015', 1),
-(16, 'AL2023016', '2003-11-19', 'Feminino', 'Angolana', '012345678LA016', 'Rua 16, 357', 'Luanda', 'Luanda', '+244 923 456 016', 1),
-(17, 'AL2023017', '2002-03-03', 'Masculino', 'Angolana', '012345678LA017', 'Rua 17, 159', 'Luanda', 'Luanda', '+244 923 456 017', 1),
-(18, 'AL2023018', '2002-07-22', 'Feminino', 'Angolana', '012345678LA018', 'Rua 18, 753', 'Luanda', 'Luanda', '+244 923 456 018', 1),
-(19, 'AL2023019', '2001-12-11', 'Masculino', 'Angolana', '012345678LA019', 'Rua 19, 951', 'Luanda', 'Luanda', '+244 923 456 019', 1),
-(20, 'AL2023020', '2001-04-30', 'Feminino', 'Angolana', '012345678LA020', 'Rua 20, 357', 'Luanda', 'Luanda', '+244 923 456 020', 1),
 (21, 'AL2024001', '2016-05-10', 'Masculino', 'Angolana', '012345678LA001', 'Rua A, 123', 'Luanda', 'Luanda', '+244 923 456 101', 1),
 (22, 'AL2024002', '2016-08-15', 'Feminino', 'Angolana', '012345678LA002', 'Rua B, 456', 'Luanda', 'Luanda', '+244 923 456 102', 1),
 (23, 'AL2024003', '2015-03-22', 'Masculino', 'Angolana', '012345678LA003', 'Rua C, 789', 'Luanda', 'Luanda', '+244 923 456 103', 1),
@@ -334,277 +338,27 @@ INSERT INTO `tbl_students` (`user_id`, `student_number`, `birth_date`, `gender`,
 (164, 'AL2024144', '2006-01-09', 'Feminino', 'Angolana', '012345678LA144', 'Rua 118, 357', 'Luanda', 'Luanda', '+244 923 456 244', 1),
 (165, 'AL2024145', '2004-08-03', 'Masculino', 'Angolana', '012345678LA145', 'Rua 119, 159', 'Luanda', 'Luanda', '+244 923 456 245', 1);
 
--- ========================================================
--- 7. MATRÍCULAS - CORRIGIDO (usando IDs da tbl_students)
--- ========================================================
-
--- Primeiro, vamos verificar se os estudantes foram criados corretamente
--- Os IDs na tbl_students devem ser os mesmos dos user_id (21-120)
-
--- Turmas de Iniciação (class_id 1-6)
--- INI-01A (class_id 1) - já tem alunos com student_id 1-5
--- INI-01B (class_id 2) - student_id 6-10
-INSERT INTO `tbl_enrollments` (`student_id`, `class_id`, `academic_year_id`, `enrollment_date`, `enrollment_number`, `enrollment_type`, `grade_level_id`, `status`, `created_at`) VALUES
--- Turma INI-01A (class_id 1) - Alunos com student_id 1-5
-(1, 1, 1, '2024-02-01', 'MAT20240001', 'Nova', 1, 'Ativo', NOW()),
-(2, 1, 1, '2024-02-01', 'MAT20240002', 'Nova', 1, 'Ativo', NOW()),
-(3, 1, 1, '2024-02-01', 'MAT20240003', 'Nova', 1, 'Ativo', NOW()),
-(4, 1, 1, '2024-02-01', 'MAT20240004', 'Nova', 1, 'Ativo', NOW()),
-(5, 1, 1, '2024-02-01', 'MAT20240005', 'Nova', 1, 'Ativo', NOW()),
-
--- INI-01B (class_id 2) - student_id 6-10
-(6, 2, 1, '2024-02-01', 'MAT20240051', 'Nova', 1, 'Ativo', NOW()),
-(7, 2, 1, '2024-02-01', 'MAT20240052', 'Nova', 1, 'Ativo', NOW()),
-(8, 2, 1, '2024-02-01', 'MAT20240053', 'Nova', 1, 'Ativo', NOW()),
-(9, 2, 1, '2024-02-01', 'MAT20240054', 'Nova', 1, 'Ativo', NOW()),
-(10, 2, 1, '2024-02-01', 'MAT20240055', 'Nova', 1, 'Ativo', NOW()),
-
--- INI-02A (class_id 3) - student_id 11-15
-(11, 3, 1, '2024-02-01', 'MAT20240056', 'Nova', 2, 'Ativo', NOW()),
-(12, 3, 1, '2024-02-01', 'MAT20240057', 'Nova', 2, 'Ativo', NOW()),
-(13, 3, 1, '2024-02-01', 'MAT20240058', 'Nova', 2, 'Ativo', NOW()),
-(14, 3, 1, '2024-02-01', 'MAT20240059', 'Nova', 2, 'Ativo', NOW()),
-(15, 3, 1, '2024-02-01', 'MAT20240060', 'Nova', 2, 'Ativo', NOW()),
-
--- INI-02B (class_id 4) - student_id 16-20
-(16, 4, 1, '2024-02-01', 'MAT20240061', 'Nova', 2, 'Ativo', NOW()),
-(17, 4, 1, '2024-02-01', 'MAT20240062', 'Nova', 2, 'Ativo', NOW()),
-(18, 4, 1, '2024-02-01', 'MAT20240063', 'Nova', 2, 'Ativo', NOW()),
-(19, 4, 1, '2024-02-01', 'MAT20240064', 'Nova', 2, 'Ativo', NOW()),
-(20, 4, 1, '2024-02-01', 'MAT20240065', 'Nova', 2, 'Ativo', NOW()),
-
--- INI-03A (class_id 5) - student_id 21-25
-(21, 5, 1, '2024-02-01', 'MAT20240066', 'Nova', 3, 'Ativo', NOW()),
-(22, 5, 1, '2024-02-01', 'MAT20240067', 'Nova', 3, 'Ativo', NOW()),
-(23, 5, 1, '2024-02-01', 'MAT20240068', 'Nova', 3, 'Ativo', NOW()),
-(24, 5, 1, '2024-02-01', 'MAT20240069', 'Nova', 3, 'Ativo', NOW()),
-(25, 5, 1, '2024-02-01', 'MAT20240070', 'Nova', 3, 'Ativo', NOW()),
-
--- INI-03B (class_id 6) - student_id 26-30
-(26, 6, 1, '2024-02-01', 'MAT20240071', 'Nova', 3, 'Ativo', NOW()),
-(27, 6, 1, '2024-02-01', 'MAT20240072', 'Nova', 3, 'Ativo', NOW()),
-(28, 6, 1, '2024-02-01', 'MAT20240073', 'Nova', 3, 'Ativo', NOW()),
-(29, 6, 1, '2024-02-01', 'MAT20240074', 'Nova', 3, 'Ativo', NOW()),
-(30, 6, 1, '2024-02-01', 'MAT20240075', 'Nova', 3, 'Ativo', NOW()),
-
--- Turmas do Ensino Primário (class_id 7-18)
--- 1ª Classe A (class_id 7) - já tem alunos student_id 6-10
--- 1ª Classe B (class_id 8) - student_id 31-35
-(31, 8, 1, '2024-02-01', 'MAT20240076', 'Nova', 4, 'Ativo', NOW()),
-(32, 8, 1, '2024-02-01', 'MAT20240077', 'Nova', 4, 'Ativo', NOW()),
-(33, 8, 1, '2024-02-01', 'MAT20240078', 'Nova', 4, 'Ativo', NOW()),
-(34, 8, 1, '2024-02-01', 'MAT20240079', 'Nova', 4, 'Ativo', NOW()),
-(35, 8, 1, '2024-02-01', 'MAT20240080', 'Nova', 4, 'Ativo', NOW()),
-
--- 2ª Classe A (class_id 9) - já tem alunos student_id 11-15
--- 2ª Classe B (class_id 10) - student_id 36-40
-(36, 10, 1, '2024-02-01', 'MAT20240081', 'Nova', 5, 'Ativo', NOW()),
-(37, 10, 1, '2024-02-01', 'MAT20240082', 'Nova', 5, 'Ativo', NOW()),
-(38, 10, 1, '2024-02-01', 'MAT20240083', 'Nova', 5, 'Ativo', NOW()),
-(39, 10, 1, '2024-02-01', 'MAT20240084', 'Nova', 5, 'Ativo', NOW()),
-(40, 10, 1, '2024-02-01', 'MAT20240085', 'Nova', 5, 'Ativo', NOW()),
-
--- 3ª Classe A (class_id 11) - já tem alunos student_id 16-20
--- 3ª Classe B (class_id 12) - student_id 41-45
-(41, 12, 1, '2024-02-01', 'MAT20240086', 'Nova', 6, 'Ativo', NOW()),
-(42, 12, 1, '2024-02-01', 'MAT20240087', 'Nova', 6, 'Ativo', NOW()),
-(43, 12, 1, '2024-02-01', 'MAT20240088', 'Nova', 6, 'Ativo', NOW()),
-(44, 12, 1, '2024-02-01', 'MAT20240089', 'Nova', 6, 'Ativo', NOW()),
-(45, 12, 1, '2024-02-01', 'MAT20240090', 'Nova', 6, 'Ativo', NOW()),
-
--- 4ª Classe A (class_id 13) - student_id 46-50
-(46, 13, 1, '2024-02-01', 'MAT20240091', 'Nova', 7, 'Ativo', NOW()),
-(47, 13, 1, '2024-02-01', 'MAT20240092', 'Nova', 7, 'Ativo', NOW()),
-(48, 13, 1, '2024-02-01', 'MAT20240093', 'Nova', 7, 'Ativo', NOW()),
-(49, 13, 1, '2024-02-01', 'MAT20240094', 'Nova', 7, 'Ativo', NOW()),
-(50, 13, 1, '2024-02-01', 'MAT20240095', 'Nova', 7, 'Ativo', NOW()),
-
--- 4ª Classe B (class_id 14) - student_id 51-55
-(51, 14, 1, '2024-02-01', 'MAT20240096', 'Nova', 7, 'Ativo', NOW()),
-(52, 14, 1, '2024-02-01', 'MAT20240097', 'Nova', 7, 'Ativo', NOW()),
-(53, 14, 1, '2024-02-01', 'MAT20240098', 'Nova', 7, 'Ativo', NOW()),
-(54, 14, 1, '2024-02-01', 'MAT20240099', 'Nova', 7, 'Ativo', NOW()),
-(55, 14, 1, '2024-02-01', 'MAT20240100', 'Nova', 7, 'Ativo', NOW()),
-
--- 5ª Classe A (class_id 15) - student_id 56-60
-(56, 15, 1, '2024-02-01', 'MAT20240101', 'Nova', 8, 'Ativo', NOW()),
-(57, 15, 1, '2024-02-01', 'MAT20240102', 'Nova', 8, 'Ativo', NOW()),
-(58, 15, 1, '2024-02-01', 'MAT20240103', 'Nova', 8, 'Ativo', NOW()),
-(59, 15, 1, '2024-02-01', 'MAT20240104', 'Nova', 8, 'Ativo', NOW()),
-(60, 15, 1, '2024-02-01', 'MAT20240105', 'Nova', 8, 'Ativo', NOW()),
-
--- 5ª Classe B (class_id 16) - student_id 61-65
-(61, 16, 1, '2024-02-01', 'MAT20240106', 'Nova', 8, 'Ativo', NOW()),
-(62, 16, 1, '2024-02-01', 'MAT20240107', 'Nova', 8, 'Ativo', NOW()),
-(63, 16, 1, '2024-02-01', 'MAT20240108', 'Nova', 8, 'Ativo', NOW()),
-(64, 16, 1, '2024-02-01', 'MAT20240109', 'Nova', 8, 'Ativo', NOW()),
-(65, 16, 1, '2024-02-01', 'MAT20240110', 'Nova', 8, 'Ativo', NOW()),
-
--- 6ª Classe A (class_id 17) - student_id 66-70
-(66, 17, 1, '2024-02-01', 'MAT20240111', 'Nova', 9, 'Ativo', NOW()),
-(67, 17, 1, '2024-02-01', 'MAT20240112', 'Nova', 9, 'Ativo', NOW()),
-(68, 17, 1, '2024-02-01', 'MAT20240113', 'Nova', 9, 'Ativo', NOW()),
-(69, 17, 1, '2024-02-01', 'MAT20240114', 'Nova', 9, 'Ativo', NOW()),
-(70, 17, 1, '2024-02-01', 'MAT20240115', 'Nova', 9, 'Ativo', NOW()),
-
--- 6ª Classe B (class_id 18) - student_id 71-75
-(71, 18, 1, '2024-02-01', 'MAT20240116', 'Nova', 9, 'Ativo', NOW()),
-(72, 18, 1, '2024-02-01', 'MAT20240117', 'Nova', 9, 'Ativo', NOW()),
-(73, 18, 1, '2024-02-01', 'MAT20240118', 'Nova', 9, 'Ativo', NOW()),
-(74, 18, 1, '2024-02-01', 'MAT20240119', 'Nova', 9, 'Ativo', NOW()),
-(75, 18, 1, '2024-02-01', 'MAT20240120', 'Nova', 9, 'Ativo', NOW()),
-
--- Turmas do I Ciclo (class_id 19-24)
--- 7ª Classe A (class_id 19) - já tem alunos student_id 21-25
--- 7ª Classe B (class_id 20) - student_id 76-80
-(76, 20, 1, '2024-02-01', 'MAT20240121', 'Nova', 10, 'Ativo', NOW()),
-(77, 20, 1, '2024-02-01', 'MAT20240122', 'Nova', 10, 'Ativo', NOW()),
-(78, 20, 1, '2024-02-01', 'MAT20240123', 'Nova', 10, 'Ativo', NOW()),
-(79, 20, 1, '2024-02-01', 'MAT20240124', 'Nova', 10, 'Ativo', NOW()),
-(80, 20, 1, '2024-02-01', 'MAT20240125', 'Nova', 10, 'Ativo', NOW()),
-
--- 8ª Classe A (class_id 21) - student_id 81-85
-(81, 21, 1, '2024-02-01', 'MAT20240126', 'Nova', 11, 'Ativo', NOW()),
-(82, 21, 1, '2024-02-01', 'MAT20240127', 'Nova', 11, 'Ativo', NOW()),
-(83, 21, 1, '2024-02-01', 'MAT20240128', 'Nova', 11, 'Ativo', NOW()),
-(84, 21, 1, '2024-02-01', 'MAT20240129', 'Nova', 11, 'Ativo', NOW()),
-(85, 21, 1, '2024-02-01', 'MAT20240130', 'Nova', 11, 'Ativo', NOW()),
-
--- 8ª Classe B (class_id 22) - student_id 86-90
-(86, 22, 1, '2024-02-01', 'MAT20240131', 'Nova', 11, 'Ativo', NOW()),
-(87, 22, 1, '2024-02-01', 'MAT20240132', 'Nova', 11, 'Ativo', NOW()),
-(88, 22, 1, '2024-02-01', 'MAT20240133', 'Nova', 11, 'Ativo', NOW()),
-(89, 22, 1, '2024-02-01', 'MAT20240134', 'Nova', 11, 'Ativo', NOW()),
-(90, 22, 1, '2024-02-01', 'MAT20240135', 'Nova', 11, 'Ativo', NOW()),
-
--- 9ª Classe A (class_id 23) - já tem alunos student_id 26-30
--- 9ª Classe B (class_id 24) - student_id 91-95
-(91, 24, 1, '2024-02-01', 'MAT20240136', 'Nova', 12, 'Ativo', NOW()),
-(92, 24, 1, '2024-02-01', 'MAT20240137', 'Nova', 12, 'Ativo', NOW()),
-(93, 24, 1, '2024-02-01', 'MAT20240138', 'Nova', 12, 'Ativo', NOW()),
-(94, 24, 1, '2024-02-01', 'MAT20240139', 'Nova', 12, 'Ativo', NOW()),
-(95, 24, 1, '2024-02-01', 'MAT20240140', 'Nova', 12, 'Ativo', NOW()),
-
--- Turmas do II Ciclo (class_id 25-36)
--- 10ª CFB A (class_id 25) - já tem alunos student_id 31-35
--- 10ª CFB B (class_id 26) - student_id 96-100
-(96, 26, 1, '2024-02-01', 'MAT20240141', 'Nova', 13, 'Ativo', NOW()),
-(97, 26, 1, '2024-02-01', 'MAT20240142', 'Nova', 13, 'Ativo', NOW()),
-(98, 26, 1, '2024-02-01', 'MAT20240143', 'Nova', 13, 'Ativo', NOW()),
-(99, 26, 1, '2024-02-01', 'MAT20240144', 'Nova', 13, 'Ativo', NOW()),
-(100, 26, 1, '2024-02-01', 'MAT20240145', 'Nova', 13, 'Ativo', NOW()),
-
--- 10ª CEJ A (class_id 27) - já tem alunos student_id 36-40
--- 10ª CEJ B (class_id 28) - student_id 101-105
-(101, 28, 1, '2024-02-01', 'MAT20240146', 'Nova', 13, 'Ativo', NOW()),
-(102, 28, 1, '2024-02-01', 'MAT20240147', 'Nova', 13, 'Ativo', NOW()),
-(103, 28, 1, '2024-02-01', 'MAT20240148', 'Nova', 13, 'Ativo', NOW()),
-(104, 28, 1, '2024-02-01', 'MAT20240149', 'Nova', 13, 'Ativo', NOW()),
-(105, 28, 1, '2024-02-01', 'MAT20240150', 'Nova', 13, 'Ativo', NOW()),
-
--- 10ª CH A (class_id 29) - student_id 106-110
-(106, 29, 1, '2024-02-01', 'MAT20240151', 'Nova', 13, 'Ativo', NOW()),
-(107, 29, 1, '2024-02-01', 'MAT20240152', 'Nova', 13, 'Ativo', NOW()),
-(108, 29, 1, '2024-02-01', 'MAT20240153', 'Nova', 13, 'Ativo', NOW()),
-(109, 29, 1, '2024-02-01', 'MAT20240154', 'Nova', 13, 'Ativo', NOW()),
-(110, 29, 1, '2024-02-01', 'MAT20240155', 'Nova', 13, 'Ativo', NOW()),
-
--- 10ª CH B (class_id 30) - student_id 111-115
-(111, 30, 1, '2024-02-01', 'MAT20240156', 'Nova', 13, 'Ativo', NOW()),
-(112, 30, 1, '2024-02-01', 'MAT20240157', 'Nova', 13, 'Ativo', NOW()),
-(113, 30, 1, '2024-02-01', 'MAT20240158', 'Nova', 13, 'Ativo', NOW()),
-(114, 30, 1, '2024-02-01', 'MAT20240159', 'Nova', 13, 'Ativo', NOW()),
-(115, 30, 1, '2024-02-01', 'MAT20240160', 'Nova', 13, 'Ativo', NOW()),
-
--- 11ª CFB A (class_id 31) - student_id 116-120
-(116, 31, 1, '2024-02-01', 'MAT20240161', 'Nova', 14, 'Ativo', NOW()),
-(117, 31, 1, '2024-02-01', 'MAT20240162', 'Nova', 14, 'Ativo', NOW()),
-(118, 31, 1, '2024-02-01', 'MAT20240163', 'Nova', 14, 'Ativo', NOW()),
-(119, 31, 1, '2024-02-01', 'MAT20240164', 'Nova', 14, 'Ativo', NOW()),
-(120, 31, 1, '2024-02-01', 'MAT20240165', 'Nova', 14, 'Ativo', NOW()),
-
--- 11ª CFB B (class_id 32) - student_id 121-125
-(121, 32, 1, '2024-02-01', 'MAT20240211', 'Nova', 14, 'Ativo', NOW()),
-(122, 32, 1, '2024-02-01', 'MAT20240212', 'Nova', 14, 'Ativo', NOW()),
-(123, 32, 1, '2024-02-01', 'MAT20240213', 'Nova', 14, 'Ativo', NOW()),
-(124, 32, 1, '2024-02-01', 'MAT20240214', 'Nova', 14, 'Ativo', NOW()),
-(125, 32, 1, '2024-02-01', 'MAT20240215', 'Nova', 14, 'Ativo', NOW()),
-
--- 11ª CEJ A (class_id 33) - student_id 126-130
-(126, 33, 1, '2024-02-01', 'MAT20240216', 'Nova', 14, 'Ativo', NOW()),
-(127, 33, 1, '2024-02-01', 'MAT20240217', 'Nova', 14, 'Ativo', NOW()),
-(128, 33, 1, '2024-02-01', 'MAT20240218', 'Nova', 14, 'Ativo', NOW()),
-(129, 33, 1, '2024-02-01', 'MAT20240219', 'Nova', 14, 'Ativo', NOW()),
-(130, 33, 1, '2024-02-01', 'MAT20240220', 'Nova', 14, 'Ativo', NOW()),
-
--- 11ª CEJ B (class_id 34) - student_id 131-135
-(131, 34, 1, '2024-02-01', 'MAT20240221', 'Nova', 14, 'Ativo', NOW()),
-(132, 34, 1, '2024-02-01', 'MAT20240222', 'Nova', 14, 'Ativo', NOW()),
-(133, 34, 1, '2024-02-01', 'MAT20240223', 'Nova', 14, 'Ativo', NOW()),
-(134, 34, 1, '2024-02-01', 'MAT20240224', 'Nova', 14, 'Ativo', NOW()),
-(135, 34, 1, '2024-02-01', 'MAT20240225', 'Nova', 14, 'Ativo', NOW()),
-
--- 11ª CH B (class_id 36) - student_id 136-140
-(136, 36, 1, '2024-02-01', 'MAT20240226', 'Nova', 14, 'Ativo', NOW()),
-(137, 36, 1, '2024-02-01', 'MAT20240227', 'Nova', 14, 'Ativo', NOW()),
-(138, 36, 1, '2024-02-01', 'MAT20240228', 'Nova', 14, 'Ativo', NOW()),
-(139, 36, 1, '2024-02-01', 'MAT20240229', 'Nova', 14, 'Ativo', NOW()),
-(140, 36, 1, '2024-02-01', 'MAT20240230', 'Nova', 14, 'Ativo', NOW()),
-
--- 12ª CFB B (class_id 38) - student_id 141-145
-(141, 38, 1, '2024-02-01', 'MAT20240231', 'Nova', 15, 'Ativo', NOW()),
-(142, 38, 1, '2024-02-01', 'MAT20240232', 'Nova', 15, 'Ativo', NOW()),
-(143, 38, 1, '2024-02-01', 'MAT20240233', 'Nova', 15, 'Ativo', NOW()),
-(144, 38, 1, '2024-02-01', 'MAT20240234', 'Nova', 15, 'Ativo', NOW()),
-(145, 38, 1, '2024-02-01', 'MAT20240235', 'Nova', 15, 'Ativo', NOW()),
-
--- 12ª CEJ A (class_id 39) - student_id 146-150
-(146, 39, 1, '2024-02-01', 'MAT20240236', 'Nova', 15, 'Ativo', NOW()),
-(147, 39, 1, '2024-02-01', 'MAT20240237', 'Nova', 15, 'Ativo', NOW()),
-(148, 39, 1, '2024-02-01', 'MAT20240238', 'Nova', 15, 'Ativo', NOW()),
-(149, 39, 1, '2024-02-01', 'MAT20240239', 'Nova', 15, 'Ativo', NOW()),
-(150, 39, 1, '2024-02-01', 'MAT20240240', 'Nova', 15, 'Ativo', NOW()),
-
--- 12ª CEJ B (class_id 40) - student_id 151-155
-(151, 40, 1, '2024-02-01', 'MAT20240241', 'Nova', 15, 'Ativo', NOW()),
-(152, 40, 1, '2024-02-01', 'MAT20240242', 'Nova', 15, 'Ativo', NOW()),
-(153, 40, 1, '2024-02-01', 'MAT20240243', 'Nova', 15, 'Ativo', NOW()),
-(154, 40, 1, '2024-02-01', 'MAT20240244', 'Nova', 15, 'Ativo', NOW()),
-(155, 40, 1, '2024-02-01', 'MAT20240245', 'Nova', 15, 'Ativo', NOW()),
-
--- 12ª CH A (class_id 41) - student_id 156-160
-(156, 41, 1, '2024-02-01', 'MAT20240246', 'Nova', 15, 'Ativo', NOW()),
-(157, 41, 1, '2024-02-01', 'MAT20240247', 'Nova', 15, 'Ativo', NOW()),
-(158, 41, 1, '2024-02-01', 'MAT20240248', 'Nova', 15, 'Ativo', NOW()),
-(159, 41, 1, '2024-02-01', 'MAT20240249', 'Nova', 15, 'Ativo', NOW()),
-(160, 41, 1, '2024-02-01', 'MAT20240250', 'Nova', 15, 'Ativo', NOW()),
-
--- 12ª CH B (class_id 42) - student_id 161-165
-(161, 42, 1, '2024-02-01', 'MAT20240251', 'Nova', 15, 'Ativo', NOW()),
-(162, 42, 1, '2024-02-01', 'MAT20240252', 'Nova', 15, 'Ativo', NOW()),
-(163, 42, 1, '2024-02-01', 'MAT20240253', 'Nova', 15, 'Ativo', NOW()),
-(164, 42, 1, '2024-02-01', 'MAT20240254', 'Nova', 15, 'Ativo', NOW()),
-(165, 42, 1, '2024-02-01', 'MAT20240255', 'Nova', 15, 'Ativo', NOW());
-
--- ========================================================
--- VERIFICAÇÃO DAS MATRÍCULAS
--- ========================================================
-
--- SELECT 
---     c.class_name,
---     COUNT(e.id) as total_alunos,
---     GROUP_CONCAT(s.student_number) as alunos
--- FROM tbl_enrollments e
--- JOIN tbl_classes c ON e.class_id = c.id
--- JOIN tbl_students s ON e.student_id = s.id
--- GROUP BY c.id
--- ORDER BY c.id;
-
--- SELECT 
---     COUNT(*) as total_matriculas,
---     COUNT(DISTINCT student_id) as total_alunos_matriculados,
---     COUNT(DISTINCT class_id) as total_turmas
--- FROM tbl_enrollments;
+INSERT INTO `tbl_students` (`user_id`, `student_number`, `birth_date`, `gender`, `nationality`, `identity_document`, `address`, `city`, `province`, `phone`, `is_active`) VALUES
+(166, 'AL2024166', '2005-11-30', 'Masculino', 'Angolana', '012345678LA166', 'Rua 120, 123', 'Luanda', 'Luanda', '+244 923 456 246', 1),
+(167, 'AL2024167', '2006-02-14', 'Feminino', 'Angolana', '012345678LA167', 'Rua 121, 456', 'Luanda', 'Luanda', '+244 923 456 247', 1),
+(168, 'AL2024168', '2004-07-22', 'Masculino', 'Angolana', '012345678LA168', 'Rua 122, 789', 'Luanda', 'Luanda', '+244 923 456 248', 1),
+(169, 'AL2024169', '2005-09-05', 'Feminino', 'Angolana', '012345678LA169', 'Rua 123, 321', 'Luanda', 'Luanda', '+244 923 456 249', 1),
+(170, 'AL2024170', '2006-04-18', 'Masculino', 'Angolana', '012345678LA170', 'Rua 124, 654', 'Luanda', 'Luanda', '+244 923 456 250', 1),
+(171, 'AL2024171', '2004-12-10', 'Feminino', 'Angolana', '012345678LA171', 'Rua 125, 987', 'Luanda', 'Luanda', '+244 923 456 251', 1),
+(172, 'AL2024172', '2005-03-27', 'Masculino', 'Angolana', '012345678LA172', 'Rua 126, 147', 'Luanda', 'Luanda', '+244 923 456 252', 1),
+(173, 'AL2024173', '2006-08-15', 'Masculino', 'Angolana', '012345678LA173', 'Rua 127, 258', 'Luanda', 'Luanda', '+244 923 456 253', 1),
+(174, 'AL2024174', '2004-10-30', 'Feminino', 'Angolana', '012345678LA174', 'Rua 128, 369', 'Luanda', 'Luanda', '+244 923 456 254', 1),
+(175, 'AL2024175', '2005-06-12', 'Masculino', 'Angolana', '012345678LA175', 'Rua 129, 741', 'Luanda', 'Luanda', '+244 923 456 255', 1),
+(176, 'AL2024176', '2006-01-25', 'Feminino', 'Angolana', '012345678LA176', 'Rua 130, 852', 'Luanda', 'Luanda', '+244 923 456 256', 1),
+(177, 'AL2024177', '2004-09-08', 'Masculino', 'Angolana', '012345678LA177', 'Rua 131, 963', 'Luanda', 'Luanda', '+244 923 456 257', 1),
+(178, 'AL2024178', '2005-11-19', 'Feminino', 'Angolana', '012345678LA178', 'Rua 132, 159', 'Luanda', 'Luanda', '+244 923 456 258', 1),
+(179, 'AL2024179', '2006-05-03', 'Masculino', 'Angolana', '012345678LA179', 'Rua 133, 753', 'Luanda', 'Luanda', '+244 923 456 259', 1),
+(180, 'AL2024180', '2004-07-16', 'Feminino', 'Angolana', '012345678LA180', 'Rua 134, 951', 'Luanda', 'Luanda', '+244 923 456 260', 1),
+(181, 'AL2024181', '2005-12-29', 'Feminino', 'Angolana', '012345678LA181', 'Rua 135, 357', 'Luanda', 'Luanda', '+244 923 456 261', 1),
+(182, 'AL2024182', '2006-02-07', 'Masculino', 'Angolana', '012345678LA182', 'Rua 136, 159', 'Luanda', 'Luanda', '+244 923 456 262', 1),
+(183, 'AL2024183', '2004-10-21', 'Feminino', 'Angolana', '012345678LA183', 'Rua 137, 753', 'Luanda', 'Luanda', '+244 923 456 263', 1),
+(184, 'AL2024184', '2005-08-14', 'Masculino', 'Angolana', '012345678LA184', 'Rua 138, 951', 'Luanda', 'Luanda', '+244 923 456 264', 1),
+(185, 'AL2024185', '2006-03-09', 'Feminino', 'Angolana', '012345678LA185', 'Rua 139, 357', 'Luanda', 'Luanda', '+244 923 456 265', 1);
 
 -- ========================================================
 -- FIM DO SCRIPT

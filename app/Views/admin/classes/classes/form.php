@@ -156,7 +156,7 @@
                                class="form-control" 
                                id="class_room" 
                                name="class_room" 
-                               value="<?= old('class_room', $class->class_room ?? '') ?>"
+                               value="<?= old('class_room', $class['class_room'] ?? '') ?>"
                                placeholder="Ex: Sala 101">
                     </div>
                 </div>
@@ -200,7 +200,7 @@
                                    id="is_active" 
                                    name="is_active" 
                                    value="1"
-                                   <?= (old('is_active', $class->is_active ?? true)) ? 'checked' : '' ?>>
+                                   <?= (old('is_active', $class['is_active'] ?? true)) ? 'checked' : '' ?>>
                             <label class="form-check-label" for="is_active">Turma Ativa</label>
                         </div>
                     </div>

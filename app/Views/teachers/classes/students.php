@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-md-2">
                         <small class="text-muted">Sala</small>
-                        <h5><?= $class->class_room ?: 'N/A' ?></h5>
+                        <h5><?= $class['class_room'] ?: 'N/A' ?></h5>
                     </div>
                     <div class="col-md-2">
                         <small class="text-muted">Total Alunos</small>

@@ -675,7 +675,7 @@ body { background: var(--surface); }
                 <i class="fas fa-clock"></i> <?= $class['class_shift'] ?>
             </span>
             <span class="meta-item">
-                <i class="fas fa-door-open"></i> Sala: <?= $class->class_room ?: 'Não definida' ?>
+                <i class="fas fa-door-open"></i> Sala: <?= $class['class_room'] ?: 'Não definida' ?>
             </span>
             <span class="meta-item">
                 <i class="fas fa-user-tie"></i> Diretor: <?= $class->teacher_name ?: 'Não atribuído' ?>

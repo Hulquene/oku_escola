@@ -131,8 +131,8 @@ class SemesterModel extends BaseModel
             return 0;
         }
         
-        $start = new \DateTime($semester->start_date);
-        $end = new \DateTime($semester->end_date);
+        $start = new \DateTime($semester['start_date']);
+        $end = new \DateTime($semester['end_date']);
         $interval = $start->diff($end);
         
         return $interval->days + 1;

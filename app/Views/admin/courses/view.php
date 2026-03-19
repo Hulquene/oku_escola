@@ -584,7 +584,7 @@ body { background: var(--surface); color: var(--text-primary); }
                 <?php $index = 0; foreach ($groupedCurriculum as $levelId => $group): ?>
                 <?php
                     $levelWorkload = 0;
-                    foreach ($group['disciplines'] as $d) $levelWorkload += ($d->workload_hours ?? $d->default_workload ?? 0);
+                    foreach ($group['disciplines'] as $d) $levelWorkload += ($d['workload_hours'] ?? $d->default_workload ?? 0);
                     $isOpen = ($index === 0);
                 ?>
                 <div class="ci-accordion-item">
@@ -619,7 +619,7 @@ body { background: var(--surface); color: var(--text-primary); }
                                         <td style="font-weight:500;font-size:.875rem;"><?= $discipline['discipline_name'] ?></td>
                                         <td class="text-center">
                                             <span class="workload-chip">
-                                                <?= $discipline->workload_hours ?: ($discipline->default_workload ?? 0) ?>h
+                                                <?= $discipline['workload_hours'] ?: ($discipline['default_workload'] ?? 0) ?>h
                                             </span>
                                         </td>
                                         <td class="text-center">
@@ -631,7 +631,7 @@ body { background: var(--surface); color: var(--text-primary); }
                                             <span class="sem-badge <?= $semCls ?>"><?= $semLbl ?></span>
                                         </td>
                                         <td class="text-center">
-                                            <?php if ($discipline->is_mandatory): ?>
+                                            <?php if ($discipline['is_mandatory']): ?>
                                                 <i class="fas fa-check-circle mand-yes" title="Obrigatória"></i>
                                             <?php else: ?>
                                                 <i class="fas fa-minus-circle mand-no" title="Opcional"></i>

@@ -799,7 +799,7 @@ public function saveTeachers()
         
         // Filtrar apenas disciplinas não atribuídas
         $available = array_filter($disciplines, function($d) use ($assignedIds) {
-            return !in_array($d->id, $assignedIds);
+            return !in_array($d['id'], $assignedIds);
         });
         
         return $this->response->setJSON(array_values($available));

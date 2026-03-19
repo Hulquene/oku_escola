@@ -84,7 +84,7 @@
             <p class="mb-0">
                 <strong>Professor:</strong> <?= $class['teacher_first_name'] ?? 'Não atribuído' ?> <?= $class['teacher_last_name'] ?? '' ?> |
                 <strong>Turno:</strong> <?= $class['class_shift'] ?> |
-                <strong>Sala:</strong> <?= $class->class_room ?: 'Não definida' ?>
+                <strong>Sala:</strong> <?= $class['class_room'] ?: 'Não definida' ?>
             </p>
         </div>
     </div>

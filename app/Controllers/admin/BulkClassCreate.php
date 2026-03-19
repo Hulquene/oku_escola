@@ -127,7 +127,7 @@ class BulkClassCreate extends BaseController
                 
                 // Determinar curso (se for Ensino Médio)
                 $courseId = null;
-                if ($gradeLevel->education_level == 'Ensino Médio' && isset($courseIds[$gradeLevelId])) {
+                if ($gradeLevel['education_level'] == 'Ensino Médio' && isset($courseIds[$gradeLevelId])) {
                     $courseId = $courseIds[$gradeLevelId];
                 }
                 
@@ -166,7 +166,7 @@ class BulkClassCreate extends BaseController
                     $createdClasses[] = [
                         'id' => $classId,
                         'name' => $className,
-                        'level' => $gradeLevel->level_name
+                        'level' => $gradeLevel['level_name']
                     ];
                     
                     // Sugerir disciplinas automaticamente
@@ -223,7 +223,7 @@ class BulkClassCreate extends BaseController
         };
         
         // Formato: [CódigoNível]-[Número][Turno]-[Ano]
-        return $gradeLevel->level_code . '-' . $number . $shiftCode . '-' . $yearSuffix;
+        return $gradeLevel['level_code'] . '-' . $number . $shiftCode . '-' . $yearSuffix;
     }
     
     /**
@@ -259,7 +259,7 @@ class BulkClassCreate extends BaseController
                     $this->classDisciplineModel->save([
                         'class_id' => $classId,
                         'discipline_id' => $d->discipline_id,
-                        'workload_hours' => $d->workload_hours,
+                        'workload_hours' => $d['workload_hours'],
                         'period_type' => $periodType,
                         'is_active' => 1,
                         'created_at' => date('Y-m-d H:i:s')
@@ -284,7 +284,7 @@ class BulkClassCreate extends BaseController
                     $this->classDisciplineModel->save([
                         'class_id' => $classId,
                         'discipline_id' => $d->discipline_id,
-                        'workload_hours' => $d->workload_hours,
+                        'workload_hours' => $d['workload_hours'],
                         'period_type' => $d->semester,
                         'is_active' => 1,
                         'created_at' => date('Y-m-d H:i:s')

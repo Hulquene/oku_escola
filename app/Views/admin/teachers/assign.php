@@ -212,10 +212,10 @@
                                                                title="<?= $isAssigned && !$isActive ? 'Esta disciplina já foi atribuída anteriormente mas está inativa' : '' ?>">
                                                             <?= $discipline['discipline_name'] ?>
                                                             <small class="text-muted">(<?= $discipline['discipline_code'] ?>)</small>
-                                                            <?php if ($discipline->workload_hours): ?>
+                                                            <?php if ($discipline['workload_hours']): ?>
                                                                 <br>
                                                                 <small class="text-info">
-                                                                    <i class="fas fa-clock"></i> <?= $discipline->workload_hours ?>h
+                                                                    <i class="fas fa-clock"></i> <?= $discipline['workload_hours'] ?>h
                                                                 </small>
                                                             <?php endif; ?>
                                                             <?php if ($isAssigned && !$isActive): ?>
@@ -232,7 +232,7 @@
                                             <small class="text-muted">
                                                 <i class="fas fa-calendar me-1"></i> Ano Letivo: <strong><?= $class['year_name'] ?? $currentYear->year_name ?? 'N/A' ?></strong> |
                                                 <i class="fas fa-users ms-2 me-1"></i> Capacidade: <?= $class['capacity']  ?> alunos |
-                                                <i class="fas fa-door-open ms-2 me-1"></i> Sala: <?= $class->class_room ?: 'Não definida' ?>
+                                                <i class="fas fa-door-open ms-2 me-1"></i> Sala: <?= $class['class_room'] ?: 'Não definida' ?>
                                             </small>
                                         </div>
                                     <?php else: ?>

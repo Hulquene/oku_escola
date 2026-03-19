@@ -2,155 +2,302 @@
 
 <?= $this->section('content') ?>
 
+<style>
+/* Estilos adicionais específicos da página */
+.table tbody td {
+    vertical-align: middle;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.table thead th {
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+    white-space: nowrap;
+    border-bottom: 1.5px solid var(--border);
+}
+
+.table tbody tr:hover {
+    background: #F5F8FF;
+}
+
+/* Badges de notas */
+.grade-badge {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    display: inline-block;
+    text-align: center;
+    min-width: 60px;
+}
+
+.grade-badge.success {
+    background: rgba(22,168,125,0.15);
+    color: var(--success);
+    border: 1px solid rgba(22,168,125,0.3);
+}
+
+.grade-badge.warning {
+    background: rgba(232,160,32,0.15);
+    color: var(--warning);
+    border: 1px solid rgba(232,160,32,0.3);
+}
+
+.grade-badge.danger {
+    background: rgba(232,70,70,0.15);
+    color: var(--danger);
+    border: 1px solid rgba(232,70,70,0.3);
+}
+
+.grade-badge.secondary {
+    background: rgba(107,122,153,0.15);
+    color: var(--text-secondary);
+    border: 1px solid rgba(107,122,153,0.3);
+}
+
+/* Progress bar container */
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.progress-bar-custom {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-fill.success { background: var(--success); }
+.progress-fill.warning { background: var(--warning); }
+.progress-fill.danger { background: var(--danger); }
+.progress-fill.info { background: var(--accent); }
+
+/* Student row hover effect */
+.student-row {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.student-row:hover {
+    background: #F0F4FF !important;
+    transform: translateX(4px);
+    box-shadow: -2px 0 0 var(--accent);
+}
+
+/* Average cell */
+.average-cell {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Discipline code chip */
+.discipline-chip {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(59,127,232,0.1);
+    color: var(--accent);
+    border-radius: 16px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(59,127,232,0.2);
+}
+
+/* Empty state */
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--text-muted);
+    opacity: 0.3;
+    margin-bottom: 1rem;
+}
+
+.empty-state h5 {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+</style>
+
 <!-- Page Header -->
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
+<div class="ci-page-header mb-4">
+    <div class="ci-page-header-inner">
         <div>
-            <h1 class="mb-2">Médias da Turma</h1>
-            <p class="text-muted mb-0">
-                <i class="fas fa-users me-1"></i>
-                <?= $class['class_name'] ?> • <?= $class['level_name'] ?> • <?= $class['year_name'] ?>
-            </p>
+            <h1>
+                <i class="fas fa-chart-line me-2" style="opacity:.85"></i>
+                Médias da Turma
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/classes') ?>">Turmas</a></li>
+                    <li class="breadcrumb-item"><a href="<?= site_url('admin/classes/view/' . $class['id']) ?>"><?= $class['class_name'] ?></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Médias - <?= $semester['semester_name'] ?></li>
+                </ol>
+            </nav>
         </div>
-        <div class="d-flex gap-2">
-            <a href="<?= site_url('admin/exams/schedules?class_id=' . $class['id']) ?>" class="btn btn-outline-info">
-                <i class="fas fa-calendar-alt me-1"></i> Ver Exames
-            </a>
-            <a href="<?= site_url('admin/classes/view/' . $class['id']) ?>" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Voltar à Turma
-            </a>
+        <div class="hdr-actions">
+            <div class="d-flex gap-2">
+                <a href="<?= site_url('admin/exports/class-averages/' . $class['id'] . '/' . $semester['id'] . '/excel') ?>" class="hdr-btn success">
+                    <i class="fas fa-file-excel me-1"></i> Excel
+                </a>
+                <a href="<?= site_url('admin/exports/class-averages/' . $class['id'] . '/' . $semester['id'] . '/pdf') ?>" class="hdr-btn danger">
+                    <i class="fas fa-file-pdf me-1"></i> PDF
+                </a>
+            </div>
         </div>
     </div>
-    <nav aria-label="breadcrumb" class="mt-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/dashboard') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/classes') ?>">Turmas</a></li>
-            <li class="breadcrumb-item"><a href="<?= site_url('admin/classes/view/' . $class['id']) ?>"><?= $class['class_name'] ?></a></li>
-            <li class="breadcrumb-item active">Médias - <?= $semester['semester_name'] ?></li>
-        </ol>
-    </nav>
 </div>
 
 <!-- Alertas -->
 <?= view('admin/partials/alerts') ?>
 
-<!-- Informações do Semestre -->
-<div class="row mb-4">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-info bg-opacity-10 p-3 rounded">
-                            <i class="fas fa-calendar-alt fa-2x text-info"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h4 class="mb-1"><?= $semester['semester_name'] ?></h4>
-                        <p class="text-muted mb-0">
-                            <?= date('d/m/Y', strtotime($semester->start_date)) ?> a <?= date('d/m/Y', strtotime($semester->end_date)) ?>
-                        </p>
-                    </div>
+<!-- Informações da Turma e Semestre -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card h-100">
+            <div class="stat-icon blue">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <div class="stat-label">Turma</div>
+                <div class="stat-value"><?= $class['class_name'] ?></div>
+                <div class="stat-sub">
+                    <?= $class['level_name'] ?? '' ?> • <?= $class['year_name'] ?? '' ?>
                 </div>
             </div>
         </div>
     </div>
     
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-success bg-opacity-10 p-3 rounded">
-                            <i class="fas fa-calculator fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Média Geral da Turma</h6>
-                        <h2 class="mb-0 <?= $classStats['overall_average'] >= 10 ? 'text-success' : 'text-warning' ?>">
-                            <?= number_format($classStats['overall_average'], 2) ?>
-                        </h2>
-                        <small class="text-muted"><?= $classStats['total_students'] ?> alunos</small>
-                    </div>
+        <div class="stat-card h-100">
+            <div class="stat-icon green">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+                <div class="stat-label">Semestre</div>
+                <div class="stat-value"><?= $semester['semester_name'] ?></div>
+                <div class="stat-sub">
+                    <?= date('d/m/Y', strtotime($semester['start_date'])) ?> — <?= date('d/m/Y', strtotime($semester['end_date'])) ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="stat-card h-100">
+            <div class="stat-icon purple">
+                <i class="fas fa-chart-simple"></i>
+            </div>
+            <div>
+                <div class="stat-label">Média Geral</div>
+                <div class="stat-value <?= $classStats['overall_average'] >= 10 ? 'text-success' : 'text-warning' ?>">
+                    <?= number_format($classStats['overall_average'], 2) ?>
+                </div>
+                <div class="stat-sub">
+                    <span class="text-success"><?= $classStats['approved_students'] ?> aprovados</span> • 
+                    <span class="text-danger"><?= $classStats['failed_students'] ?> reprovados</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Cards de Estatísticas Gerais -->
+<!-- Cards de Estatísticas Detalhadas -->
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-primary bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-check-circle text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Alunos Aprovados</h6>
-                        <h3 class="mb-0"><?= $classStats['approved_students'] ?></h3>
-                        <small class="text-success">
-                            <?= $classStats['total_students'] > 0 ? round(($classStats['approved_students'] / $classStats['total_students']) * 100) : 0 ?>%
-                        </small>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card h-100">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon green me-3">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Aprovados</div>
+                    <div class="stat-value"><?= $classStats['approved_students'] ?></div>
+                    <div class="stat-sub">
+                        <?= $classStats['total_students'] > 0 ? round(($classStats['approved_students'] / $classStats['total_students']) * 100) : 0 ?>% da turma
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-warning bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-exclamation-triangle text-warning"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Alunos em Recurso</h6>
-                        <h3 class="mb-0"><?= $classStats['appeal_students'] ?></h3>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card h-100">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon amber me-3">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Em Recurso</div>
+                    <div class="stat-value"><?= $classStats['appeal_students'] ?></div>
+                    <div class="stat-sub">
+                        <?= $classStats['total_students'] > 0 ? round(($classStats['appeal_students'] / $classStats['total_students']) * 100) : 0 ?>% da turma
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-danger bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-times-circle text-danger"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Alunos Reprovados</h6>
-                        <h3 class="mb-0"><?= $classStats['failed_students'] ?></h3>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card h-100">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon red me-3">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Reprovados</div>
+                    <div class="stat-value"><?= $classStats['failed_students'] ?></div>
+                    <div class="stat-sub">
+                        <?= $classStats['total_students'] > 0 ? round(($classStats['failed_students'] / $classStats['total_students']) * 100) : 0 ?>% da turma
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="bg-secondary bg-opacity-10 p-2 rounded">
-                            <i class="fas fa-chart-bar text-secondary"></i>
-                        </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card h-100">
+            <div class="d-flex align-items-center">
+                <div class="stat-icon navy me-3">
+                    <i class="fas fa-percent"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Taxa Aprovação</div>
+                    <div class="stat-value text-success">
+                        <?= $classStats['total_students'] > 0 ? round(($classStats['approved_students'] / $classStats['total_students']) * 100, 1) : 0 ?>%
                     </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Taxa de Aprovação</h6>
-                        <h3 class="mb-0">
-                            <?= $classStats['total_students'] > 0 ? round(($classStats['approved_students'] / $classStats['total_students']) * 100, 1) : 0 ?>%
-                        </h3>
+                    <div class="stat-sub">
+                        <div class="progress-bar-custom" style="width: 100px;">
+                            <div class="progress-fill success" style="width: <?= $classStats['total_students'] > 0 ? round(($classStats['approved_students'] / $classStats['total_students']) * 100) : 0 ?>%;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -159,247 +306,231 @@
 </div>
 
 <!-- Estatísticas por Disciplina -->
-<div class="card mb-4">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-semibold">
-            <i class="fas fa-chart-pie me-2 text-info"></i>
+<div class="ci-card mb-4">
+    <div class="ci-card-header">
+        <div class="ci-card-title">
+            <i class="fas fa-chart-pie me-2 text-accent"></i>
             Desempenho por Disciplina
-        </h5>
+        </div>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="border-0 py-3 ps-3">Disciplina</th>
-                        <th class="border-0 py-3 text-center">Código</th>
-                        <th class="border-0 py-3 text-center">Média</th>
-                        <th class="border-0 py-3 text-center">Máxima</th>
-                        <th class="border-0 py-3 text-center">Mínima</th>
-                        <th class="border-0 py-3 text-center">Aprovados</th>
-                        <th class="border-0 py-3 text-center">Recurso</th>
-                        <th class="border-0 py-3 text-center">Reprovados</th>
-                        <th class="border-0 py-3 text-center pe-3">Taxa</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <div class="table-responsive">
+        <table class="ci-table">
+            <thead>
+                <tr>
+                    <th>Disciplina</th>
+                    <th class="text-center">Código</th>
+                    <th class="text-center">Média</th>
+                    <th class="text-center">Máxima</th>
+                    <th class="text-center">Mínima</th>
+                    <th class="text-center">Aprovados</th>
+                    <th class="text-center">Recurso</th>
+                    <th class="text-center">Reprovados</th>
+                    <th class="text-center">Taxa Aprovação</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($disciplineStats)): ?>
                     <?php foreach ($disciplineStats as $stat): ?>
                         <?php
                         $approvalRate = $stat['total_students'] > 0 
                             ? round(($stat['approved'] / $stat['total_students']) * 100, 1) 
                             : 0;
+                        $avgClass = $stat['avg_score'] >= 10 ? 'success' : ($stat['avg_score'] >= 7 ? 'warning' : 'danger');
                         ?>
                         <tr>
-                            <td class="ps-3 fw-semibold"><?= $stat['name'] ?></td>
+                            <td class="fw-semibold"><?= $stat['name'] ?></td>
                             <td class="text-center">
-                                <span class="badge bg-secondary"><?= $stat['code'] ?></span>
+                                <span class="discipline-chip"><?= $stat['code'] ?></span>
                             </td>
                             <td class="text-center">
-                                <span class="fw-bold <?= $stat['avg_score'] >= 10 ? 'text-success' : 'text-warning' ?>">
+                                <span class="grade-badge <?= $avgClass ?>">
                                     <?= number_format($stat['avg_score'], 1) ?>
                                 </span>
                             </td>
-                            <td class="text-center text-success"><?= number_format($stat['max_score'], 1) ?></td>
-                            <td class="text-center text-danger"><?= number_format($stat['min_score'], 1) ?></td>
+                            <td class="text-center text-success fw-bold"><?= number_format($stat['max_score'], 1) ?></td>
+                            <td class="text-center text-danger fw-bold"><?= number_format($stat['min_score'], 1) ?></td>
                             <td class="text-center">
-                                <span class="badge bg-success"><?= $stat['approved'] ?></span>
+                                <span class="badge-ci success"><?= $stat['approved'] ?></span>
                             </td>
                             <td class="text-center">
-                                <span class="badge bg-warning text-dark"><?= $stat['appeal'] ?></span>
+                                <span class="badge-ci warning"><?= $stat['appeal'] ?></span>
                             </td>
                             <td class="text-center">
-                                <span class="badge bg-danger"><?= $stat['failed'] ?></span>
+                                <span class="badge-ci danger"><?= $stat['failed'] ?></span>
                             </td>
-                            <td class="text-center pe-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="progress flex-grow-1" style="height: 6px;">
-                                        <div class="progress-bar bg-success" 
-                                             style="width: <?= $approvalRate ?>%"></div>
+                            <td class="text-center">
+                                <div class="progress-container">
+                                    <div class="progress-bar-custom">
+                                        <div class="progress-fill success" style="width: <?= $approvalRate ?>%;"></div>
                                     </div>
-                                    <small class="ms-2"><?= $approvalRate ?>%</small>
+                                    <span class="text-muted" style="font-size:0.8rem; min-width:45px;"><?= $approvalRate ?>%</span>
                                 </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <div class="empty-state">
+                                <i class="fas fa-chart-simple"></i>
+                                <p class="text-muted">Nenhuma disciplina encontrada</p>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <!-- Tabela de Médias por Aluno -->
-<div class="card">
-    <div class="card-header bg-white py-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-semibold">
-                <i class="fas fa-table me-2 text-primary"></i>
-                Médias Individuais por Aluno
-            </h5>
-            <div class="d-flex gap-2">
-                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=excel" 
-                   class="btn btn-sm btn-success">
-                    <i class="fas fa-file-excel me-1"></i> Excel
-                </a>
-                <a href="<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=pdf" 
-                   class="btn btn-sm btn-danger">
-                    <i class="fas fa-file-pdf me-1"></i> PDF
-                </a>
+<div class="ci-card">
+    <div class="ci-card-header">
+        <div class="ci-card-title">
+            <i class="fas fa-users me-2 text-accent"></i>
+            Médias Individuais por Aluno
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            <div class="position-relative">
+                <input type="text" 
+                       class="filter-input" 
+                       id="searchStudent" 
+                       placeholder="Pesquisar aluno..."
+                       style="padding-left: 35px; min-width: 250px;">
+                <i class="fas fa-search position-absolute text-muted" 
+                   style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
             </div>
         </div>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="border-0 py-3 ps-3" width="50">#</th>
-                        <th class="border-0 py-3">Nº Aluno</th>
-                        <th class="border-0 py-3">Nome do Aluno</th>
-                        <?php foreach ($disciplines as $discipline): ?>
-                            <th class="border-0 py-3 text-center" title="<?= $discipline['discipline_name'] ?>">
-                                <?= $discipline['discipline_code'] ?>
-                            </th>
-                        <?php endforeach; ?>
-                        <th class="border-0 py-3 text-center">Média</th>
-                        <th class="border-0 py-3 text-center pe-3">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($students)): ?>
-                        <?php $i = 1; ?>
-                        <?php foreach ($students as $student): ?>
-                            <?php
-                            $statusClass = 'secondary';
-                            $statusText = 'Em Andamento';
-                            
-                            if ($student['overall_average'] >= 10) {
-                                $statusClass = 'success';
-                                $statusText = 'Aprovado';
-                            } elseif ($student['overall_average'] >= 7) {
-                                $statusClass = 'warning';
-                                $statusText = 'Recurso';
-                            } elseif ($student['overall_average'] > 0) {
-                                $statusClass = 'danger';
-                                $statusText = 'Reprovado';
-                            }
-                            ?>
-                            <tr>
-                                <td class="ps-3"><?= $i++ ?></td>
-                                <td>
-                                    <span class="badge bg-info bg-opacity-10 text-info p-2">
-                                        <?= $student['student_number'] ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="<?= site_url('admin/discipline-averages/student/' . $student['enrollment_id'] . '/' . $semester['id']) ?>" 
-                                       class="text-decoration-none fw-semibold">
-                                        <?= $student['student_name'] ?>
-                                    </a>
-                                </td>
-                                <?php foreach ($disciplines as $discipline): ?>
-                                    <td class="text-center">
-                                        <?php if (isset($student['averages'][$discipline['id']])): ?>
-                                            <?php 
-                                            $score = $student['averages'][$discipline['id']]['score'];
-                                            $scoreClass = $score >= 10 ? 'text-success' : ($score >= 7 ? 'text-warning' : 'text-danger');
-                                            ?>
-                                            <span class="fw-bold <?= $scoreClass ?>">
-                                                <?= number_format($score, 1) ?>
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="text-muted">—</span>
-                                        <?php endif; ?>
-                                    </td>
-                                <?php endforeach; ?>
+    <div class="table-responsive">
+        <table class="ci-table" id="studentsTable">
+            <thead>
+                <tr>
+                    <th width="50">#</th>
+                    <th>Nº Aluno</th>
+                    <th>Nome do Aluno</th>
+                    <?php foreach ($disciplines as $discipline): ?>
+                        <th class="text-center" title="<?= $discipline['discipline_name'] ?>">
+                            <?= $discipline['discipline_code'] ?>
+                        </th>
+                    <?php endforeach; ?>
+                    <th class="text-center">Média</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($students)): ?>
+                    <?php $i = 1; ?>
+                    <?php foreach ($students as $student): ?>
+                        <?php
+                        $statusClass = 'secondary';
+                        $statusText = 'Em Andamento';
+                        
+                        if ($student['overall_average'] >= 10) {
+                            $statusClass = 'success';
+                            $statusText = 'Aprovado';
+                        } elseif ($student['overall_average'] >= 7) {
+                            $statusClass = 'warning';
+                            $statusText = 'Recurso';
+                        } elseif ($student['overall_average'] > 0) {
+                            $statusClass = 'danger';
+                            $statusText = 'Reprovado';
+                        }
+                        ?>
+                        <tr class="student-row" data-student-id="<?= $student['enrollment_id'] ?>">
+                            <td class="fw-semibold text-muted"><?= $i++ ?></td>
+                            <td>
+                                <span class="badge-ci secondary">
+                                    <?= $student['student_number'] ?>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="<?= site_url('admin/discipline-averages/student/' . $student['enrollment_id'] . '/' . $semester['id']) ?>" 
+                                   class="text-decoration-none fw-semibold text-primary">
+                                    <i class="fas fa-user-graduate me-2"></i>
+                                    <?= $student['student_name'] ?>
+                                </a>
+                            </td>
+                            <?php foreach ($disciplines as $discipline): ?>
                                 <td class="text-center">
-                                    <span class="fw-bold fs-5 <?= $student['overall_average'] >= 10 ? 'text-success' : 'text-warning' ?>">
-                                        <?= number_format($student['overall_average'], 2) ?>
-                                    </span>
+                                    <?php if (isset($student['averages'][$discipline['id']])): ?>
+                                        <?php 
+                                        $score = $student['averages'][$discipline['id']]['score'];
+                                        $scoreClass = $score >= 10 ? 'success' : ($score >= 7 ? 'warning' : 'danger');
+                                        ?>
+                                        <span class="grade-badge <?= $scoreClass ?>">
+                                            <?= number_format($score, 1) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-muted">—</span>
+                                    <?php endif; ?>
                                 </td>
-                                <td class="text-center pe-3">
-                                    <span class="badge bg-<?= $statusClass ?> p-2">
-                                        <?= $statusText ?>
-                                    </span>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="<?= 5 + count($disciplines) ?>" class="text-center py-5">
-                                <i class="fas fa-users fa-4x text-muted mb-3"></i>
-                                <h5 class="text-muted">Nenhum aluno encontrado</h5>
-                                <p class="text-muted">Esta turma não possui alunos ativos.</p>
+                            <?php endforeach; ?>
+                            <td class="text-center">
+                                <span class="average-cell <?= $student['overall_average'] >= 10 ? 'text-success' : ($student['overall_average'] >= 7 ? 'text-warning' : 'text-danger') ?>">
+                                    <?= number_format($student['overall_average'], 2) ?>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-ci <?= $statusClass ?>">
+                                    <?= $statusText ?>
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="<?= site_url('admin/discipline-averages/student/' . $student['enrollment_id'] . '/' . $semester['id']) ?>" 
+                                   class="btn-ci info btn-sm"
+                                   data-bs-toggle="tooltip" 
+                                   title="Ver detalhes do aluno">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                             </td>
                         </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="<?= 5 + count($disciplines) ?>" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <h5 class="text-muted">Nenhum aluno encontrado</h5>
+                                <p class="text-muted">Esta turma não possui alunos ativos.</p>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
-<style>
-.card {
-    border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.table th {
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #6c757d;
-    white-space: nowrap;
-}
-
-.table td {
-    vertical-align: middle;
-    white-space: nowrap;
-}
-
-.badge {
-    font-weight: 500;
-    padding: 0.5em 0.8em;
-}
-
-.progress {
-    border-radius: 10px;
-    background-color: #e9ecef;
-}
-
-.progress-bar {
-    border-radius: 10px;
-}
-</style>
-
+<!-- Script de pesquisa -->
 <script>
-// Initialize tooltips
 document.addEventListener('DOMContentLoaded', function() {
+    // Tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-});
-
-// Export functions
-function exportToExcel() {
-    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=excel';
-}
-
-function exportToPDF() {
-    window.location.href = '<?= site_url('admin/discipline-averages/export/' . $class['id'] . '/' . $semester['id']) ?>?type=pdf';
-}
-
-// Search functionality
-document.getElementById('searchInput')?.addEventListener('keyup', function() {
-    let searchText = this.value.toLowerCase();
-    let rows = document.querySelectorAll('tbody tr');
     
-    rows.forEach(row => {
-        let text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchText) ? '' : 'none';
-    });
+    // Pesquisa de alunos
+    const searchInput = document.getElementById('searchStudent');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.student-row');
+            
+            rows.forEach(row => {
+                const studentName = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const studentNumber = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                
+                if (studentName.includes(searchTerm) || studentNumber.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
 });
 </script>
 

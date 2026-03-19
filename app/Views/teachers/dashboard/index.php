@@ -117,7 +117,7 @@
                                         </p>
                                         <p class="mb-2">
                                             <i class="fas fa-door-open text-success"></i> 
-                                            <strong>Sala:</strong> <?= $class->class_room ?: 'Não definida' ?>
+                                            <strong>Sala:</strong> <?= $class['class_room'] ?: 'Não definida' ?>
                                         </p>
                                         <p class="mb-2">
                                             <i class="fas fa-graduation-cap text-success"></i> 

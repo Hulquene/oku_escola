@@ -37,7 +37,7 @@ class GradeCurriculum extends BaseController
             return redirect()->to('/admin/classes/levels')->with('error', 'Nível de ensino não encontrado');
         }
         
-        $data['title'] = 'Disciplinas - ' . $gradeLevel->level_name;
+        $data['title'] = 'Disciplinas - ' . $gradeLevel['level_name'];
         $data['gradeLevel'] = $gradeLevel;
         
         // Buscar todos os níveis de ensino para o menu lateral
@@ -66,7 +66,7 @@ class GradeCurriculum extends BaseController
         // Calcular carga horária total
         $totalWorkload = 0;
         foreach ($data['disciplines'] as $d) {
-            $totalWorkload += ($d->workload_hours ?? $d->default_workload ?? 0);
+            $totalWorkload += ($d['workload_hours'] ?? $d->default_workload ?? 0);
         }
         $data['totalWorkload'] = $totalWorkload;
         

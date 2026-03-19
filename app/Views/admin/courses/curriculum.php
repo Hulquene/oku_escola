@@ -500,7 +500,7 @@ body { background: var(--surface); color: var(--text-primary); }
                 <?php
                     $levelWorkload = 0;
                     foreach ($curriculum[$level['id']]['disciplines'] as $d)
-                        $levelWorkload += ($d->workload_hours ?? $d->default_workload ?? 0);
+                        $levelWorkload += ($d['workload_hours'] ?? $d->default_workload ?? 0);
                 ?>
                 <div class="table-responsive">
                     <table class="ci-table">
@@ -515,7 +515,7 @@ body { background: var(--surface); color: var(--text-primary); }
                         </thead>
                         <tbody>
                             <?php foreach ($curriculum[$level['id']]['disciplines'] as $discipline):
-                                $workload = $discipline->workload_hours ?? $discipline->default_workload ?? 0;
+                                $workload = $discipline['workload_hours'] ?? $discipline['default_workload'] ?? 0;
                                 $sem      = $discipline->semester ?? 'Anual';
                                 $semClass = match((string)$sem) { '1' => 'sem-1', '2' => 'sem-2', 'Anual' => 'sem-anual', default => 'sem-other' };
                                 $semLabel = match((string)$sem) { '1' => '1º Trimestre', '2' => '2º Trimestre', default => $sem };
@@ -525,13 +525,13 @@ body { background: var(--surface); color: var(--text-primary); }
                                 <td><span class="disc-name"><?= $discipline['discipline_name'] ?></span></td>
                                 <td class="text-center">
                                     <span class="workload-chip"><?= $workload ?>h</span>
-                                    <?php if ($discipline->workload_hours && $discipline->workload_hours != $discipline->default_workload): ?>
-                                        <div class="workload-default">Padrão: <?= $discipline->default_workload ?>h</div>
+                                    <?php if ($discipline['workload_hours'] && $discipline['workload_hours'] != $discipline['default_workload']): ?>
+                                        <div class="workload-default">Padrão: <?= $discipline['default_workload'] ?>h</div>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center"><span class="sem-badge <?= $semClass ?>"><?= $semLabel ?></span></td>
                                 <td class="text-center">
-                                    <?php if ($discipline->is_mandatory): ?>
+                                    <?php if ($discipline['is_mandatory']): ?>
                                         <span class="mand-yes"><i class="fas fa-check"></i> Sim</span>
                                     <?php else: ?>
                                         <span class="mand-no"><i class="fas fa-minus"></i> Não</span>
@@ -608,11 +608,11 @@ body { background: var(--surface); color: var(--text-primary); }
                                         ->findAll();
                                     foreach ($allDisciplines as $d):
                                 ?>
-                                    <option value="<?= $d->id ?>"
-                                            data-code="<?= esc($d->discipline_code) ?>"
-                                            data-workload="<?= (int)($d->workload_hours ?? 0) ?>"
-                                            data-approval="<?= (int)($d->approval_grade ?? 10) ?>">
-                                        <?= esc($d->discipline_name) ?>
+                                    <option value="<?= $d['id'] ?>"
+                                            data-code="<?= esc($d['discipline_code']) ?>"
+                                            data-workload="<?= (int)($d['workload_hours'] ?? 0) ?>"
+                                            data-approval="<?= (int)($d['approval_grade'] ?? 10) ?>">
+                                        <?= esc($d['discipline_name']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

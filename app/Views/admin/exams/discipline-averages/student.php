@@ -121,7 +121,7 @@
                         <h6 class="text-muted mb-1">Semestre</h6>
                         <h5 class="mb-0"><?= $semester['semester_name'] ?> (<?= $semester->semester_type ?>)</h5>
                         <small class="text-muted">
-                            <?= date('d/m/Y', strtotime($semester->start_date)) ?> a <?= date('d/m/Y', strtotime($semester->end_date)) ?>
+                            <?= date('d/m/Y', strtotime($semester['start_date'])) ?> a <?= date('d/m/Y', strtotime($semester['end_date'])) ?>
                         </small>
                     </div>
                 </div>

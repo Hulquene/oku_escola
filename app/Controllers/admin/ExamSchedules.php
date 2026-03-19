@@ -449,13 +449,13 @@ public function saveAttendance($id)
             // Log de ação
             log_action('attendance', "Registou presenças para exame ID {$id}: {$presentCount} presentes de {$totalStudents} alunos", $id, 'exam_schedule');
             
-            if ($action === 'save_and_return') {
+           /*  if ($action === 'save_and_return') { */
                 return redirect()->to('/admin/exams/schedules/view/' . $id)
                     ->with('success', $message);
-            } else {
+           /*  } else {
                 return redirect()->to('/admin/exams/schedules')
                     ->with('success', $message);
-            }
+            } */
         }
     }
     

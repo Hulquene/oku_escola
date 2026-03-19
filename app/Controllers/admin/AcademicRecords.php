@@ -261,7 +261,7 @@ class AcademicRecords extends BaseController
         return view('admin/academic-records/index', $data);
     }
     
-    /**
+      /**
      * Visualizar pauta de uma turma específica (modelo pauta final)
      */
     public function class($classId)
@@ -293,6 +293,402 @@ class AcademicRecords extends BaseController
         }
         
         // Buscar todas as disciplinas da turma
+        $disciplines = $this->classDisciplineModel
+            ->select('
+                tbl_class_disciplines.*,
+                tbl_disciplines.discipline_name,
+                tbl_disciplines.discipline_code,
+                tbl_disciplines.workload_hours
+            ')
+            ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
+            ->where('tbl_class_disciplines.class_id', $classId)
+            ->where('tbl_class_disciplines.is_active', 1)
+            ->orderBy('tbl_disciplines.discipline_name', 'ASC')
+            ->findAll();
+        
+        $data['disciplines'] = $disciplines;
+        
+        // Buscar alunos da turma
+        $enrollments = $this->enrollmentModel
+            ->select('
+                tbl_enrollments.id as enrollment_id,
+                tbl_enrollments.final_result,
+                tbl_enrollments.final_average,
+                tbl_enrollments.is_approved,
+                tbl_students.id as student_id,
+                tbl_students.student_number,
+                tbl_users.first_name,
+                tbl_users.last_name,
+                CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
+            ')
+            ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
+            ->where('tbl_enrollments.class_id', $classId)
+            ->where('tbl_enrollments.status', 'Ativo')
+            ->orderBy('tbl_users.first_name', 'ASC')
+            ->findAll();
+        
+        // Estatísticas gerais
+        $estatisticas = [
+            'totalAlunos' => count($enrollments),
+            'aprovados' => 0,
+            'recurso' => 0,
+            'reprovados' => 0,
+            'pendentes' => 0,
+            'mediaTurma' => 0,
+            'taxaAprovacao' => 0,
+            'aprovacaoPorDisciplina' => []
+        ];
+        
+        // Inicializar estatísticas por disciplina
+        foreach ($disciplines as $discipline) {
+            $estatisticas['aprovacaoPorDisciplina'][$discipline['id']] = [
+                'disciplina' => $discipline['discipline_name'],
+                'codigo' => $discipline['discipline_code'],
+                'total' => 0,
+                'aprovados' => 0,
+                'recurso' => 0,
+                'reprovados' => 0,
+                'media' => 0,
+                'soma' => 0,
+                'disciplinas_recurso' => []
+            ];
+        }
+        
+        // Processar cada aluno
+        $students = [];
+        $somaMedias = 0;
+        $alunosComMedia = 0;
+        
+        foreach ($enrollments as $enrollment) {
+            $student = (array)$enrollment;
+            $student['disciplinas'] = [];
+            $totalMFD = 0;
+            $disciplinasCount = 0;
+            $disciplinasRecurso = [];
+            $disciplinasReprovadas = [];
+            
+            foreach ($disciplines as $discipline) {
+                // Buscar notas da disciplina por trimestre
+                $notas = $this->getDisciplineFinalScores($student['enrollment_id'], $discipline['id']);
+                $student['disciplinas'][$discipline['id']] = $notas;
+                
+                if ($notas['mfd'] !== null && $notas['mfd'] > 0) {
+                    $totalMFD += $notas['mfd'];
+                    $disciplinasCount++;
+                    
+                    // Atualizar estatísticas por disciplina
+                    $estatisticas['aprovacaoPorDisciplina'][$discipline['id']]['total']++;
+                    $estatisticas['aprovacaoPorDisciplina'][$discipline['id']]['soma'] += $notas['mfd'];
+                    
+                    // Contar aprovações/reprovações por disciplina
+                    if ($notas['mfd'] >= 10) {
+                        $estatisticas['aprovacaoPorDisciplina'][$discipline['id']]['aprovados']++;
+                    } elseif ($notas['mfd'] >= 7) {
+                        $estatisticas['aprovacaoPorDisciplina'][$discipline['id']]['recurso']++;
+                        $disciplinasRecurso[] = $discipline['discipline_name'];
+                    } elseif ($notas['mfd'] > 0) {
+                        $estatisticas['aprovacaoPorDisciplina'][$discipline['id']]['reprovados']++;
+                        $disciplinasReprovadas[] = $discipline['discipline_name'];
+                    }
+                }
+            }
+            
+            // Calcular média final do aluno (MFD geral)
+            $student['media_final_geral'] = $disciplinasCount > 0 ? 
+                round($totalMFD / $disciplinasCount, 2) : 0;
+            
+            // Determinar resultado final
+            $student['resultado_final'] = $this->determinarResultadoFinal(
+                $student['disciplinas'], 
+                $student['media_final_geral'],
+                $disciplinasReprovadas,
+                $disciplinasRecurso
+            );
+            
+            // Contar estatísticas
+            if ($student['resultado_final']['transita']) {
+                $estatisticas['aprovados']++;
+            } elseif ($student['resultado_final']['recurso']) {
+                $estatisticas['recurso']++;
+            } elseif ($student['resultado_final']['reprovado']) {
+                $estatisticas['reprovados']++;
+            } else {
+                $estatisticas['pendentes']++;
+            }
+            
+            // Somar para média da turma
+            if ($student['media_final_geral'] > 0) {
+                $somaMedias += $student['media_final_geral'];
+                $alunosComMedia++;
+            }
+            
+            $students[] = $student;
+        }
+        
+        // Calcular médias por disciplina
+        foreach ($estatisticas['aprovacaoPorDisciplina'] as $id => $disc) {
+            if ($disc['total'] > 0) {
+                $estatisticas['aprovacaoPorDisciplina'][$id]['media'] = round($disc['soma'] / $disc['total'], 2);
+            }
+        }
+        
+        // Calcular média geral da turma
+        $estatisticas['mediaTurma'] = $alunosComMedia > 0 ? 
+            round($somaMedias / $alunosComMedia, 2) : 0;
+        
+        // Calcular taxa de aprovação
+        $estatisticas['taxaAprovacao'] = $estatisticas['totalAlunos'] > 0 ? 
+            round(($estatisticas['aprovados'] / $estatisticas['totalAlunos']) * 100, 1) : 0;
+        
+        $data['students'] = $students;
+        $data['estatisticas'] = $estatisticas;
+        
+        log_view('academic_records_class', $classId, 'Visualizou pauta da turma: ' . $data['class']['class_name']);
+        
+        return view('admin/academic-records/class', $data);
+    }
+    
+    /**
+     * Buscar notas finais de uma disciplina para um aluno (versão corrigida)
+     * @param int $enrollmentId ID da matrícula
+     * @param int $disciplineId ID da disciplina
+     * @return array Notas organizadas por trimestre/semestre
+     */
+    private function getDisciplineFinalScores($enrollmentId, $disciplineId)
+    {
+        // Buscar todos os resultados da disciplina
+        $results = $this->examResultModel
+            ->select('
+                tbl_exam_results.*,
+                tbl_exam_schedules.exam_date,
+                tbl_exam_periods.semester_id,
+                tbl_semesters.semester_type,
+                tbl_semesters.semester_name,
+                tbl_exam_boards.board_code,
+                tbl_exam_boards.board_type,
+                tbl_exam_boards.weight
+            ')
+            ->join('tbl_exam_schedules', 'tbl_exam_schedules.id = tbl_exam_results.exam_schedule_id')
+            ->join('tbl_exam_periods', 'tbl_exam_periods.id = tbl_exam_schedules.exam_period_id')
+            ->join('tbl_semesters', 'tbl_semesters.id = tbl_exam_periods.semester_id')
+            ->join('tbl_exam_boards', 'tbl_exam_boards.id = tbl_exam_schedules.exam_board_id')
+            ->where('tbl_exam_results.enrollment_id', $enrollmentId)
+            ->where('tbl_exam_schedules.discipline_id', $disciplineId)
+            ->where('tbl_exam_results.is_absent', 0)
+            ->where('tbl_exam_results.score >', 0)
+            ->orderBy('tbl_semesters.start_date', 'ASC')
+            ->findAll();
+        
+        // Mapear tipos de período para números de trimestre/semestre
+        $periodMap = [
+            '1º Trimestre' => 1,
+            '2º Trimestre' => 2,
+            '3º Trimestre' => 3,
+            '1º Semestre' => 1,
+            '2º Semestre' => 2
+        ];
+        
+        // Determinar quantos períodos existem
+        $periodTypes = array_unique(array_column($results, 'semester_type'));
+        $maxPeriods = 3; // padrão trimestres
+        
+        foreach ($periodTypes as $type) {
+            if (strpos($type, 'Semestre') !== false) {
+                $maxPeriods = 2; // sistema de semestres
+                break;
+            }
+        }
+        
+        // Inicializar array de períodos
+        $periodos = [];
+        for ($i = 1; $i <= $maxPeriods; $i++) {
+            $periodos[$i] = [
+                'ac' => [],   // Avaliações Contínuas
+                'npp' => [],  // Provas do Professor
+                'npt' => [],  // Provas Trimestrais
+                'exame' => null,
+                'mt' => null  // Média do Trimestre
+            ];
+        }
+        
+        // Agrupar notas por período e tipo de avaliação
+        foreach ($results as $result) {
+            $periodo = $periodMap[$result['semester_type']] ?? 1;
+            $boardCode = $result['board_code'];
+            
+            if (strpos($boardCode, 'AC') !== false || strpos($boardCode, 'MAC') !== false) {
+                $periodos[$periodo]['ac'][] = $result['score'];
+            } elseif (strpos($boardCode, 'NPP') !== false) {
+                $periodos[$periodo]['npp'][] = $result['score'];
+            } elseif (strpos($boardCode, 'NPT') !== false) {
+                $periodos[$periodo]['npt'][] = $result['score'];
+            } elseif (strpos($boardCode, 'E') !== false || strpos($boardCode, 'EX-FIN') !== false) {
+                $periodos[$periodo]['exame'] = $result['score'];
+            }
+        }
+        
+        // Calcular médias por período
+        $somaMT = 0;
+        $periodosCompletos = 0;
+        
+        for ($i = 1; $i <= $maxPeriods; $i++) {
+            $notasValidas = [];
+            
+            // Calcular médias para cada tipo
+            $mediaAC = !empty($periodos[$i]['ac']) ? round(array_sum($periodos[$i]['ac']) / count($periodos[$i]['ac']), 1) : null;
+            $mediaNPP = !empty($periodos[$i]['npp']) ? round(array_sum($periodos[$i]['npp']) / count($periodos[$i]['npp']), 1) : null;
+            $mediaNPT = !empty($periodos[$i]['npt']) ? round(array_sum($periodos[$i]['npt']) / count($periodos[$i]['npt']), 1) : null;
+            
+            if ($mediaAC !== null) $notasValidas[] = $mediaAC;
+            if ($mediaNPP !== null) $notasValidas[] = $mediaNPP;
+            if ($mediaNPT !== null) $notasValidas[] = $mediaNPT;
+            
+            // Calcular Média do Trimestre (MT)
+            if (count($notasValidas) >= 2) { // Pode ter AC + NPP + NPT
+                $mt = round(array_sum($notasValidas) / count($notasValidas), 1);
+                $periodos[$i]['mt'] = $mt;
+                $somaMT += $mt;
+                $periodosCompletos++;
+            }
+            
+            $periodos[$i]['medias'] = [
+                'ac' => $mediaAC,
+                'npp' => $mediaNPP,
+                'npt' => $mediaNPT
+            ];
+        }
+        
+        // Calcular Média Trimestral Definida (MTD)
+        $mtd = $periodosCompletos > 0 ? round($somaMT / $periodosCompletos, 1) : null;
+        
+        // Verificar se tem exame final
+        $exameFinal = null;
+        foreach ($periodos as $p) {
+            if ($p['exame'] !== null) {
+                $exameFinal = $p['exame'];
+                break;
+            }
+        }
+        
+        // Calcular Média Final Definida (MFD)
+        $mfd = null;
+        if ($mtd !== null && $exameFinal !== null) {
+            $mfd = round(($mtd + $exameFinal) / 2, 1);
+        } elseif ($mtd !== null) {
+            $mfd = $mtd;
+        } elseif ($exameFinal !== null) {
+            $mfd = $exameFinal;
+        }
+        
+        // Formatar retorno
+        $resultado = [
+            'mtd' => $mtd,
+            'mfd' => $mfd,
+            'exame_final' => $exameFinal,
+            'periodos_completos' => $periodosCompletos
+        ];
+        
+        for ($i = 1; $i <= $maxPeriods; $i++) {
+            $resultado["periodo{$i}"] = [
+                'ac' => $periodos[$i]['medias']['ac'],
+                'npp' => $periodos[$i]['medias']['npp'],
+                'npt' => $periodos[$i]['medias']['npt'],
+                'mt' => $periodos[$i]['mt'],
+                'exame' => $periodos[$i]['exame']
+            ];
+        }
+        
+        return $resultado;
+    }
+    
+    /**
+     * Determinar resultado final do aluno (versão unificada)
+     * @param array $disciplinas Notas das disciplinas
+     * @param float $mediaGeral Média geral do aluno
+     * @param array $disciplinasReprovadas Lista de disciplinas reprovadas (<7)
+     * @param array $disciplinasRecurso Lista de disciplinas em recurso (7-9.9)
+     * @return array Resultado com flags e detalhes
+     */
+    private function determinarResultadoFinal($disciplinas, $mediaGeral = null, $disciplinasReprovadas = [], $disciplinasRecurso = [])
+    {
+        $resultado = [
+            'transita' => true,
+            'recurso' => false,
+            'reprovado' => false,
+            'pendente' => false,
+            'disciplinas_recurso' => [],
+            'disciplinas_reprovadas' => [],
+            'total_disciplinas' => count($disciplinas),
+            'media_geral' => $mediaGeral
+        ];
+        
+        // Se não temos disciplinas, está pendente
+        if (empty($disciplinas)) {
+            $resultado['transita'] = false;
+            $resultado['pendente'] = true;
+            return $resultado;
+        }
+        
+        foreach ($disciplinas as $discId => $notas) {
+            if (isset($notas['mfd']) && $notas['mfd'] > 0) {
+                if ($notas['mfd'] < 7) {
+                    $resultado['transita'] = false;
+                    $resultado['reprovado'] = true;
+                    $resultado['disciplinas_reprovadas'][] = $discId;
+                } elseif ($notas['mfd'] < 10) {
+                    $resultado['transita'] = false;
+                    $resultado['recurso'] = true;
+                    $resultado['disciplinas_recurso'][] = $discId;
+                }
+            } else {
+                $resultado['transita'] = false;
+                $resultado['pendente'] = true;
+            }
+        }
+        
+        return $resultado;
+    }
+    
+    // ... (resto dos métodos mantidos iguais) ...
+    
+    /**
+     * Processar aprovação dos alunos (transita/não transita)
+     */
+    public function processApprovals($classId)
+    {
+        // Verificar permissão
+        if (!has_permission('results.approve') && !is_admin()) {
+            return redirect()->to('/admin/dashboard')
+                ->with('error', 'Não tem permissão para aprovar resultados');
+        }
+        
+        $data['title'] = 'Processar Aprovações - Pauta Final';
+        
+        // Buscar informações da turma
+        $data['class'] = $this->classModel
+            ->select('
+                tbl_classes.*,
+                tbl_grade_levels.level_name,
+                tbl_courses.course_name,
+                tbl_courses.course_code,
+                tbl_academic_years.year_name,
+                tbl_users.first_name as teacher_first_name,
+                tbl_users.last_name as teacher_last_name
+            ')
+            ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
+            ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
+            ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
+            ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
+            ->where('tbl_classes.id', $classId)
+            ->first();
+        
+        if (!$data['class']) {
+            return redirect()->to('/admin/academic-records')
+                ->with('error', 'Turma não encontrada');
+        }
+        
+        // Buscar disciplinas da turma
         $data['disciplines'] = $this->classDisciplineModel
             ->select('
                 tbl_class_disciplines.*,
@@ -305,12 +701,14 @@ class AcademicRecords extends BaseController
             ->orderBy('tbl_disciplines.discipline_name', 'ASC')
             ->findAll();
         
-        // Buscar alunos da turma
+        // Buscar alunos da turma com seus resultados
         $enrollments = $this->enrollmentModel
             ->select('
                 tbl_enrollments.id as enrollment_id,
                 tbl_enrollments.final_result,
                 tbl_enrollments.final_average,
+                tbl_enrollments.is_approved,
+                tbl_enrollments.approved_at,
                 tbl_students.id as student_id,
                 tbl_students.student_number,
                 tbl_users.first_name,
@@ -329,39 +727,80 @@ class AcademicRecords extends BaseController
         foreach ($enrollments as $enrollment) {
             $student = (array)$enrollment;
             $student['disciplinas'] = [];
-            $totalFinalScore = 0;
+            $totalMFD = 0;
             $disciplinasCount = 0;
+            $disciplinasRecurso = [];
+            $disciplinasReprovadas = [];
             
             foreach ($data['disciplines'] as $discipline) {
-                // Buscar notas da disciplina por trimestre
-                $notas = $this->getDisciplineTrimestralScores($student['enrollment_id'], $discipline['id']);
-                
+                // Usar o método corrigido
+                $notas = $this->getDisciplineFinalScores($student['enrollment_id'], $discipline['id']);
                 $student['disciplinas'][$discipline['id']] = $notas;
                 
-                // Somar para média geral (apenas se tiver MFD)
-                if ($notas['mfd'] !== null && $notas['mfd'] > 0) {
-                    $totalFinalScore += $notas['mfd'];
+                if ($notas['mfd'] !== null) {
+                    $totalMFD += $notas['mfd'];
                     $disciplinasCount++;
+                    
+                    if ($notas['mfd'] < 7) {
+                        $disciplinasReprovadas[] = $discipline['discipline_name'];
+                    } elseif ($notas['mfd'] < 10) {
+                        $disciplinasRecurso[] = $discipline['discipline_name'];
+                    }
                 }
             }
             
-            // Calcular média final do aluno (MFD geral)
+            // Calcular média final geral
             $student['media_final_geral'] = $disciplinasCount > 0 ? 
-                round($totalFinalScore / $disciplinasCount, 2) : 0;
+                round($totalMFD / $disciplinasCount, 2) : 0;
             
-            // Determinar resultado final (Transita/Não Transita)
-            $student['resultado_final'] = $this->determinarResultadoFinal($student['disciplinas']);
+            // Determinar resultado final - USANDO A MESMA FUNÇÃO
+            $student['resultado_final'] = $this->determinarResultadoFinal(
+                $student['disciplinas'], 
+                $student['media_final_geral'],
+                $disciplinasReprovadas,
+                $disciplinasRecurso
+            );
+            
+            // Verificar se já foi aprovado
+            $student['ja_aprovado'] = ($student['is_approved'] == 1);
             
             $students[] = $student;
         }
         
         $data['students'] = $students;
         
-        log_view('academic_records_class', $classId, 'Visualizou pauta da turma: ' . $data['class']['class_name']);
+        // Estatísticas da turma
+        $total = count($students);
+        $transitam = 0;
+        $nao_transitam = 0;
+        $recurso = 0;
+        $pendentes = 0;
         
-        return view('admin/academic-records/class', $data);
+        foreach ($students as $s) {
+            if ($s['resultado_final']['transita']) {
+                $transitam++;
+            } elseif ($s['resultado_final']['recurso']) {
+                $recurso++;
+            } elseif ($s['resultado_final']['reprovado']) {
+                $nao_transitam++;
+            } else {
+                $pendentes++;
+            }
+        }
+        
+        $data['stats'] = [
+            'total' => $total,
+            'transitam' => $transitam,
+            'recurso' => $recurso,
+            'nao_transitam' => $nao_transitam,
+            'pendentes' => $pendentes,
+            'taxa_aprovacao' => $total > 0 ? round(($transitam / $total) * 100, 1) : 0
+        ];
+        
+        return view('admin/academic-records/approvals', $data);
     }
-    
+
+
     /**
      * Buscar notas de uma disciplina por trimestre
      * @param int $enrollmentId ID da matrícula
@@ -486,48 +925,6 @@ class AcademicRecords extends BaseController
         }
         
         return $resultado;
-    }
-    
-    /**
-     * Determinar resultado final do aluno (Transita/Não Transita)
-     * @param array $disciplinas Notas das disciplinas
-     * @return string Resultado final
-     */
-    private function determinarResultadoFinal($disciplinas)
-    {
-        if (empty($disciplinas)) {
-            return 'Sem dados';
-        }
-        
-        $disciplinasAprovadas = 0;
-        $disciplinasRecurso = 0;
-        $totalDisciplinas = count($disciplinas);
-        
-        foreach ($disciplinas as $discId => $notas) {
-            // Considera aprovado se MFD >= 10
-            if (isset($notas['mfd']) && $notas['mfd'] >= 10) {
-                $disciplinasAprovadas++;
-            } elseif (isset($notas['mfd']) && $notas['mfd'] >= 7 && $notas['mfd'] < 10) {
-                $disciplinasRecurso++;
-            }
-        }
-        
-        // Critério padrão: precisa ter MFD >= 10 em todas as disciplinas
-        if ($disciplinasAprovadas == $totalDisciplinas) {
-            return 'Transita';
-        } 
-        // Critério para recurso: máximo 2 disciplinas reprovadas (configurável depois)
-        elseif ($disciplinasRecurso > 0 && ($disciplinasAprovadas + $disciplinasRecurso) == $totalDisciplinas) {
-            // Verificar se o número de disciplinas em recurso é aceitável (padrão: até 2)
-            $maxRecurso = 2; // Configurável depois via settings
-            if ($disciplinasRecurso <= $maxRecurso) {
-                return 'Recurso';
-            } else {
-                return 'Não Transita';
-            }
-        } else {
-            return 'Não Transita';
-        }
     }
     
     /**
@@ -1506,146 +1903,7 @@ public function export()
         
         return 'primary';
     }
- /**
- * Processar aprovação dos alunos (transita/não transita)
- */
-public function processApprovals($classId)
-{
-    // Verificar permissão
-    if (!has_permission('results.approve') && !is_admin()) {
-        return redirect()->to('/admin/dashboard')
-            ->with('error', 'Não tem permissão para aprovar resultados');
-    }
-    
-    $data['title'] = 'Processar Aprovações - Pauta Final';
-    
-    // Buscar informações da turma
-    $data['class'] = $this->classModel
-        ->select('
-            tbl_classes.*,
-            tbl_grade_levels.level_name,
-            tbl_courses.course_name,
-            tbl_courses.course_code,
-            tbl_academic_years.year_name,
-            tbl_users.first_name as teacher_first_name,
-            tbl_users.last_name as teacher_last_name
-        ')
-        ->join('tbl_grade_levels', 'tbl_grade_levels.id = tbl_classes.grade_level_id')
-        ->join('tbl_courses', 'tbl_courses.id = tbl_classes.course_id', 'left')
-        ->join('tbl_academic_years', 'tbl_academic_years.id = tbl_classes.academic_year_id')
-        ->join('tbl_users', 'tbl_users.id = tbl_classes.class_teacher_id', 'left')
-        ->where('tbl_classes.id', $classId)
-        ->first();
-    
-    if (!$data['class']) {
-        return redirect()->to('/admin/academic-records')
-            ->with('error', 'Turma não encontrada');
-    }
-    
-    // Buscar disciplinas da turma
-    $data['disciplines'] = $this->classDisciplineModel
-        ->select('
-            tbl_class_disciplines.*,
-            tbl_disciplines.discipline_name,
-            tbl_disciplines.discipline_code
-        ')
-        ->join('tbl_disciplines', 'tbl_disciplines.id = tbl_class_disciplines.discipline_id')
-        ->where('tbl_class_disciplines.class_id', $classId)
-        ->where('tbl_class_disciplines.is_active', 1)
-        ->orderBy('tbl_disciplines.discipline_name', 'ASC')
-        ->findAll();
-    
-    // Buscar alunos da turma com seus resultados
-    $enrollments = $this->enrollmentModel
-        ->select('
-            tbl_enrollments.id as enrollment_id,
-            tbl_enrollments.final_result,
-            tbl_enrollments.final_average,
-            tbl_enrollments.is_approved,
-            tbl_enrollments.approved_at,
-            tbl_students.id as student_id,
-            tbl_students.student_number,
-            tbl_users.first_name,
-            tbl_users.last_name,
-            CONCAT(tbl_users.first_name, " ", tbl_users.last_name) as full_name
-        ')
-        ->join('tbl_students', 'tbl_students.id = tbl_enrollments.student_id')
-        ->join('tbl_users', 'tbl_users.id = tbl_students.user_id')
-        ->where('tbl_enrollments.class_id', $classId)
-        ->where('tbl_enrollments.status', 'Ativo')
-        ->orderBy('tbl_users.first_name', 'ASC')
-        ->findAll();
-    
-    // Converter para array para consistência
-    $students = [];
-    foreach ($enrollments as $enrollment) {
-        $student = (array)$enrollment;
-        $student['disciplinas'] = [];
-        $totalMFD = 0;
-        $disciplinasCount = 0;
-        $reprovadas = [];
-        
-        foreach ($data['disciplines'] as $discipline) {
-            // Buscar notas da disciplina por trimestre
-            $notas = $this->getDisciplineTrimestralScores($student['enrollment_id'], $discipline['id']);
-            $student['disciplinas'][$discipline['id']] = $notas;
-            
-            if ($notas['mfd'] !== null) {
-                $totalMFD += $notas['mfd'];
-                $disciplinasCount++;
-                
-                if ($notas['mfd'] < 10) {
-                    $reprovadas[] = $discipline['discipline_name'];
-                }
-            }
-        }
-        
-        // Calcular média final geral
-        $student['media_final_geral'] = $disciplinasCount > 0 ? 
-            round($totalMFD / $disciplinasCount, 2) : 0;
-        
-        // Determinar resultado final (Transita/Não Transita)
-        $student['resultado_final'] = $this->determinarResultadoFinalAngolano(
-            $student['disciplinas'], 
-            $student['media_final_geral'],
-            $reprovadas
-        );
-        
-        // Verificar se já foi aprovado
-        $student['ja_aprovado'] = ($student['is_approved'] == 1);
-        
-        $students[] = $student;
-    }
-    
-    $data['students'] = $students;
-    
-    // Estatísticas da turma
-    $total = count($students);
-    $transitam = 0;
-    $nao_transitam = 0;
-    $pendentes = 0;
-    
-    foreach ($students as $s) {
-        $resultado = $s['resultado_final'] ?? 'Pendente';
-        if ($resultado == 'Transita') {
-            $transitam++;
-        } elseif ($resultado == 'Não Transita') {
-            $nao_transitam++;
-        } else {
-            $pendentes++;
-        }
-    }
-    
-    $data['stats'] = [
-        'total' => $total,
-        'transitam' => $transitam,
-        'nao_transitam' => $nao_transitam,
-        'pendentes' => $pendentes,
-        'taxa_aprovacao' => $total > 0 ? round(($transitam / $total) * 100, 1) : 0
-    ];
-    
-    return view('admin/academic-records/approvals', $data);
-}
+
 
     /**
      * Processar progressão dos alunos aprovados para o próximo ano letivo
